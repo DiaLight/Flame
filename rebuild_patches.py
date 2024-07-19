@@ -30,7 +30,7 @@ def cleanup_line(line: str):
 
 
 def cleanup_patch(file: pathlib.Path):
-  print('cleanup ', file)
+  print('cleanup', file)
   with open(file, 'r') as f:
     lines = f.readlines()
 

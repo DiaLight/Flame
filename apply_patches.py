@@ -56,6 +56,9 @@ def main():
       repo = git.Repo.init(repo_dir, initial_branch='main')
   except git.exc.GitError:
     repo = git.Repo.init(repo_dir, initial_branch='main')
+  with repo.config_writer() as w:
+    w.set_value("user", "name", "ember")
+    w.set_value("user", "email", "ember@users.noreply.github.com")
   os.chdir(repo.working_dir)
 
   # repo.git.am("--3way", *[f"../patches/{file.name}" for file in patches])

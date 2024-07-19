@@ -8,7 +8,6 @@ option(USE_CONFIGURE_DATE "Add configure date marker in output build")
 # generate pdb to use debuggers with release builds
 string(APPEND CMAKE_EXE_LINKER_FLAGS_RELEASE " /debug")
 
-find_package(Python3 COMPONENTS Interpreter REQUIRED)
 # force using python through venv
 if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/venv/Scripts/python.exe)
   set(Python3_EXECUTABLE "${CMAKE_CURRENT_LIST_DIR}/venv/Scripts/python.exe")
@@ -16,6 +15,7 @@ if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/venv/Scripts/python.exe)
   execute_process(COMMAND ${Python3_EXECUTABLE} -c "import git" RESULT_VARIABLE EXIT_CODE OUTPUT_QUIET)
 else ()
   # create venv
+  find_package(Python3 COMPONENTS Interpreter REQUIRED)
   execute_process(COMMAND_ECHO STDOUT COMMAND ${Python3_EXECUTABLE} -m venv ${CMAKE_CURRENT_LIST_DIR}/venv )
   set(Python3_EXECUTABLE "${CMAKE_CURRENT_LIST_DIR}/venv/Scripts/python.exe")
   set(EXIT_CODE 1)
@@ -86,9 +86,6 @@ set(OUTPUT_SUFFIX "-${VER_PRODUCT_NUMBER}.${VER_PRODUCT_VERSION}.${VER_BUILD_NUM
 if(CONFIGURE_DATE)
   string(APPEND OUTPUT_SUFFIX "-${CONFIGURE_DATE}")
 endif ()
-if(GIT_SHA1)
-  string(APPEND OUTPUT_SUFFIX "-${GIT_SHORT_SHA1}")
-endif()
 add_subdirectory(src)
 
 install(TARGETS dkii_flame RUNTIME DESTINATION ".")
