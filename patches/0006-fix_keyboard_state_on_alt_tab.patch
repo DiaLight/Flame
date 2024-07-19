@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: DiaLight <light_01@rambler.ru>
+Date: Thu, 11 Jul 2024 03:17:43 +0300
+Subject: [PATCH] fix_keyboard_state_on_alt_tab
+
+
+diff --git a/dkii_exe_functions.cpp b/dkii_exe_functions.cpp
+index 0000000..0000000 100644
+--- a/dkii_exe_functions.cpp
++++ b/dkii_exe_functions.cpp
+@@ -76,6 +76,16 @@ namespace {
+ }
+ 
+ LRESULT dk2::CWindowTest_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
++    // patch fix_keyboard_state_on_alt_tab
++    switch(Msg) {
++        case WM_ACTIVATEAPP:
++            if (wParam) {  // activated
++                // clear buttons state
++                memset(MyInputManagerCb_instance.pdxInputState->keyboardState, 0, 256);
++            }
++            break;
++    }
++    // end of patch fix_keyboard_state_on_alt_tab
+     // patch bring_to_foreground
+     switch(Msg) {
+         case WM_CREATE: {

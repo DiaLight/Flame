@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: DiaLight <light_01@rambler.ru>
+Date: Thu, 11 Jul 2024 03:17:06 +0300
+Subject: [PATCH] bring_to_foreground
+
+
+diff --git a/dkii_exe_functions.cpp b/dkii_exe_functions.cpp
+index 0000000..0000000 100644
+--- a/dkii_exe_functions.cpp
++++ b/dkii_exe_functions.cpp
+@@ -76,6 +76,14 @@ namespace {
+ }
+ 
+ LRESULT dk2::CWindowTest_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
++    // patch bring_to_foreground
++    switch(Msg) {
++        case WM_CREATE: {
++            SetForegroundWindow(hWnd);
++            break;
++        }
++    }
++    // end of patch bring_to_foreground
+     switch(Msg) {
+         case WM_ACTIVATE:
+             g_isNeedBlt_fullscr = wParam != 0;

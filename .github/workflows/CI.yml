@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: main
+  pull_request:
+    branches: main
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          pip install -r requirements.txt
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: win32
+      - name: "create build dir"
+        shell: cmd
+        run: mkdir build
+      - name: "configure cmake"
+        shell: cmd
+        run: cd build && cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DUSE_CONFIGURE_DATE=ON -DCMAKE_INSTALL_PREFIX=../install ..
+      - name: "cmake build"
+        shell: cmd
+        run: cd build && cmake --build .
+      - name: "cmake install"
+        shell: cmd
+        run: cd build && cmake --install .
+      - uses: actions/upload-artifact@v3
+        with:
+          name: flame
+          path: install/

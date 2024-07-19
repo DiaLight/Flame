@@ -1,0 +1,64 @@
+
+                         MPEG2DEC.EXE / MPEG2ENC.EXE
+                         ===========================
+                MPEG-2 Encoder / Decoder, Version 1.1, June 1994
+
+                        MPEG Software Simulation Group
+                             (MPEG-L@netcom.com)
+
+
+This archive contains precompiled executables of mpeg2encode and
+mpeg2decode (without graphics support) for MSDOS. The programs are
+mpeg2enc.exe and mpeg2dec.exe. They require at least a '386, for
+mpeg2enc.exe a '387 is strongly recommended.
+
+For usage of the programs refer to the documentation in the source code
+distribution which is available via anonymous ftp from:
+
+ftp.netcom.com:/pub/cfogg/mpeg2/mpeg2codec_v1.1.tar.gz
+
+The programs may need up to 2-3 MB of RAM to run without paging. Don't
+reserve all your free memory for a RAMDISK or EMS. This could drastically
+reduce performance.
+
+If the programs complain about the CPU not being in real mode, you have
+an EMS emulator installed with the option -noems. You need to remove
+this option.
+
+If the programs exit with a 'malloc failed' error message you don't
+have enough RAM available. In this case make sure the environment
+variable GO32TMP points to a directory on your hard disk with sufficient
+room for the paging file.
+
+If you don't have a math coprocessor, you have to enter
+
+  set go32=emu c:\mpeg2\emu387
+
+replacing the path with the appropriate one for your installation. This
+activates an emulator for floating-point instructions. In this case the
+encoder runs about 10 times slower than with a '387.
+
+The programs in this archive are compiled with GNU gcc into 32 bit flat
+memory code and therefore need a 32 bit DOS extender to run under MSDOS.
+The .exe files include the DOS extender GO32 (version 1.11maint5) by
+DJ Delorie. Sources and executables of the complete development system
+(DJGPP) can be obtained from:
+
+File location:
+
+    host:      omnigate.clarkson.edu
+    login:     ftp
+    password:  send your e-mail address
+    directory: ~ftp/pub/msdos/djgpp
+
+Acknowledgements:
+
+DJGPP is
+
+   Copyright (C) DJ Delorie
+                 24 Kirsten Ave
+                 Rochester NH  03867-2954
+
+This product includes software developed by the University of California,
+Berkeley and its contributors.
+

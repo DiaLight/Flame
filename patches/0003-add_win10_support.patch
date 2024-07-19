@@ -1,0 +1,20 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: DiaLight <light_01@rambler.ru>
+Date: Thu, 11 Jul 2024 03:09:14 +0300
+Subject: [PATCH] add_win10_support
+
+
+diff --git a/dkii_exe_functions.cpp b/dkii_exe_functions.cpp
+index 0000000..0000000 100644
+--- a/dkii_exe_functions.cpp
++++ b/dkii_exe_functions.cpp
+@@ -9,6 +9,9 @@
+ #include <windowsx.h>
+ 
+ int32_t dk2::MyGame::isOsCompatible() {
++    // patch add_win10_support
++    return !dk2::isOsVersionGE(11, 0, 0);
++    // end of patch add_win10_support
+     return !isOsVersionGE(6, 0, 0);
+ }
+ 
