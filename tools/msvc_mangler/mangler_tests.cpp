@@ -187,9 +187,6 @@ global: va=00556650,name=CWindowTest_proc,size=180
     arg: kind=int,size=4
 )", "?CWindowTest_proc@dk2@@YGJPAUHWND__@@III@Z", "long __stdcall dk2::CWindowTest_proc(struct HWND__ *,unsigned int,unsigned int,unsigned int)");
     // HRESULT
-}
-
-void lasty_test() {
     assert_mangle(R"(
 struct: id=vtbl_00673048,name=MyDirectInput,size=4
 global: va=005DDBC0,name=initDevice_0,size=25,member_of=vtbl_00673048
@@ -203,10 +200,28 @@ global: va=005DDBC0,name=initDevice_0,size=25,member_of=vtbl_00673048
 )", "?initDevice_0@MyDirectInput@dk2@@QAEPAJPAJ@Z", "public: long * __thiscall dk2::MyDirectInput::initDevice_0(long *)");
 }
 
+void last_test() {
+    // vftable
+    assert_mangle(R"(
+struct: id=call_f0_at_005DA01F,name=DxAction_vtbl,size=4
+  field: name=applyToState
+    type: kind=ptr
+      type: kind=function,declspec=thiscall
+        ret: kind=int,size=4,signed=True
+        arg: kind=ptr
+          type: kind=void
+        arg: kind=ptr
+          type: kind=void
+struct: id=instance_006728F8,name=MouseRgbDxAction_vtbl,size=4,super=call_f0_at_005DA01F
+global: va=006728F8,name=MouseRgbDxAction_vftable,size=4
+  type: kind=struct,id=instance_006728F8
+)", "?MouseRgbDxAction_vftable@dk2@@3PAPAXA", "void * * dk2::MouseRgbDxAction_vftable");
+}
+
 int main() {
     try {
 //        tests();
-        lasty_test();
+        last_test();
     } catch (std::exception &e) {
         printf("[e] %s\n", e.what());
     }

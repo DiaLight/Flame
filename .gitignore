@@ -87,7 +87,6 @@ venv.bak/
 
 # Flame
 /build/
-/src/
 /tools/obj_research/
 /libs/dkii_exe/api/
 /install/

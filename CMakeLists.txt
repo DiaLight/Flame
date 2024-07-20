@@ -64,18 +64,6 @@ add_subdirectory(mapping)
 add_subdirectory(tools)
 add_subdirectory(libs)
 
-if(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/src/CMakeLists.txt")
-  # apply patches
-  execute_process(
-          COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${CMAKE_HOME_DIRECTORY}/mapping
-          ${Python3_EXECUTABLE} ${CMAKE_CURRENT_LIST_DIR}/apply_patches.py
-          OUTPUT_VARIABLE GIT_COMMIT_SUBJECT
-  )
-endif ()
-if(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/src/CMakeLists.txt")
-  message(FATAL_ERROR "src/CMakeLists.txt is not exist.\nPlease run apply_patches.py")
-endif ()
-
 if(USE_CONFIGURE_DATE)
   string(TIMESTAMP CONFIGURE_DATE "%y%m%d")
 endif ()

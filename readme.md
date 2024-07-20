@@ -6,11 +6,7 @@ Difference from the previous implementation(https://github.com/DiaLight/Ember):
 
 For a more detailed description of how Flame  works, read `how_it_works.md`
 
-Partially decompiled code is stored as git patches in the `patches` folder.
-To build them to a local git repository, use the `apply_patches.py` script.
-After changing any commit in the repository, do not forget to pack it back into patches using the `rebuild_patches.py` script.
-
-The latest version can be taken from the automatic build
+The latest build can be taken from the github actions
 
 Requirements:
 - CMake 3.25 or higher https://cmake.org/download/

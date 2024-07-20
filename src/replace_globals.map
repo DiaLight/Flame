@@ -1,0 +1,33 @@
+# va comment
+
+006477F0 int WinMain(HINSTANCE, HINSTANCE, CHAR *, int);  /* auto */
+005A5DA0 int __cdecl dk2_main(int, const CHAR **);      /* auto */
+005B74A0 void resolveDk2HomeDir();  // ---------------  /* auto */
+
+# CFrontEndComponent.h
+005340F0 void showTitleScreen();  // -----------------  /* auto */
+
+# MyDxMouse.h
+005BC760 int *__cdecl MyDxMouse_create(int *, MyDxMouse **);  /* auto */
+005DDA90 void handleData(int);  // -------------------  /* auto */
+005DDB88 extern void *jpt_5DDAC1[5];  // -------------  /* auto */
+005DDBAC extern void *jpt_5DDB05[4];  // -------------  /* auto */
+
+# CWindowTest.h
+00556650 LRESULT CWindowTest_proc(HWND, uint32_t, WPARAM, LPARAM);  /* auto */
+00556704 extern void *jpt_5566AF[6];  // -------------  /* auto */
+0055671C extern uint8_t idt_5566A9[212];  // ---------  /* auto */
+
+# MyGame.h
+00557FB0 int isOsCompatible();  // -------------------  /* auto */
+005581B0 int prepareScreenEx(uint32_t, uint32_t, uint32_t, int, int, int);  /* auto */
+
+# MyResources.h
+0055C020 MyResources *init_resources();  // ----------  /* auto */
+
+# MyInputManagerCb.h
+# 005BB1C0 int *initMouse(int *);  // ------------------  /* auto */
+
+# MyDxInputManagerCb.h
+005BC060 int *initMouse(int *);  // ------------------  /* auto */
+

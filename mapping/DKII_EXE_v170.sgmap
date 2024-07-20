@@ -4783,20 +4783,11 @@ struct: id=vtbl_0066EF3C,name=CFrontEndComponent,size=201210,vtable=instance_006
     type: kind=int,size=1
   field: name=field_670D
     type: kind=int,size=1
-  field: name=gap_670E
-    type: kind=array,count=19
+  field: name=f670e_gap
+    type: kind=array,count=3
       type: kind=int,size=1
-  field: name=field_6721
-    type: kind=int,size=1,signed=True,winapi=char
-  field: name=gap_6722
-    type: kind=array,count=15
-      type: kind=int,size=1
-  field: name=field_6731
-    type: kind=int,size=4,signed=True
-  field: name=field_6735
-    type: kind=int,size=4,signed=True
-  field: name=surf63
-    type: kind=struct,id=constructor_005B5270
+  field: name=f6711_titleScreen
+    type: kind=struct,id=instance_0079D200
   field: name=aabb16_x16x30x6
     type: kind=array,count=16
       type: kind=array,count=30
@@ -4893,8 +4884,9 @@ struct: id=vtbl_0066EF3C,name=CFrontEndComponent,size=201210,vtable=instance_006
     type: kind=int,size=1,signed=True,winapi=char
   field: name=field_3033C
     type: kind=int,size=4,signed=True
-  field: name=field_30340
-    type: kind=int,size=4,signed=True
+  field: name=f30340_pMyDdSurfaceEx
+    type: kind=ptr
+      type: kind=struct,id=instance_0079D200
   field: name=field_30344
     type: kind=int,size=1,signed=True,winapi=char
   field: name=field_30345
@@ -48082,7 +48074,7 @@ global: va=00553FE0,name=TbTQILoader::fun_553FE0,size=30
     arg: kind=ptr
       type: kind=int,size=4
     arg: kind=int,size=1,signed=True,winapi=char
-global: va=00554000,name=DiscFileBase_554000,size=164
+global: va=00554000,name=DiscFileBase_open,size=164
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -49380,7 +49372,7 @@ global: va=0055D340,name=sub_55D340,size=486
     arg: kind=ptr
       type: kind=ptr,winapi=HKEY
         type: kind=winapi,name=HKEY__,size=4
-global: va=0055D530,name=sub_55D530,size=6
+global: va=0055D530,name=getResourceExtensionFlags,size=6
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
 global: va=0055D540,name=sub_55D540,size=16
