@@ -68,6 +68,7 @@ void dk2::resolveDk2HomeDir() {
 }
 
 LRESULT dk2::CWindowTest_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
+    if(hide_mouse_cursor_in_window::window_proc(hWnd, Msg, wParam, lParam)) return TRUE;
     replace_mouse_dinput_to_user32::emulate_dinput_from_user32(hWnd, Msg, wParam, lParam);
     fix_mouse_pos_on_resized_window::window_proc(hWnd, Msg, wParam, lParam);
     use_wheel_to_zoom::window_proc(hWnd, Msg, wParam, lParam);

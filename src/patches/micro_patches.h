@@ -39,6 +39,10 @@ namespace fix_close_window {
     void window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 }
 
+namespace hide_mouse_cursor_in_window {
+    bool window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
+}
+
 namespace skippable_title_screen {
     extern bool enabled;
     bool skipKeyPressed();

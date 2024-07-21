@@ -83,6 +83,18 @@ void fix_close_window::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lP
     }
 }
 
+bool hide_mouse_cursor_in_window::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
+    switch(Msg) {
+        case WM_SETCURSOR: {
+            if (LOWORD(lParam) == HTCLIENT) {
+                SetCursor(NULL);
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 bool skippable_title_screen::enabled = true;
 bool skippable_title_screen::skipKeyPressed() {
     if(!skippable_title_screen::enabled) return false;
