@@ -48,5 +48,9 @@ namespace skippable_title_screen {
     bool skipKeyPressed();
 }
 
+namespace limit_fps {
+    void call();
+}
+
 
 #endif //FLAME_MICRO_PATCHES_H

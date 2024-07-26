@@ -116,6 +116,7 @@ void dk2::MyDxMouse::handleData(int count) {
             default:
                 break;
         }
+        // hook::DIRECT_INPUT_MOUSE_DATA
         use_wheel_to_zoom::dinput_proc(&pdevObj);
     }
 }

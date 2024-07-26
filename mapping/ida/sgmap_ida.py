@@ -651,7 +651,7 @@ class IdaCollectGlobals:
     self.structs = IdaStructs()
     self.globals_map = {}  # type: dict[int, IdaGlobal]
 
-  def get_global(self, ea_, type_, name_=None) -> IdaGlobal:
+  def get_global(self, ea_, type_: sgmap.Type, name_=None) -> IdaGlobal:
     glob_ = self.globals_map.get(ea_)
     if glob_ is not None:
       return glob_
@@ -874,7 +874,7 @@ class IdaCollectGlobals:
       # patch glob name as it is member now
       name = glob.name.replace('::', '_')
       if name.startswith(f"{struct.name}_"):
-        glob.name = name[len(struct.name) + 1:]
+        glob.name = format_function_name(name[len(struct.name) + 1:])
 
   def assert_no_globals_collision(self):
     ovs = 0

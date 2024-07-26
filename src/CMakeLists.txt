@@ -6,7 +6,9 @@ add_executable(${TARGET}
         dk2/MyResources.cpp
         dk2/MyGame.cpp
         dk2/MyDxMouse.cpp
+        dk2/MyDxKeyboard.cpp
         dk2/CFrontEndComponent.cpp
+        dk2/CGameComponent.cpp
 
         patches/replace_mouse_dinput_to_user32.cpp
         patches/use_wheel_to_zoom.cpp

@@ -116,3 +116,12 @@ void replace_mouse_dinput_to_user32::emulate_dinput_from_user32(HWND hWnd, UINT 
         }
     }
 }
+void replace_mouse_dinput_to_user32::release_handled_dinput_actions() {
+    auto it = std::remove_if(actionsInProgress.begin(), actionsInProgress.end(), [](dk2::MouseRgbDxAction *action) {
+        if (action->isNotHandled) return false;
+        delete[] (char *) action;
+        return true;
+    });
+    actionsInProgress.erase(it, actionsInProgress.end());
+}
+

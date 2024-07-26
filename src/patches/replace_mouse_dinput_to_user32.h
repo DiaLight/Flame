@@ -11,6 +11,7 @@ namespace replace_mouse_dinput_to_user32 {
 
     extern bool enabled;
     void emulate_dinput_from_user32(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
+    void release_handled_dinput_actions();
 
 }
 

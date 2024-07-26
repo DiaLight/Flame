@@ -106,3 +106,19 @@ bool skippable_title_screen::skipKeyPressed() {
     return false;
 }
 
+
+namespace {
+
+#define DK2_fps_limit 60
+    DWORD lastTime = 0;
+
+}
+void limit_fps::call() {
+    DWORD time = GetTickCount();
+    int mspf = 1000 / DK2_fps_limit;
+    int freeTime = mspf - (time - lastTime);
+    if (freeTime > 0) {
+        SleepEx(freeTime, FALSE);
+    }
+    lastTime = time;
+}

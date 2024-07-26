@@ -103,7 +103,7 @@ def format_function_name(name: str) -> str:
     print(name)
     name = name[1:name.index('@')]
   if name[0].isdigit():
-    name = f"fun_{name}"
+    raise Exception(name)
   return name
 
 

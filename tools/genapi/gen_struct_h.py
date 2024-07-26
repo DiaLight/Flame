@@ -67,6 +67,8 @@ def format_struct_h(
       raise Exception()
     yield empty_line
     if struct.vtable is not None:
+      yield f"/*---*/ {struct.name}() = delete;"
+      yield f"/*---*/ ~{struct.name}() = delete;"
       vtable_glob = vtable_map.get(struct.vtable.id, None)
       if vtable_glob is not None:
         yield f"/*{vtable_glob.va:08X} vftable*/"

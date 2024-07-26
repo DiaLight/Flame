@@ -20,7 +20,7 @@ bool dk2::dk2_main2() {
     if ( !cmd_flag_NOSOUND
          && !MySound_ptr->v_sub_567210()
          && !MySound_ptr->v_set_number_of_channels(
-            MyResources_instance.obj_29CB.numberOfChannels) ) {
+            MyResources_instance.soundCfg.numberOfChannels) ) {
         MySound_ptr->v_fun_567410();
         cmd_flag_NOSOUND = 1;
     }
@@ -43,26 +43,27 @@ bool dk2::dk2_main2() {
             if ( !cmd_flag_NOSOUND ) MySound_ptr->v_fun_567410();
             return false;
         }
-        if ( MyResources_instance.f2B2B ) {
-            MyResources_instance.useFe = 1;
-            MyResources_instance.f2A13 = 3;
-        } else if ( MyResources_instance.f2B2F == 1 ) {
-            MyResources_instance.useFe = 4;
-            MyResources_instance.f2A13 = 3;
+        if ( MyResources_instance.gameCfg.f124 ) {
+            MyResources_instance.gameCfg.useFe = 1;
+            MyResources_instance.gameCfg.useFe_unkTy = 3;
+        } else if ( MyResources_instance.gameCfg.f128 == 1 ) {
+            MyResources_instance.gameCfg.useFe = 4;
+            MyResources_instance.gameCfg.useFe_unkTy = 3;
         } else if ( !cmd_flag_FrontEnd3D_unk8 ) {
             if ( MyGame_instance.sub_559790() < 240.0 && getDevIdxSupportsLinearPerspective() != -1
                  || MyGame_instance.sub_559790() < 290.0 && getDevIdxSupportsLinearPerspective() == -1 )
             {
-                MyResources_instance.f2B77 = 1;
+                MyResources_instance.gameCfg.useFe2d_unk2 = 1;
             }
-            MyResources_instance.useFe3d = 1;
-            MyResources_instance.useFe = 5;
-            wcsncpy(MyResources_instance.f2A17, L"FrontEnd3DLevel", 0x40u);
-            MyResources_instance.f2A17[63] = 0;
-            MyResources_instance.f2B1B = 0;
-            MyResources_instance.f2A13 = 3;
+            MyResources_instance.gameCfg.useFe3d = 1;
+            MyResources_instance.gameCfg.useFe = 5;
+            _wcsncpy(MyResources_instance.gameCfg.arr64, L"FrontEnd3DLevel", 0x40u);
+            MyResources_instance.gameCfg.arr64[63] = 0;
+            MyResources_instance.gameCfg.hasSaveFile = 0;
+            MyResources_instance.gameCfg.useFe_unkTy = 3;
             cmd_flag_FrontEnd3D_unk7 = 1;
         }
+        // hook::ALL_READY_TO_START
         CGameComponent *cur = &CGameComponent_instance;
         while (cur != nullptr) {
             if (!cur->v_handle()) break;

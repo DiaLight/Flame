@@ -130,8 +130,8 @@ int dk2::MyGame::prepareScreenEx(
             MySound_ptr->v_fun_5677E0();
         else
             MySound_ptr->v_set_number_of_channels(
-                    MyResources_instance.obj_29CB.numberOfChannels);
-        MyResources_instance.obj_29CB.resolveValues();
+                    MyResources_instance.soundCfg.numberOfChannels);
+        MyResources_instance.soundCfg.resolveValues();
     }
     int screenSwap__1 = screenSwap;
     this->isWindowed = isWindowed;
