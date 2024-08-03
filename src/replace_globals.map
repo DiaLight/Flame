@@ -3,6 +3,7 @@
 006477F0 int WinMain(HINSTANCE, HINSTANCE, CHAR *, int);  /* auto */
 005A5DA0 int __cdecl dk2_main(int, const CHAR **);      /* auto */
 005B74A0 void resolveDk2HomeDir();  // ---------------  /* auto */
+005A63B0 int __cdecl parse_command_line(int, const char **);  /* auto */
 
 # CFrontEndComponent.h
 005340F0 void showTitleScreen();  // -----------------  /* auto */
@@ -37,4 +38,7 @@
 
 # MyDxInputManagerCb.h
 005BC060 int *initMouse(int *);  // ------------------  /* auto */
+
+# CCreature.h
+00498E30 int processDealDamage();  // ----------------  /* auto */
 

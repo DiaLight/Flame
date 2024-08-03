@@ -23,3 +23,9 @@ How to build:
 - `cmake --build .`
 - `cmake --install .`
 - `copy "..\install\DKII-Flame-<version>.exe" "<Dungeon Keeper2 dir>/DKII-Flame.exe"`
+
+Todo:
+- limit fps
+- detect no window showing
+- add gog_patch
+- redirect stdout/stderr

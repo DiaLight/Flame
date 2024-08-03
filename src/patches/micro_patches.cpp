@@ -16,6 +16,8 @@ bool add_win10_support::enabled = true;
 bool use_cwd_as_dk2_home_dir::enabled = true;
 bool notify_another_instance_is_running::enabled = true;
 bool control_windowed_mode::enabled = true;
+bool force_32bit_everything::enabled = true;
+bool disable_bonus_damage_based_on_location::enabled = true;
 
 
 namespace {
@@ -96,8 +98,8 @@ bool hide_mouse_cursor_in_window::window_proc(HWND hWnd, UINT Msg, WPARAM wParam
 }
 
 bool skippable_title_screen::enabled = true;
+uint32_t skippable_title_screen::waiting_time = 600;  // in milliseconds. by default 10 seconds
 bool skippable_title_screen::skipKeyPressed() {
-    if(!skippable_title_screen::enabled) return false;
     if(GetAsyncKeyState(VK_SPACE) & 0x8000) return true;
     if(GetAsyncKeyState(VK_ESCAPE) & 0x8000) return true;
     if(GetAsyncKeyState(VK_LBUTTON) & 0x8000) return true;

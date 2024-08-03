@@ -57,8 +57,8 @@ bool dk2::dk2_main2() {
             }
             MyResources_instance.gameCfg.useFe3d = 1;
             MyResources_instance.gameCfg.useFe = 5;
-            _wcsncpy(MyResources_instance.gameCfg.arr64, L"FrontEnd3DLevel", 0x40u);
-            MyResources_instance.gameCfg.arr64[63] = 0;
+            _wcsncpy(MyResources_instance.gameCfg.levelName, L"FrontEnd3DLevel", 0x40u);
+            MyResources_instance.gameCfg.levelName[63] = 0;
             MyResources_instance.gameCfg.hasSaveFile = 0;
             MyResources_instance.gameCfg.useFe_unkTy = 3;
             cmd_flag_FrontEnd3D_unk7 = 1;
@@ -143,7 +143,8 @@ bool dk2::dk2_main1(int argc, LPCSTR *argv) {
         closeFindFile(&status_2, (int)&FindFileData);
     }
     MyResources_instance.sub_55B120();
-    if ( !parse_command_line(argc, argv) || !loadResources() ) return false;
+    if (!parse_command_line(argc, argv)) return false;
+    if (!loadResources()) return false;
     bool useDefaultWindowName = true;
     unsigned __int8 *MbString = MyMbStringList_idx1091_getMbString(42u);  // "Dungeon Keeper II"
     if ( MBToUni_convert(MbString, g_wchar_buf, 512) && unicodeToUtf8(g_wchar_buf, temp_string, 512) ) {

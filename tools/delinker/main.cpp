@@ -305,7 +305,6 @@ int main(int argc, char * argv[]) {
 //        uint16_t ins = *(uint16_t *) (xref->chunk->data.data() + xref->rel.offs - 2);
 //        printf("%s %d %04X\n", global->name.c_str(), chunk->xrefs.size(), ins);
         if (!global->name.starts_with('?')) {
-
             chunk->name = "__imp__" + global->name;
             int stackSize = getSizeForStdcallStackArgs(stdcallArgsSizes, global->name);
             if (stackSize == -2) return -1;
@@ -313,7 +312,7 @@ int main(int argc, char * argv[]) {
                 chunk->name += "@" + std::to_string(stackSize);
             }
             chunk->objName = "imports.obj";
-        } else {
+        } else if(global->name.find("@@3") == std::string::npos) {  // dont generate jmp for data import
             chunk->name = "ij_" + global->name;
             chunk->objSecName = ".ijdata";
 //            chunk->chars |= IMAGE_SCN_CNT_CODE;
@@ -334,8 +333,9 @@ int main(int argc, char * argv[]) {
             ref->rel.offs = 0;
             ref->rel.offsTo = 0;
             ref->rel.type = IMAGE_REL_I386_DIR32;
-
-//            chunk->objName = "rdata.obj";
+        } else {  // data import
+            chunk->name = "__imp_" + global->name;
+            chunk->objName = "imports.obj";
 //            chunk->exeSecName = ".rdata";
 //            chunk->objSecName = ".rdata";
         }

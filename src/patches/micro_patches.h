@@ -6,6 +6,7 @@
 #define FLAME_MICRO_PATCHES_H
 
 #include <Windows.h>
+#include <cstdint>
 
 namespace add_win10_support {
     extern bool enabled;
@@ -20,6 +21,14 @@ namespace notify_another_instance_is_running {
 }
 
 namespace control_windowed_mode {
+    extern bool enabled;
+}
+
+namespace force_32bit_everything {
+    extern bool enabled;
+}
+
+namespace disable_bonus_damage_based_on_location {
     extern bool enabled;
 }
 
@@ -45,6 +54,7 @@ namespace hide_mouse_cursor_in_window {
 
 namespace skippable_title_screen {
     extern bool enabled;
+    extern uint32_t waiting_time;
     bool skipKeyPressed();
 }
 

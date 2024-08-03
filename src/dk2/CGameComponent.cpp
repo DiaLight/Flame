@@ -83,7 +83,7 @@ dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
         if ( !v4 ) return 0;
     } else if(!MyResources_instance.gameCfg.useFe2d_unk1) {
         CHAR MultiByteStr[64];
-        if(!unicodeToUtf8(MyResources_instance.gameCfg.arr64, MultiByteStr, 64)) return 0;
+        if(!unicodeToUtf8(MyResources_instance.gameCfg.levelName, MultiByteStr, 64)) return 0;
         CWorld_instance.showLoadingScreen();
         CWorld_instance.releaseSurface();
         CWorld_instance.fun_511180();
@@ -301,8 +301,8 @@ dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
         MyResources_instance.gameCfg.useFe3d = 1;
         MyResources_instance.gameCfg.useFe_unk3 = MyResources_instance.gameCfg.useFe;
         MyResources_instance.gameCfg.useFe = 5;
-        wcsncpy(MyResources_instance.gameCfg.arr64, L"FrontEnd3DLevel", 64u);
-        MyResources_instance.gameCfg.arr64[63] = 0;
+        wcsncpy(MyResources_instance.gameCfg.levelName, L"FrontEnd3DLevel", 64u);
+        MyResources_instance.gameCfg.levelName[63] = 0;
         MyResources_instance.gameCfg.hasSaveFile = 0;
         MyResources_instance.gameCfg.useFe_unkTy = 3;
         return &CGameComponent_instance;

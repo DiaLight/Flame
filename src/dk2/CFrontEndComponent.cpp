@@ -30,9 +30,14 @@ void dk2::CFrontEndComponent::showTitleScreen() {
         MyGame_instance.prepareScreen();
         if ( MyDdSurface_addRef(&this->titleScreen.dd_surf, 0) )
             MyDdSurface_release(&status, &this->titleScreen.dd_surf);
-//        DWORD waitEnd = getTimeMs() + 10000;
-        DWORD waitEnd = getTimeMs() + 3000;  // 10 seconds is too much
-        while ( getTimeMs() <= waitEnd && !skippable_title_screen::skipKeyPressed() ) ;
+
+        if(!skippable_title_screen::enabled) {
+            DWORD waitEnd = getTimeMs() + 10000;
+            while ( getTimeMs() <= waitEnd ) ;
+        } else {
+            DWORD waitEnd = getTimeMs() + skippable_title_screen::waiting_time;
+            while ( getTimeMs() <= waitEnd && !skippable_title_screen::skipKeyPressed() ) ;
+        }
         MyGame_instance.prepareScreen();
     }
 }

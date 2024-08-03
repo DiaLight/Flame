@@ -9,6 +9,7 @@ add_executable(${TARGET}
         dk2/MyDxKeyboard.cpp
         dk2/CFrontEndComponent.cpp
         dk2/CGameComponent.cpp
+        dk2/entities/CCreature.cpp
 
         patches/replace_mouse_dinput_to_user32.cpp
         patches/use_wheel_to_zoom.cpp
@@ -46,6 +47,7 @@ target_compile_options(${TARGET} PRIVATE
         /Gw  # Optimize Global Data
         /GS-
         /Gz  # use __stdcall by default
+        /wd4624  # Suppress warning destructor was implicitly defined as deleted
         )
 target_link_options(${TARGET} PRIVATE /OPT:NOREF)
 target_link_options(${TARGET} PRIVATE /MAP)  # generate msvc mapping file for exe
