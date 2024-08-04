@@ -28,12 +28,16 @@ namespace force_32bit_everything {
     extern bool enabled;
 }
 
-namespace disable_bonus_damage_based_on_location {
+namespace disable_bonus_damage {
+    extern bool enabled;
+}
+
+namespace backstab_fix {
     extern bool enabled;
 }
 
 namespace fix_mouse_pos_on_resized_window {
-    void window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
+    void window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM &lParam);
 }
 
 namespace fix_keyboard_state_on_alt_tab {

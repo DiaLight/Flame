@@ -6344,7 +6344,7 @@ struct: id=vtbl_0066D4BC,path=dk2/entities,name=CPhysicalThing,size=246,vtable=i
     type: kind=int,size=4
   field: name=f44_renderInfo
     type: kind=struct,id=vtbl_0066D454
-  field: name=fF0_angle
+  field: name=fF0_direction
     type: kind=int,size=2
   vtable_value: va=004B5C60
   vtable_value: va=004B2920
@@ -14129,7 +14129,7 @@ struct: id=constructor_00491DC0,path=dk2/entities/data,name=MyCreatureDataObj,si
     type: kind=int,size=2,signed=True
   field: name=field_76C
     type: kind=int,size=4,signed=True
-  field: name=f770_someId__
+  field: name=f770_typeId
     type: kind=int,size=1,signed=True,winapi=char
   field: name=field_771
     type: kind=int,size=1,signed=True,winapi=char

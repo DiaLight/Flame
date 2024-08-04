@@ -17,13 +17,14 @@ bool use_cwd_as_dk2_home_dir::enabled = true;
 bool notify_another_instance_is_running::enabled = true;
 bool control_windowed_mode::enabled = true;
 bool force_32bit_everything::enabled = true;
-bool disable_bonus_damage_based_on_location::enabled = true;
+bool disable_bonus_damage::enabled = false;
+bool backstab_fix::enabled = true;
 
 
 namespace {
     dk2::Pos2i clientSize;
 }
-void fix_mouse_pos_on_resized_window::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
+void fix_mouse_pos_on_resized_window::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM &lParam) {
     switch (Msg) {
         case WM_SIZE: {
             clientSize = {LOWORD(lParam), HIWORD(lParam)};

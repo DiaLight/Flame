@@ -16,6 +16,68 @@
 #include "patches/micro_patches.h"
 
 
+#define CCreature_types(cb)\
+    cb(1, true, Imp, imp)\
+    cb(2, false, Prince, prince)\
+    cb(3, true, BileDemon, bile_demon)\
+    cb(4, true, Mistress, mistress)\
+    cb(5, true, Warlock, warlock)\
+    cb(6, true, DarkElf, dark_elf)\
+    cb(7, true, Goblin, goblin)\
+    cb(8, true, Vampire, vampire)\
+    cb(9, true, Skeleton, skeleton)\
+    cb(10, true, Troll, troll)\
+    cb(11, true, Salamander, salamander)\
+    cb(12, true, Firefly, firefly)\
+    cb(13, false, Knight, knight)\
+    cb(14, false, Dwarf, dwarf)\
+    cb(15, false, Giant, giant)\
+    cb(16, false, Wizard, wizard)\
+    cb(17, false, Elf, elf)\
+    cb(18, false, Thief, thief)\
+    cb(19, false, Monk, monk)\
+    cb(20, false, Fairy, fairy)\
+    cb(21, false, King, king)\
+    cb(22, true, BlackKnight, black_knight)\
+    cb(23, true, DarkAngel, dark_angel)\
+    cb(24, true, Rogue, rogue)\
+    cb(25, false, Guard, guard)\
+    cb(26, false, Prince_2, prince)\
+    cb(27, true, Reaper, reaper)\
+    cb(28, false, StoneKnight, stone_knight)\
+    cb(29, false, Lord, lord)\
+    cb(30, false, RoyalGuard, royal_guard)\
+    cb(31, false, Prince_3, prince)\
+    cb(32, true, Firefly_2, firefly)\
+    cb(33, true, Goblin_2, goblin)\
+    cb(34, true, Warlock_2, warlock)\
+    cb(35, true, Troll_2, troll)\
+    cb(36, true, DarkElf_2, dark_elf)\
+    cb(37, true, Skeleton_2, skeleton)\
+    cb(38, true, Mistress_2, mistress)\
+    cb(39, true, Salamander_2, salamander)\
+    cb(40, true, Rogue_2, rogue)\
+    cb(41, true, BileDemon_2, bile_demon)\
+    cb(42, true, Vampire_2, vampire)\
+    cb(43, true, BlackKnight_2, black_knight)\
+    cb(44, true, DarkAngel_2, dark_angel)
+
+
+enum CCreature_typeId {
+#define _CCreature_typeId(id, isEvil, camelName, snakeName) CCreature_typeId_##camelName = id,
+    CCreature_types(_CCreature_typeId)
+};
+
+const char *CCreature_typeId_toString(int ty) {
+    switch (ty) {
+#define _CCreature_typeId_toString(id, isEvil, camelName, snakeName) case CCreature_typeId_##camelName: return #camelName;
+        CCreature_types(_CCreature_typeId_toString)
+    }
+    return "Unknown";
+}
+
+
+
 #define StateFlags1_InHand 0x00000001
 #define StateFlags1_ContributesToPortalLimit 0x00000002
 #define StateFlags1_AttackAbnormalTargets 0x00000004
@@ -94,7 +156,8 @@ int dk2::CCreature::processDealDamage() {
         CCreature *targetCreature = (CCreature *) v7_target;
         if (targetCreature->fun_4E0460() && targetCreature->lairId ) {
             CObject *v9_object = (CObject *)sceneObjects[targetCreature->lairId];
-            if ( v9_object->typeId == 23 ) {
+            static_assert(CCreature_typeId_DarkAngel == 23);
+            if ( v9_object->typeId == CCreature_typeId_DarkAngel ) {
                 targetCreature->cstate.fun_476D30(84, 0);
             } else {
                 v9_object->renderInfo.fAF = v9_object->renderInfo.fAF & 0xFE ^ 1;
@@ -107,7 +170,7 @@ int dk2::CCreature::processDealDamage() {
                 v27.x = v9_object->f16_pos.x;
                 v27.y = v9_object->f16_pos.y;
                 v27.z = v9_object->f16_pos.z;
-                unsigned __int16 fF0_angle = v9_object->fF0_angle;
+                unsigned __int16 fF0_angle = v9_object->fF0_direction;
                 int v14 = (-410 * fF0_angle) & 0x7FF;
                 v27.x += g_angle2048_to_x[v14] >> 16;
                 v27.y += g_angle2048_to_y[v14] >> 16;
@@ -125,23 +188,24 @@ int dk2::CCreature::processDealDamage() {
             targetCreature->v_f20();
             return 0;
         }
-        if(!disable_bonus_damage_based_on_location::enabled) {
+        if(!disable_bonus_damage::enabled) {
             unsigned __int16 v24_angle2048 = asm_calcNegYAngle2048(
                     this->f16_pos.x - targetCreature->f16_pos.x,
                     this->f16_pos.y - targetCreature->f16_pos.y) & 0x7FF;
-            if ( v24_angle2048 > 0x3FFu )
+            if(backstab_fix::enabled) {
+                v24_angle2048 = (targetCreature->fF0_direction + 2048 - v24_angle2048) % 2048;
+            }
+            if (v24_angle2048 > 0x3FFu )
                 v24_angle2048 = 2046 - v24_angle2048;
             int v17_angleDiv20 = (v24_angle2048 & 0x3FF) / 20;
             int v18_newDamage = v8_damage;
             if ( v17_angleDiv20 > 15 ) {
                 v18_newDamage = v8_damage + v8_damage * v17_angleDiv20 / 100;
             }
-//            printf("%d:%d:%d->%d:%d:%d damage=%d(+%d) loc:{%d,%d} -> {%d,%d} vec:{%d,%d} a:%d(%d) degrees:%.2f\n",
-//                   this->f24_playerId, this->f0_tagId, this->f3C_health,
-//                   targetCreature->f24_playerId, targetCreature->f0_tagId, targetCreature->f3C_health,
+//            printf("%d:%s:%d:%d->%d:%s:%d:%d damage=%d(+%d) vec:{%d,%d} a:%d(%d) degrees:%.2f\n",
+//                   this->f24_playerId, CCreature_typeId_toString(this->typeId), this->f0_tagId, this->f3C_health,
+//                   targetCreature->f24_playerId, CCreature_typeId_toString(targetCreature->typeId), targetCreature->f0_tagId, targetCreature->f3C_health,
 //                   -v8_damage, -(v18_newDamage - v8_damage),
-//                   this->f16_pos.x, this->f16_pos.y,
-//                   targetCreature->f16_pos.x, targetCreature->f16_pos.y,
 //                   this->f16_pos.x - targetCreature->f16_pos.x, this->f16_pos.y - targetCreature->f16_pos.y,
 //                   v24_angle2048, v17_angleDiv20, (float) v24_angle2048 / 2048 * 360
 //            );
@@ -162,7 +226,8 @@ int dk2::CCreature::processDealDamage() {
         char v21 = f26_pPlayer_owner->cryptPowersPeopleActive[7];
         if ( v21 > 0 )
             v8_damage = v8_damage * (15 * v21 + 100) / 100;
-        if (this->typeId == 19 && v7_target->fE_type == 0) {  // CCreature
+        static_assert(CCreature_typeId_Monk == 19);
+        if (this->typeId == CCreature_typeId_Monk && v7_target->fE_type == 0) {  // CCreature
             CCreature *targetCreature = (CCreature *) v7_target;
             targetCreature->stateFlags2 |= StateFlags2_CantBeResurrected;
             targetCreature->processTakeDamage(v8_damage, this->f24_playerId, 0);
@@ -172,7 +237,8 @@ int dk2::CCreature::processDealDamage() {
         }
         if ((this->creatureData->flags & 0x4000) != 0 && v7_target->fE_type == 0) {  // CCreature
             CCreature *targetCreature = (CCreature *) v7_target;
-            if(targetCreature->typeId == 28) {
+            static_assert(CCreature_typeId_StoneKnight == 28);
+            if(targetCreature->typeId == CCreature_typeId_StoneKnight) {
                 targetCreature->fun_490120(v8_damage, this->f24_playerId, 0);
             }
         }
