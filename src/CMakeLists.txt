@@ -14,6 +14,7 @@ add_executable(${TARGET}
         patches/replace_mouse_dinput_to_user32.cpp
         patches/use_wheel_to_zoom.cpp
         patches/micro_patches.cpp
+        patches/version_patch.cpp
 
         ${DKII_RESOURCES_FILE}
         )
@@ -40,6 +41,7 @@ target_link_libraries(${TARGET} PRIVATE
         # wsock32 is old link target
         ws2_32 # should be better
         dsound
+        Version
         )
 
 target_compile_options(${TARGET} PRIVATE

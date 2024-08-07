@@ -20,28 +20,6 @@ bool force_32bit_everything::enabled = true;
 bool disable_bonus_damage::enabled = false;
 bool backstab_fix::enabled = true;
 
-
-namespace {
-    dk2::Pos2i clientSize;
-}
-void fix_mouse_pos_on_resized_window::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM &lParam) {
-    switch (Msg) {
-        case WM_SIZE: {
-            clientSize = {LOWORD(lParam), HIWORD(lParam)};
-            break;
-        }
-        case WM_MOUSEMOVE: {
-            dk2::Pos2i pos = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
-            dk2::AABB renderRect = dk2::MyInputManagerCb_instance.f60_mouse->f30_aabb;
-            dk2::Pos2i renderSize = {renderRect.maxX - renderRect.minX, renderRect.maxY - renderRect.minY};
-            pos.x = (int) ((float) pos.x * (float) renderSize.x / (float) clientSize.x);
-            pos.y = (int) ((float) pos.y * (float) renderSize.y / (float) clientSize.y);
-            lParam = (pos.x & 0xFFFF) | ((pos.y & 0xFFFF) << 16);
-            break;
-        }
-    }
-}
-
 void fix_keyboard_state_on_alt_tab::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
     switch(Msg) {
         case WM_ACTIVATEAPP:

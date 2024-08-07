@@ -36,10 +36,6 @@ namespace backstab_fix {
     extern bool enabled;
 }
 
-namespace fix_mouse_pos_on_resized_window {
-    void window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM &lParam);
-}
-
 namespace fix_keyboard_state_on_alt_tab {
     void window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 }

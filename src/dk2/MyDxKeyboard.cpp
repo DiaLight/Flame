@@ -20,7 +20,7 @@ int dk2::MyDxKeyboard::processKeyboardData(int a2) {
         action->data = f4_dwData;
         action->timestamp = f8_dwTimeStamp;
         action->isNotHandled = 1;
-        this->f8_pcontrolkeys->v_fun4((DxAction *) action);
+        this->f8_pcontrolkeys->v_fun4_keyboard((DxAction *) action);
         // hook::DIRECT_INPUT_KEYBOARD_DATA
         ++i;
         result = a2 - 1;

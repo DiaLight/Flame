@@ -19,8 +19,6 @@ void use_wheel_to_zoom::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM l
             break;
         }
     }
-//    + hook::DIRECT_INPUT_MOUSE_DATA.emplace_back([](DIDEVICEOBJECTDATA *data) {
-//    });
 }
 
 namespace {

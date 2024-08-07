@@ -78,7 +78,7 @@ void dk2::MyDxMouse::handleData(int count) {
                 xyz->actedAxe = f0_dwOfs;
                 xyz->timestamp = f8_dwTimeStamp;
                 xyz->isNotHandled = 1;
-                this->f8_pcontrolkeys->v_fun3(xyz);
+                this->f8_pcontrolkeys->v_fun3_mouse(xyz);
             } break;
             case 0xC:                               // rgbButtons
             case 0xD:
@@ -111,7 +111,7 @@ void dk2::MyDxMouse::handleData(int count) {
                 action->data = f4_dwData;
                 action->timestamp = dwTimeStamp;
                 action->isNotHandled = 1;
-                this->f8_pcontrolkeys->v_fun4(action);
+                this->f8_pcontrolkeys->v_fun4_keyboard(action);
             } break;
             default:
                 break;

@@ -1,14 +1,17 @@
 //
 // Created by DiaLight on 01.07.2024.
 //
+#include <windowsx.h>
 #include "dk2/MyGame.h"
 #include "dk2/MyDxInputState.h"
 #include "dk2/MyMouseUpdater.h"
+#include "dk2/button/CTextBox.h"
 #include "dk2_functions.h"
 #include "dk2_globals.h"
 #include "patches/replace_mouse_dinput_to_user32.h"
 #include "patches/micro_patches.h"
 #include "patches/use_wheel_to_zoom.h"
+#include "patches/version_patch.h"
 
 
 int32_t dk2::MyGame::isOsCompatible() {
@@ -69,9 +72,7 @@ void dk2::resolveDk2HomeDir() {
 
 LRESULT dk2::CWindowTest_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
     // patch::BEFORE_WINDOW_PROC
-    if(hide_mouse_cursor_in_window::window_proc(hWnd, Msg, wParam, lParam)) return TRUE;
     replace_mouse_dinput_to_user32::emulate_dinput_from_user32(hWnd, Msg, wParam, lParam);
-    fix_mouse_pos_on_resized_window::window_proc(hWnd, Msg, wParam, lParam);
     use_wheel_to_zoom::window_proc(hWnd, Msg, wParam, lParam);
     fix_keyboard_state_on_alt_tab::window_proc(hWnd, Msg, wParam, lParam);
     bring_to_foreground::window_proc(hWnd, Msg, wParam, lParam);
@@ -94,13 +95,19 @@ LRESULT dk2::CWindowTest_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
             break;
         }
         case WM_MOUSEMOVE: {
-            Pos2i pos;
-            pos.x = LOWORD(lParam);
-            pos.y = HIWORD(lParam);
-            MyInputManagerCb_static_setMousePos(&pos);
+            if(replace_mouse_dinput_to_user32::enabled) {
+                POINT mousePos = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+                replace_mouse_dinput_to_user32::handle_mouse_move(hWnd, mousePos);
+            } else {
+                Pos2i pos;
+                pos.x = LOWORD(lParam);
+                pos.y = HIWORD(lParam);
+                MyInputManagerCb_static_setMousePos(&pos);
+            }
             break;
         }
     }
+    if(hide_mouse_cursor_in_window::window_proc(hWnd, Msg, wParam, lParam)) return TRUE;
     if ( !getCustomDefWindowProcA() )
         return DefWindowProcA(hWnd, Msg, wParam, lParam);
     typedef LRESULT (__stdcall *CustomDefWindowProcA_t)(HWND, UINT, WPARAM, LPARAM);
@@ -283,3 +290,27 @@ BOOL __cdecl dk2::parse_command_line(int argc, const char **argv) {
     return 1;
 }
 
+
+void __cdecl dk2::CTextBox_renderVersion(dk2::CTextBox *textBox, CFrontEndComponent *frontend) {
+    AABB area;
+    textBox->getScreenAABB(&area);
+    AABB scaled;
+    scaled = *frontend->cgui_manager.scaleAabb(&scaled, &area);
+
+    uint8_t __buf[sizeof(MyTextRenderer)];
+    MyTextRenderer &renderer = *(MyTextRenderer *) &__buf;
+    renderer.constructor();
+    int status;
+    renderer.selectMyCR(&status, 0);
+    renderer.selectMyTR(&status, 2);
+    wchar_t wstring[64];
+    if(char *version = version_patch::getFileVersion()) {
+        swprintf(wstring, L"%S", version);
+    } else {
+        swprintf(wstring, L"V%lu.%lu", g_majorVersion, g_minorVersion);
+    }
+    uint8_t mbstring[64];
+    MyLangObj_static_toUniToMB_2(wstring, mbstring, 64);
+    renderer.renderText(&status, &scaled, mbstring, &g_FontObj2_instance, NULL);
+    renderer.destructor();
+}

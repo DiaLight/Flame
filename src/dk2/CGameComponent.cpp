@@ -268,7 +268,7 @@ dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
                 v40.constructor();
                 v40.selectMyCR(&status, 2);
                 v40.selectMyTR(&status, 2);
-                unsigned __int8 *MbString = MyMbStringList_idx1091_getMbString(CWorld_instance.fA3C3);
+                uint8_t *MbString = MyMbStringList_idx1091_getMbString(CWorld_instance.fA3C3);
                 PixelMask mask;
                 mask.f0 = 0xFF;
                 mask.f1 = 0xFF;
@@ -279,7 +279,7 @@ dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
                 v40.renderText(
                         &status,
                         &aabb,
-                        (char *)MbString,
+                        MbString,
                         &g_FontObj5_instance,
                         0);
                 v40.destructor();

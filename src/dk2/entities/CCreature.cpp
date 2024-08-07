@@ -64,13 +64,13 @@
 
 
 enum CCreature_typeId {
-#define _CCreature_typeId(id, isEvil, camelName, snakeName) CCreature_typeId_##camelName = id,
+#define _CCreature_typeId(id, isEvil, pascalName, snakeName) CCreature_typeId_##pascalName = id,
     CCreature_types(_CCreature_typeId)
 };
 
 const char *CCreature_typeId_toString(int ty) {
     switch (ty) {
-#define _CCreature_typeId_toString(id, isEvil, camelName, snakeName) case CCreature_typeId_##camelName: return #camelName;
+#define _CCreature_typeId_toString(id, isEvil, pascalName, snakeName) case CCreature_typeId_##pascalName: return #pascalName;
         CCreature_types(_CCreature_typeId_toString)
     }
     return "Unknown";

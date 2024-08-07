@@ -42,3 +42,5 @@
 # CCreature.h
 00498E30 int processDealDamage();  // ----------------  /* auto */
 
+# CTextBox.h
+00537E10 void __cdecl CTextBox_renderVersion(CTextBox *, CFrontEndComponent *);  /* auto */
