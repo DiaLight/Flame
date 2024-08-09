@@ -9,7 +9,11 @@ add_executable(${TARGET}
         dk2/MyDxKeyboard.cpp
         dk2/CFrontEndComponent.cpp
         dk2/CGameComponent.cpp
+        dk2/PlayerCfg.cpp
+        dk2/RegKey.cpp
+        dk2/entities/entities_type.cpp
         dk2/entities/CCreature.cpp
+        dk2/entities/CPlayer.cpp
 
         patches/replace_mouse_dinput_to_user32.cpp
         patches/use_wheel_to_zoom.cpp

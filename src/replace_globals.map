@@ -44,3 +44,18 @@
 
 # CTextBox.h
 00537E10 void __cdecl CTextBox_renderVersion(CTextBox *, CFrontEndComponent *);  /* auto */
+
+# CPlayer.h
+00506B50 BOOL testManufactureCompleted(uint16_t);       /* auto */
+00506B70 int getManufactureRequired(uint16_t);  // ---  /* auto */
+004C3200 int creatureDidWorkshopWork(int, CCreature *);  /* auto */
+
+# PlayerCfg.h
+005604C0 void fillKeyMaps();  // ---------------------  /* auto */
+
+# RegKey.h
+00562200 uint32_t *settings_writeBytes(uint32_t *, const CHAR *, uint32_t, uint8_t *, uint32_t);  /* auto */
+00562260 uint32_t *settings_readBytes(uint32_t *, const CHAR *, uint8_t *, uint32_t);  /* auto */
+005622B0 uint32_t settings_readBytesCount(const CHAR *);  /* auto */
+
+

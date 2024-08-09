@@ -54,6 +54,8 @@ def format_globals_h(globals: list[sgmap.Global]):
         continue
       if name.startswith('__CTA3?A'):
         continue
+      if name.endswith('_vftable'):
+        continue
       # if glob_type.kind is sgmap.TypeKind.Array:
       #   name = f"(&{name})"
       # else:

@@ -8,24 +8,7 @@ option(USE_CONFIGURE_DATE "Add configure date marker in output build")
 # generate pdb to use debuggers with release builds
 string(APPEND CMAKE_EXE_LINKER_FLAGS_RELEASE " /debug")
 
-# force using python through venv
-if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/venv/Scripts/python.exe)
-  set(Python3_EXECUTABLE "${CMAKE_CURRENT_LIST_DIR}/venv/Scripts/python.exe")
-  # test for GitPython package installed
-  execute_process(COMMAND ${Python3_EXECUTABLE} -c "import git" RESULT_VARIABLE EXIT_CODE OUTPUT_QUIET)
-else ()
-  # create venv
-  find_package(Python3 COMPONENTS Interpreter REQUIRED)
-  execute_process(COMMAND_ECHO STDOUT COMMAND ${Python3_EXECUTABLE} -m venv ${CMAKE_CURRENT_LIST_DIR}/venv )
-  set(Python3_EXECUTABLE "${CMAKE_CURRENT_LIST_DIR}/venv/Scripts/python.exe")
-  set(EXIT_CODE 1)
-endif ()
-if(${EXIT_CODE} EQUAL 1)  # not installed
-  execute_process(COMMAND_ECHO STDOUT COMMAND ${Python3_EXECUTABLE} -m pip install -U pip wheel )
-  execute_process(COMMAND_ECHO STDOUT COMMAND ${Python3_EXECUTABLE} -m pip install -r ${CMAKE_CURRENT_LIST_DIR}/requirements.txt )
-endif ()
-message(STATUS "Python3 found: ${Python3_EXECUTABLE}")
-
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
 
 find_package(Git REQUIRED)
 message(STATUS "Git found: ${GIT_EXECUTABLE}")

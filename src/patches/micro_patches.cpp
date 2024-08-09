@@ -19,6 +19,15 @@ bool control_windowed_mode::enabled = true;
 bool force_32bit_everything::enabled = true;
 bool disable_bonus_damage::enabled = false;
 bool backstab_fix::enabled = true;
+bool workshop_manufacture_build_time_fix::enabled = true;
+bool use_wasd_by_default_patch::enabled = true;
+
+void use_wasd_by_default_patch::useAlternativeName(LPCSTR &lpValueName) {
+    if(!use_wasd_by_default_patch::enabled) return;
+    if(lpValueName && strncmp(lpValueName, "Key Table", 12) == 0) {
+        lpValueName = "Key Table Flame";
+    }
+}
 
 void fix_keyboard_state_on_alt_tab::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
     switch(Msg) {

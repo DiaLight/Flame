@@ -14,7 +14,6 @@ Requirements:
 - Dungeon Keeper II v1.70
 - Git https://git-scm.com/download/win
 - Python 3 https://www.python.org/downloads/windows/
-- GitPython https://pypi.org/project/GitPython/
 
 How to build:
 - `mkdir build && cd build`

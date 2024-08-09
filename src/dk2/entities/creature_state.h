@@ -1,0 +1,61 @@
+//
+// Created by DiaLight on 08.08.2024.
+//
+
+#ifndef FLAME_CREATURE_STATE_H
+#define FLAME_CREATURE_STATE_H
+
+
+#define StateFlags1_InHand 0x00000001
+#define StateFlags1_ContributesToPortalLimit 0x00000002
+#define StateFlags1_AttackAbnormalTargets 0x00000004
+#define StateFlags1_RebelActive 0x00000008
+#define StateFlags1_RebelLeader 0x00000010
+#define StateFlags1_DeadBodyOnDestroy 0x00000020
+#define StateFlags1_LeaveNoTrace 0x00000040
+#define StateFlags1_Possessed 0x00000080
+#define StateFlags1_HeldByPossessed 0x00000100
+#define StateFlags1_ThrownByPossessed 0x00000200
+#define StateFlags1_BeingElectrocuted 0x00000400
+#define StateFlags1_VampireIsBat 0x00000800
+#define StateFlags1_Creeping 0x00001000
+#define StateFlags1_Praying 0x00002000
+#define StateFlags1_Leaving 0x00004000
+#define StateFlags1_CombatPitFighter 0x00008000
+#define StateFlags1_CannotLeaveHealthLoss 0x00010000
+#define StateFlags1_IgnoringDoors 0x00020000
+#define StateFlags1_IgnoringLockedRegion 0x00040000
+#define StateFlags1_CheckingAllDoors 0x00080000
+#define StateFlags1_CallToArmsOn 0x00100000
+#define StateFlags1_CreatureDying 0x00200000
+#define StateFlags1_FightProcessCounter 0x00400000
+#define StateFlags1_WasLastDroppedOnARoom 0x04000000
+#define StateFlags1_ShouldDelayGetUp 0x08000000
+#define StateFlags1_FlyingCreatureMovingUp 0x10000000
+#define StateFlags1_LeavingLava 0x20000000
+#define StateFlags1_SkeletonFromSkeletonArmy 0x40000000
+#define StateFlags1_SniperMode 0x80000000
+
+#define StateFlags2_IsHypnotised 0x00000001
+#define StateFlags2_AnimBackwards 0x00000002
+#define StateFlags2_CantBeResurrected 0x00000004
+#define StateFlags2_InfluencedByPossessed 0x00000008
+#define StateFlags2_HasBeenConverted 0x00000010
+#define StateFlags2_SkipNextPayment 0x00000020
+#define StateFlags2_IsAttackable 0x00000040
+#define StateFlags2_DestroysRooms 0x00000080
+#define StateFlags2_IsTool 0x00000100
+#define StateFlags2_IsMercenary 0x00000200
+#define StateFlags2_HasBeenKnockedOut 0x00000400
+#define StateFlags2_DieInstantly 0x00000800
+#define StateFlags2_PlayInstanceAnimation 0x00001000
+#define StateFlags2_CasinoGamblingFearless 0x00002000
+#define StateFlags2_TortureVoluntary 0x00004000
+#define StateFlags2_IsHasted 0x00008000
+#define StateFlags2_IsSlowed 0x00010000
+#define StateFlags2_IsOneShotReaper 0x00040000
+#define StateFlags2_ReaperComplete 0x00080000
+#define StateFlags2_Fleeing 0x00100000
+#define StateFlags2_InWater 0x00200000
+
+#endif //FLAME_CREATURE_STATE_H

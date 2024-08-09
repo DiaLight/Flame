@@ -38,7 +38,7 @@ void move_mouse(DWORD offs, DWORD value) {
 
 //    MouseXyzDxAction *action = this->listXYZ.getOrCreateUnhandled();
     auto *action = (dk2::MouseXyzDxAction *) new char[sizeof(dk2::MouseXyzDxAction)];
-    *(void **) action = &dk2::MouseRgbDxAction_vftable;
+    *(void **) action = &dk2::MouseRgbDxAction::vftable;
     xyzActionsInProgress.push_back(action);
 
     action->value = value;  // relative or absolute motion
@@ -52,7 +52,7 @@ void click_mouse(DWORD dik_scancode, DWORD flags) {
     auto *updater = dk2::MyInputManagerCb_instance.f5C_controlKeys;
     // do not try to call constructor/destructor
     auto *action = (dk2::MouseRgbDxAction *) new char[sizeof(dk2::MouseRgbDxAction)];
-    *(void **) action = &dk2::MouseRgbDxAction_vftable;
+    *(void **) action = &dk2::MouseRgbDxAction::vftable;
     rgbActionsInProgress.push_back(action);
 
 //  action.f10_KeyCode_F0toF3 = click_dinput_to_dk2(dinput_dwOffs);

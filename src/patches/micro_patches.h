@@ -36,6 +36,15 @@ namespace backstab_fix {
     extern bool enabled;
 }
 
+namespace workshop_manufacture_build_time_fix {
+    extern bool enabled;
+}
+
+namespace use_wasd_by_default_patch {
+    extern bool enabled;
+    void useAlternativeName(LPCSTR &lpValueName);
+}
+
 namespace fix_keyboard_state_on_alt_tab {
     void window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 }

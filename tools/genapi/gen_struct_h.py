@@ -56,6 +56,11 @@ def format_struct_h(
     yield f"namespace dk2 {{"
     yield f"#pragma pack(push, 1)"
     yield f"{'union' if struct.is_union else 'struct'} {struct.name}{name_suffix} {{"
+    if struct.vtable is not None:
+      vtable_glob = vtable_map.get(struct.vtable.id, None)
+      if vtable_glob is not None:
+        yield f"/*{vtable_glob.va:08X}*/ static void *vftable[];"
+        yield f"/*---*/ inline void *getVtbl() const {{ return *(void **) this; }}"
     yield empty_line
     offs = struct.calc_fields_offs()
     used_names = set()
@@ -69,9 +74,6 @@ def format_struct_h(
     if struct.vtable is not None:
       yield f"/*---*/ {struct.name}() = delete;"
       yield f"/*---*/ ~{struct.name}() = delete;"
-      vtable_glob = vtable_map.get(struct.vtable.id, None)
-      if vtable_glob is not None:
-        yield f"/*{vtable_glob.va:08X} vftable*/"
 
       def format_vtable(struct: sgmap.Struct, vtable_values, is_super=False):
         if len(struct.vtable.fields) == 0:

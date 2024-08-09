@@ -215,7 +215,7 @@ struct: id=call_f0_at_005DA01F,name=DxAction_vtbl,size=4
 struct: id=instance_006728F8,name=MouseRgbDxAction_vtbl,size=4,super=call_f0_at_005DA01F
 global: va=006728F8,name=MouseRgbDxAction_vftable,size=4
   type: kind=struct,id=instance_006728F8
-)", "?MouseRgbDxAction_vftable@dk2@@3PAPAXA", "void * * dk2::MouseRgbDxAction_vftable");
+)", "?vftable@MouseRgbDxAction@dk2@@2PAPAXA", "void * * dk2::MouseRgbDxAction::vftable");
 }
 
 int main() {

@@ -305,24 +305,22 @@ void mangleFunction(std::stringstream &ss, Struct *member_of, FunctionType *fun,
 }
 void mangleGlobal(std::stringstream &ss, Global *global, std::map<std::string, size_t> &backReference) {
     // https://clang.llvm.org/doxygen/MicrosoftMangle_8cpp_source.html#l00622
-    ss << "3";  // # global
-    // result: ?g_wchar_buf@dk2@@3[A
-    // expect: ?g_wchar_buf@dk2@@3PA_WA
-    // ?g_wchar_buf@dk2@
-    // @
-    // 3  <global>
-    // PA <manglePointerCVQualifiers><mangleQualifiers>
-    // _W  <wchar_t>
-    // A  <mangleQualifiers>
+    // <storage-class> ::= 0  # private static member
+    //                 ::= 1  # protected static member
+    //                 ::= 2  # public static member
+    //                 ::= 3  # global
+    //                 ::= 4  # static local
 
     if(global->name.ends_with("_vftable")) {
         // assume all vftable as void *[?]
+        ss << "2";  // # public static member
         ss << 'P';
         ss << 'A';
         ss << 'P';
         ss << 'A';
         ss << 'X';
     } else {
+        ss << "3";  // # global
         mangleType(ss, global->type, backReference);
     }
 
@@ -331,10 +329,15 @@ void mangleGlobal(std::stringstream &ss, Global *global, std::map<std::string, s
 std::string msvcMangleName(Global *global) {
     std::vector<std::string> names;
     names.emplace_back("dk2");  // namespace
-    if(global->member_of != nullptr) {
-        names.emplace_back(global->member_of->name);  // class
+    if(global->name.ends_with("_vftable")) {
+        names.emplace_back(global->name.substr(0, global->name.size() - strlen("_vftable")));  // class
+        names.emplace_back("vftable");  // member name
+    } else {
+        if(global->member_of != nullptr) {
+            names.emplace_back(global->member_of->name);  // class
+        }
+        names.emplace_back(global->name);  // global name
     }
-    names.emplace_back(global->name);  // global name
 
     std::stringstream ss;
     ss << "?";
