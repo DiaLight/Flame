@@ -44,10 +44,10 @@ bool dk2::dk2_main2() {
             return false;
         }
         if ( MyResources_instance.gameCfg.f124 ) {
-            MyResources_instance.gameCfg.useFe = 1;
+            MyResources_instance.gameCfg.useFe_playMode = 1;
             MyResources_instance.gameCfg.useFe_unkTy = 3;
         } else if ( MyResources_instance.gameCfg.f128 == 1 ) {
-            MyResources_instance.gameCfg.useFe = 4;
+            MyResources_instance.gameCfg.useFe_playMode = 4;
             MyResources_instance.gameCfg.useFe_unkTy = 3;
         } else if ( !cmd_flag_FrontEnd3D_unk8 ) {
             if ( MyGame_instance.sub_559790() < 240.0 && getDevIdxSupportsLinearPerspective() != -1
@@ -56,7 +56,7 @@ bool dk2::dk2_main2() {
                 MyResources_instance.gameCfg.useFe2d_unk2 = 1;
             }
             MyResources_instance.gameCfg.useFe3d = 1;
-            MyResources_instance.gameCfg.useFe = 5;
+            MyResources_instance.gameCfg.useFe_playMode = 5;
             _wcsncpy(MyResources_instance.gameCfg.levelName, L"FrontEnd3DLevel", 0x40u);
             MyResources_instance.gameCfg.levelName[63] = 0;
             MyResources_instance.gameCfg.hasSaveFile = 0;

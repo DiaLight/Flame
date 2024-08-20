@@ -11,7 +11,7 @@
 #include "patches/replace_mouse_dinput_to_user32.h"
 #include "patches/micro_patches.h"
 #include "patches/use_wheel_to_zoom.h"
-#include "patches/version_patch.h"
+#include "patches/game_version_patch.h"
 
 
 int32_t dk2::MyGame::isOsCompatible() {
@@ -211,7 +211,7 @@ BOOL __cdecl dk2::parse_command_line(int argc, const char **argv) {
             MyResources_instance.video_settings.cmd_flag_SOFTWAREFILTER = 1;
         } else if (!_strcmpi(*cur_token, "-FE3D")) {  // Defines 3D FrontEnd (?)
             MyResources_instance.gameCfg.useFe3d = 1;
-            MyResources_instance.gameCfg.useFe = 1;
+            MyResources_instance.gameCfg.useFe_playMode = 1;
             wcsncpy(MyResources_instance.gameCfg.levelName, L"FrontEnd3DLevel", 64);
             MyResources_instance.gameCfg.levelName[63] = 0;
             MyResources_instance.gameCfg.hasSaveFile = 0;
@@ -221,7 +221,7 @@ BOOL __cdecl dk2::parse_command_line(int argc, const char **argv) {
             cmd_flag_FrontEnd3D_unk8 = 1;
         } else if (!_strcmpi(*cur_token, "-FE")) {  // Defines 2D FrontEnd (I tried and the screen stayed black so, beware!) (?)
             MyResources_instance.gameCfg.useFe3d = 0;
-            MyResources_instance.gameCfg.useFe = 1;
+            MyResources_instance.gameCfg.useFe_playMode = 1;
             wcsncpy(MyResources_instance.gameCfg.levelName, L"FrontEnd3DLevel", 64);
             MyResources_instance.gameCfg.levelName[63] = 0;
             MyResources_instance.gameCfg.hasSaveFile = 0;
@@ -304,7 +304,7 @@ void __cdecl dk2::CTextBox_renderVersion(dk2::CTextBox *textBox, CFrontEndCompon
     renderer.selectMyCR(&status, 0);
     renderer.selectMyTR(&status, 2);
     wchar_t wstring[64];
-    if(char *version = version_patch::getFileVersion()) {
+    if(char *version = game_version_patch::getFileVersion()) {
         swprintf(wstring, L"%S", version);
     } else {
         swprintf(wstring, L"V%lu.%lu", g_majorVersion, g_minorVersion);

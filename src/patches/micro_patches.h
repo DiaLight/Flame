@@ -40,6 +40,10 @@ namespace workshop_manufacture_build_time_fix {
     extern bool enabled;
 }
 
+namespace response_to_threat_fix {
+    extern bool enabled;
+}
+
 namespace use_wasd_by_default_patch {
     extern bool enabled;
     void useAlternativeName(LPCSTR &lpValueName);

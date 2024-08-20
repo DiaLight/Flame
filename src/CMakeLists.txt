@@ -11,6 +11,7 @@ add_executable(${TARGET}
         dk2/CGameComponent.cpp
         dk2/PlayerCfg.cpp
         dk2/RegKey.cpp
+        dk2/MyComputerPlayer.cpp
         dk2/entities/entities_type.cpp
         dk2/entities/CCreature.cpp
         dk2/entities/CPlayer.cpp
@@ -18,7 +19,7 @@ add_executable(${TARGET}
         patches/replace_mouse_dinput_to_user32.cpp
         patches/use_wheel_to_zoom.cpp
         patches/micro_patches.cpp
-        patches/version_patch.cpp
+        patches/game_version_patch.cpp
 
         ${DKII_RESOURCES_FILE}
         )

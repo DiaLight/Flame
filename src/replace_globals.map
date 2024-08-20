@@ -50,6 +50,9 @@
 00506B70 int getManufactureRequired(uint16_t);  // ---  /* auto */
 004C3200 int creatureDidWorkshopWork(int, CCreature *);  /* auto */
 
+# CComputerPlayer.h
+004FE0B0 char tickRespondToAttack(char);  // ---------  /* auto */
+
 # PlayerCfg.h
 005604C0 void fillKeyMaps();  // ---------------------  /* auto */
 

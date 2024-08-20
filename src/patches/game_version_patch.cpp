@@ -2,11 +2,11 @@
 // Created by DiaLight on 06.08.2024.
 //
 
-#include "version_patch.h"
+#include "game_version_patch.h"
 #include <Windows.h>
 #include <cstdio>
 
-bool version_patch::enabled = true;
+bool game_version_patch::enabled = true;
 
 bool resolveFileVersion(char *out) {
     bool status = false;
@@ -53,7 +53,7 @@ namespace {
     char versionCache[64] = {0};
 }
 
-char *version_patch::getFileVersion() {
+char *game_version_patch::getFileVersion() {
     if(!enabled) return nullptr;
     if(versionCache[0] == '\0') if(!resolveFileVersion(versionCache)) enabled = false;
     if(versionCache[0] == '\0') return nullptr;

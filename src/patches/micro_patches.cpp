@@ -20,6 +20,7 @@ bool force_32bit_everything::enabled = true;
 bool disable_bonus_damage::enabled = false;
 bool backstab_fix::enabled = true;
 bool workshop_manufacture_build_time_fix::enabled = true;
+bool response_to_threat_fix::enabled = true;
 bool use_wasd_by_default_patch::enabled = true;
 
 void use_wasd_by_default_patch::useAlternativeName(LPCSTR &lpValueName) {

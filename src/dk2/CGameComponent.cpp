@@ -39,7 +39,7 @@ dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
     if (!MyResources_instance.gameCfg.useFe2d_unk1) this->mt_profiler.constructor2();
     CCommunicationInterface *v2_comm_i;
     v2_comm_i = &CNetworkCommunication_instance;
-    if ( MyResources_instance.gameCfg.useFe != 3 )
+    if ( MyResources_instance.gameCfg.useFe_playMode != 3 )
         v2_comm_i = &CLocalCommunication_instance;
 //    CCommunicationInterface *v32;
 //    v32 = v2_comm_i;  // probably seh
@@ -246,7 +246,7 @@ dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
         useFe3d = MyResources_instance.gameCfg.useFe3d;
         MyResources_instance.gameCfg.useFe2d_unk1 = 0;
     }
-    if ( MyResources_instance.gameCfg.useFe == 3 && !useFe3d ) {
+    if ( MyResources_instance.gameCfg.useFe_playMode == 3 && !useFe3d ) {
         Pos2i pos;
         pos.x = 0;
         pos.y = 0;
@@ -299,8 +299,8 @@ dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
     if ( useFe3d ) return 0;
     if ( MyResources_instance.gameCfg.unk_f16C ) {
         MyResources_instance.gameCfg.useFe3d = 1;
-        MyResources_instance.gameCfg.useFe_unk3 = MyResources_instance.gameCfg.useFe;
-        MyResources_instance.gameCfg.useFe = 5;
+        MyResources_instance.gameCfg.useFe_unk3 = MyResources_instance.gameCfg.useFe_playMode;
+        MyResources_instance.gameCfg.useFe_playMode = 5;
         wcsncpy(MyResources_instance.gameCfg.levelName, L"FrontEnd3DLevel", 64u);
         MyResources_instance.gameCfg.levelName[63] = 0;
         MyResources_instance.gameCfg.hasSaveFile = 0;
