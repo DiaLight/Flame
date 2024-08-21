@@ -8,11 +8,21 @@ For a more detailed description of how Flame  works, read `how_it_works.md`
 
 The latest build can be taken from the github actions
 
-Requirements:
+How to install:
+- copy DKII-Flame-1.7.0-*.exe from github actions to game directory (no need to rename DKII-DX.exe or DKII.exe. exe name does not matter)
+- copy ddraw.dll from https://github.com/narzoul/DDrawCompat/releases/tag/v0.5.3 to game directory
+- copy dinput.dll from https://github.com/elishacloud/dinputto8/releases/tag/v1.0.54.0 to game directory
+- run DKII-Flame-1.7.0-*.exe
+
+Additional ddraw.dll and dinput.dll are fixing some graphical bugs and i think improve general stability.
+I prefer not spending time on fixing something that already fixed by other developers.
+When report issue please ensure that you are uses these dlls.
+The Steam version of the game is installed along with these dlls
+
+Build requirements:
 - CMake 3.25 or higher https://cmake.org/download/
 - Visual Studio 2022
-- Dungeon Keeper II v1.70
-- Git https://git-scm.com/download/win
+- Dungeon Keeper II v1.70 (GOG/Steam version)
 - Python 3 https://www.python.org/downloads/windows/
 
 How to build:
