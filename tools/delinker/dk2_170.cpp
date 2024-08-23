@@ -40,8 +40,8 @@ bool collectSectionChunks(uint8_t *base, std::vector<SectionChunk> &out) {
             uninitializedData = virtualEnd + 1;
             chunkEnd = virtualEnd + 1;
         } else if(secName == ".data") {     // RW- virtualEnd=007A6DD0 rawEnd=006CCC00
-            // in dk2_170 uninitialized data starts with va=006CCA20
-            uninitializedData = 0x006CCA20;
+            // in dk2_170 uninitialized data starts with va=006CCC00 but we'll move it forward a little
+            uninitializedData = 0x006CD190;
         } else if(secName == "grpoly_d") {  // RW- virtualEnd=007A7730 rawEnd=007A7800 endVal=56000400
             // ok
         } else if(secName == "uva_data") {  // RW- virtualEnd=007ACACC rawEnd=007ACC00 endVal=56000400

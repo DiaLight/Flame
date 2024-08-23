@@ -9,7 +9,7 @@ For a more detailed description of how Flame  works, read `how_it_works.md`
 The latest build can be taken from the github actions
 
 How to install:
-- copy DKII-Flame-1.7.0-*.exe from github actions to game directory (no need to rename DKII-DX.exe or DKII.exe. exe name does not matter)
+- copy DKII-Flame-1.7.0-*.exe from github actions to game directory (no need rename to DKII-DX.exe or DKII.exe. exe name does not matter)
 - copy ddraw.dll from https://github.com/narzoul/DDrawCompat/releases/tag/v0.5.3 to game directory
 - copy dinput.dll from https://github.com/elishacloud/dinputto8/releases/tag/v1.0.54.0 to game directory
 - run DKII-Flame-1.7.0-*.exe

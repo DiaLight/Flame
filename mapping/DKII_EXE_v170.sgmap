@@ -4992,9 +4992,8 @@ struct: id=vtbl_0066EF3C,name=CFrontEndComponent,size=201210,vtable=instance_006
     type: kind=int,size=4
   field: name=field_6015
     type: kind=int,size=1,signed=True,winapi=char
-  field: name=gap6016
-    type: kind=array,count=4
-      type: kind=int,size=1
+  field: name=field_6016
+    type: kind=int,size=4,signed=True
   field: name=field_601A
     type: kind=int,size=1,signed=True,winapi=char
   field: name=gap601B
@@ -16577,7 +16576,7 @@ struct: id=constructor_00506660,name=MyManufactureList,size=2056
 struct: id=constructor_00452B30,path=dk2/world/map,name=MyMapElement,size=16
   field: name=field_0
     type: kind=int,size=2
-  field: name=field_2_roomId
+  field: name=f2_roomId
     type: kind=int,size=2
   field: name=field_4
     type: kind=int,size=2,signed=True
@@ -48087,10 +48086,11 @@ global: va=00541AA0,name=sub_541AA0,size=841,member_of=vtbl_0066EF3C
       type: kind=struct,id=vtbl_0066EF3C
     arg: kind=ptr,is_const=True
       type: kind=int,size=1,signed=True,winapi=char
-global: va=00541DF0,name=sub_541DF0,size=337
+global: va=00541DF0,name=CFrontEndComponent_sub_541DF0,size=337
   type: kind=function,declspec=cdecl
     ret: kind=int,size=1,signed=True,winapi=char
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066EF3C
 global: va=00541F50,name=CButton_sub_541F50,size=284
   type: kind=function,declspec=cdecl
     ret: kind=int,size=1,signed=True,winapi=char
@@ -59832,24 +59832,24 @@ global: va=005B6B00,name=sub_5B6B00,size=53
 global: va=005B6B50,name=sub_5B6B50,size=53
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-global: va=005B6BE0,name=sub_5B6BE0,size=130
+global: va=005B6BE0,name=sub_5B6BE0,size=130,member_of=vtbl_00671F80
   type: kind=function,declspec=thiscall
     ret: kind=ptr
       type: kind=int,size=4
     arg: kind=ptr
-      type: kind=int,size=1,signed=True,winapi=char
+      type: kind=struct,id=vtbl_00671F80
     arg: kind=ptr
       type: kind=int,size=4
     arg: kind=ptr
       type: kind=struct,id=vtbl_00671F80
     arg: kind=ptr
       type: kind=struct,id=constructor_005B5270
-global: va=005B6C70,name=sub_5B6C70,size=246
+global: va=005B6C70,name=sub_5B6C70,size=246,member_of=vtbl_00671F80
   type: kind=function,declspec=thiscall
     ret: kind=ptr
       type: kind=int,size=4
     arg: kind=ptr
-      type: kind=int,size=1,signed=True,winapi=char
+      type: kind=struct,id=vtbl_00671F80
     arg: kind=ptr
       type: kind=int,size=4
     arg: kind=int,size=4,signed=True
@@ -79781,11 +79781,9 @@ global: va=006CC648,name=Dest,size=4
     type: kind=int,size=1,signed=True,winapi=char
 global: va=006CCA20,name=CEntryComponent_instance,size=64
   type: kind=struct,id=vtbl_0066C424
-global: va=006CCA60,name=myDdSurfaceArr_x15,size=1680
-  type: kind=array,count=21
+global: va=006CCA60,name=myDdSurfaceArr_x23,size=1840
+  type: kind=array,count=23
     type: kind=struct,id=instance_0079D200
-global: va=006CD0F0,name=myDdSurface_end,size=4
-  type: kind=int,size=4,signed=True
 global: va=006CE850,name=my_surf,size=80
   type: kind=struct,id=instance_0079D200
 global: va=006CE8A0,name=idx,size=4
