@@ -44,6 +44,14 @@ namespace response_to_threat_fix {
     extern bool enabled;
 }
 
+namespace print_game_start_errors {
+    extern bool enabled;
+}
+
+namespace creatures_setup_lair_fix {
+    extern bool enabled;
+}
+
 namespace use_wasd_by_default_patch {
     extern bool enabled;
     void useAlternativeName(LPCSTR &lpValueName);
@@ -63,6 +71,12 @@ namespace fix_close_window {
 
 namespace hide_mouse_cursor_in_window {
     bool window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
+}
+
+namespace remember_window_location_and_size {
+    bool window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
+    void patchWinLoc(int &xPos, int &yPos);
+    void resizeWindow(HWND hWnd);
 }
 
 namespace skippable_title_screen {

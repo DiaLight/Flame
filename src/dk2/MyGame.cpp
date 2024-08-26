@@ -108,12 +108,16 @@ int dk2::MyGame::prepareScreenEx(
     if (isWindowed) {
         dwHeight_ = dwHeight;
         AABB aabb;
-        aabb.minX = 50;
-        aabb.minY = 50;
-        aabb.maxX = dwWidth + 50;
-        aabb.maxY = dwHeight + 50;
+        int x = 50;
+        int y = 50;
+        remember_window_location_and_size::patchWinLoc(x, y);
+        aabb.minX = x;
+        aabb.minY = y;
+        aabb.maxX = dwWidth + x;
+        aabb.maxY = dwHeight + y;
         if (*this->c_window_test.probably_do_show_window_ev0_7(&dwHeight, &aabb) < 0)
             return 0;
+        remember_window_location_and_size::resizeWindow(this->c_window_test.hWnd);
         dwRGBBitCount_ = dwRGBBitCount;
     } else {
         dwRGBBitCount_ = dwRGBBitCount;

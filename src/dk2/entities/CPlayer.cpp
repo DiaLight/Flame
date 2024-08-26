@@ -60,3 +60,24 @@ int dk2::CPlayer::creatureDidWorkshopWork(int workMade, CCreature *a3_creature) 
     if (room->spawnBuiltManufactureItem(&a3a_item, a3_creature) == 0) return 0;
     return 1;
 }
+
+void dk2::CPlayer::resetCreaturesState() {
+    for (CCreature *creature = (CCreature *) sceneObjects[this->thingsOwnedList[0]];
+          creature;
+          creature = (CCreature *) sceneObjects[creature->fC_playerNodeY]) {
+        int curStateId = creature->cstate.currentStateId;
+        bool doResetState = false;
+        if (curStateId >= 3 && curStateId <= 4 || curStateId == 7) doResetState = true;
+        if (curStateId == 6 && creature->cstate.utilityNewState == 1) doResetState = true;
+
+        if(creatures_setup_lair_fix::enabled) {
+            // curStateId == 7: creature on the way to CRoom
+            // utilityNewState == 80: making a home
+            if(curStateId == 7 && creature->cstate.utilityNewState == 80) doResetState = false;
+        }
+        if (doResetState) {
+            creature->fun_48ECE0();
+            creature->setCurrentState_48AD30(1);
+        }
+    }
+}

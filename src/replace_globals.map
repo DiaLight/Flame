@@ -25,6 +25,8 @@
 00556650 LRESULT CWindowTest_proc(HWND, uint32_t, WPARAM, LPARAM);  /* auto */
 00556704 extern void *jpt_5566AF[6];  // -------------  /* auto */
 0055671C extern uint8_t idt_5566A9[212];  // ---------  /* auto */
+005B5070 LRESULT BullfrogWindow_proc(HWND, uint32_t, WPARAM, LPARAM);  /* auto */
+005B2E70 int __cdecl getCustomDefWindowProcA();  // --  /* auto */
 
 # MyGame.h
 00557FB0 int isOsCompatible();  // -------------------  /* auto */
@@ -49,6 +51,7 @@
 00506B50 BOOL testManufactureCompleted(uint16_t);       /* auto */
 00506B70 int getManufactureRequired(uint16_t);  // ---  /* auto */
 004C3200 int creatureDidWorkshopWork(int, CCreature *);  /* auto */
+004E8D30 void resetCreaturesState();  // -------------  /* auto */
 
 # CComputerPlayer.h
 004FE0B0 char tickRespondToAttack(char);  // ---------  /* auto */

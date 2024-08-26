@@ -3,6 +3,7 @@ set(TARGET dkii_flame)
 add_executable(${TARGET}
         main.cpp
         dkii_exe_functions.cpp
+        window_proc_functions.cpp
         dk2/MyResources.cpp
         dk2/MyGame.cpp
         dk2/MyDxMouse.cpp
@@ -61,8 +62,9 @@ target_link_options(${TARGET} PRIVATE /OPT:NOREF)
 target_link_options(${TARGET} PRIVATE /MAP)  # generate msvc mapping file for exe
 set_property(TARGET ${TARGET} PROPERTY
         MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+set(OUTPUT_NAME "DKII-Flame${OUTPUT_SUFFIX}")
 set_target_properties(${TARGET} PROPERTIES OUTPUT_NAME
-        "DKII-Flame${OUTPUT_SUFFIX}"
+        "${OUTPUT_NAME}"
 )
-
+set_target_properties(${TARGET} PROPERTIES TARGET_MAP_FILE "${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_NAME}.map")
 

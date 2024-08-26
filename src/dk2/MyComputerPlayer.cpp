@@ -41,7 +41,7 @@ char dk2::MyComputerPlayer::tickRespondToAttack(char a2_tendancySpeed) {
                                               * g_pObj6F2550->healthMultiplier_byLevel[(unsigned __int8) v64_level]
                                               / 100;
                             if (f3C_health > (int) (v24_modHealth >> 2)) {
-                                char v25 = g_stateEntries2[v20_creature->cstate.currentStateId].f16;
+                                char v25 = g_stateEntries[v20_creature->cstate.currentStateId].f16;
                                 if (v25 != 7 && v25 != 3) {
                                     unsigned __int8 v63_level = f403_level;
                                     unsigned int v26_modHealth = f403_level == 1

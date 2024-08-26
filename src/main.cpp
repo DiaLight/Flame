@@ -31,16 +31,25 @@ bool dk2::dk2_main2() {
                 MySound_ptr->v_fun_567410();
                 CSpeechSystem_instance.sub_568020();
             }
+            if(print_game_start_errors::enabled) {
+                printf("failed to call WeaNetR_instance.init()\n");
+            }
             return false;
         }
         if ( !MyGame_instance.isOsCompatible() ) {
             WeaNetR_instance.sub_559CB0();
             if ( !cmd_flag_NOSOUND ) MySound_ptr->v_fun_567410();
+            if(print_game_start_errors::enabled) {
+                printf("failed to call MyGame_instance.isOsCompatible()\n");
+            }
             return false;
         }
         if ( !all_components_fillStaticListeners() ) {
             WeaNetR_instance.sub_559CB0();
             if ( !cmd_flag_NOSOUND ) MySound_ptr->v_fun_567410();
+            if(print_game_start_errors::enabled) {
+                printf("failed to call all_components_fillStaticListeners()\n");
+            }
             return false;
         }
         if ( MyResources_instance.gameCfg.f124 ) {
@@ -143,8 +152,18 @@ bool dk2::dk2_main1(int argc, LPCSTR *argv) {
         closeFindFile(&status_2, (int)&FindFileData);
     }
     MyResources_instance.sub_55B120();
-    if (!parse_command_line(argc, argv)) return false;
-    if (!loadResources()) return false;
+    if (!parse_command_line(argc, argv)) {
+        if(print_game_start_errors::enabled) {
+            printf("failed to parse command line\n");
+        }
+        return false;
+    }
+    if (!loadResources()) {
+        if(print_game_start_errors::enabled) {
+            printf("failed to load resources\n");
+        }
+        return false;
+    }
     bool useDefaultWindowName = true;
     unsigned __int8 *MbString = MyMbStringList_idx1091_getMbString(42u);  // "Dungeon Keeper II"
     if ( MBToUni_convert(MbString, g_wchar_buf, 512) && unicodeToUtf8(g_wchar_buf, temp_string, 512) ) {
@@ -172,25 +191,55 @@ bool dk2::dk2_main1(int argc, LPCSTR *argv) {
             }
         }
     }
-    bool success = MyGame_instance.init() && dk2_main2();
+    bool success = false;
+    if(MyGame_instance.init()) {
+        if(dk2_main2()) {
+            success = true;
+        } else {
+            if(print_game_start_errors::enabled) {
+                printf("failed to call dk2_main2()\n");
+            }
+        }
+    } else {
+        if(print_game_start_errors::enabled) {
+            printf("failed to call MyGame_instance.init()\n");
+        }
+    }
     MyGame_instance.release();
     releaseResources();
     CoUninitialize();
     return success;
 }
 
+LPTOP_LEVEL_EXCEPTION_FILTER g_prev = nullptr;
+LONG WINAPI TopLevelExceptionFilter(_In_ struct _EXCEPTION_POINTERS *ExceptionInfo) {
+    printf("caught exception %08X at %p\n", ExceptionInfo->ExceptionRecord->ExceptionCode, ExceptionInfo->ExceptionRecord->ExceptionAddress);
+    printf("exe base: %p\n", GetModuleHandleA(NULL));
+    auto &R = *ExceptionInfo->ContextRecord;
+    printf("eax=%08X ebx=%08X ecx=%08X edx=%08X\n", R.Eax, R.Ebx, R.Ecx, R.Edx);
+    printf("esi=%08X edi=%08X esp=%08X ebp=%08X\n", R.Esi, R.Edi, R.Esp, R.Ebp);
+    printf("eip=%08X efl=%08X\n", R.Eip, R.EFlags);
+    MessageBoxA(NULL, "Exception was caught", "Flame", MB_OK);
+    return g_prev(ExceptionInfo);
+}
 int __cdecl dk2::dk2_main(int argc, LPCSTR *argv) {
+    g_prev = SetUnhandledExceptionFilter(TopLevelExceptionFilter);
+
     uint32_t finalStatus = 0;
     MyMutex mutex;
     mutex.constructor("DKII MUTEX");
     if (!mutex.alredyExists ) {
         if(!dk2_main1(argc, argv)) {
+            if(print_game_start_errors::enabled) {
+                MessageBoxA(NULL, "Game failed to start", "Flame", MB_OK);
+            }
             finalStatus = -1;
             mutex.destroy();
             return 0;
         }
     } else if(notify_another_instance_is_running::enabled) {
-        printf("[ERROR]: another instance of DK2 is running");
+        printf("[ERROR]: another instance of DK2 is already running");
+        MessageBoxA(NULL, "Another instance of DK2 is already running", "Dungeon Keeper 2", MB_OK);
     }
 
     finalStatus = -1;

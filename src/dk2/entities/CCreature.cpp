@@ -44,7 +44,7 @@ int dk2::CCreature::processDealDamage() {
             CObject *v9_object = (CObject *)sceneObjects[targetCreature->lairId];
             static_assert(CCreature_typeId_DarkAngel == 23);
             if ( v9_object->typeId == CCreature_typeId_DarkAngel ) {
-                targetCreature->cstate.fun_476D30(84, 0);
+                targetCreature->cstate.setCurrentState_476D30(84, 0);
             } else {
                 v9_object->renderInfo.fAF = v9_object->renderInfo.fAF & 0xFE ^ 1;
                 targetCreature->renderInfo.fAF = targetCreature->renderInfo.fAF & 0xFE ^ 1;
@@ -61,7 +61,7 @@ int dk2::CCreature::processDealDamage() {
                 v27.x += g_angle2048_to_x[v14] >> 16;
                 v27.y += g_angle2048_to_y[v14] >> 16;
                 targetCreature->fun_4B5560(&v27);
-                targetCreature->fun_48AD30(1);
+                targetCreature->setCurrentState_48AD30(1);
             }
         }
         if ( targetCreature->invulnerableTimer ) return 0;
@@ -69,7 +69,7 @@ int dk2::CCreature::processDealDamage() {
         if ( (this->creatureData->flags & 0x4000) != 0
              && targetCreature->f24_playerId == this->f24_playerId ) {
             this->fun_48F3F0();
-            this->fun_48AD30(242);
+            this->setCurrentState_48AD30(242);
             targetCreature->stateFlags &= ~StateFlags1_DeadBodyOnDestroy;
             targetCreature->v_f20();
             return 0;
@@ -131,7 +131,7 @@ int dk2::CCreature::processDealDamage() {
     }
     if ( (this->creatureData->flags & 0x4000) != 0 ) {
         if ( v7_target->v_f28() )
-            this->fun_48AD30(239);
+            this->setCurrentState_48AD30(239);
     }
     this->field_2A = MySound_ptr->v_fun_5678F0(
             this->field_2A,

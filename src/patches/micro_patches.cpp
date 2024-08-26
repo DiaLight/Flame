@@ -22,6 +22,8 @@ bool backstab_fix::enabled = true;
 bool workshop_manufacture_build_time_fix::enabled = true;
 bool response_to_threat_fix::enabled = true;
 bool use_wasd_by_default_patch::enabled = true;
+bool print_game_start_errors::enabled = true;
+bool creatures_setup_lair_fix::enabled = true;
 
 void use_wasd_by_default_patch::useAlternativeName(LPCSTR &lpValueName) {
     if(!use_wasd_by_default_patch::enabled) return;
@@ -81,9 +83,50 @@ bool hide_mouse_cursor_in_window::window_proc(HWND hWnd, UINT Msg, WPARAM wParam
                 SetCursor(NULL);
                 return true;
             }
+            break;
         }
     }
     return false;
+}
+
+namespace {
+    POINT window_pos = {50, 50};
+    POINT window_size = {0, 0};
+    bool ignore_size = true;
+}
+bool remember_window_location_and_size::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
+    switch(Msg) {
+        case WM_DESTROY: {
+            ignore_size = true;
+            break;
+        }
+        case WM_MOVE: {
+            RECT winRect;
+            GetWindowRect(hWnd, &winRect);
+            window_pos = {winRect.left, winRect.top};
+
+            break;
+        }
+        case WM_SIZE: {
+            if(!ignore_size) {
+                RECT winRect;
+                GetWindowRect(hWnd, &winRect);
+                window_size = {winRect.right - winRect.left, winRect.bottom - winRect.top};
+            }
+            break;
+        }
+    }
+    return false;
+}
+void remember_window_location_and_size::patchWinLoc(int &xPos, int &yPos) {
+    xPos = window_pos.x;
+    yPos = window_pos.y;
+}
+void remember_window_location_and_size::resizeWindow(HWND hWnd) {
+    if(window_size.x != 0 && window_size.y != 0) {
+        SetWindowPos(hWnd, NULL, 0, 0, window_size.x, window_size.y, SWP_NOMOVE | SWP_NOZORDER);
+    }
+    ignore_size = false;
 }
 
 bool skippable_title_screen::enabled = true;
