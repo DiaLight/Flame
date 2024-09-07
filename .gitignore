@@ -93,6 +93,8 @@ venv.bak/
 /mapping/ida/entry.py
 **/genlib/*.exp
 **/genlib/*.lib
+**/genlib/*.def
+**/genlib/*.map
 **/delinked/*.obj
 **/delinked/*.obj.map
 /tools/PEview.exe

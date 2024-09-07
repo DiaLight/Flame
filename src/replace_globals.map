@@ -14,8 +14,6 @@
 # MyDxMouse.h
 005BC760 int *__cdecl MyDxMouse_create(int *, MyDxMouse **);  /* auto */
 005DDA90 void handleData(int);  // -------------------  /* auto */
-005DDB88 extern void *jpt_5DDAC1[5];  // -------------  /* auto */
-005DDBAC extern void *jpt_5DDB05[4];  // -------------  /* auto */
 
 # MyDxKeyboard.h
 005DE260 int processKeyboardData(int);  // -----------  /* auto */
@@ -23,8 +21,6 @@
 
 # CWindowTest.h
 00556650 LRESULT CWindowTest_proc(HWND, uint32_t, WPARAM, LPARAM);  /* auto */
-00556704 extern void *jpt_5566AF[6];  // -------------  /* auto */
-0055671C extern uint8_t idt_5566A9[212];  // ---------  /* auto */
 005B5070 LRESULT BullfrogWindow_proc(HWND, uint32_t, WPARAM, LPARAM);  /* auto */
 005B2E70 int __cdecl getCustomDefWindowProcA();  // --  /* auto */
 

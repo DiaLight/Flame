@@ -1,17 +1,19 @@
 Flame is a new approach to modifying compiled code Dungeon Keeper 2
 
-Difference from the previous implementation(https://github.com/DiaLight/Ember):
-* Ember converts `DKII.EXE` to `dk2.dll` and performs memory dot patches on it after the code has been loaded into memory.
-* Flame parses `DKII.EXE` into `msvc` compatible `.obj` files. These files are replaced with other `.obj` files. Then they are compiled back into `DKII-Flame.EXE`
+Flame recompiles some functions of `DKII.EXE` into a separate `.exe` file.
+Then it merges this file with the original `.exe` file, replacing the references to
+the original functions with the references to recompiled functions.
+Recompiled functions are supplemented with switchable changes that fix some game bugs
 
-For a more detailed description of how Flame  works, read `how_it_works.md`
+[Earlier](https://github.com/DiaLight/Flame/tree/46e5b0c1df93060bd01a83bb6d14d064e9c8c3dc "Full relinking approach"), this project implemented an approach to fully relinking `DKII.EXE`,
+which contains false positive references that caused new bugs.
 
 The latest build can be taken from the github actions
 
 How to install:
 - copy DKII-Flame-1.7.0-*.exe from github actions to game directory (no need rename to DKII-DX.exe or DKII.exe. exe name does not matter)
-- copy ddraw.dll from https://github.com/narzoul/DDrawCompat/releases/tag/v0.5.3 to game directory
-- copy dinput.dll from https://github.com/elishacloud/dinputto8/releases/tag/v1.0.54.0 to game directory
+- (optional, but recommended) copy ddraw.dll from https://github.com/narzoul/DDrawCompat/releases/tag/v0.5.3 to game directory
+- (optional, but recommended) copy dinput.dll from https://github.com/elishacloud/dinputto8/releases/tag/v1.0.54.0 to game directory
 - run DKII-Flame-1.7.0-*.exe
 
 Additional ddraw.dll and dinput.dll are fixing some graphical bugs and i think improve general stability.

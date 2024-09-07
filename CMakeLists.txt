@@ -65,8 +65,3 @@ if(CONFIGURE_DATE)
 endif ()
 add_subdirectory(src)
 
-install(TARGETS dkii_flame RUNTIME DESTINATION ".")
-install(FILES $<TARGET_PDB_FILE:dkii_flame> DESTINATION ".")
-get_target_property(_target_map_file dkii_flame TARGET_MAP_FILE)
-install(FILES ${_target_map_file} DESTINATION ".")
-

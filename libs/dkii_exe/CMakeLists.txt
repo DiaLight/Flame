@@ -1,5 +1,6 @@
 
-add_subdirectory(delinked)
+#add_subdirectory(delinked)
+add_subdirectory(genlib)
 
 
 set(API_HEADERS

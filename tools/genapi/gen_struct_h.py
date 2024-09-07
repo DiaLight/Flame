@@ -59,7 +59,7 @@ def format_struct_h(
     if struct.vtable is not None:
       vtable_glob = vtable_map.get(struct.vtable.id, None)
       if vtable_glob is not None:
-        yield f"/*{vtable_glob.va:08X}*/ static void *vftable[];"
+        yield f"/*{vtable_glob.va:08X}*/ __declspec( dllimport ) static void *vftable[];"
         yield f"/*---*/ inline void *getVtbl() const {{ return *(void **) this; }}"
     yield empty_line
     offs = struct.calc_fields_offs()

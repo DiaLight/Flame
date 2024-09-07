@@ -39,6 +39,7 @@ def format_globals_h(globals: list[sgmap.Global]):
   yield from map(format_autogen_line, format_h_head())
 
   def format_h_body():
+    yield f'#define _imp __declspec( dllimport ) extern'
     yield f"namespace dk2 {{"
     for glob in filter(filter_global_var, globals):
       glob_type = glob.type
@@ -60,8 +61,9 @@ def format_globals_h(globals: list[sgmap.Global]):
       #   name = f"(&{name})"
       # else:
       #   name = f"&{name}"
-      yield f"/*{glob.va:08X}*/ extern {format_type(glob_type, name)};"
+      yield f"/*{glob.va:08X}*/ _imp {format_type(glob_type, name)};"
     yield f"}}  // namespace dk2"
+    yield f"#undef _imp"
   yield from map(format_autogen_line, format_h_body())
 
   def format_h_tail():
