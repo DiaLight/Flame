@@ -11,6 +11,9 @@
 # CGameComponent.h
 00525370 CGameComponent *mainGuiLoop();  // ----------  /* auto */
 
+# CDefaultPlayerInterface.h
+00406DF0 int tickKeyboard2();  // --------------------  /* auto */
+
 # MyDxMouse.h
 005BC760 int *__cdecl MyDxMouse_create(int *, MyDxMouse **);  /* auto */
 005DDA90 void handleData(int);  // -------------------  /* auto */

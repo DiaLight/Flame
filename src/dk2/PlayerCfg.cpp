@@ -40,17 +40,17 @@ enum Dk2KeyModifier {
 
 std::map<int, dk2::DxKeyEntry> defaultKeyTable = {
         {1,               {DIK_INSERT,   0}},  // 1: 0xD2
-        {2,               {0x52,         0}},  // 2: 0x52
-        {3,               {0x39,         0}},  // 3: 0x39
-        {4,               {0x9D,         0}},  // 4: 0x9D
-        {5,               {0x36,         0}},  // 5: 0x36
-        {6,               {2,            0}},  // 6: 2
-        {7,               {3,            0}},  // 7: 3
-        {8,               {4,            0}},  // 8: 4
-        {9,               {5,            0}},  // 9: 5
-        {10,              {6,            0}},  // 10: 6
-        {11,              {7,            0}},  // 11: 7
-        {12,              {8,            0}},  // 12: 8
+        {2,               {DIK_NUMPAD0,  0}},  // 2: 0x52
+        {3,               {DIK_SPACE,    0}},  // 3: 0x39
+        {4,               {DIK_RCONTROL, 0}},  // 4: 0x9D
+        {5,               {DIK_RSHIFT,   0}},  // 5: 0x36
+        {6,               {DIK_1,        0}},  // 6: 2
+        {7,               {DIK_2,        0}},  // 7: 3
+        {8,               {DIK_3,        0}},  // 8: 4
+        {9,               {DIK_4,        0}},  // 9: 5
+        {10,              {DIK_5,        0}},  // 10: 6
+        {11,              {DIK_6,        0}},  // 11: 7
+        {12,              {DIK_7,        0}},  // 12: 8
         {13,              {DIK_G,        Mod_Ctrl}},  // 13: 0x22 + 2
         {Key_ZoomIn,      {DIK_HOME,     0}},  // 14: 0xC7
         {Key_ZoomOut,     {DIK_END,      0}},  // 15: 0xCF
@@ -66,33 +66,33 @@ std::map<int, dk2::DxKeyEntry> defaultKeyTable = {
         {25,              {DIK_SYSRQ,    0}},  // 25: 0xB7
         {26,              {DIK_PGUP,     0}},  // 26: 0xC9
         {27,              {DIK_TAB,      0}},  // 27: 0xF
-        {28,              {0xD,          0}}, // 28: 0xD  Japanese Keyboard case f0_dxKey=0x90
-        {29,              {0xC,          0}},  // 29: 0xC
+        {28,              {DIK_EQUALS,   0}},  // 28: 0xD  Japanese Keyboard case f0_dxKey=0x90
+        {29,              {DIK_MINUS,    0}},  // 29: 0xC
         {30,              {DIK_F1,       0}},  // 30: 0x3B
-        {31,              {0x3C,         0}},  // 31: 0x3C
-        {32,              {0x3D,         0}},  // 32: 0x3D
-        {33,              {0x3E,         0}},  // 33: 0x3E
-        {34,              {0x3F,         0}},  // 34: 0x3F
-        {35,              {0x40,         0}},  // 35: 0x40
+        {31,              {DIK_F2,       0}},  // 31: 0x3C
+        {32,              {DIK_F3,       0}},  // 32: 0x3D
+        {33,              {DIK_F4,       0}},  // 33: 0x3E
+        {34,              {DIK_F5,       0}},  // 34: 0x3F
+        {35,              {DIK_F6,       0}},  // 35: 0x40
         {Key_ToggleAllyWindow, {DIK_A,        0}},  // 36: 0x1E
         {37,              {DIK_F,        0}},  // 37: 0x21
-        {38,              {0x22,         0}},  // 38: 0x22
-        {39,              {0x23,         0}},  // 39: 0x23
+        {38,              {DIK_G,        0}},  // 38: 0x22
+        {39,              {DIK_H,        0}},  // 39: 0x23
         {40,              {DIK_I,        0}},  // 40: 0x17
         {41,              {DIK_M,        0}},  // 41: 0x32
         {42,              {DIK_P,        0}},  // 42: 0x19
-        {43,              {0x2D,         0}},  // 43: 0x2D
-        {44,              {0x2C,         0}},  // 44: 0x2C
-        {45,              {0x34,         Mod_Shift}},  // 45: 0x34 + 1
-        {46,              {0x33,         Mod_Shift}},  // 46: 0x33 + 1
+        {43,              {DIK_X,        0}},  // 43: 0x2D
+        {44,              {DIK_Z,        0}},  // 44: 0x2C
+        {45,              {DIK_PERIOD,   Mod_Shift}},  // 45: 0x34 + 1
+        {46,              {DIK_COMMA,    Mod_Shift}},  // 46: 0x33 + 1
         {Key_PitchUp,     {DIK_HOME,     Mod_Ctrl}},  // 47: 0xC7 + 2
         {Key_PitchDown,   {DIK_END,      Mod_Ctrl}},  // 48: 0xCF + 2
         {Key_RollLeft,    {DIK_INSERT,   Mod_Ctrl}},  // 49: 0xD2 + 2
         {Key_RollRight,   {DIK_DELETE,   Mod_Ctrl}},  // 50: 0xD3 + 2
         {Key_YawLeft,     {DIK_PGUP,     Mod_Ctrl}},  // 51: 0xC9 + 2
         {Key_YawRight,    {DIK_PGDN,     Mod_Ctrl}},  // 52: 0xD1 + 2
-        {53,              {0x34,         Mod_Ctrl}},  // 53: 0x34 + 2
-        {54,              {0x33,         Mod_Ctrl}},  // 54: 0x33 + 2
+        {53,              {DIK_PERIOD,   Mod_Ctrl}},  // 53: 0x34 + 2
+        {54,              {DIK_COMMA,    Mod_Ctrl}},  // 54: 0x33 + 2
         {55,              {DIK_L,        Mod_Ctrl}},  // 55: 0x26 + 2
         {56,              {DIK_S,        Mod_Ctrl}},  // 56: 0x1F + 2
         {57,              {DIK_R,        Mod_Ctrl}},  // 57: 0x13 + 2

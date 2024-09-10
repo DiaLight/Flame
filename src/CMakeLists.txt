@@ -10,6 +10,7 @@ add_executable(${TARGET}
         dk2/MyDxKeyboard.cpp
         dk2/CFrontEndComponent.cpp
         dk2/CGameComponent.cpp
+        dk2/CDefaultPlayerInterface.cpp
         dk2/PlayerCfg.cpp
         dk2/RegKey.cpp
         dk2/MyComputerPlayer.cpp

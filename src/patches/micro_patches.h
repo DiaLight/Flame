@@ -22,6 +22,7 @@ namespace notify_another_instance_is_running {
 
 namespace control_windowed_mode {
     extern bool enabled;
+    extern bool disable_move_by_mouse;
 }
 
 namespace force_32bit_everything {
