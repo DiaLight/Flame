@@ -56,7 +56,12 @@ void mangleTagTypeKind(std::stringstream &ss, Type *ty) {
         }
     }
     if(ty->kind == TK_Winapi) {
-        ss << 'U';
+        auto *winTy = (WinapiType *) ty;
+        if(winTy->is_union) {
+            ss << 'T';
+        } else {
+            ss << 'U';
+        }
     }
 }
 
@@ -142,6 +147,18 @@ void mangleName(std::stringstream &ss, const std::string &name, std::map<std::st
     }
 }
 
+void mangleCConv(std::stringstream &ss, CConv decl) {
+    bool exported = true;
+    switch (decl) {
+        case DS_assembly:
+        case DS_cdecl_varargs:
+        case DS_cdecl: ss << (exported ? 'A' : 'B'); return;
+        case DS_thiscall: ss << (exported ? 'E' : 'F'); return;
+        case DS_stdcall: ss << (exported ? 'G' : 'H'); return;
+        case DS_fastcall: ss << (exported ? 'I' : 'J'); return;
+    }
+}
+
 void mangleFunction(std::stringstream &ss, Struct *member_of, FunctionType *fun, std::map<std::string, size_t> &backReference);
 void mangleType(std::stringstream &ss, Type *ty, std::map<std::string, size_t> &backReference) {
     if(ty->kind == TK_Int) {
@@ -175,11 +192,16 @@ void mangleType(std::stringstream &ss, Type *ty, std::map<std::string, size_t> &
     if(ty->kind == TK_Ptr) {  // https://clang.llvm.org/doxygen/MicrosoftMangle_8cpp_source.html#l03186
         auto *ptrTy = (PtrType *) ty;
         ss << 'P';
+        // MicrosoftCXXNameMangler::mangleFunctionType
         if(ptrTy->type->kind == TK_Function) {
+            auto *funTy = (FunctionType *) ptrTy->type;
             ss << '6';
+            mangleCConv(ss, funTy->cconv);
+            mangleType(ss, ptrTy->type, backReference);
+        } else {
+            mangleQualifiers(ss, ptrTy, false);
+            mangleType(ss, ptrTy->type, backReference);
         }
-        mangleQualifiers(ss, ptrTy, false);
-        mangleType(ss, ptrTy->type, backReference);
         return;
     }
     if(ty->kind == TK_Float) {
@@ -254,17 +276,6 @@ void mangleFunctionArgumentType(std::stringstream &ss, Type *ty, std::map<std::s
     }
 }
 
-void mangleCConv(std::stringstream &ss, CConv decl) {
-    bool exported = true;
-    switch (decl) {
-        case DS_assembly:
-        case DS_cdecl_varargs:
-        case DS_cdecl: ss << (exported ? 'A' : 'B'); return;
-        case DS_thiscall: ss << (exported ? 'E' : 'F'); return;
-        case DS_stdcall: ss << (exported ? 'G' : 'H'); return;
-        case DS_fastcall: ss << (exported ? 'I' : 'J'); return;
-    }
-}
 void mangleFunctionClass(std::stringstream &ss, Struct *member_of, FunctionType *fun) {
     // https://clang.llvm.org/doxygen/MicrosoftMangle_8cpp_source.html#l02916
     if(member_of) {

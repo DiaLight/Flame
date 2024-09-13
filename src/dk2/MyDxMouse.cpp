@@ -10,6 +10,7 @@
 #include "dk2/MouseXyzDxAction.h"
 #include "dk2/MouseRgbDxAction.h"
 #include "dk2/ControlKeysUpdater.h"
+#include "dk2/MyDxKeyboard.h"
 #include "dk2_functions.h"
 #include "patches/replace_mouse_dinput_to_user32.h"
 #include "patches/use_wheel_to_zoom.h"
@@ -121,3 +122,11 @@ void dk2::MyDxMouse::handleData(int count) {
     }
 }
 
+uint32_t *dk2::MyDxInputManagerCb::onWindowActivated(uint32_t *psatatus, int isActivated) {
+    this->f54_pdxKeyboard->dx_device.updateWindowActive(isActivated);
+    if (!replace_mouse_dinput_to_user32::enabled) {
+        this->f58_pdxmouse->dx_device.updateWindowActive(isActivated);
+    }
+    this->updateCoopLevelAndSignal(psatatus);
+    return psatatus;
+}

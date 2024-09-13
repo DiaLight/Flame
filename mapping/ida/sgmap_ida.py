@@ -45,7 +45,7 @@ def is_windows_type(tname):
     '_UNICODE_STRING', '_LIST_ENTRY', '_PROCESSOR_NUMBER', '_LARGE_INTEGER',
     '_ULARGE_INTEGER', '_CURDIR', '_STRING', 'tWAVEFORMATEX', '_DSCAPS', 'DSCAPS',
     'DSBCAPS', '_DSBUFFERDESC', 'WAVEFORMATEX',
-    'CHAR', 'char', '_TBYTE', 'WCHAR', 'wchar_t'
+    'LPCSTR', 'CHAR', 'char', '_TBYTE', 'WCHAR', 'wchar_t'
   ]: return True
   return False
 
@@ -489,7 +489,11 @@ class IdaTypeConvert:
       if tname == "LPDIDEVICEOBJECTDATA_10":
         tname = "DIDEVICEOBJECTDATA"
         print("replace!!")
-      return sgmap.WinapiType(tname, size)
+      til = tif.get_til()
+      is_union = False
+      if til:
+        is_union = tif.is_union()
+      return sgmap.WinapiType(tname, size, is_union)
     struct_ = self.structs.get_by_name(tname)
     if struct_ is not None:
       return sgmap.StructType(struct_)

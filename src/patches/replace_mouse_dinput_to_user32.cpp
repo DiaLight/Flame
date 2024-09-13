@@ -91,12 +91,13 @@ void handle_fpv_mouse_move(HWND hWnd, POINT pos) {
     clientResetPos.x = (clientRect.left + clientRect.right) / 2;
     clientResetPos.y = (clientRect.top + clientRect.bottom) / 2;
 
+    float sensitivity = dk2::MyResources_instance.playerCfg.mouseSensitivity / 10.0;
     if(pos.x != lastPos.x) {
-        dk2::MyInputManagerCb_instance.f60_mouse->f24_flX_delta = pos.x - lastPos.x;
+        dk2::MyInputManagerCb_instance.f60_mouse->f24_flX_delta = (float) (pos.x - lastPos.x) * sensitivity;
         lastPos.x = pos.x;
     }
     if(pos.y != lastPos.y) {
-        dk2::MyInputManagerCb_instance.f60_mouse->f28_flY_delta = pos.y - lastPos.y;
+        dk2::MyInputManagerCb_instance.f60_mouse->f28_flY_delta = (float) (pos.y - lastPos.y) * sensitivity;
         lastPos.y = pos.y;
     }
 
@@ -116,8 +117,8 @@ void handle_fpv_mouse_move(HWND hWnd, POINT pos) {
 //        );
     }
 }
-void replace_mouse_dinput_to_user32::handle_mouse_move(HWND hWnd, POINT pos) {
 
+void replace_mouse_dinput_to_user32::handle_mouse_move(HWND hWnd, POINT pos) {
     // handle gui mouse
     dk2::AABB renderRect = dk2::MyInputManagerCb_instance.f60_mouse->f30_aabb;
     dk2::Pos2i renderSize = {renderRect.maxX - renderRect.minX, renderRect.maxY - renderRect.minY};
@@ -145,6 +146,11 @@ void replace_mouse_dinput_to_user32::emulate_dinput_from_user32(HWND hWnd, UINT 
     switch (Msg) {
         case WM_SIZE: {
             clientSize = {LOWORD(lParam), HIWORD(lParam)};
+            break;
+        }
+        case WM_MOUSEMOVE: {
+            POINT mousePos = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+            handle_mouse_move(hWnd, mousePos);
             break;
         }
         case WM_LBUTTONDOWN:

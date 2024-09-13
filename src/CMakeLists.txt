@@ -3,7 +3,6 @@ set(TARGET flame)
 add_executable(${TARGET}
         main.cpp
         dkii_exe_functions.cpp
-        window_proc_functions.cpp
         dk2/MyResources.cpp
         dk2/MyGame.cpp
         dk2/MyDxMouse.cpp
@@ -19,14 +18,39 @@ add_executable(${TARGET}
         dk2/entities/CCreature.cpp
         dk2/entities/CPlayer.cpp
 
+        dk2/engine/draw_functions.cpp
+        dk2/engine/window_proc_functions.cpp
+        dk2/engine/ddraw_functions.cpp
+
         patches/replace_mouse_dinput_to_user32.cpp
         patches/use_wheel_to_zoom.cpp
         patches/micro_patches.cpp
         patches/game_version_patch.cpp
 
+        patches/gog_patch_dll/gog_patch_dll.cpp
+        patches/gog_patch_dll/gog_cfg.cpp
+        patches/gog_patch_dll/gog_globals.cpp
+        patches/gog_patch_dll/gog_fake.cpp
+        patches/gog_patch_dll/gog_exports.cpp
+        patches/gog_patch_dll/gog_patch.cpp
+        patches/gog_patch_dll/fake/FakeD3D.cpp
+        patches/gog_patch_dll/fake/FakeD3D2.cpp
+        patches/gog_patch_dll/fake/FakeD3D3.cpp
+        patches/gog_patch_dll/fake/FakeDevice3.cpp
+        patches/gog_patch_dll/fake/FakeDirectDraw1.cpp
+        patches/gog_patch_dll/fake/FakeDirectDraw2.cpp
+        patches/gog_patch_dll/fake/FakeDirectDraw4.cpp
+        patches/gog_patch_dll/fake/FakeGammaControl.cpp
+        patches/gog_patch_dll/fake/FakeSurface.cpp
+        patches/gog_patch_dll/fake/FakeSurface4.cpp
+        patches/gog_patch_dll/fake/FakeTexture.cpp
+        patches/gog_patch_dll/fake/FakeViewport3.cpp
+        patches/gog_patch_dll/fake/FakeZBuffer.cpp
+        patches/gog_patch_dll/fake/FakeUnknown.cpp
+
 #        ${DKII_RESOURCES_FILE}
         )
-target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_LIST_DIR} patches/gog_patch_dll)
 target_compile_definitions(${TARGET} PRIVATE
         DIRECTINPUT_VERSION=0x0500
         DIRECT3D_VERSION=0x0600
@@ -43,7 +67,7 @@ target_link_libraries(${TARGET} PRIVATE
         winmm
         dinput_genlib  # generated in dinput_dll/genlib
         ddraw  # patch - dont link against gog's PATCH.dll because patch addresses are change after recompilation
-        # also i fully decompiled gog's PATCH.dll and bundled in project
+        dxguid
 
         imm32
         # wsock32 is old link target

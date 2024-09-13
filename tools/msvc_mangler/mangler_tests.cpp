@@ -96,7 +96,7 @@ global: va=00553B90,name=MBToUni_convert,size=109
     arg: kind=ptr
       type: kind=int,size=1
     arg: kind=ptr
-      type: kind=int,size=2,winapi=wchar_t
+      type: kind=int,size=2,winapi=wchar_t,fname=wchar_t
     arg: kind=int,size=2,signed=True
 )", "?MBToUni_convert@dk2@@YAHPAEPA_WF@Z", "int __cdecl dk2::MBToUni_convert(unsigned char *,wchar_t *,short)");
     // WCHAR
@@ -133,9 +133,9 @@ global: va=00634E90,name=_swprintf,size=148
   type: kind=function,declspec=cdecl_varargs
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=2,winapi=wchar_t
+      type: kind=int,size=2,winapi=wchar_t,fname=wchar_t
     arg: kind=ptr,is_const=True
-      type: kind=int,size=2,winapi=wchar_t
+      type: kind=int,size=2,winapi=wchar_t,fname=wchar_t
 )", "?_swprintf@dk2@@YAHPA_WPB_WZZ", "int __cdecl dk2::_swprintf(wchar_t *,wchar_t const *,...)");
     // float
     assert_mangle(R"(
@@ -162,7 +162,7 @@ global: va=005BAE70,name=constructor,size=61,member_of=constructor_005BAE70
     assert_mangle(R"(
 global: va=00740780,name=g_wchar_buf,size=1024
   type: kind=array,count=512
-    type: kind=int,size=2,winapi=wchar_t
+    type: kind=int,size=2,winapi=wchar_t,fname=wchar_t
 )", "?g_wchar_buf@dk2@@3PA_WA", "wchar_t * dk2::g_wchar_buf");
     // function arg
     assert_mangle(R"(
@@ -198,9 +198,6 @@ global: va=005DDBC0,name=initDevice_0,size=25,member_of=vtbl_00673048
     arg: kind=ptr
       type: kind=int,size=4,signed=True,winapi=HRESULT,fname=HRESULT
 )", "?initDevice_0@MyDirectInput@dk2@@QAEPAJPAJ@Z", "public: long * __thiscall dk2::MyDirectInput::initDevice_0(long *)");
-}
-
-void last_test() {
     // vftable
     assert_mangle(R"(
 struct: id=call_f0_at_005DA01F,name=DxAction_vtbl,size=4
@@ -216,6 +213,40 @@ struct: id=instance_006728F8,name=MouseRgbDxAction_vtbl,size=4,super=call_f0_at_
 global: va=006728F8,name=MouseRgbDxAction_vftable,size=4
   type: kind=struct,id=instance_006728F8
 )", "?vftable@MouseRgbDxAction@dk2@@2PAPAXA", "void * * dk2::MouseRgbDxAction::vftable");
+    // function stdcall arg
+    assert_mangle(R"(
+struct: id=constructor_005B97B0,name=WinEventHandlers,size=0
+global: va=005B99E0,name=addHandler,size=200,member_of=constructor_005B97B0
+  type: kind=function,declspec=thiscall
+    ret: kind=void
+    arg: kind=ptr
+      type: kind=struct,id=constructor_005B97B0
+    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=function,declspec=stdcall
+        ret: kind=void
+        arg: kind=int,size=4,signed=True
+        arg: kind=int,size=4,signed=True
+        arg: kind=ptr
+          type: kind=void
+    arg: kind=ptr
+      type: kind=void
+)", "?addHandler@WinEventHandlers@dk2@@QAEXHP6GXHHPAX@Z0@Z", "void __thiscall dk2::WinEventHandlers::addHandler(int,void (__stdcall*)(int,int,void *),void *)");
+}
+
+void last_test() {
+    // winapi union
+    assert_mangle(R"(
+global: va=00653080,name=mgsr_drawTriangle24_impl5,size=2798
+  type: kind=function,declspec=cdecl
+    ret: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=winapi,name=__m64,size=8,is_union=True
+    arg: kind=ptr
+      type: kind=winapi,name=__m64,size=8,is_union=True
+    arg: kind=ptr
+      type: kind=winapi,name=__m64,size=8,is_union=True
+)", "?mgsr_drawTriangle24_impl5@dk2@@YAHPAT__m64@@00@Z", "int __cdecl dk2::mgsr_drawTriangle24_impl5(union __m64 *,union __m64 *,union __m64 *)");
 }
 
 int main() {

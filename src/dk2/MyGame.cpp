@@ -17,8 +17,9 @@ int dk2::MyGame::prepareScreenEx(
         int isWindowed,
         int screenSwap,
         int screenHardware3D) {
-    if(control_windowed_mode::enabled) {
-        printf("prepareScreen %p %dx%d %d %d %d %d\n", this, dwWidth, dwHeight, dwRGBBitCount, isWindowed, screenSwap, screenHardware3D);
+    if (control_windowed_mode::enabled) {
+        printf("prepareScreen %p %dx%d %d %d %d %d\n", this, dwWidth, dwHeight, dwRGBBitCount, isWindowed, screenSwap,
+               screenHardware3D);
         isWindowed = true;  // todo: control
     }
     int sel_dd_idx = this->selected_dd_idx;
@@ -137,12 +138,11 @@ int dk2::MyGame::prepareScreenEx(
                     MyResources_instance.soundCfg.numberOfChannels);
         MyResources_instance.soundCfg.resolveValues();
     }
-    int screenSwap__1 = screenSwap;
     this->isWindowed = isWindowed;
     this->dwWidth = dwWidth;
     this->dwHeight = dwHeight_;
     this->dwRGBBitCount = dwRGBBitCount_;
-    this->_prepareScreen_a6 = screenSwap__1;
+    this->_prepareScreen_a6 = screenSwap;
     this->_prepareScreen_a7 = screenHardware3D_;
     this->f18 = 0;
     this->collect3dDevices();
@@ -182,5 +182,53 @@ int dk2::MyGame::prepareScreenEx(
     MyResources_instance.video_settings.sub_566EC0(1);
     HWND HWindow = getHWindow();
     ij_ImmAssociateContext(HWindow, 0);
+    return 1;
+}
+
+namespace dk2 {
+    void inline_selectDrawEngine(dk2::MyGame *game);
+}
+int dk2::MyGame::init() {
+    inline_selectDrawEngine(this);
+    int status;
+    if (*MyInputManagerCb_static_initKeyInputs(&status) < 0) {
+        return 0;
+    }
+    int status_;
+    if (*MyInputManagerCb_static_initCursorInputs(&status_) < 0) {
+        return 0;
+    }
+    if (!this->createWindow(1)) {
+        return 0;
+    }
+    if (!this->prepareScreenEx(
+            MyResources_instance.video_settings.display_width,
+            MyResources_instance.video_settings.display_height,
+            MyResources_instance.video_settings.display_bitnes,
+            MyResources_instance.video_settings.isWindowed,
+            MyResources_instance.video_settings.screen_swap,
+            MyResources_instance.video_settings.screen_hardware3D)
+        && !this->prepareScreenEx(
+            640,
+            480,
+            MyResources_instance.video_settings.display_bitnes,
+            MyResources_instance.video_settings.isWindowed,
+            MyResources_instance.video_settings.screen_swap,
+            MyResources_instance.video_settings.screen_hardware3D)) {
+        printf("failed to prepare screen\n");
+        return 0;
+    }
+    setCustomDefWindowProcA((int) myCustomDefWindowProcA);
+    WinEventHandlers_instance.addHandler(
+            0,
+            (void (__stdcall *)(int, int, void *)) static_MyGame_Event07_cb,
+            this);
+    this->fE71 = 0;
+    this->fE75 = 0;
+    this->recreateRequest = 0;
+    this->fE7D = 0;
+    this->moonAge = calc_moon_age();
+    this->f0 = 1;
+    this->fF51 = 0;
     return 1;
 }

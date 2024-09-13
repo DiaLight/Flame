@@ -5,6 +5,7 @@
 #include "dk2_functions.h"
 #include "dk2_globals.h"
 #include "patches/micro_patches.h"
+#include "gog_patch.h"
 
 
 int dk2::CDefaultPlayerInterface::tickKeyboard2() {
@@ -22,7 +23,7 @@ int dk2::CDefaultPlayerInterface::tickKeyboard2() {
     int dwWidth = MyGame_instance.dwWidth;
     int dwHeight = MyGame_instance.dwHeight;
 
-    if(!control_windowed_mode::disable_move_by_mouse) {
+    if(!control_windowed_mode::enabled) {
         if ( x < 5 )
             this->pushMoveKeyAction(0, 0);
         if ( x > dwWidth - 5 )
@@ -85,3 +86,36 @@ int dk2::CDefaultPlayerInterface::tickKeyboard2() {
     v18_try_catch = 2;
     return this->pushAction(&v17_action);
 }
+
+
+void dk2::CDefaultPlayerInterface::createSurfacesForView_42CDF0(RtGuiView *view) {
+    CBridge *f10_c_bridge = this->profiler->c_bridge;
+    char *rowPos = (char *) view->surf.lpSurface;
+    int v4_bytesPerPix = view->dwRGBBitCount / 8;
+    int v13_lineSize = 32 * view->surf.lPitch;
+    char *v10__allyWindowText = (char *) view->surf.lpSurface;
+    for(unsigned int y = 0; y < view->height_32blocks; ++y) {
+        char *linePos = rowPos;
+        for(unsigned int x = 0; x < view->width_128blocks; ++x) {
+            int lPitch = view->surf.lPitch;
+            Pos2i v14_size;
+            v14_size.x = 128;
+            v14_size.y = 32;
+            MySurface v15_surf;
+            v15_surf.constructor(&v14_size, &view->surf.desc, linePos, lPitch);
+            int _idx = x + view->width_128blocks * y;
+            if(gog::RtGuiView_fix::enable) {
+                if(idx >= 93 && view == &dk2::CDefaultPlayerInterface_instance._allyWindowText) {
+                    idx = 0;
+                }
+            }
+            int _id = view->Arrp31x400_ids[_idx];
+            f10_c_bridge->v_f68(_id, &v15_surf, 1);
+            linePos += v4_bytesPerPix * 128;
+        }
+        rowPos = &v10__allyWindowText[v13_lineSize];
+        v10__allyWindowText += v13_lineSize;
+    }
+}
+
+

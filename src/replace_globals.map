@@ -5,6 +5,14 @@
 005B74A0 void resolveDk2HomeDir();  // ---------------  /* auto */
 005A63B0 int __cdecl parse_command_line(int, const char **);  /* auto */
 
+# engine
+0058A150 void drawTexToSurfTriangles();  // ----------  /* auto */
+00592B80 void __cdecl renderer_setSurfaceHolder(SurfaceHolder *, uint32_t);  /* auto */
+005573C0 BOOL collect_devices_DDEnumCB(_GUID *, const CHAR *, const CHAR *, void *);  /* auto */
+00557980 BOOL collect_displayModes_DDEnumCB(_GUID *, CHAR *, CHAR *, HWND);  /* auto */
+005B4DE0 int *__cdecl createDirectDrawObject(int *, _GUID *, IDirectDraw **);  /* auto */
+005578E0 int getDevIdxSupportsLinearPerspective();      /* auto */
+
 # CFrontEndComponent.h
 005340F0 void showTitleScreen();  // -----------------  /* auto */
 
@@ -18,6 +26,9 @@
 005BC760 int *__cdecl MyDxMouse_create(int *, MyDxMouse **);  /* auto */
 005DDA90 void handleData(int);  // -------------------  /* auto */
 
+# MyDxInputManagerCb.h
+005BC210 uint32_t *onWindowActivated(uint32_t *, int);  /* auto */
+
 # MyDxKeyboard.h
 005DE260 int processKeyboardData(int);  // -----------  /* auto */
 
@@ -28,6 +39,7 @@
 005B2E70 int __cdecl getCustomDefWindowProcA();  // --  /* auto */
 
 # MyGame.h
+00557CB0 int init();  // -----------------------------  /* auto */
 00557FB0 int isOsCompatible();  // -------------------  /* auto */
 005581B0 int prepareScreenEx(uint32_t, uint32_t, uint32_t, int, int, int);  /* auto */
 
@@ -62,5 +74,6 @@
 00562200 uint32_t *settings_writeBytes(uint32_t *, const CHAR *, uint32_t, uint8_t *, uint32_t);  /* auto */
 00562260 uint32_t *settings_readBytes(uint32_t *, const CHAR *, uint8_t *, uint32_t);  /* auto */
 005622B0 uint32_t settings_readBytesCount(const CHAR *);  /* auto */
+005626C0 int *settings_readValue(int *, LPCSTR, uint32_t *);  /* auto */
 
 

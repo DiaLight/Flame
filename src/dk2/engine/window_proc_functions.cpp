@@ -2,16 +2,17 @@
 // Created by DiaLight on 25.08.2024.
 //
 #include <Windows.h>
-#include <WinUser.h>
 #include <windowsx.h>
 #include "dk2/MyMouseUpdater.h"
-#include "dk2/button/CTextBox.h"
 #include "dk2/Event0_winShown7.h"
 #include "dk2_functions.h"
 #include "dk2_globals.h"
 #include "patches/replace_mouse_dinput_to_user32.h"
 #include "patches/micro_patches.h"
 #include "patches/use_wheel_to_zoom.h"
+#include "gog_patch.h"
+#include "gog_globals.h"
+#include "gog_debug.h"
 
 int __cdecl dk2::getCustomDefWindowProcA() {
     return customDefWindowProcA;
@@ -44,10 +45,7 @@ LRESULT dk2::CWindowTest_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
             break;
         }
         case WM_MOUSEMOVE: {
-            if(replace_mouse_dinput_to_user32::enabled) {
-                POINT mousePos = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
-                replace_mouse_dinput_to_user32::handle_mouse_move(hWnd, mousePos);
-            } else {
+            if(!replace_mouse_dinput_to_user32::enabled) {
                 Pos2i pos;
                 pos.x = LOWORD(lParam);
                 pos.y = HIWORD(lParam);
@@ -64,6 +62,11 @@ LRESULT dk2::CWindowTest_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 }
 
 LRESULT dk2::BullfrogWindow_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
+    replace_mouse_dinput_to_user32::emulate_dinput_from_user32(hWnd, Msg, wParam, lParam);
+    use_wheel_to_zoom::window_proc(hWnd, Msg, wParam, lParam);
+    fix_keyboard_state_on_alt_tab::window_proc(hWnd, Msg, wParam, lParam);
+    if(gog::BullfrogWindow_proc_patch::window_proc(hWnd, Msg, wParam, lParam))
+        return DefWindowProcA(hWnd, Msg, wParam, lParam);
     switch (Msg) {
         case WM_ACTIVATEAPP:
             g_isWindowActivated = wParam != 0;
@@ -95,6 +98,7 @@ LRESULT dk2::BullfrogWindow_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lPar
             }
             break;
     }
+    if(hide_mouse_cursor_in_window::window_proc(hWnd, Msg, wParam, lParam)) return TRUE;
 
     if (auto CustomDefWindowProcA = (CustomDefWindowProcA_t) getCustomDefWindowProcA())
         CustomDefWindowProcA(hWnd, Msg, wParam, lParam);

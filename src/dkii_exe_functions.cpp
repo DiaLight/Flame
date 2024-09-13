@@ -8,6 +8,8 @@
 #include "dk2_globals.h"
 #include "patches/micro_patches.h"
 #include "patches/game_version_patch.h"
+#include "gog_patch.h"
+#include "gog_cfg.h"
 
 
 int32_t dk2::MyGame::isOsCompatible() {
@@ -67,6 +69,14 @@ void dk2::resolveDk2HomeDir() {
 }
 
 BOOL __cdecl dk2::parse_command_line(int argc, const char **argv) {
+    if(gog::parseCommandLine_patch::enable) {
+        dk2::MyResources_instance.video_settings.cmd_flag_32BITTEXTURES = 1;
+        dk2::MyResources_instance.video_settings.zbuffer_bitnes = 32;
+        dk2::MyResources_instance.video_settings.display_bitnes = 32;
+        if (gog::cfg::iBumpmap) {
+            dk2::MyResources_instance.video_settings.setBumpMappingEnabled(1);
+        }
+    }
     MyGame_debugMsg(&MyGame_instance, "Cmd Line: ");
     for (int i = 0; i < argc; ++i) {
         MyGame_debugMsg(&MyGame_instance, "%s ", argv[i]);

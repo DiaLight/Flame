@@ -5,6 +5,7 @@
 #include "dk2_globals.h"
 #include "dk2/MyMutex.h"
 #include "patches/micro_patches.h"
+#include "gog_patch.h"
 
 namespace dk2 {
 
@@ -254,6 +255,7 @@ int dk2::WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *lpCmdLine, 
 
 int main() {
     // call entry point of DKII.EXE,
+    if(gog::enable) gog::patch_init();
     // initialize its runtime and call dk2::WinMain
     dk2::dk2_start();
 }

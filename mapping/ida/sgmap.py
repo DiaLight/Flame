@@ -372,22 +372,26 @@ class ArrayType(Type):
 class WinapiType(Type):
   kind = TypeKind.Winapi
 
-  def __init__(self, name: str, size: int = None):
+  def __init__(self, name: str, size: int = None, is_union: bool = False):
     super().__init__()
     self.name = name  # type: str
     self.size = size  # type: int
+    self.is_union = is_union
 
   def serialize_short(self):
     yield from super().serialize_short()
     yield f"name={self.name}"
     if self.size is not None:
       yield f"size={self.size}"
+    if self.is_union:
+      yield f"is_union={self.is_union}"
 
   def deserialize(self, it: ScopeLineIter, short_props: typing.Dict[str, str]):
     self.name = short_props["name"]
     size_str = short_props.get("size", None)
     if size_str is not None:
       self.size = int(size_str)
+    self.is_union = short_props.get("is_union", "False").lower() == 'true'
 
   @classmethod
   def create(cls, short_props: typing.Dict[str, str]):

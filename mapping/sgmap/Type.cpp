@@ -264,12 +264,13 @@ bool ArrayType::lt(const Type *rhs) const {
 
 
 Type *WinapiType::create(ScopeLineIter &sli, std::map<std::string, std::string> &shortProps, SGMapArena &arena) {
-    return arena.types.emplace_back(new WinapiType("", 0)).get();
+    return arena.types.emplace_back(new WinapiType("", 0, false)).get();
 }
 
 bool WinapiType::deserialize(ScopeLineIter &sli, std::map<std::string, std::string> &shortProps, SGMapArena &arena) {
     name = shortProps["name"];
     size = getIntOptional(shortProps, "size", 0);
+    is_union = getBoolOptional(shortProps, "is_union", false);
     return true;
 }
 
@@ -280,6 +281,7 @@ size_t WinapiType::calcSize() {
 bool WinapiType::lt(const Type *rhs) const {
     const WinapiType *rhsty = (WinapiType *) rhs;
     if(size != rhsty->size) return size < rhsty->size;
+    if(is_union != rhsty->is_union) return is_union < rhsty->is_union;
     return name < rhsty->name;
 }
 

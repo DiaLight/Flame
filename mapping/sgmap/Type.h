@@ -37,6 +37,9 @@ struct Type {
     [[nodiscard]] virtual bool link(std::map<std::string, Struct *> &structsMap) { return true; }
 
     bool operator <(const Type& rhs) const {
+//        TK_Void == TK_Function in msvc mangling
+        if(kind == TK_Void && rhs.kind == TK_Function) return false;
+        if(kind == TK_Function && rhs.kind == TK_Void) return false;
         if(kind != rhs.kind) return kind < rhs.kind;
         return lt(&rhs);
     }
@@ -195,8 +198,9 @@ struct WinapiType : public Type {
 
     std::string name;
     size_t size;
+    bool is_union;
 
-    WinapiType(std::string name, size_t size) : Type(TK_Winapi), name(std::move(name)), size(size) {}
+    WinapiType(std::string name, size_t size, bool is_union) : Type(TK_Winapi), name(std::move(name)), size(size), is_union(is_union) {}
     ~WinapiType() override = default;
 
     [[nodiscard]] static Type *create(ScopeLineIter &sli, std::map<std::string, std::string> &shortProps, SGMapArena &arena);
