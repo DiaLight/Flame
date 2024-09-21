@@ -83,8 +83,7 @@ def gen_functions(include_dir: pathlib.Path, globals: list[sgmap.Global]):
 
 
 def main(sgmap_file: pathlib.Path, include_dir: pathlib.Path):
-  with open(sgmap_file, 'r') as f:
-    structs, globals = sgmap.deserialize(map(lambda l: l.rstrip(), f.readlines()))
+  structs, globals = sgmap.parse_file(sgmap_file)
   print(f'{len(structs)} {len(globals)}')
   structs_map = {struct.id: struct for struct in structs}
 

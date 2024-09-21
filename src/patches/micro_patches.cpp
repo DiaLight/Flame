@@ -149,10 +149,10 @@ namespace {
 }
 void limit_fps::call() {
     DWORD time = GetTickCount();
-    int mspf = 1000 / DK2_fps_limit;
-    int freeTime = mspf - (time - lastTime);
-    if (freeTime > 0) {
-        SleepEx(freeTime, FALSE);
+    int mspf = 1000 / DK2_fps_limit; // 16
+    DWORD loopTime = time - lastTime;
+    if (loopTime < mspf) {
+        SleepEx(mspf - loopTime, FALSE);
     }
     lastTime = time;
 }

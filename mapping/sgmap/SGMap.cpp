@@ -19,6 +19,7 @@ bool SGMap_deserialize(
         std::string *line = sli.next();
         if(line == nullptr) break;
         if(line->empty()) continue;
+        if((*line)[0] == '#') continue;
         std::string key;
         std::map<std::string, std::string> shortProps;
         if(!_parseShort(*line, key, shortProps)) {

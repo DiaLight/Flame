@@ -83,7 +83,8 @@ class Relocs:
 
   def write(self):
     with open(self.file_path, "w") as f:
-      f.write("#src_va value dst_va kind\n")
+      f.write("## binary references mapping\n")
+      f.write("# src_va value dst_va kind\n")
       for rel in self.relocs:
         line = "%08X %08X %08X %s" % (rel.src_va, rel.value, rel.dst_va, rel.kind.format())
         f.write(line + "\n")

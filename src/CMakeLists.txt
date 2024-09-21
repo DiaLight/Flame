@@ -22,6 +22,10 @@ add_executable(${TARGET}
         dk2/engine/window_proc_functions.cpp
         dk2/engine/ddraw_functions.cpp
 
+        tools/bug_hunter.cpp
+        tools/StackLimits.cpp
+        tools/LoadedModules.cpp
+
         patches/replace_mouse_dinput_to_user32.cpp
         patches/use_wheel_to_zoom.cpp
         patches/micro_patches.cpp
@@ -74,12 +78,14 @@ target_link_libraries(${TARGET} PRIVATE
         ws2_32 # should be better
         dsound
         Version
+        Dbghelp
         )
 
 target_compile_options(${TARGET} PRIVATE
         /Gy  # Enable Function-Level Linking
         /Gw  # Optimize Global Data
-        /GS-
+#        /GL  # Whole program optimization
+        /GS-  # Buffer Security Check
         /Gz  # use __stdcall by default
         /wd4624  # Suppress warning destructor was implicitly defined as deleted
         )
@@ -101,7 +107,8 @@ set(MERGED_EXE "DKII-${OUTPUT_NAME}.exe")
 set(ABS_MERGED_EXE ${MERGED_EXE})
 list(TRANSFORM ABS_MERGED_EXE PREPEND "${CMAKE_CURRENT_BINARY_DIR}/")
 
-get_target_property(MSVC_MAP_FILE flame TARGET_MAP_FILE)
+get_target_property(FLAME_MSVCMAP_FILE flame TARGET_MAP_FILE)
+get_target_property(FLAME_PDB_FILE flame TARGET_PDB_FILE)
 get_target_property(MERGE_SRCS merge_dkii SOURCES)
 get_target_property(SOURCE_DIR merge_dkii SOURCE_DIR)
 set(ABS_MERGE_SRCS ${MERGE_SRCS})
@@ -110,16 +117,21 @@ add_custom_command(
         OUTPUT ${ABS_MERGED_EXE}
         COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${CMAKE_HOME_DIRECTORY}/mapping/ida
         ${Python3_EXECUTABLE} ${CMAKE_HOME_DIRECTORY}/tools/merge_dkii/main.py
-        -flame_map_file ${MSVC_MAP_FILE}
-        -dkii_map_file ${CMAKE_HOME_DIRECTORY}/libs/dkii_exe/genlib/dkii_symbols.map
-        -references_file ${CMAKE_HOME_DIRECTORY}/mapping/references.map
+        # dkii
         -dkii_exe ${CMAKE_HOME_DIRECTORY}/libs/dkii_exe/DKII.EXE
+        -dkii_symmap_file ${CMAKE_HOME_DIRECTORY}/libs/dkii_exe/genlib/dkii.symmap
+        -dkii_refmap_file ${CMAKE_HOME_DIRECTORY}/mapping/DKII_EXE_v170.refmap
+        -dkii_espmap_file ${CMAKE_HOME_DIRECTORY}/mapping/DKII_EXE_v170.espmap
+        # flame
         -flame_exe $<TARGET_FILE:flame>
-        -version "${VER_PRODUCT_NUMBER}.${VER_PRODUCT_VERSION}${VER_FILE_SUFFIX}"
+        -flame_msvcmap_file ${FLAME_MSVCMAP_FILE}
+        -flame_pdb_file $<TARGET_PDB_FILE:flame>
+        -flame_version "${VER_PRODUCT_NUMBER}.${VER_PRODUCT_VERSION}${VER_FILE_SUFFIX}"
+        # out
         -output_exe ${ABS_MERGED_EXE}
         DEPENDS ${ABS_MERGE_SRCS}
-        ${CMAKE_HOME_DIRECTORY}/libs/dkii_exe/genlib/dkii_symbols.map
-        ${CMAKE_HOME_DIRECTORY}/mapping/references.map
+        ${CMAKE_HOME_DIRECTORY}/libs/dkii_exe/genlib/dkii.symmap
+        ${CMAKE_HOME_DIRECTORY}/mapping/DKII_EXE_v170.refmap
         ${CMAKE_HOME_DIRECTORY}/libs/dkii_exe/DKII.EXE
         flame
         COMMENT "Merge Flame.dll with DKII.EXE"

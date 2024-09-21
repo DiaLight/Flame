@@ -95,6 +95,7 @@ venv.bak/
 **/genlib/*.lib
 **/genlib/*.def
 **/genlib/*.map
+**/genlib/*.symmap
 **/delinked/*.obj
 **/delinked/*.obj.map
 /tools/PEview.exe

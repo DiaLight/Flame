@@ -6,6 +6,7 @@
 #include "dk2/MyMutex.h"
 #include "patches/micro_patches.h"
 #include "gog_patch.h"
+#include "tools/bug_hunter.h"
 
 namespace dk2 {
 
@@ -212,19 +213,8 @@ bool dk2::dk2_main1(int argc, LPCSTR *argv) {
     return success;
 }
 
-LPTOP_LEVEL_EXCEPTION_FILTER g_prev = nullptr;
-LONG WINAPI TopLevelExceptionFilter(_In_ struct _EXCEPTION_POINTERS *ExceptionInfo) {
-    printf("caught exception %08X at %p\n", ExceptionInfo->ExceptionRecord->ExceptionCode, ExceptionInfo->ExceptionRecord->ExceptionAddress);
-    printf("exe base: %p\n", GetModuleHandleA(NULL));
-    auto &R = *ExceptionInfo->ContextRecord;
-    printf("eax=%08X ebx=%08X ecx=%08X edx=%08X\n", R.Eax, R.Ebx, R.Ecx, R.Edx);
-    printf("esi=%08X edi=%08X esp=%08X ebp=%08X\n", R.Esi, R.Edi, R.Esp, R.Ebp);
-    printf("eip=%08X efl=%08X\n", R.Eip, R.EFlags);
-    MessageBoxA(NULL, "Exception was caught", "Flame", MB_OK);
-    return g_prev(ExceptionInfo);
-}
 int __cdecl dk2::dk2_main(int argc, LPCSTR *argv) {
-    g_prev = SetUnhandledExceptionFilter(TopLevelExceptionFilter);
+    bug_hunter::init();
 
     uint32_t finalStatus = 0;
     MyMutex mutex;

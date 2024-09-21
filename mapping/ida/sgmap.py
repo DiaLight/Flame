@@ -1,3 +1,4 @@
+import pathlib
 import typing
 from enum import Enum, auto
 
@@ -669,3 +670,12 @@ def serialize_structs(structs: typing.Iterable[Struct]):
     yield f"struct: {','.join(struct.serialize_short())}"
     for line in struct.serialize_detail():
       yield "  " + line
+
+
+def parse_file(file: pathlib.Path) -> typing.Tuple[typing.List[Struct], typing.List[Global]]:
+  with open(file, 'r') as f:
+    g = filter(lambda l: not l.startswith('#'), f.readlines())
+    g = map(lambda l: l.rstrip(), g)
+    structs, globals = deserialize(g)
+  return structs, globals
+

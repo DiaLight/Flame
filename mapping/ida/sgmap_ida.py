@@ -909,6 +909,12 @@ def gen():
   struct_id_map, globals_map = IdaCollectGlobals().accept()  # type: dict[int, IdaStruct], dict[int, IdaGlobal]
   file = pathlib.Path(__file__).parent.parent / 'DKII_EXE_v170.sgmap'
   with open(file, 'w') as f:
+    f.write("## structures and globals mapping\n")
+    f.write("# struct: <short properties>\n")
+    f.write("#  <complex properties>\n")
+    f.write("# global: <short properties>\n")
+    f.write("#  type: <short properties>\n")
+    f.write("#   [complex properties]\n")
     for line in sgmap.serialize_structs(struct_id_map.values()):
       f.write(line + "\n")
     for line in sgmap.serialize_globals(struct_id_map.values(), globals_map.values()):

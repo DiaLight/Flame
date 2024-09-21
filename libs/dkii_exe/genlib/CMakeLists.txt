@@ -11,7 +11,7 @@ list(TRANSFORM ABS_GENLIB_LIB PREPEND "${CMAKE_CURRENT_LIST_DIR}/")
 #set(ABS_GENAPI_SRCS ${GENAPI_SRCS})
 #list(TRANSFORM ABS_GENAPI_SRCS PREPEND "${SOURCE_DIR}/")
 add_custom_command(
-        OUTPUT ${ABS_GENLIB_LIB} ${CMAKE_CURRENT_LIST_DIR}/dkii_symbols.map
+        OUTPUT ${ABS_GENLIB_LIB} ${CMAKE_CURRENT_LIST_DIR}/dkii.symmap
 #        COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${CMAKE_HOME_DIRECTORY}/mapping/ida
 #        ${Python3_EXECUTABLE} ${CMAKE_HOME_DIRECTORY}/tools/genlib_dkii/main.py
         COMMAND $<TARGET_FILE:genlib_dkii>
@@ -19,7 +19,7 @@ add_custom_command(
         -def_file ${CMAKE_CURRENT_LIST_DIR}/dkii.def
         -replace_globals ${CMAKE_HOME_DIRECTORY}/src/replace_globals.map
         -exp_file ${CMAKE_CURRENT_LIST_DIR}/dkii_exp.def
-        -map_file ${CMAKE_CURRENT_LIST_DIR}/dkii_symbols.map
+        -map_file ${CMAKE_CURRENT_LIST_DIR}/dkii.symmap
         COMMAND cmd /C ${CMAKE_HOME_DIRECTORY}/tools/genlib/gen_lib.bat
         ${LIB_PROGRAM} ${CMAKE_HOME_DIRECTORY}/libs/dkii_exe/genlib/dkii.def ${ABS_GENLIB_LIB}
         DEPENDS

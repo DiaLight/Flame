@@ -35,14 +35,14 @@ add_custom_command(
         COMMAND $<TARGET_FILE:delinker>
         -dkii_exe ${CMAKE_HOME_DIRECTORY}/libs/dkii_exe/DKII.EXE
         -sgmap_file ${CMAKE_HOME_DIRECTORY}/mapping/DKII_EXE_v170.sgmap
-        -references_file ${CMAKE_HOME_DIRECTORY}/mapping/references.map
+        -references_file ${CMAKE_HOME_DIRECTORY}/mapping/DKII_EXE_v170.refmap
         -args_sizes ${CMAKE_HOME_DIRECTORY}/mapping/stdcall_args_sizes.map
         -replace_globals ${CMAKE_HOME_DIRECTORY}/src/replace_globals.map
         -delinked ${CMAKE_CURRENT_LIST_DIR}
         DEPENDS delinker
         ${CMAKE_HOME_DIRECTORY}/libs/dkii_exe/DKII.EXE
         ${CMAKE_HOME_DIRECTORY}/mapping/DKII_EXE_v170.sgmap
-        ${CMAKE_HOME_DIRECTORY}/mapping/references.map
+        ${CMAKE_HOME_DIRECTORY}/mapping/DKII_EXE_v170.refmap
         ${CMAKE_HOME_DIRECTORY}/mapping/stdcall_args_sizes.map
         ${CMAKE_HOME_DIRECTORY}/src/replace_globals.map
         COMMENT "delink DKII.EXE"

@@ -1,3 +1,9 @@
+## structures and globals mapping
+# struct: <short properties>
+#  <complex properties>
+# global: <short properties>
+#  type: <short properties>
+#   [complex properties]
 struct: id=constructor_00404DB0,path=dk2/utils,name=AABB,size=16
   field: name=minX
     type: kind=int,size=4,signed=True
@@ -1997,7 +2003,7 @@ struct: id=vtbl_0066C4A4,name=CDefaultPlayerInterface,size=20273,vtable=instance
   field: name=gap_5F
     type: kind=array,count=150
       type: kind=int,size=1
-  field: name=field_F5
+  field: name=fF5_is3dEngineNe1
     type: kind=int,size=4
   field: name=f59_timestampMs
     type: kind=int,size=4
@@ -4614,7 +4620,7 @@ struct: id=vtbl_0066EF3C,name=CFrontEndComponent,size=201210,vtable=instance_006
       type: kind=int,size=1
   field: name=field_14
     type: kind=int,size=4
-  field: name=f18_gap
+  field: name=gap18
     type: kind=array,count=525
       type: kind=int,size=1
   field: name=f225__wstr
@@ -5290,16 +5296,33 @@ struct: id=vtbl_0066EF3C,name=CFrontEndComponent,size=201210,vtable=instance_006
   field: name=gap31128
     type: kind=array,count=4
       type: kind=int,size=1
-  field: name=f3112C_obj_start
+  field: name=f3112C_gammaLevel_obj_start
     type: kind=int,size=4,signed=True
-  field: name=gap_31130
-    type: kind=array,count=20
-      type: kind=int,size=1
+  field: name=f31130_shadowLevel
+    type: kind=int,size=4,signed=True
+  field: name=f31134_environmentMapping
+    type: kind=int,size=4,signed=True
+  field: name=f31138_translucentWater
+    type: kind=int,size=4,signed=True
+  field: name=field_3113C
+    type: kind=int,size=4,signed=True
+  field: name=field_31140
+    type: kind=int,size=4,signed=True
   field: name=f31144_resolutionId
-    type: kind=int,size=1,signed=True,winapi=char
-  field: name=gap31145
-    type: kind=array,count=61
+    type: kind=int,size=1
+  field: name=f31145_textureReductionLevel
+    type: kind=int,size=1
+  field: name=f31146_gap
+    type: kind=array,count=44
       type: kind=int,size=1
+  field: name=f31172_gameSpeed
+    type: kind=int,size=4,signed=True
+  field: name=f31176_mouseSensitivity
+    type: kind=int,size=4,signed=True
+  field: name=f3117A_scrollSpeed
+    type: kind=int,size=4,signed=True
+  field: name=f3117E_invertMouse
+    type: kind=int,size=4,signed=True
   field: name=f31182_bridge
     type: kind=ptr
       type: kind=struct,id=vtbl_0066CC94
@@ -19045,8 +19068,7 @@ struct: id=constructor_00563C50,name=MyVideoSettings,size=180
   field: name=sine_wave_water
     type: kind=int,size=4,signed=True
   field: name=screen_mode_type
-    type: kind=array,count=4
-      type: kind=int,size=1
+    type: kind=int,size=4,signed=True
   field: name=field_70
     type: kind=int,size=4,signed=True
   field: name=machine_spec_level
@@ -22358,7 +22380,8 @@ global: va=00402B60,name=fun_402B60,size=7,member_of=vtbl_0066C4A4
 global: va=00402B70,name=fun_402B70,size=11,member_of=vtbl_0066C4A4
   type: kind=function,declspec=thiscall
     ret: kind=void
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066C4A4
 global: va=00402B80,name=fun_402B80,size=11,member_of=vtbl_0066C4A4
   type: kind=function,declspec=thiscall
     ret: kind=void
@@ -24201,7 +24224,8 @@ global: va=00426000,name=sub_426000,size=102
     ret: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066C4A4
 global: va=00426070,name=sub_426070,size=123
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
@@ -49060,7 +49084,8 @@ global: va=0054B9B0,name=sub_54B9B0,size=113
       type: kind=int,size=4
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066ECA4
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066EF3C
 global: va=0054BA30,name=sub_54BA30,size=21
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
@@ -49108,11 +49133,12 @@ global: va=0054BB40,name=sub_54BB40,size=56,member_of=vtbl_0066EF3C
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066EF3C
-global: va=0054BB80,name=sub_54BB80,size=350
+global: va=0054BB80,name=sub_54BB80,size=350,member_of=vtbl_0066EF3C
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066EF3C
 global: va=0054BCE0,name=jpt_54BC4C,size=32
   type: kind=array,count=8
     type: kind=ptr
@@ -49521,7 +49547,8 @@ global: va=005501F0,name=sub_5501F0,size=546
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066ECA4
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066EF3C
 global: va=00550420,name=CVerticalSlider_550420,size=931
   type: kind=function,declspec=cdecl
     ret: kind=ptr
@@ -49613,7 +49640,8 @@ global: va=00551F20,name=sub_551F20,size=178
       type: kind=int,size=4
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066ECA4
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066EF3C
 global: va=00551FE0,name=sub_551FE0,size=189
   type: kind=function,declspec=cdecl
     ret: kind=ptr
@@ -51629,14 +51657,13 @@ global: va=005608B0,name=sub_5608B0,size=130
       type: kind=int,size=1
     arg: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
-global: va=00560940,name=sub_560940,size=127,member_of=constructor_0055EC20
+global: va=00560940,name=saveInvertMouse,size=127,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
       type: kind=struct,id=constructor_0055EC20
-    arg: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
+    arg: kind=int,size=4,signed=True
 global: va=005609C0,name=getLayoutName,size=165,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
     ret: kind=ptr
@@ -51657,14 +51684,14 @@ global: va=00560AB0,name=sub_560AB0,size=127,member_of=constructor_0055EC20
     arg: kind=ptr
       type: kind=struct,id=constructor_0055EC20
     arg: kind=int,size=4,signed=True
-global: va=00560B30,name=sub_560B30,size=130,member_of=constructor_0055EC20
+global: va=00560B30,name=saveMouseSensitivity,size=130,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
       type: kind=struct,id=constructor_0055EC20
     arg: kind=int,size=4,signed=True
-global: va=00560BC0,name=sub_560BC0,size=127,member_of=constructor_0055EC20
+global: va=00560BC0,name=saveScrollSpeed,size=127,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
@@ -52327,7 +52354,7 @@ global: va=005661A0,name=setSelected3dEngine,size=128,member_of=constructor_0056
     arg: kind=ptr
       type: kind=struct,id=constructor_00563C50
     arg: kind=int,size=4,signed=True
-global: va=00566220,name=fun_566220,size=127,member_of=constructor_00563C50
+global: va=00566220,name=saveGammaLevel,size=127,member_of=constructor_00563C50
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
@@ -52357,19 +52384,19 @@ global: va=005663A0,name=setShadowsLevel,size=124,member_of=constructor_00563C50
     arg: kind=ptr
       type: kind=struct,id=constructor_00563C50
     arg: kind=int,size=4,signed=True
-global: va=00566420,name=sub_566420,size=124
+global: va=00566420,name=saveEnvironmentMapping,size=124,member_of=constructor_00563C50
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=constructor_00563C50
     arg: kind=int,size=4,signed=True
-global: va=005664A0,name=sub_5664A0,size=124
+global: va=005664A0,name=saveTranslucentWater,size=124,member_of=constructor_00563C50
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=constructor_00563C50
     arg: kind=int,size=4,signed=True
 global: va=00566520,name=sub_566520,size=124
   type: kind=function,declspec=thiscall
@@ -52427,16 +52454,17 @@ global: va=005668F0,name=sub_5668F0,size=124
     arg: kind=ptr
       type: kind=int,size=4
     arg: kind=int,size=4,signed=True
-global: va=00566970,name=sub_566970,size=135
+global: va=00566970,name=saveScreenModeType_andMore,size=135,member_of=constructor_00563C50
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=constructor_00563C50
     arg: kind=int,size=4,signed=True
-global: va=00566A00,name=sub_566A00,size=77
+global: va=00566A00,name=sub_566A00,size=77,member_of=constructor_00563C50
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00563C50
     arg: kind=int,size=4,signed=True
 global: va=00566A50,name=jpt_566A09,size=28
   type: kind=array,count=7
@@ -52455,7 +52483,7 @@ global: va=00566AC4,name=jpt_566A86,size=32
 global: va=00566AE4,name=idt_566A80,size=100
   type: kind=array,count=100
     type: kind=int,size=1
-global: va=00566B50,name=sub_566B50,size=588
+global: va=00566B50,name=sub_566B50,size=588,member_of=constructor_00563C50
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr

@@ -4,9 +4,11 @@ import os.path
 import pathlib
 import re
 import ctypes
+import sys
 from ctypes import wintypes
 import pe_types
 import my_pe
+import my_espmap
 
 
 class ReplaceRefInfo:
@@ -21,8 +23,8 @@ class ReplaceRefInfo:
     return f'RFI({self.target_va:08X}->{self.new_va:08X}, xrefs.len={len(self.target_xrefs)}, "{self.name}")'
 
 
-def read_symbols(dkii_map_file: pathlib.Path) -> tuple[dict[str, int], dict[str, int]]:
-  with open(dkii_map_file, 'r') as f:
+def read_symbols(dkii_symmap_file: pathlib.Path) -> tuple[dict[str, int], dict[str, int]]:
+  with open(dkii_symmap_file, 'r') as f:
     dkii_map_lines = f.readlines()
   dkii_map = {}
   to_replace = {}
@@ -42,12 +44,12 @@ def read_symbols(dkii_map_file: pathlib.Path) -> tuple[dict[str, int], dict[str,
 
 
 def collect_replace_info(
-    flame_map_file: pathlib.Path,
+    flame_msvcmap_file: pathlib.Path,
     to_replace: dict[str, int],
     replace_refs: list[ReplaceRefInfo],
     image_base: int
 ):
-  with open(flame_map_file, 'r') as f:
+  with open(flame_msvcmap_file, 'r') as f:
     map_lines = f.readlines()
 
   flame_map = {}
@@ -144,9 +146,9 @@ def append_dll_sections_into_exe(dkii_data: bytes, flame_data: bytes) -> my_pe.M
     sec.Name = Name_ty(*name)
     sec.VirtualAddress += delta_virt
     sec.PointerToRawData += delta_file
-  convert_sec(sections[0], flame_pe['.text'], b'.flame_t')
+  convert_sec(sections[0], flame_pe['.text'], b'.flame_x')
   convert_sec(sections[1], flame_pe['.rdata'], b'.flame_r')
-  convert_sec(sections[2], flame_pe['.data'], b'.flame_d')
+  convert_sec(sections[2], flame_pe['.data'], b'.flame_w')
   dkii_pe.nt.FileHeader.NumberOfSections += 3
 
   sections: list[pe_types.IMAGE_SECTION_HEADER] = ctypes.pointer(pe_types.IMAGE_SECTION_HEADER.from_address(dkii_pe.sections_end))
@@ -292,13 +294,44 @@ def unpack_data_jmp(pe: my_pe.MyPe, xrefs_map: dict[int, list[tuple[int, int, st
   return va - 2
 
 
+def bundle_fpo_map(merged_pe, fpomap_data):
+  sections: list[pe_types.IMAGE_SECTION_HEADER] = ctypes.pointer(pe_types.IMAGE_SECTION_HEADER.from_address(merged_pe.sections_end))
+  Name_ty = (ctypes.c_ubyte*8)
+  sections[0].Name = Name_ty(*b'.fpomap')
+  last_sec = sections[-1]
+  sections[0].PointerToRawData = my_pe.align_up(last_sec.PointerToRawData + last_sec.SizeOfRawData, merged_pe.nt.OptionalHeader.FileAlignment)
+  sections[0].VirtualAddress = my_pe.align_up(last_sec.VirtualAddress + last_sec.VirtualSize, merged_pe.nt.OptionalHeader.SectionAlignment)
+  sections[0].Characteristics = pe_types.IMAGE_SCN_MEM_READ | pe_types.IMAGE_SCN_CNT_INITIALIZED_DATA
+  merged_pe.nt.FileHeader.NumberOfSections += 1
+
+  merged_pe['.fpomap'].VirtualSize = len(fpomap_data)
+  merged_pe['.fpomap'].SizeOfRawData = my_pe.align_up(len(fpomap_data), merged_pe.nt.OptionalHeader.FileAlignment)
+
+  merged_pe.nt.OptionalHeader.SizeOfImage = my_pe.align_up(
+    merged_pe['.fpomap'].VirtualAddress + merged_pe['.fpomap'].VirtualSize,
+    merged_pe.nt.OptionalHeader.SectionAlignment
+  )
+
+  with io.BytesIO() as f:
+    f.write((ctypes.c_ubyte * merged_pe.size).from_address(merged_pe.base))
+    f.write(fpomap_data + (b'\x00' * (merged_pe['.fpomap'].SizeOfRawData - len(fpomap_data))))
+    result_data = f.getvalue()
+
+  return my_pe.MyPe(result_data)
+
+
 def main(
-    flame_map_file: pathlib.Path,
-    dkii_map_file: pathlib.Path,
-    references_file: pathlib.Path,
+    # dkii
     dkii_exe: pathlib.Path,
+    dkii_symmap_file: pathlib.Path,
+    dkii_refmap_file: pathlib.Path,
+    dkii_espmap_file: pathlib.Path,
+    # flame
     flame_exe: pathlib.Path,
-    version: str,
+    flame_msvcmap_file: pathlib.Path,
+    flame_pdb_file: pathlib.Path,
+    flame_version: str,
+    # out
     output_exe: pathlib.Path,
 ):
   with open(dkii_exe, 'rb') as f:
@@ -330,18 +363,12 @@ def main(
   #   sec_name = bytes(sec.Name).rstrip(b'\x00').decode('ascii')
   #   print(f'{sec.PointerToRawData:08X}-{sec.PointerToRawData + sec.SizeOfRawData:08X} {sec.VirtualAddress:08X}-{sec.VirtualAddress + sec.VirtualSize:08X} {sec_name}')
 
-  dkii_pe = resize_headers_to_fit_sections(dkii_pe, 4)
+  dkii_pe = resize_headers_to_fit_sections(dkii_pe, 5)  # x w r imports fpomap
   # (flame_exe.parent / 'dkii_hdr_expanded.exe').write_bytes(dkii_pe.data)
   merged_pe = append_dll_sections_into_exe(dkii_pe.data, flame_pe.data)  # + imports merge
   # (flame_exe.parent / 'dkii_result.exe').write_bytes(merged_pe.data)
 
-  print("new section mapping:")
-  for sec in merged_pe.sections:
-    sec_name = bytes(sec.Name).rstrip(b'\x00').decode('ascii')
-    print(f'  file:{sec.PointerToRawData:08X}-{sec.PointerToRawData + sec.SizeOfRawData:08X} virt:{sec.VirtualAddress:08X}-{sec.VirtualAddress + sec.VirtualSize:08X} name:{sec_name}')
-  print()
-
-  dkii_xrefs: dict[int, list[tuple[int, int, str]]] = collect_xrefs(references_file)
+  dkii_xrefs: dict[int, list[tuple[int, int, str]]] = collect_xrefs(dkii_refmap_file)
   flame_xrefs: dict[int, list[tuple[int, int, str]]] = {}
   for ty, rva in flame_pe.relocs():
     assert ty is pe_types.IMAGE_REL_BASED.HIGHLOW
@@ -351,9 +378,29 @@ def main(
     src_va = flame_pe.nt.OptionalHeader.ImageBase + rva
     flame_xrefs.setdefault(dst_va, []).append((src_va, 0, 'VA32'))
 
-  dkii_map, to_replace = read_symbols(dkii_map_file)
+  dkii_map, to_replace = read_symbols(dkii_symmap_file)
   dkii2flame_replace: list[ReplaceRefInfo] = []
-  flame_map: dict[str, int] = collect_replace_info(flame_map_file, to_replace, dkii2flame_replace, flame_pe.nt.OptionalHeader.ImageBase)
+  flame_map: dict[str, int] = collect_replace_info(flame_msvcmap_file, to_replace, dkii2flame_replace, flame_pe.nt.OptionalHeader.ImageBase)
+
+  delta_virt = merged_pe['.flame_x'].VirtualAddress - flame_pe['.text'].VirtualAddress
+
+  symbols_map: list[tuple[int, str]] = []
+  for name, va in dkii_map.items():
+    symbols_map.append((va, name))
+  for name, va in flame_map.items():
+    symbols_map.append((va - flame_pe.nt.OptionalHeader.ImageBase + delta_virt + merged_pe.nt.OptionalHeader.ImageBase, name))
+  symbols_map.sort(key=lambda e: e[0])
+
+  fpomap_data: bytes = my_espmap.build_merged_binary_fpomap(
+    dkii_espmap_file, flame_pdb_file, symbols_map,
+    delta_virt + merged_pe.nt.OptionalHeader.ImageBase)
+  merged_pe = bundle_fpo_map(merged_pe, fpomap_data)
+
+  print("new section mapping:")
+  for sec in merged_pe.sections:
+    sec_name = bytes(sec.Name).rstrip(b'\x00').decode('ascii')
+    print(f'  file:{sec.PointerToRawData:08X}-{sec.PointerToRawData + sec.SizeOfRawData:08X} virt:{sec.VirtualAddress:08X}-{sec.VirtualAddress + sec.VirtualSize:08X} name:{sec_name}')
+  print()
 
   def fill_xrefs(to_replace: list[ReplaceRefInfo], xrefs_map: dict[int, list[tuple[int, int, str]]]):
     for rref in to_replace:
@@ -386,6 +433,11 @@ def main(
         target_va = flame_pe.nt.OptionalHeader.ImageBase + rva
         new_va = merged_pe.nt.OptionalHeader.ImageBase + merged_imports_map[str_id]
         flame2merge_replace.append(ReplaceRefInfo(str_id, target_va, new_va))
+  flame2merge_replace.append(ReplaceRefInfo('_fpomap_start', flame_map['__fpomap_start'], merged_pe['.fpomap'].VirtualAddress))
+  flame2merge_replace.append(ReplaceRefInfo('_dkii_text_start', flame_map['__dkii_text_start'], merged_pe['.text'].VirtualAddress))
+  flame2merge_replace.append(ReplaceRefInfo('_dkii_text_start', flame_map['__dkii_text_end'], merged_pe['cseg'].VirtualAddress + merged_pe['cseg'].VirtualSize))
+  flame2merge_replace.append(ReplaceRefInfo('_flame_text_start', flame_map['__flame_text_start'], merged_pe['.flame_x'].VirtualAddress))
+  flame2merge_replace.append(ReplaceRefInfo('_flame_text_end', flame_map['__flame_text_end'], merged_pe['.flame_x'].VirtualAddress + merged_pe['.flame_x'].VirtualSize))
   fill_xrefs(flame2merge_replace, flame_xrefs)  # '1004B58C 007FF627'
 
   dkii2merge_replace: list[ReplaceRefInfo] = []
@@ -400,27 +452,15 @@ def main(
       ))
   fill_xrefs(dkii2merge_replace, dkii_xrefs)
 
-  delta_virt = merged_pe['.flame_t'].VirtualAddress - flame_pe['.text'].VirtualAddress
-
   version_va = flame_map['_Flame_version']
   version_rva = version_va - flame_pe.nt.OptionalHeader.ImageBase + delta_virt
   offs = merged_pe.rva2raw(version_rva)
   version_val = (ctypes.c_char * 64).from_address(merged_pe.base + offs)
-  print(f'version: {version}')
-  pos = version.find('build')
+  print(f'version: {flame_version}')
+  pos = flame_version.find('build')
   if pos != -1:
-    version = ' V' + version[:pos - 1] + '\n ' + version[pos:]
-  version_val.value = version.encode('ascii')
-
-  # if(LPCSTR pos = strstr(version, "build")) {
-  # char ver[64];
-  # char build[64];
-  # strncpy(ver, version, pos - version - 1);
-  # ver[pos - version - 1] = '\0';
-  # strcpy(build, pos);
-  # sprintf(out, " V%s\n %s", ver, build);
-  # status = true;
-  # }
+    flame_version = ' V' + flame_version[:pos - 1] + '\n ' + flame_version[pos:]
+  version_val.value = flame_version.encode('ascii')
 
   for replace_ref in dkii2flame_replace:
     dst_rva = replace_ref.new_va - flame_pe.nt.OptionalHeader.ImageBase + delta_virt
@@ -461,12 +501,6 @@ def main(
   merged_pe.nt.OptionalHeader.Subsystem = pe_types.IMAGE_SUBSYSTEM_WINDOWS_CUI
 
   output_exe.write_bytes(merged_pe.data)
-  symbols_map = []
-  for name, va in dkii_map.items():
-    symbols_map.append((va, name))
-  for name, va in flame_map.items():
-    symbols_map.append((va - flame_pe.nt.OptionalHeader.ImageBase + delta_virt + merged_pe.nt.OptionalHeader.ImageBase, name))
-  symbols_map.sort(key=lambda e: e[0])
   with open(output_exe.parent / f'{os.path.splitext(output_exe.name)[0]}.map', 'w') as f:
     for va, name in symbols_map:
       f.write(f'{va:08X} {name}\n')
@@ -474,21 +508,32 @@ def main(
 
 def start():
   parser = argparse.ArgumentParser(description='Optional app description')
-  parser.add_argument('-flame_map_file', type=str, required=True)
-  parser.add_argument('-dkii_map_file', type=str, required=True)
-  parser.add_argument('-references_file', type=str, required=True)
+  # dkii
   parser.add_argument('-dkii_exe', type=str, required=True)
+  parser.add_argument('-dkii_symmap_file', type=str, required=True)
+  parser.add_argument('-dkii_refmap_file', type=str, required=True)
+  parser.add_argument('-dkii_espmap_file', type=str, required=True)
+  # flame
   parser.add_argument('-flame_exe', type=str, required=True)
-  parser.add_argument('-version', type=str, required=True)
+  parser.add_argument('-flame_msvcmap_file', type=str, required=True)
+  parser.add_argument('-flame_pdb_file', type=str, required=True)
+  parser.add_argument('-flame_version', type=str, required=True)
+  # out
   parser.add_argument('-output_exe', type=str, required=True)
   args = parser.parse_args()
+  print(' '.join(sys.argv))
   main(
-    pathlib.Path(args.flame_map_file),
-    pathlib.Path(args.dkii_map_file),
-    pathlib.Path(args.references_file),
+    # dkii
     pathlib.Path(args.dkii_exe),
+    pathlib.Path(args.dkii_symmap_file),
+    pathlib.Path(args.dkii_refmap_file),
+    pathlib.Path(args.dkii_espmap_file),
+    # flame
     pathlib.Path(args.flame_exe),
-    args.version,
+    pathlib.Path(args.flame_msvcmap_file),
+    pathlib.Path(args.flame_pdb_file),
+    args.flame_version,
+    # out
     pathlib.Path(args.output_exe)
   )
 

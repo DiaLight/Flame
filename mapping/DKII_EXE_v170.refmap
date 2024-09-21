@@ -1,4 +1,5 @@
-#src_va value dst_va kind
+## binary references mapping
+# src_va value dst_va kind
 00401031 00000000 006CCA20 VA32
 00401036 00000000 00401060 REL32
 0040103B 00000000 00401050 VA32
