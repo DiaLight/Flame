@@ -20,15 +20,26 @@ struct ModuleExport {
     }
 };
 
+struct CodeRange {
+    ULONG_PTR base;
+    ULONG_PTR end;
+    std::string name;
+
+    [[nodiscard]] bool contains(ULONG_PTR addr) const;
+
+};
+
 struct LoadedModule {
     std::string name;
     ULONG_PTR base;
-    ULONG_PTR size;
+    ULONG_PTR end;
     std::vector<std::shared_ptr<ModuleExport>> exports;
+    std::vector<CodeRange> codeSections;
 
     LoadedModule(PCSTR ModuleName, ULONG ModuleBase, ULONG ModuleSize);
 
-    bool contains(ULONG_PTR addr) const;
+    [[nodiscard]] bool contains(ULONG_PTR addr) const;
+    [[nodiscard]] bool codeContains(ULONG_PTR addr) const;
 
     std::vector<std::shared_ptr<ModuleExport>>::iterator _find_gt(ULONG_PTR addr);
     std::vector<std::shared_ptr<ModuleExport>>::iterator _find_le(ULONG_PTR addr);
@@ -39,6 +50,7 @@ struct LoadedModule {
 };
 
 class LoadedModules {
+    using iterator = std::vector<std::shared_ptr<LoadedModule>>::iterator;
     std::vector<std::shared_ptr<LoadedModule>> modules;
 public:
 
@@ -47,7 +59,13 @@ public:
 
     std::vector<std::shared_ptr<LoadedModule>>::iterator _find_gt(ULONG_PTR addr);
     std::vector<std::shared_ptr<LoadedModule>>::iterator _find_ge(ULONG_PTR addr);
+    std::vector<std::shared_ptr<LoadedModule>>::iterator _find_lt(ULONG_PTR addr);
+    std::vector<std::shared_ptr<LoadedModule>>::iterator _find_le(ULONG_PTR addr);
     LoadedModule *find(ULONG_PTR addr);
+    ULONG_PTR findBaseThreadInitThunk();
+
+    iterator begin() { return modules.begin(); }
+    iterator end() { return modules.end(); }
 
 private:
     static BOOL CALLBACK enumerateModulesCallback(

@@ -27,17 +27,14 @@ class Relocs:
     self.relocs_rva = []  # type: typing.List[int]
     self.relocs = []  # type: typing.List[Reloc]
 
-  def find_left_or_get_idx(self, ea):
-    return bisect.bisect_right(self.relocs_rva, ea) - 1
-
-  def find_left_or_get_neighbour(self, ea):
-    idx = self.find_left_or_get_idx(ea)
+  def find_le(self, rva: int) -> Reloc:
+    idx = bisect.bisect_right(self.relocs_rva, rva) - 1
     if idx == -1:
       return None
     return self.relocs[idx]
 
   def get(self, va):
-    bl = self.find_left_or_get_neighbour(va - RANGES.img_base)
+    bl = self.find_le(va - RANGES.img_base)
     if bl is None:
       return None
     if va != bl.src_va:

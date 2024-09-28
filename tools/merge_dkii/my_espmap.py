@@ -158,13 +158,6 @@ def pdb_extract_espmap(
     e = find_le(symbols_map, fpo.code_start + delta)
     fun_va, fun_name = (0, '') if e is None else e
     fpo_va = fpo.code_start + delta
-    # flags = [
-    #   'F' if fpo.is_function_start else ' ',
-    #   'S' if fpo.has_structured_eh else ' ',
-    #   'C' if fpo.has_cpp_eh else ' ',
-    #   'B' if fpo.uses_base_pointer else ' ',
-    # ]
-    # flags = ''.join(flags)
     flags = 0
     if fpo.is_function_start:
       flags |= 1
@@ -237,7 +230,7 @@ def pdb_extract_espmap(
 
   # section_hdr = flame_pdb.root[flame_pdb.debug.DBIDbgHeader.snSectionHdr]
 
-
+  # pdb refs
   # https://github.com/microsoft/microsoft-pdb/blob/master/pdbdump/pdbdump.cpp#L2772
   # https://github.com/moyix/pdbparse/blob/master/pdbparse/__init__.py#L25
   # https://llvm.org/docs/PDB/MsfFile.html
@@ -268,17 +261,37 @@ def write_signed_varint(f, number):
 
 def build_merged_binary_fpomap(
     dkii_espmap_file: pathlib.Path, flame_pdb_file: pathlib.Path,
-    symbols_map: list[tuple[int, str]], delta: int) -> bytes:
+    symbols_map: list[tuple[int, str]], delta: int,
+    flame_text_renge: tuple[int, int]) -> bytes:
   dkii_fpos = read_espmap(dkii_espmap_file)
   flame_fpos = pdb_extract_espmap(flame_pdb_file, symbols_map, delta)
 
-  for mfpo in flame_fpos:
-    print(f'{mfpo.va:08X} {mfpo.va + mfpo.size:08X} {mfpo.name}')
-    for mspd in mfpo.spds:
-      print(f' {mfpo.va + mspd.offs:08X} {mspd.spd:04X} {mspd.ty.name} {mspd.kind}')
+  # for mfpo in flame_fpos:
+  #   print(f'{mfpo.va:08X} {mfpo.va + mfpo.size:08X} {mfpo.name}')
+  #   for mspd in mfpo.spds:
+  #     print(f' {mfpo.va + mspd.offs:08X} {mspd.spd:04X} {mspd.ty.name} {mspd.kind}')
 
-  all_fpos = dkii_fpos + flame_fpos
+  # add missing functions
+  missing_map = []
+  for va, name in symbols_map:
+    if not (flame_text_renge[0] <= va < flame_text_renge[1]):
+      continue
+    idx = bisect.bisect_right(flame_fpos, va, key=lambda mspd: mspd.va) - 1  # find_le
+    if idx != -1:
+      fn = flame_fpos[idx]
+      if fn.va == va:
+        continue
+    if idx + 1 < len(flame_fpos):
+      next_fn = flame_fpos[idx + 1]
+      end_fn = next_fn.va
+    else:
+      end_fn = flame_text_renge[1]
+    mfpo = MyFpoFun(va, name)
+    mfpo.size = end_fn - va
+    missing_map.append(mfpo)
 
+  all_fpos = dkii_fpos + flame_fpos + missing_map
+  all_fpos.sort(key=lambda mspd: mspd.va)
 
   with io.BytesIO() as f:
     print(f'fposCount = {len(all_fpos)}')

@@ -4,6 +4,7 @@
 
 #include "LoadedModules.h"
 #include <ImageHlp.h>
+#include <iostream>
 
 
 LoadedModule::LoadedModule(PCSTR ModuleName, ULONG ModuleBase, ULONG ModuleSize) {
@@ -13,11 +14,36 @@ LoadedModule::LoadedModule(PCSTR ModuleName, ULONG ModuleBase, ULONG ModuleSize)
     else name = name + 1;
     this->name.append(name);
     this->base = ModuleBase;
-    this->size = ModuleSize;
+    this->end = this->base + ModuleSize;
+
+    auto *pHeader = (PIMAGE_DOS_HEADER) base;
+    if (pHeader->e_magic == IMAGE_DOS_SIGNATURE) {
+        auto *header = (PIMAGE_NT_HEADERS) ((BYTE *) base + ((PIMAGE_DOS_HEADER) base)->e_lfanew);
+        auto *sec = (IMAGE_SECTION_HEADER *) (((uint8_t *) &header->OptionalHeader) + header->FileHeader.SizeOfOptionalHeader);
+        auto *secEnd = sec + header->FileHeader.NumberOfSections;
+        for(; sec < secEnd; sec++) {
+            if((sec->Characteristics & IMAGE_SCN_CNT_CODE) == 0) continue;
+            size_t len = strlen((char *) sec->Name);
+            if(len > 8) len = 8;
+            auto &c = codeSections.emplace_back();
+            c.base = base + sec->VirtualAddress;
+            c.end = c.base + sec->Misc.VirtualSize;
+            c.name.assign((char *) sec->Name, len);
+        }
+    }
 }
 
 bool LoadedModule::contains(ULONG_PTR addr) const {
-    return base <= addr && addr < (base + size);
+    return base <= addr && addr < end;
+}
+bool LoadedModule::codeContains(ULONG_PTR addr) const {
+    for(const auto &c : codeSections) {
+        if(c.contains(addr)) return true;
+    }
+    return false;
+}
+bool CodeRange::contains(ULONG_PTR addr) const {
+    return base <= addr && addr < end;
 }
 
 std::vector<std::shared_ptr<ModuleExport>>::iterator LoadedModule::_find_gt(ULONG_PTR addr) {
@@ -101,27 +127,47 @@ void LoadedModules::update() {
 
 std::vector<std::shared_ptr<LoadedModule>>::iterator LoadedModules::_find_gt(ULONG_PTR addr) {
     return std::upper_bound(modules.begin(), modules.end(), addr,
-                            [](ULONG_PTR addr, std::shared_ptr<LoadedModule> &bl) {  // <
+                            [](ULONG_PTR addr, std::shared_ptr<LoadedModule> &bl) {
                                 return addr < bl->base;
                             });
 }
 
 std::vector<std::shared_ptr<LoadedModule>>::iterator LoadedModules::_find_ge(ULONG_PTR addr) {
     return std::lower_bound(modules.begin(), modules.end(), addr,
-                            [](std::shared_ptr<LoadedModule> &bl, ULONG_PTR addr) {  // <=
+                            [](std::shared_ptr<LoadedModule> &bl, ULONG_PTR addr) {
                                 return bl->base < addr;
                             });
 }
 
-LoadedModule *LoadedModules::find(ULONG_PTR addr) {
+std::vector<std::shared_ptr<LoadedModule>>::iterator LoadedModules::_find_lt(ULONG_PTR addr) {
     auto it = _find_ge(addr);
+    if (it == modules.begin()) return modules.end();
+    return it - 1;
+}
+
+std::vector<std::shared_ptr<LoadedModule>>::iterator LoadedModules::_find_le(ULONG_PTR addr) {
+    auto it = _find_gt(addr);
+    if (it == modules.begin()) return modules.end();
+    return it - 1;
+}
+
+LoadedModule *LoadedModules::find(ULONG_PTR addr) {
+    auto it = _find_le(addr);
     if (it != modules.end()) {
-        if ((*it)->contains(addr)) return &**it;
-    }
-    for (auto &mod: modules) {
-        if (mod->contains(addr)) return &*mod;
+        if ((*it)->codeContains(addr)) return &**it;
     }
     return nullptr;
+}
+ULONG_PTR LoadedModules::findBaseThreadInitThunk() {
+    for(auto &mod : modules) {
+        if(mod->name != "KERNEL32.DLL") continue;
+        for(auto &exp : mod->exports) {
+            if(exp->name == "BaseThreadInitThunk") {
+                return exp->addr;
+            }
+        }
+    }
+    return NULL;
 }
 
 BOOL LoadedModules::enumerateModulesCallback(PCSTR ModuleName, ULONG ModuleBase, ULONG ModuleSize, PVOID UserContext) {
@@ -129,3 +175,4 @@ BOOL LoadedModules::enumerateModulesCallback(PCSTR ModuleName, ULONG ModuleBase,
     _this->_visitModule(ModuleName, ModuleBase, ModuleSize);
     return TRUE;
 }
+

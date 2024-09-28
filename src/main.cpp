@@ -7,6 +7,7 @@
 #include "patches/micro_patches.h"
 #include "gog_patch.h"
 #include "tools/bug_hunter.h"
+#include <thread>
 
 namespace dk2 {
 
@@ -214,8 +215,6 @@ bool dk2::dk2_main1(int argc, LPCSTR *argv) {
 }
 
 int __cdecl dk2::dk2_main(int argc, LPCSTR *argv) {
-    bug_hunter::init();
-
     uint32_t finalStatus = 0;
     MyMutex mutex;
     mutex.constructor("DKII MUTEX");
@@ -244,6 +243,11 @@ int dk2::WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *lpCmdLine, 
 }
 
 int main() {
+    if(wcsstr(GetCommandLineW(), L" -console") == NULL) {
+        ::ShowWindow(::GetConsoleWindow(), SW_HIDE);
+    }
+    bug_hunter::init();
+    std::thread keyWatcher([] { bug_hunter::keyWatcher(); });
     // call entry point of DKII.EXE,
     if(gog::enable) gog::patch_init();
     // initialize its runtime and call dk2::WinMain

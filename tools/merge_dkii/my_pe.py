@@ -99,7 +99,7 @@ class MyPe:
     raise Exception(f'rva {rva:08X} cannot be converted to raw')
 
   @functools.lru_cache
-  def section_by_name(self, name) -> pe_types.IMAGE_SECTION_HEADER:
+  def section_by_name(self, name: str) -> pe_types.IMAGE_SECTION_HEADER:
     sections = ctypes.pointer(pe_types.IMAGE_SECTION_HEADER.from_address(self.sections_start))
     for i in range(self.nt.FileHeader.NumberOfSections):
       sec = sections[i]
@@ -107,6 +107,16 @@ class MyPe:
       if sec_name == name:
         return sec
     raise Exception(f'section {name} is not found')
+
+  @functools.lru_cache
+  def has_section(self, name: str) -> bool:
+    sections = ctypes.pointer(pe_types.IMAGE_SECTION_HEADER.from_address(self.sections_start))
+    for i in range(self.nt.FileHeader.NumberOfSections):
+      sec = sections[i]
+      sec_name = bytes(sec.Name).rstrip(b'\x00').decode('ascii')
+      if sec_name == name:
+        return True
+    return False
 
   def __getitem__(self, name: str) -> pe_types.IMAGE_SECTION_HEADER:
     return self.section_by_name(name)
@@ -118,7 +128,8 @@ class MyPe:
 
   def relocs(self) -> typing.Iterable[typing.Tuple[pe_types.IMAGE_REL_BASED, int]]:
     reloc = self.section_by_name('.reloc')
-    assert reloc.VirtualSize < reloc.SizeOfRawData
+    if reloc.VirtualSize > reloc.SizeOfRawData:
+      raise Exception(f'failed {reloc.VirtualSize:08X} <= {reloc.SizeOfRawData:08X}')
     pos = self.base + reloc.PointerToRawData
     relocs_end = pos + reloc.VirtualSize
     while pos < relocs_end:

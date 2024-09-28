@@ -71,10 +71,17 @@ def collect_replace_info(
     if name in flame_map:
       if (not name.startswith('??__')
           and not name.startswith('__guard')
+          and not name.startswith('__ehfuncinfo')
+          and not name.startswith('__unwindfunclet')
+          and not name.startswith('__ehhandler')
+          and not name.startswith('__unwindtable')
+          and not name.startswith('__catch')
+          and not name.startswith('__tryblocktable')
           and not name.startswith('$')
           and not name.endswith('VLCtable@@A')):
-        print(f'duplicate {flame_va:08X} {flame_map[name]:08X} {name}')
-        raise Exception()
+        pass
+        # print(f'duplicate {flame_va:08X} {flame_map[name]:08X} {name}')
+        # raise Exception()
     if not obj_file.endswith('.cpp.obj'):
       name = obj_file + ':' + name
     flame_map[name] = flame_va
@@ -134,6 +141,8 @@ def append_dll_sections_into_exe(dkii_data: bytes, flame_data: bytes) -> my_pe.M
   delta_file = sections_file_end - flame_pe['.text'].PointerToRawData
   flame_data_start = flame_pe.base + flame_pe['.text'].PointerToRawData
   flame_data_size = (flame_pe['.data'].PointerToRawData + flame_pe['.data'].SizeOfRawData) - flame_pe['.text'].PointerToRawData
+  if flame_pe.has_section('.idata'):
+    flame_data_size = (flame_pe['.idata'].PointerToRawData + flame_pe['.idata'].SizeOfRawData) - flame_pe['.text'].PointerToRawData
 
   free_sections_left = (dkii_pe.nt.OptionalHeader.SizeOfHeaders - (dkii_pe.sections_end - dkii_pe.base)) / ctypes.sizeof(pe_types.IMAGE_SECTION_HEADER)
   assert free_sections_left >= 4.0
@@ -150,6 +159,9 @@ def append_dll_sections_into_exe(dkii_data: bytes, flame_data: bytes) -> my_pe.M
   convert_sec(sections[1], flame_pe['.rdata'], b'.flame_r')
   convert_sec(sections[2], flame_pe['.data'], b'.flame_w')
   dkii_pe.nt.FileHeader.NumberOfSections += 3
+  if flame_pe.has_section('.idata'):
+    convert_sec(sections[3], flame_pe['.idata'], b'.flame_i')
+    dkii_pe.nt.FileHeader.NumberOfSections += 1
 
   sections: list[pe_types.IMAGE_SECTION_HEADER] = ctypes.pointer(pe_types.IMAGE_SECTION_HEADER.from_address(dkii_pe.sections_end))
   sections[0].Name = Name_ty(*b'.imports')
@@ -188,7 +200,9 @@ def append_dll_sections_into_exe(dkii_data: bytes, flame_data: bytes) -> my_pe.M
     # print(imp.name)
     for rva, ord, name, thunk_rva in imp.thunks():
       # print(f' {rva:08X} {ord} {name} {imp.desc.Name + delta_virt:08X} {thunk_rva + delta_virt:08X}')
-      imports[f'{imp.name.lower()}:{name if name is not None else ord}'] = (imp.desc.Name + delta_virt, imp.name, name, ord, thunk_rva + delta_virt)
+      if thunk_rva is not None:  # by ordinal
+        thunk_rva += delta_virt
+      imports[f'{imp.name.lower()}:{name if name is not None else ord}'] = (imp.desc.Name + delta_virt, imp.name, name, ord, thunk_rva)
   for imp in dkii_pe.imports():
     # print(imp.name)
     for rva, ord, name, thunk_rva in imp.thunks():
@@ -391,10 +405,15 @@ def main(
     symbols_map.append((va - flame_pe.nt.OptionalHeader.ImageBase + delta_virt + merged_pe.nt.OptionalHeader.ImageBase, name))
   symbols_map.sort(key=lambda e: e[0])
 
-  fpomap_data: bytes = my_espmap.build_merged_binary_fpomap(
-    dkii_espmap_file, flame_pdb_file, symbols_map,
-    delta_virt + merged_pe.nt.OptionalHeader.ImageBase)
-  merged_pe = bundle_fpo_map(merged_pe, fpomap_data)
+  def _build_fpo_map(merged_pe):
+    flame_x = merged_pe['.flame_x']
+    image_base = merged_pe.nt.OptionalHeader.ImageBase
+    fpomap_data: bytes = my_espmap.build_merged_binary_fpomap(
+      dkii_espmap_file, flame_pdb_file, symbols_map,
+      delta_virt + image_base,
+      (image_base + flame_x.VirtualAddress, image_base + flame_x.VirtualAddress + flame_x.VirtualSize))
+    return bundle_fpo_map(merged_pe, fpomap_data)
+  merged_pe = _build_fpo_map(merged_pe)
 
   print("new section mapping:")
   for sec in merged_pe.sections:

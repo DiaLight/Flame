@@ -25,6 +25,8 @@ add_executable(${TARGET}
         tools/bug_hunter.cpp
         tools/StackLimits.cpp
         tools/LoadedModules.cpp
+        tools/win32_gui_layout.cpp
+        tools/ExceptionWindow.cpp
 
         patches/replace_mouse_dinput_to_user32.cpp
         patches/use_wheel_to_zoom.cpp

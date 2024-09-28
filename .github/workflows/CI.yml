@@ -19,6 +19,19 @@ jobs:
         with:
           python-version: '3.x'
           # cache: 'pip'
+      - uses: actions/cache@v4
+        id: cache-venv
+        with:
+          path: venv
+          key: setup-venv-${{ runner.os }}-py-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            setup-venv-${{ runner.os }}-py-${{ steps.setup-python.outputs.python-version }}-
+      - name: Setup venv
+        run: |
+          python -m venv venv
+          venv/Scripts/python.exe -m pip install --upgrade pip setuptools wheel
+          venv/Scripts/python.exe -m pip install -r requirements.txt
+        if: steps.cache-venv.outputs.cache-hit != 'true'
       - uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: win32

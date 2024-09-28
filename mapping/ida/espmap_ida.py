@@ -4,14 +4,6 @@ import idautils
 import pathlib
 
 
-img_base = 0x00400000
-min_rva = 0x00001000
-# max_rva = 0x0026C000
-# min_rva = 0x0026C000
-max_rva = 0x003B3000
-min_va = img_base + min_rva
-max_va = img_base + max_rva
-
 regnames = idaapi.ph_get_regnames()
 
 
@@ -59,7 +51,7 @@ class StackItem:
 
   def __init__(self, ea, name, spd, kind, args):
     self.ea = ea  # type: int
-    self.rva = ea - img_base
+    self.rva = ea - idaapi.get_imagebase()
     self.name = name  # type: str
     if spd < 0:
       print(f'{ea:08X} {spd:08X} neg spd')
@@ -93,12 +85,12 @@ class StackCollector:
       return
     if ins.itype == idaapi.NN_jmp:
       # print("%08X jmp %d %08X" % (ins.ea, ins.Op1.value, ins.Op1.addr))
-      assert ins.Op1.addr > img_base
+      assert ins.Op1.addr > idaapi.get_imagebase()
       self.stack_items.append(StackItem(ins.ea, self.fun_name, spd, 'jmp', (ins.Op1.addr, '')))
       return
     if ins.itype == idaapi.NN_jmpshort:  # all jmpshort are function local
       # print("%08X jmp %d %08X (short)" % (ins.ea, ins.Op1.value, ins.Op1.addr))
-      assert ins.Op1.addr > img_base
+      assert ins.Op1.addr > idaapi.get_imagebase()
       self.stack_items.append(StackItem(ins.ea, self.fun_name, spd, 'jmp', (ins.Op1.addr, 'sh')))
       return
     if ins.itype == idaapi.NN_jmpni:
@@ -146,7 +138,7 @@ class StackWriter:
         if si.ea not in self.noreturn_functions:
           if si.kind != 'jmp':
             print("%08X no ret no jmp" % (si.ea,))
-            print("%08X %s" % (si.ea, si))
+            print("%08X %s" % (si.ea, si.name))
             print("%08X %s" % (next_si.ea, (next_si.ea, next_si.name, next_si.spd, next_si.kind, next_si.args)))
             assert False
     if si.kind == 'ret':
@@ -181,7 +173,7 @@ class StackWriter:
     assert False
 
 
-def collect(stack_file: pathlib.Path, noreturn_functions):
+def collect(min_va, max_va, stack_file: pathlib.Path, noreturn_functions):
   coll = StackCollector()
   ea_visited = set()
   for fun_ea in idautils.Functions(min_va, max_va):
@@ -234,8 +226,25 @@ def collect(stack_file: pathlib.Path, noreturn_functions):
 
 
 def gen():
+
+  img_base = 0x00400000
+  min_rva = 0x00001000
+  # max_rva = 0x0026C000
+  # min_rva = 0x0026C000
+  max_rva = 0x003B3000
+  min_va = img_base + min_rva
+  max_va = img_base + max_rva
+
   file = pathlib.Path(__file__).parent.parent / 'DKII_EXE_v170.espmap'
-  collect(file, [0x005AE220, 0x00636539, 0x0063CE93, 0x005258C1])
+  collect(min_va, max_va, file, noreturn_functions=[0x005AE220, 0x00636539, 0x0063CE93, 0x005258C1])
+
+
+def gen2():
+  min_va = 0x10001000
+  max_va = 0x10017000
+
+  file = pathlib.Path(__file__).parent.parent / 'WEANETR.espmap'
+  collect(min_va, max_va, file, noreturn_functions=[0x1000E5F0])
 
 
 def test():

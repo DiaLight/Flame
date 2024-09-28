@@ -6,6 +6,9 @@
 #include "dk2_globals.h"
 #include "StackLimits.h"
 #include "LoadedModules.h"
+#include "ExceptionWindow.h"
+#include "win32_gui_layout.h"
+#include "patches/game_version_patch.h"
 #include <Windows.h>
 #include <TlHelp32.h>
 #include <cstdio>
@@ -14,10 +17,65 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <ranges>
+#include <queue>
+#include <thread>
+#include <fstream>
+#include <filesystem>
+#include <ShlObj_core.h>
+
+namespace fs = std::filesystem;
 
 #define fmtHex32(val) std::hex << std::setw(8) << std::setfill('0') << std::uppercase << (val) << std::dec
+#define fmtHex16(val) std::hex << std::setw(4) << std::setfill('0') << std::uppercase << (val) << std::dec
 #define fmtHex32W(val) std::hex << std::setw(8) << std::setfill(L'0') << std::uppercase << (val) << std::dec
 #define fmtHex(val) std::hex << std::uppercase << (val) << std::dec
+
+struct MyVersionInfo {
+    struct LANGANDCODEPAGE {
+        WORD wLanguage;
+        WORD wCodePage;
+    };
+
+    HMODULE hModule;
+    LPVOID versionInfo = NULL;
+    UINT cbVersionInfo = 0;
+    LANGANDCODEPAGE *lpTranslate = NULL;
+    UINT cbTranslate = 0;
+
+    explicit MyVersionInfo(HMODULE hModule) : hModule(hModule) {}
+    ~MyVersionInfo() {
+        if(versionInfo) free(versionInfo);
+    }
+
+    bool open() {
+        wchar_t filePath[MAX_PATH];
+        GetModuleFileNameW(hModule, filePath, MAX_PATH);
+        DWORD dwHandle;
+        DWORD vSize = GetFileVersionInfoSizeW(filePath, &dwHandle);
+        if (vSize == 0) return false;
+        cbVersionInfo = vSize + 1;
+        versionInfo = malloc(vSize + 1);
+        if (!GetFileVersionInfoExW(FILE_VER_GET_NEUTRAL, filePath, dwHandle, vSize, versionInfo)) return false;
+        if (!VerQueryValueW(versionInfo, L"\\VarFileInfo\\Translation", (LPVOID*) &lpTranslate, &cbTranslate)) return false;
+        return true;
+    }
+
+#define LANGID_US_ENGLISH 0x0409
+    std::string queryValue(const char *csEntry) const {
+        for(unsigned int i = 0; i < (cbTranslate / sizeof(LANGANDCODEPAGE)); i++) {
+            if(lpTranslate[i].wLanguage != LANGID_US_ENGLISH) continue;
+            char subblock[256];
+            sprintf_s(subblock, "\\StringFileInfo\\%04x%04x\\%s", lpTranslate[i].wLanguage, lpTranslate[i].wCodePage, csEntry);
+            char *description = NULL;
+            UINT dwBytes;
+            if(VerQueryValue(versionInfo, subblock, (LPVOID*) &description, &dwBytes)) {
+                return (char *) description;
+            }
+        }
+        return "";
+    }
+};
 
 uint32_t decodeVarint(uint8_t *&p) {
     uint32_t ret = 0;
@@ -67,23 +125,29 @@ extern "C" void *_dkii_text_end = nullptr;
 extern "C" void *_flame_text_start = nullptr;
 extern "C" void *_flame_text_end = nullptr;
 namespace bughunter {
-    uint8_t *base = nullptr;
-    uint8_t *end = nullptr;
-    DWORD imageBase = 0;
-    uint8_t *fpomap_start = nullptr;
-    uint8_t *dkii_text_start = nullptr;
-    uint8_t *dkii_text_end = nullptr;
-    uint8_t *flame_text_start = nullptr;
-    uint8_t *flame_text_end = nullptr;
+    uintptr_t base = 0;
+    uintptr_t end = 0;
+    uintptr_t entry = 0;
+    uint32_t imageBase = 0;
+    uintptr_t fpomap_start = 0;
+    uintptr_t dkii_text_start = 0;
+    uintptr_t dkii_text_end = 0;
+    uintptr_t flame_text_start = 0;
+    uintptr_t flame_text_end = 0;
 
     std::vector<MyFpoFun> fpomap;
 
-    bool isAppCode(void *p) {
-        if(dkii_text_start <= p && p < dkii_text_end) return true;
-        if(flame_text_start <= p && p < flame_text_end) return true;
+    bool isDkiiCode(DWORD p) noexcept {
+        return dkii_text_start <= p && p < dkii_text_end;
+    }
+    bool isFlameCode(DWORD p) noexcept {
+        return flame_text_start <= p && p < flame_text_end;
+    }
+    bool isAppCode(DWORD p) noexcept {
+        if(isDkiiCode(p)) return true;
+        if(isFlameCode(p)) return true;
         return false;
     }
-    inline bool isAppCode(DWORD p) { return isAppCode((void *) p); }
 
     std::vector<MyFpoFun>::iterator find_gt(DWORD ptr) {
         return std::upper_bound(fpomap.begin(), fpomap.end(), ptr, [](DWORD ptr, MyFpoFun &bl) {
@@ -99,13 +163,14 @@ namespace bughunter {
 }
 
 void resolveLocs() {
-    uint8_t *base = (uint8_t *) GetModuleHandleA(NULL);
-    bughunter::base = base;
+    uintptr_t base = (uintptr_t) GetModuleHandleA(NULL);
+    bughunter::base = (uintptr_t) base;
     auto *pHeader = (PIMAGE_DOS_HEADER) base;
     if (pHeader->e_magic == IMAGE_DOS_SIGNATURE) {
         auto *header = (PIMAGE_NT_HEADERS) ((BYTE *) base + ((PIMAGE_DOS_HEADER) base)->e_lfanew);
         bughunter::imageBase = header->OptionalHeader.ImageBase;
         bughunter::end = bughunter::base + header->OptionalHeader.SizeOfImage;
+        bughunter::entry = bughunter::base + header->OptionalHeader.AddressOfEntryPoint;
     }
     // dirty hack to locate .fpomap section
     bughunter::fpomap_start = base + (uint32_t) (uint8_t *) &_fpomap_start;
@@ -117,7 +182,7 @@ void resolveLocs() {
 
 void parseFpomap() {
     bughunter::fpomap.clear();
-    uint8_t *p = bughunter::fpomap_start;
+    auto *p = (uint8_t *) bughunter::fpomap_start;
     size_t fposCount = decodeVarint(p);
 //    printf("fposCount = %d\n", fposCount);
     DWORD va = 0;
@@ -147,9 +212,55 @@ void parseFpomap() {
     }
 }
 
-void controlOtherThreadsInCurProc(bool suspend) {
+struct AppThread {
+    DWORD tid = 0;
+    HANDLE hThread = NULL;
+
+    AppThread() = default;
+    AppThread(DWORD tid, HANDLE hThread) : tid(tid), hThread(hThread) {}
+    AppThread(const AppThread& Right) noexcept = delete;
+    AppThread(AppThread&& R) noexcept : tid(R.tid), hThread(R.hThread) {
+        R.tid = 0;
+        R.hThread = NULL;
+    }
+    AppThread& operator=(const AppThread& Right) noexcept = delete;
+    AppThread& operator=(AppThread&& R) noexcept {
+        if(this == &R) return *this;
+        reset();
+        tid = R.tid;
+        hThread = R.hThread;
+        R.tid = 0;
+        R.hThread = NULL;
+        return *this;
+    }
+    ~AppThread() {
+        reset();
+    }
+
+    void reset() {
+        if (!hThread) return;
+        CloseHandle(hThread);
+        hThread = NULL;
+    }
+
+    void suspend() const {
+        SuspendThread(hThread);
+    }
+    void resume() const {
+        ResumeThread(hThread);
+    }
+    void terminate() const {
+        __try{
+            TerminateThread(hThread, 0);
+        } __except(0xC000071C) {}
+    }
+
+};
+
+std::vector<AppThread> collectAppThreads() {
+    std::vector<AppThread> states;
     HANDLE h = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
-    if (h == INVALID_HANDLE_VALUE) return;
+    if (h == INVALID_HANDLE_VALUE) return {};
     DWORD curPid = GetCurrentProcessId();
     DWORD curTid = GetCurrentThreadId();
     THREADENTRY32 te;
@@ -158,183 +269,361 @@ void controlOtherThreadsInCurProc(bool suspend) {
         if (te.th32OwnerProcessID != curPid) continue;
         if (te.th32ThreadID == curTid) continue;
         if(HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, FALSE, te.th32ThreadID)) {
-            if(suspend) {
-                SuspendThread(hThread);
-            } else {
-                ResumeThread(hThread);
-            }
-            CloseHandle(hThread);
+            states.emplace_back(te.th32ThreadID, hThread);
         }
     }
     CloseHandle(h);
+    return states;
 }
 
-void MyHideWindow(HWND hWnd) {
-    char name[256];
-    GetClassNameA(hWnd, name, sizeof(name));
-    printf("%d hide classname: %s\n", GetCurrentThreadId(), name);
-    BOOL res = ShowWindow(hWnd, SW_FORCEMINIMIZE);
-    printf("%d res: %d\n", GetCurrentThreadId(), res);
+void StackFrame_reset(StackFrame &frame) {
+    frame.eip = 0;
+    frame.esp = 0;
+    frame.ebp = 0;
+    frame.libName.clear();
+    frame.libBase = 0;
+    frame.symName.clear();
+    frame.symAddr = 0;
 }
-void hideFullscreenWindow() {
-    CreateThread(NULL, 0, [](LPVOID hWnd) -> DWORD { MyHideWindow((HWND) hWnd); return 0; }, dk2::hBullfrogWindow, 0, NULL);  // hide fullscreen window
-}
 
-
-struct StackFrame {
-
-    bool isOld;
-    DWORD eip;
-    DWORD esp;
-    DWORD ebp;
-
-    // lib fields
-    std::string libName;
-    DWORD libBase = 0;
-    std::string symName;
-    DWORD symAddr = 0;
-
-    // dk2 fields
-    std::string dk2Name;
-    std::wstring spinfo;
-    bool error = false;
-
-    void formatOneLine(std::wstringstream &ss);
-    void format(std::wstringstream &ss);
-
-    void onSuccess(const std::wstring &info) {
-        spinfo = info;
-        error = true;
+std::string StackFrame_getReadableSymName(const std::string &symName) {
+    if(symName.starts_with('?')) {
+        std::vector<std::pair<size_t, size_t>> parts;
+        std::pair<size_t, size_t> suffix(0, 0);
+        size_t offs = 1;
+        while(true) {
+            size_t pos = symName.find('@', offs);
+            if(pos == std::string::npos) break;
+            if(pos == offs) {
+                suffix = {offs + 2, symName.size() - offs};
+                break;
+            }
+            parts.emplace_back(offs, pos - offs);
+            offs = pos + 1;
+        }
+        std::stringstream ss;
+        for(auto &part : parts | std::views::reverse) {
+            if(ss.tellp()) ss << "::";
+            ss << symName.substr(part.first, part.second);
+        }
+//        if(suffix.first) {
+//            ss << "(";
+//            ss << symName.substr(suffix.first, suffix.second);
+//            ss << ")";
+//        }
+        return ss.str();
     }
-    void onError(const std::wstring &info) {
-        spinfo = info;
-        error = true;
+    return symName;
+}
+
+std::ostream &operator<<(std::ostream &os, const StackFrame &frame) {
+    os << "ebp=" << fmtHex32(frame.ebp);
+    os << " esp=" << fmtHex32(frame.esp);
+    os << " eip=" << fmtHex32(frame.eip);
+    os << " ";
+    if(!frame.libName.empty()) {
+        os << std::right << std::setw(16) << std::setfill(' ') << frame.libName << ":";
+    } else if(frame.libBase) {
+        os << std::right << std::setw(16) << std::setfill(' ') << fmtHex32(frame.libBase) << ":";
     }
+    if(!frame.symName.empty()) {
+        os << StackFrame_getReadableSymName(frame.symName);
+        os << "+" << fmtHex(frame.eip - frame.symAddr);
+    } else {
+        os << "base";
+        os << "+" << fmtHex(frame.eip - frame.libBase);
+    }
+    if(frame.symName.starts_with('?')) {
+        os << " (" << frame.symName << ")";
+    }
+    return os;
+}
 
-};
-
-class StackWalker {
-
+struct StackWalkerState {
     LoadedModules &modules;
-    StackLimits limits;
-    CONTEXT ctx;
-public:
-    explicit StackWalker(LoadedModules &modules, CONTEXT &ctx) : modules(modules), ctx(ctx) {
-        limits.resolve();
-        modules.update();
+    StackLimits &limits;
+    DWORD Ebp;
+    DWORD Esp;
+    DWORD Eip;
+    WalkerError &err;
+    StackFrame frame;
+    ULONG_PTR BaseThreadInitThunk = 0;
+    explicit StackWalkerState(LoadedModules &modules, StackLimits &limits, CONTEXT &ctx, WalkerError &err)
+    : modules(modules), limits(limits), Ebp(ctx.Ebp), Esp(ctx.Esp), Eip(ctx.Eip), err(err) {
+        if(!err) {
+            BaseThreadInitThunk = modules.findBaseThreadInitThunk();
+        }
     }
 
-    void test() {
+    bool isAnyCode(DWORD eip) {
+        if(eip == 0) return false;
+        if (auto *mod = modules.find(Eip)) return true;
+        return false;
+    }
+
+    void dumpStackPart(DWORD esp) {
+        DWORD *p = (DWORD *) esp;
+        for (int i = -2; i < 6; ++i) {
+            DWORD val = p[i];
+            std::stringstream ss;
+            ss << fmtHex(limits.high - (DWORD) &p[i]) << "->" << fmtHex32(val);
+            if(limits.contains(val)) {
+                ss << " " << "stack";
+                ss << "+" << fmtHex(limits.high - val);
+            } else if (auto *mod = modules.find(val)) {
+                if (auto *exp = mod->find_export_le(val)) {
+                    ss << " " << mod->name;
+                    ss << ":" << exp->name << "+" << fmtHex(val - exp->addr);
+                } else {
+                    ss << " " << mod->name;
+                    ss << "+" << fmtHex(val - mod->base);
+                }
+            }
+            std::cout << ss.str() << std::endl;
+        }
+    }
+    void setEbp(DWORD ebpCand) {
+        Ebp = 0;
+        if(ebpCand && ebpCand >= Esp && limits.contains(ebpCand)) {
+            if (auto *mod2 = modules.find(((DWORD *) ebpCand)[1])) {
+                Ebp = ebpCand;
+            }
+        }
+    }
+    void stepEmpirical() {
+        Eip = 0;
+        DWORD *p = (DWORD *) Esp;
+        for(; (DWORD) p < limits.high; p++) {
+            if (auto *mod = modules.find(*p)) {
+                setEbp(p[-1]);
+                Eip = *p++;
+                break;
+            }
+        }
+        Esp = (DWORD) p;
+    }
+    bool stackEndCondition() const {
+        if(BaseThreadInitThunk) {
+            if(BaseThreadInitThunk < frame.eip && frame.eip < (BaseThreadInitThunk + 0x40)) return true;
+        } else {
+            if(frame.libName == "KERNEL32.DLL" && frame.symName == "BaseThreadInitThunk") return true;
+        }
+        if(frame.symAddr == bughunter::entry) return true;
+        return false;
+    }
+    void tryStep() {
+        if(err) return;
+        if(stackEndCondition()) {
+            // stack end
+            Esp = limits.high;
+            StackFrame_reset(frame);
+            return;
+        }
+        StackFrame_reset(frame);
+        if(Esp >= limits.high) {
+            std::stringstream ss;
+            ss << "stack limit reached";
+            err.set(ss.str());
+        }
+        frame.eip = Eip;
+        frame.esp = Esp;
+        if(Ebp && Ebp >= Esp) frame.ebp = Ebp;
         // todo: describe how we get here
         // ebp can be invalid
 
-        // validate context state
-        if (!limits.contains(ctx.Esp)) {
-            std::stringstream iss;
-            iss << "bad esp=" << fmtHex32(ctx.Esp) << "\n";
-            std::cout << iss.str();
-//            formatError(iss, ctx, limits);
-//            frame->onError(iss.str());
-            return;
+        bool isAppCode = false;
+        if(bughunter::isDkiiCode(Eip)) {
+            frame.libBase = bughunter::base;
+            frame.libName = "DKII";
+            isAppCode = true;
         }
-        if (!limits.contains(ctx.Ebp)) {
-            std::stringstream iss;
-            iss << "bad ebp=" << fmtHex32(ctx.Ebp) << "\n";
-            std::cout << iss.str();
-//            formatError(iss, ctx, limits);
-//            frame->onError(iss.str());
-            return;
+        if(bughunter::isFlameCode(Eip)) {
+            frame.libBase = bughunter::base;
+            frame.libName = "Flame";
+            isAppCode = true;
         }
-        if(ctx.Ebp > ctx.Esp) {
-            printf("ebp wasnt updated");
-        }
-        auto *bp = (uint32_t *) ctx.Ebp;
-        ctx.Ebp = *bp++;
-        if (ctx.Ebp != 0 && !limits.contains(ctx.Ebp)) {
-            std::stringstream iss;
-            iss << "bad ebp=" << fmtHex32(ctx.Ebp) << "\n";
-            std::cout << iss.str();
-//            formatError(iss, ctx, limits);
-//            frame->onError(iss.str());
-            return;
-        }
-
-        StackFrame frame;
-        if(bughunter::isAppCode(ctx.Eip)) {
-            auto it = bughunter::find_le(ctx.Eip);
-            if(it != bughunter::fpomap.end() && ctx.Eip < it->end) {
+        if(isAppCode) {
+            auto it = bughunter::find_le(Eip);
+            if(it != bughunter::fpomap.end() && Eip < it->end) {
                 auto &fpo = *it;
-                printf("%s+%X\n", fpo.name, ctx.Eip - fpo.ptr);
-                auto it2 = fpo.find_ge(ctx.Eip - fpo.ptr);
+                frame.symAddr = fpo.ptr;
+                frame.symName = fpo.name;
+                auto it2 = fpo.find_ge(Eip - fpo.ptr);
                 if (it2 != fpo.spds.end()) {
-                    auto &ms = *it2;
+                    auto &spd = *it2;
                     const char *ty = "";
-                    if(ms.ty == MST_Ida) {
+                    if(spd.ty == MST_Ida) {
                         ty = "ida";
-                    } else if(ms.ty == MST_Fpo) {
+                    } else if(spd.ty == MST_Fpo) {
                         ty = "fpo";
-                    } else if(ms.ty == MST_Frm) {
+                    } else if(spd.ty == MST_Frm) {
                         ty = "frm";
                     }
-                    std::cout << fmtHex32(fpo.ptr) << " " << fmtHex32(fpo.ptr + ms.offs) << " spd=" << fmtHex(ms.spd) << " " << ty << " kind=" << fmtHex(ms.kind) << std::endl;
-
-                    ctx.Esp += ms.spd;
-                    // try saved bp and ip
-                    DWORD *p = (DWORD *) ctx.Esp;
-                    for (int i = -2; i < 6; ++i) {
-                        printf("%08X->%08X app=%d stk=%d\n", &p[i], p[i], bughunter::isAppCode(p[i]), limits.contains(p[i]));
+//                    std::cout << " " << fmtHex32(fpo.ptr) << " " << fmtHex32(fpo.ptr + spd.offs) << " spd=" << fmtHex(spd.spd) << " " << ty << " kind=" << fmtHex(spd.kind) << std::endl;
+                    if(spd.spd > 0) {
+                        Esp += spd.spd;
                     }
-                    //0019D46C->0019D480 app=0 stk=1
-                    //0019D470->00829336 app=1 stk=0
-                    //0019D474->00A80000 app=0 stk=0  <-
-                    //0019D478->00000000 app=0 stk=0
-                    //0019D47C->00000300 app=0 stk=0
-                    //0019D480->0019D490 app=0 stk=1
-                    //0019D484->0081725B app=1 stk=0
-                    if(limits.contains(p[0])) {
-                        if(bughunter::isAppCode(p[1])) {  // try
-                            ctx.Esp += 8;
-                            ctx.Eip += p[1];
-                        } else {
-                            printf("e1 %d\n", ms.ty);
-                        }
-                    } else {
-                        printf("e2 %d\n", ms.ty);
-                    }
-                } else {
-                    // try an empirical approach
-                    printf("empirical approach2\n");
                 }
-            } else {
-                // try an empirical approach
-                printf("empirical approach\n");
             }
         } else {
-            if (auto *mod = modules.find(ctx.Eip)) {
-                frame.libName = mod->name;
-                frame.libBase = mod->base;
-                if (auto *exp = mod->find_export_le(ctx.Eip)) {
-                    frame.symName = exp->name;
-                    frame.symAddr = exp->addr;
-                    printf("unwind lib %s:%s+%X\n", frame.libName.c_str(), frame.symName.c_str(), ctx.Eip - frame.symAddr);
+            // identify
+            if(Eip) {
+                if (auto *mod = modules.find(Eip)) {
+                    frame.libName = mod->name;
+                    frame.libBase = mod->base;
+                    if (auto *exp = mod->find_export_le(Eip)) {
+                        frame.symName = exp->name;
+                        frame.symAddr = exp->addr;
+//                    printf("unwind lib %s:%s+%X\n", frame.libName.c_str(), frame.symName.c_str(), Eip - frame.symAddr);
+                    } else {
+//                    printf("unwind lib %s+%X\n", frame.libName.c_str(), Eip - frame.libBase);
+                    }
                 } else {
-                    printf("unwind lib %s+%X\n", frame.libName.c_str(), ctx.Eip - frame.libBase);
+                    std::stringstream ss;
+                    ss << "unwind lib unk eip=" << fmtHex32(Eip);
+                    err.set(ss.str());
                 }
-            } else {
-                printf("unwind lib unk %p\n", ctx.Eip);
             }
-            ctx.Eip = *bp++;
-            ctx.Esp = (uint32_t) bp;
-            printf("ctx.Esp=%p\n", ctx.Esp);
         }
+        // step
+        if(Ebp && Ebp >= Esp) {
+            Esp = Ebp;
+            auto *bp = (uint32_t *) Esp;
+            setEbp(*bp++);
+            Eip = *bp++;
+            Esp = (uint32_t) bp;
+            if(!isAnyCode(Eip)) {
+                stepEmpirical();
+            }
+        } else {
+            stepEmpirical();
+        }
+    }
+    void step() {
+//        __try {
+            tryStep();
+//        } __except(EXCEPTION_EXECUTE_HANDLER) {
+//            onException();
+//        }
+    }
+    void onException() {
+        std::stringstream ss;
+        ss << "exception caught while tracing stack";
+        err.set(ss.str());
+    }
+
+    static void setError(WalkerError &err, const std::string &str) {
+        err.set(str);
     }
 
 };
 
+StackWalker::StackWalker(LoadedModules &modules, StackLimits &limits, CONTEXT &ctx, WalkerError &err)
+    : state(std::make_unique<StackWalkerState>(modules, limits, ctx, err)) {}
+
+
+StackWalkerIter::StackWalkerIter(StackWalkerState &state) : state(state) {
+    state.step();
+}
+
+StackFrame &StackWalkerIter::operator*() const noexcept { return state.frame; }
+
+StackFrame *StackWalkerIter::operator->() const noexcept { return &state.frame; }
+
+bool StackWalkerIter::operator!=(const StackWalkerEnd &) const noexcept {
+    if(state.frame.esp == 0) return false;
+    if(state.err) return false;
+    return true;
+}
+
+StackWalkerIter &StackWalkerIter::operator++() noexcept {
+    state.step();
+    return *this;
+}
+
+void onlyImportantFrames(StackWalkerIter &&it, std::deque<StackFrame> &frames, WalkerError &err) {
+    // walk until dkII code
+    for(; it != StackWalker::end(); ++it) {
+        if(it->libBase == bughunter::base) break;
+        frames.push_back(*it);
+        if(frames.size() > 2) frames.pop_front();
+    }
+    // and walk until dk2 namespace appear
+    for(; it != StackWalker::end(); ++it) {
+        if(it->symName.find("@dk2@@") != std::string::npos) break;
+        frames.push_back(*it);
+    }
+    // and 4 frames more
+    for (int i = 0; i < 4 && it != StackWalker::end(); ++i, ++it) {
+        frames.push_back(*it);
+    }
+}
+
+void formatHeader(std::stringstream &ss, FILETIME &timestamp) {
+    ss << "timestamp: " << fmtHex32(timestamp.dwHighDateTime) << fmtHex32(timestamp.dwLowDateTime);
+    {
+        SYSTEMTIME stime;
+        FileTimeToSystemTime(&timestamp, &stime);
+
+        char timeStr[64];
+        snprintf(timeStr, sizeof(timeStr), "%d.%02d.%02d %02d:%02d:%02d %d UTC",
+                 stime.wYear, stime.wMonth, stime.wDay,
+                 stime.wHour, stime.wMinute, stime.wSecond, stime.wMilliseconds);
+        ss << " (" << timeStr << ")" << std::endl;
+    }
+    std::string version = game_version_patch::getFileVersion();
+    std::replace(version.begin(), version.end(), '\n', ' ');
+    ss << "version: " << version << std::endl;
+}
+
+void formatModules(std::stringstream &ss, LoadedModules &modules) {
+    ss << "modules:" << std::endl;
+    for(auto &mod : modules) {
+        ss << fmtHex32(mod->base) << "-" << fmtHex32(mod->end) << " ";
+        ss << std::left << std::setw(16) << std::setfill(' ') << mod->name;
+        MyVersionInfo ver((HMODULE) mod->base);
+        if(ver.open()) {
+            std::string version = ver.queryValue("FileVersion");
+            if(version.empty()) {
+                version = ver.queryValue("ProductVersion");
+            }
+            std::string prodictName = ver.queryValue("ProductName");
+            if(prodictName == "Microsoft® Windows® Operating System") {
+                prodictName = "";
+            }
+            auto desc = ver.queryValue("FileDescription");
+            if(!desc.empty()) ss << " desc=\"" << desc << "\"";
+            if(!prodictName.empty()) ss << " product_name=\"" << prodictName << "\"";
+            if(!version.empty()) ss << " ver=\"" << version << "\"";
+        }
+        ss << std::endl;
+    }
+}
+
+void buildFileName(FILETIME &timestamp, const char *namePart, char *reportFile, size_t bufCount) {
+    char curDir[MAX_PATH];
+    GetCurrentDirectoryA(MAX_PATH, curDir);
+
+    SYSTEMTIME stime;
+    FileTimeToSystemTime(&timestamp, &stime);
+    snprintf(reportFile, bufCount, "%s\\Flame-%s-%02d%02d%02d.txt", curDir, namePart,
+             stime.wYear % 100, stime.wMonth, stime.wDay);
+    for (int suffix = 1; fs::exists(reportFile); suffix++) {
+        snprintf(reportFile, bufCount, "%s\\Flame-%s-%02d%02d%02d[%d].txt", curDir, namePart,
+                 stime.wYear % 100, stime.wMonth, stime.wDay, suffix);
+    }
+}
+
 LPTOP_LEVEL_EXCEPTION_FILTER g_prev = nullptr;
 LONG WINAPI TopLevelExceptionFilter(_In_ struct _EXCEPTION_POINTERS *ExceptionInfo) {
-    controlOtherThreadsInCurProc(true);
+    std::vector<AppThread> states = collectAppThreads();
+    for(auto &ts : states) ts.suspend();
     std::stringstream ss;
+    FILETIME timespamp;
+    GetSystemTimeAsFileTime(&timespamp);
+    formatHeader(ss, timespamp);
+
+    ss << std::endl;
     ss << "caught exception " << fmtHex32(ExceptionInfo->ExceptionRecord->ExceptionCode) << " at " << fmtHex32(ExceptionInfo->ExceptionRecord->ExceptionAddress) << std::endl;
     ss << "tid: " << GetCurrentThreadId() << "(0x" << fmtHex(GetCurrentThreadId()) << ")" << std::endl;
     ss << "exe base: " << fmtHex32(bughunter::base) << std::endl;
@@ -344,25 +633,236 @@ LONG WINAPI TopLevelExceptionFilter(_In_ struct _EXCEPTION_POINTERS *ExceptionIn
     ss << "eip=" << fmtHex32(R.Eip) << " efl=" << fmtHex32(R.EFlags) << std::endl;
 
     LoadedModules modules;
-    {
-        StackWalker sw(modules, R);
-        sw.test();
-        sw.test();
-        sw.test();
-        sw.test();
-        sw.test();
+    modules.update();
+    {  // current thread info
+        WalkerError err;
+
+        StackLimits limits;
+        limits.resolve();
+
+        std::deque<StackFrame> frames;
+        StackWalker sw(modules, limits, R, err);
+//        onlyImportantFrames(sw.begin(), frames, err);
+        for(auto &frame : sw) frames.push_back(frame);
+
+        ss << std::endl;
+        ss << "thread " << GetCurrentThreadId() << " stack=" << fmtHex32(limits.low) << "-" << fmtHex32(limits.high) << std::endl;
+        for(auto &fr : frames) {
+            ss << fr << std::endl;
+        }
+        if(err) {
+            ss << "[StackWalker ERROR]: " << err.str() << std::endl;
+        }
+    }
+    for(auto &ts : states) {
+        WalkerError err;
+        StackLimits limits;
+        if(!limits.resolve(ts.hThread)) {
+            DWORD lastError = GetLastError();
+            ss << std::endl;
+            ss << "thread " << ts.tid << " [error]: GetThreadStackLimits failed " << fmtHex32(lastError) << std::endl;
+            continue;
+        }
+
+        CONTEXT ctx;
+        ZeroMemory(&ctx, sizeof(ctx));
+        ctx.ContextFlags = CONTEXT_FULL;
+        if(!GetThreadContext(ts.hThread, &ctx)) {
+            DWORD lastError = GetLastError();
+            ss << "thread " << ts.tid << " stack=" << fmtHex32(limits.low) << "-" << fmtHex32(limits.high) << std::endl;
+            ss << "[StackWalker ERROR]: GetThreadContext failed " << fmtHex32(lastError) << std::endl;
+        }
+
+        std::deque<StackFrame> frames;
+        StackWalker sw(modules, limits, ctx, err);
+        for(auto &frame : sw) frames.push_back(frame);
+
+        ss << std::endl;
+        ss << "thread " << ts.tid << " stack=" << fmtHex32(limits.low) << "-" << fmtHex32(limits.high) << std::endl;
+        for(auto &fr : frames) {
+            ss << fr << std::endl;
+        }
+        if(err) {
+            ss << "[StackWalker ERROR]: " << err.str() << std::endl;
+        }
     }
 
+    ss << std::endl;
+    formatModules(ss, modules);
+
     std::string text = ss.str();
-    // hide game windows and show crash menu
-    hideFullscreenWindow();
-    MessageBoxA(NULL, text.c_str(), "Flame bug hunter", MB_OK | MB_ICONERROR | MB_DEFAULT_DESKTOP_ONLY | MB_TASKMODAL);
-    controlOtherThreadsInCurProc(false);
+
+    char reportFile[MAX_PATH];
+    buildFileName(timespamp, "CrashInfo", reportFile, MAX_PATH);
+    {
+        std::ofstream os(reportFile);
+        os << text;
+    }
+
+    SetEnvironmentVariableA("FLAME_CRASH_FILE", reportFile);
+
+    char exeFile[MAX_PATH];
+    GetModuleFileNameA(NULL, exeFile, MAX_PATH);
+    ShellExecuteA(NULL, "open", exeFile, "-display_crash_message", NULL, SW_SHOWDEFAULT);
+
+    for(auto &ts : states) ts.resume();
     return g_prev(ExceptionInfo);
 }
 
+struct PausedThread {
+    HANDLE hThread;
+    explicit PausedThread(HANDLE hThread) : hThread(hThread) {
+        SuspendThread(hThread);
+    }
+    ~PausedThread() {
+        ResumeThread(hThread);
+    }
+};
+
+void traceThread(HANDLE hThread, std::vector<StackFrame> &frames, WalkerError &err, LoadedModules *modules = NULL) {
+    CONTEXT ctx;
+    ZeroMemory(&ctx, sizeof(ctx));
+    ctx.ContextFlags = CONTEXT_FULL;
+
+    StackLimits limits;
+    if(!limits.resolve(hThread)) {
+        DWORD lastError = GetLastError();
+        std::stringstream ss;
+        ss << "GetThreadStackLimits failed " << fmtHex32(lastError) << std::endl;
+        StackWalkerState::setError(err, ss.str());
+        return;
+    }
+    PausedThread pauseGuard(hThread);
+    if(!GetThreadContext(hThread, &ctx)) {
+        DWORD lastError = GetLastError();
+        std::stringstream ss;
+        ss << "GetThreadContext failed " << fmtHex32(lastError) << std::endl;
+        StackWalkerState::setError(err, ss.str());
+        return;
+    }
+    LoadedModules localModules;
+    if(!modules) {
+        localModules.update();
+        modules = &localModules;
+    }
+    StackWalker sw(*modules, limits, ctx, err);
+    for(auto &frame : sw) frames.push_back(frame);
+}
+
+void traceCurrentStack(std::vector<StackFrame> &frames, WalkerError &err) {
+    CONTEXT ctx;
+    ZeroMemory(&ctx, sizeof(ctx));
+    ctx.ContextFlags = CONTEXT_FULL;
+    RtlCaptureContext(&ctx);
+
+    StackLimits limits;
+    limits.resolve();
+
+    LoadedModules modules;
+    modules.update();
+
+    StackWalker sw(modules, limits, ctx, err);
+    for(auto &frame : sw) frames.push_back(frame);
+}
+
+void displayCrashMessage() {
+    gui::initDPI();
+    std::stringstream ss;
+    ss << "The Dungeon Keeper 2 process has crashed" << std::endl;
+    ss << "But! Flame has collected crash info in the text file" << std::endl;
+
+    char exeDir[MAX_PATH];
+    GetCurrentDirectoryA(MAX_PATH, exeDir);
+    char crashFile[MAX_PATH];
+    if(GetEnvironmentVariableA("FLAME_CRASH_FILE", crashFile, MAX_PATH) != 0) {
+        ss << "CrashInfo location:" << std::endl;
+        ss << crashFile << std::endl;
+    } else {
+        crashFile[0] = '\0';
+        ss << "CrashInfos location:" << std::endl;
+        ss << exeDir << "\\Flame-CrashInfo-*.txt" << std::endl;
+    }
+    ss << std::endl;
+    ss << "ok - open directory and exit" << std::endl;
+    ss << "cancel - exit" << std::endl;
+    std::string text = ss.str();
+    int res = MessageBoxA(NULL, text.c_str(), "Flame bug hunter", MB_OKCANCEL | MB_ICONERROR);
+    if(res == IDOK) {
+        // try open directory and select file
+        if(crashFile[0]) {
+            ITEMIDLIST *pidl = ILCreateFromPath(crashFile);
+            if(pidl) {
+                SHOpenFolderAndSelectItems(pidl, 0, NULL, 0);
+                ILFree(pidl);
+                return;
+            }
+        }
+        ShellExecuteA(NULL, "open", exeDir, NULL, NULL, SW_SHOWDEFAULT);
+    }
+}
+
 void bug_hunter::init() {
+    if(wcsstr(GetCommandLineW(), L" -display_crash_message") != NULL) {
+        displayCrashMessage();
+        ExitProcess(0);
+    }
+
     resolveLocs();
     parseFpomap();
     g_prev = SetUnhandledExceptionFilter(TopLevelExceptionFilter);
+}
+
+void collectStackInfo() {
+    std::stringstream ss;
+    FILETIME timespamp;
+    GetSystemTimeAsFileTime(&timespamp);
+    formatHeader(ss, timespamp);
+
+    LoadedModules modules;
+    modules.update();
+
+    std::vector<AppThread> states = collectAppThreads();
+    for(auto &ts : states) {
+        WalkerError err;
+        std::vector<StackFrame> frames;
+        traceThread(ts.hThread, frames, err, &modules);
+
+        ss << std::endl;
+
+        StackLimits limits;
+        limits.resolve(ts.hThread);
+        ss << "thread " << ts.tid << " stack=" << fmtHex32(limits.low) << "-" << fmtHex32(limits.high) << std::endl;
+        for(auto &fr : frames) {
+            ss << fr << std::endl;
+        }
+        if(err) {
+            ss << "[StackWalker ERROR]: " << err.str() << std::endl;
+        }
+    }
+
+    ss << std::endl;
+    formatModules(ss, modules);
+
+    std::string text = ss.str();
+
+    char reportFile[MAX_PATH];
+    buildFileName(timespamp, "StackInfo", reportFile, MAX_PATH);
+    {
+        std::ofstream os(reportFile);
+        os << text;
+    }
+}
+
+void bug_hunter::keyWatcher() {
+    DWORD last = GetTickCount();
+    while(true) {
+        if(GetAsyncKeyState(VK_F12) & 0x8000) {
+            DWORD cur = GetTickCount();
+            if((cur - last) > 1000) {
+                last = cur;
+                collectStackInfo();
+            }
+        }
+        SleepEx(50, TRUE);
+    }
 }

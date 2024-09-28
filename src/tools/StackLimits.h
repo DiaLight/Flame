@@ -8,8 +8,8 @@
 #include <Windows.h>
 
 struct StackLimits {
-    ULONG_PTR low;
-    ULONG_PTR high;
+    ULONG_PTR low = 0;
+    ULONG_PTR high = 0;
 
     StackLimits();
 
