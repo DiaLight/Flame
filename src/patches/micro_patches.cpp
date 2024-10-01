@@ -24,6 +24,8 @@ bool response_to_threat_fix::enabled = true;
 bool use_wasd_by_default_patch::enabled = true;
 bool print_game_start_errors::enabled = true;
 bool creatures_setup_lair_fix::enabled = true;
+bool wooden_bridge_burn_fix::enabled = true;
+bool max_host_port_number_fix::enabled = true;
 
 void use_wasd_by_default_patch::useAlternativeName(LPCSTR &lpValueName) {
     if(!use_wasd_by_default_patch::enabled) return;

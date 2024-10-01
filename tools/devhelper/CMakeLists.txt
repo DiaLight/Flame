@@ -6,6 +6,7 @@ add_library(${TARGET} SHARED
         mimicry.cpp
         console.cpp
         game_version.cpp
+        dev_mouse_dinput_to_user32.cpp
         )
 
 target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_LIST_DIR})

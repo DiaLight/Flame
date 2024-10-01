@@ -52,6 +52,14 @@ namespace creatures_setup_lair_fix {
     extern bool enabled;
 }
 
+namespace wooden_bridge_burn_fix {
+    extern bool enabled;
+}
+
+namespace max_host_port_number_fix {
+    extern bool enabled;
+}
+
 namespace use_wasd_by_default_patch {
     extern bool enabled;
     void useAlternativeName(LPCSTR &lpValueName);

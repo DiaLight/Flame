@@ -35,9 +35,15 @@ bool getGlobalsToReplace(const std::string &path, std::set<uint32_t> &globalsToR
             if(line.empty()) continue;
 
             std::stringstream iss(line);
-            std::string rva;
-            if ( std::getline(iss, rva, ' ')) {
-                globalsToReplace.insert(std::stoul(rva, nullptr, 16));
+            std::string rvaStr;
+            if ( std::getline(iss, rvaStr, ' ')) {
+                try {
+                    uint32_t rva = std::stoul(rvaStr, nullptr, 16);
+                    globalsToReplace.insert(rva);
+                } catch(std::invalid_argument &e) {
+                    std::cout << "cant parse int \"" << rvaStr << "\"" << std::endl;
+                    exit(-1);
+                }
             } else {
                 std::cout << "failed" << std::endl;
                 is.setstate(std::ios::failbit);

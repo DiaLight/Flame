@@ -154,7 +154,7 @@ dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
     // hook::BEFORE_GAME_LOOP
     while ( !this->exit_flag ) {
         // hook::TICK_GAME_LOOP
-        limit_fps::call();
+        if(control_windowed_mode::enabled) limit_fps::call();
         replace_mouse_dinput_to_user32::release_handled_dinput_actions();
         if ( !MyGame_instance.isNeedBlt() ) {
             MyCollectDxAction_Action dxAct;

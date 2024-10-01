@@ -13,7 +13,9 @@ add_executable(${TARGET}
         dk2/PlayerCfg.cpp
         dk2/RegKey.cpp
         dk2/MyComputerPlayer.cpp
+        dk2/CRoom.cpp
         dk2/button/button_types.cpp
+        dk2/button/CTextInput.cpp
         dk2/entities/entities_type.cpp
         dk2/entities/CCreature.cpp
         dk2/entities/CPlayer.cpp

@@ -38,7 +38,7 @@ void move_mouse(DWORD offs, DWORD value) {
 
 //    MouseXyzDxAction *action = this->listXYZ.getOrCreateUnhandled();
     auto *action = (dk2::MouseXyzDxAction *) new char[sizeof(dk2::MouseXyzDxAction)];
-    *(void **) action = &dk2::MouseRgbDxAction::vftable;
+    *(void **) action = &dk2::MouseXyzDxAction::vftable;
     xyzActionsInProgress.push_back(action);
 
     action->value = value;  // relative or absolute motion

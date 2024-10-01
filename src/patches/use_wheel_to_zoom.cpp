@@ -15,7 +15,9 @@ void use_wheel_to_zoom::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM l
             DWORD xPos = GET_X_LPARAM(lParam);
             DWORD yPos = GET_Y_LPARAM(lParam);
 //            printf("k=%08X d=%d {%d %d}\n", fwKeys, zDelta, xPos, yPos);
-            dk2::CBridge_instance.camera.zoomRel_449CA0(-zDelta * 50);
+            if(dk2::CGameComponent_instance.mt_profiler.player_i != NULL) {
+                dk2::CBridge_instance.camera.zoomRel_449CA0(-zDelta * 50);
+            }
             break;
         }
     }
@@ -34,7 +36,9 @@ void use_wheel_to_zoom::dinput_proc(DIDEVICEOBJECTDATA *data) {
             int mult = 80;
             if (tsDelta > 100) mult = 40;
             if (tsDelta > 500) mult = 20;
-            dk2::CBridge_instance.camera.zoomRel_449CA0(-zDelta * mult);
+            if(dk2::CGameComponent_instance.mt_profiler.player_i != NULL) {
+                dk2::CBridge_instance.camera.zoomRel_449CA0(-zDelta * mult);
+            }
             break;
         }
     }

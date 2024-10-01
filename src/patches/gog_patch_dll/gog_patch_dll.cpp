@@ -9,8 +9,6 @@
 
 using namespace gog;
 
-bool gog::enable = true;
-
 void _gog_print(const char *msg) {
     char msg_buf[1024];
     wsprintfA(msg_buf, "[GOG] %s\n", msg);

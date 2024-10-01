@@ -58,11 +58,23 @@
 # CTextBox.h
 00537E10 void __cdecl CTextBox_renderVersion(CTextBox *, CFrontEndComponent *);  /* auto */
 
+# CTextInput.h
+0052AA10 int fun_52AA10_configure(ButtonCfg *);  // --  /* auto */
+
 # CPlayer.h
 00506B50 BOOL testManufactureCompleted(uint16_t);       /* auto */
 00506B70 int getManufactureRequired(uint16_t);  // ---  /* auto */
 004C3200 int creatureDidWorkshopWork(int, CCreature *);  /* auto */
 004E8D30 void resetCreaturesState();  // -------------  /* auto */
+
+# MyRooms.h
+004ED1A0 int sub_4ED1A0(int, int, int, int16_t, uint16_t, uint8_t *, int);  /* auto */
+
+# CRoom.h
+004D5FA0 int tickWoodenBridge();  // -----------------  /* auto */
+
+# CMap.h
+00450770 uint32_t attachToRoom(int, int, uint16_t, int16_t, int, int);  /* auto */
 
 # CComputerPlayer.h
 004FE0B0 char tickRespondToAttack(char);  // ---------  /* auto */

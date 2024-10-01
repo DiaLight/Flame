@@ -274,7 +274,6 @@ class MyPdbDebugStream(MyBytes):
         self.files.append(name)
         these.append(name)
       self.modules.append(these)
-    print(f'{stream.pos:08X} {file_info_end:08X}')
     stream.pos = file_info_end
 
     # "TSM - type server map"  related somehow to the usage of /Zi and mspdbsrv.exe.

@@ -5,12 +5,13 @@
 #include "gog_globals.h"
 #include "gog_debug.h"
 
-bool gog::RtGuiView_fix::enable = true;
-bool gog::RegistryConfig_patch::enable = true;
-bool gog::parseCommandLine_patch::enable = true;
-bool gog::SurfaceHolder_setTexture_patch::enable = true;
+bool gog::enable = true;
+bool gog::RtGuiView_fix::enable = gog::enable && true;
+bool gog::RegistryConfig_patch::enable = gog::enable && true;
+bool gog::parseCommandLine_patch::enable = gog::enable && true;
+bool gog::SurfaceHolder_setTexture_patch::enable = gog::enable && true;
 
-bool gog::BullfrogWindow_proc_patch::enable = true;
+bool gog::BullfrogWindow_proc_patch::enable = gog::enable && true;
 bool gog::BullfrogWindow_proc_patch::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
     if (!enable) return false;
     switch (Msg) {

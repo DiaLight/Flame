@@ -7,32 +7,14 @@
 #include "mimicry.h"
 #include "console.h"
 #include "game_version.h"
+#include "write_protect.h"
+#include "dev_mouse_dinput_to_user32.h"
 #include <cstdint>
 #include <exception>
 #include <vector>
 
 #define dk2_virtual_base 0x00400000
 
-class write_protect {
-    void *ptr;
-    size_t size;
-    DWORD prot;
-public:
-    explicit write_protect(void *ptr, size_t size = sizeof(uint32_t)) : ptr(ptr), size(size), prot(0) {
-        if(!VirtualProtect(ptr, size, PAGE_EXECUTE_READWRITE, &prot)) {
-            DWORD lastError = GetLastError();
-            printf("[error]: VirtualProtect failed. code=%08X\n", lastError);
-            throw std::exception();
-        }
-    }
-    ~write_protect() {
-        DWORD ignore;
-        if(!VirtualProtect(ptr, size, prot, &ignore)) {
-            DWORD lastError = GetLastError();
-            printf("[error]: VirtualProtect back failed. code=%08X\n", lastError);
-        }
-    }
-};
 uintptr_t dk2_base = 0;
 
 uintptr_t addr(uint32_t va) {
@@ -127,6 +109,8 @@ bool devhelper_initialize(void *devHelperBase) {
         write_protect prot((void *) pos, sizeof(uintptr_t));
         *(DWORD *) pos = (uintptr_t) proxy_MyGame_prepareScreenEx - (pos + 4);
     }
+
+    dev_mouse_dinput_to_user32::initialize();
 
     return true;
 }
