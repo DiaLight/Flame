@@ -19,7 +19,7 @@ int __cdecl dk2::getCustomDefWindowProcA() {
 }
 typedef LRESULT (__stdcall *CustomDefWindowProcA_t)(HWND, UINT, WPARAM, LPARAM);
 
-LRESULT dk2::CWindowTest_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
+LRESULT dk2::CWindowTest_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {  // windowed proc
     // patch::BEFORE_WINDOW_PROC
     remember_window_location_and_size::window_proc(hWnd, Msg, wParam, lParam);
     replace_mouse_dinput_to_user32::emulate_dinput_from_user32(hWnd, Msg, wParam, lParam);
@@ -61,7 +61,7 @@ LRESULT dk2::CWindowTest_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
     return DefWindowProcA(hWnd, Msg, wParam, lParam);
 }
 
-LRESULT dk2::BullfrogWindow_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
+LRESULT dk2::BullfrogWindow_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {  // fullscreen proc
     replace_mouse_dinput_to_user32::emulate_dinput_from_user32(hWnd, Msg, wParam, lParam);
     use_wheel_to_zoom::window_proc(hWnd, Msg, wParam, lParam);
     fix_keyboard_state_on_alt_tab::window_proc(hWnd, Msg, wParam, lParam);

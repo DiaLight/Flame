@@ -60,6 +60,12 @@ namespace max_host_port_number_fix {
     extern bool enabled;
 }
 
+namespace override_max_room_count {
+    extern bool enabled;
+    extern bool predictLimit;
+    extern size_t limit;
+}
+
 namespace use_wasd_by_default_patch {
     extern bool enabled;
     void useAlternativeName(LPCSTR &lpValueName);
@@ -82,6 +88,7 @@ namespace hide_mouse_cursor_in_window {
 }
 
 namespace remember_window_location_and_size {
+    void setInitialSize(int x, int y);
     bool window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
     void patchWinLoc(int &xPos, int &yPos);
     void resizeWindow(HWND hWnd);

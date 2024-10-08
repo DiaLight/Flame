@@ -102,7 +102,7 @@ namespace dk2 {
                 v59_loc.x = (v29_locX << 12) + 2048;
                 CWorld *fA_world = cp->world;
                 v59_loc.y = (v30_locY << 12) + 2048;
-                if ((fA_world->v_getMapElem_2(&v59_loc)->_playerId & 0xFFF) != cp->cplayer->f0_tagId) {
+                if ((fA_world->v_getMapElem_2(&v59_loc)->_playerIdFFF & 0xFFF) != cp->cplayer->f0_tagId) {
                     unsigned int v71_locX = 0;
                     unsigned int v69_locY = 0;
                     int v32_respondIdx = (cp->flags >> 14) & 0xF;
@@ -129,7 +129,7 @@ namespace dk2 {
                         if ((v42_cworld->cmap.pNavigationSystem->map.ptr_ui8[
                                      v73_locY * v42_cworld->cmap.pNavigationSystem->map.width + v33_locX] & 8) == 0
                             && !v43_mapElement->sub_454110()
-                            && (v43_mapElement->_playerId & 0xFFF) == cp->cplayer->f0_tagId) {
+                            && (v43_mapElement->_playerIdFFF & 0xFFF) == cp->cplayer->f0_tagId) {
                             v71_locX = v33_locX;
                             v69_locY = v73_locY;
                             v74_whileBool = false;
@@ -154,7 +154,7 @@ namespace dk2 {
                                                      v73_locY * v48_cworld->cmap.pNavigationSystem->map.width +
                                                      v44_locX] & 8) == 0
                                             && !v49_mapElem->sub_454110()
-                                            && (v49_mapElem->_playerId & 0xFFF) == cp->cplayer->f0_tagId) {
+                                            && (v49_mapElem->_playerIdFFF & 0xFFF) == cp->cplayer->f0_tagId) {
                                             break;
                                         }
                                     }
@@ -179,7 +179,7 @@ namespace dk2 {
                                                      v73_locY * v45_cworld->cmap.pNavigationSystem->map.width +
                                                      v44_locX] & 8) == 0
                                             && !v46_mapElem->sub_454110()
-                                            && (v46_mapElem->_playerId & 0xFFF) == cp->cplayer->f0_tagId) {
+                                            && (v46_mapElem->_playerIdFFF & 0xFFF) == cp->cplayer->f0_tagId) {
                                             break;
                                         }
                                     }

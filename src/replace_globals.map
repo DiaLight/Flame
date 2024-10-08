@@ -67,11 +67,20 @@
 004C3200 int creatureDidWorkshopWork(int, CCreature *);  /* auto */
 004E8D30 void resetCreaturesState();  // -------------  /* auto */
 
+004C5C30 int fun_4C5C30_buildRoom(int, int, int, int, int, int, int);  /* auto */
+004C5DB0 int destroyRoom(int, int, int);  // ---------  /* auto */
+
 # MyRooms.h
 004ED1A0 int sub_4ED1A0(int, int, int, int16_t, uint16_t, uint8_t *, int);  /* auto */
+004EC000 int createRooms(CWorld *);  // --------------  /* auto */
 
 # CRoom.h
 004D5FA0 int tickWoodenBridge();  // -----------------  /* auto */
+004EC490 int createRoom(int, uint16_t, uint16_t *);     /* auto */
+
+# CBridge.h
+0043E320 void sub_43E320(uint32_t, uint32_t, MyTerrainDataObj *, CEngineStaticMeshDataArrays *);  /* auto */
+00443610 void sub_443610(int, uint32_t, MyMapElement *, MyTerrainDataObj *, CEngineStaticMeshDataArrays *);  /* auto */
 
 # CMap.h
 00450770 uint32_t attachToRoom(int, int, uint16_t, int16_t, int, int);  /* auto */

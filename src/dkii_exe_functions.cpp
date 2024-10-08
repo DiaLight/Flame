@@ -69,7 +69,7 @@ void dk2::resolveDk2HomeDir() {
 }
 
 BOOL __cdecl dk2::parse_command_line(int argc, const char **argv) {
-    if(gog::parseCommandLine_patch::enable) {
+    if(gog::parseCommandLine_patch::isEnabled()) {
         dk2::MyResources_instance.video_settings.cmd_flag_32BITTEXTURES = 1;
         dk2::MyResources_instance.video_settings.zbuffer_bitnes = 32;
         dk2::MyResources_instance.video_settings.display_bitnes = 32;

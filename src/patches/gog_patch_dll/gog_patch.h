@@ -9,23 +9,24 @@
 
 namespace gog {
 
+    namespace RtGuiView_fix {
+        bool isEnabled();
+    }
+    namespace SurfaceHolder_setTexture_patch {
+        bool isEnabled();
+    }
+
     extern bool enable;
     bool patch_init();
 
-    namespace RtGuiView_fix {
-        extern bool enable;
-    }
     namespace RegistryConfig_patch {
-        extern bool enable;
+        bool isEnabled();
     }
     namespace parseCommandLine_patch {
-        extern bool enable;
-    }
-    namespace SurfaceHolder_setTexture_patch {
-        extern bool enable;
+        bool isEnabled();
     }
     namespace BullfrogWindow_proc_patch {
-        extern bool enable;
+        bool isEnabled();
         bool window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
     }
 }

@@ -133,7 +133,7 @@ int dk2::CCreature::processDealDamage() {
         if ( v7_target->v_f28() )
             this->setCurrentState_48AD30(239);
     }
-    this->field_2A = MySound_ptr->v_fun_5678F0(
+    this->field_2A = MySound_ptr->v_CSoundSystem_fun_5678F0(
             this->field_2A,
             this->creatureData->f6E3,
             219,

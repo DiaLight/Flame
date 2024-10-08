@@ -5,15 +5,16 @@
 #include "gog_globals.h"
 #include "gog_debug.h"
 
-bool gog::enable = true;
-bool gog::RtGuiView_fix::enable = gog::enable && true;
-bool gog::RegistryConfig_patch::enable = gog::enable && true;
-bool gog::parseCommandLine_patch::enable = gog::enable && true;
-bool gog::SurfaceHolder_setTexture_patch::enable = gog::enable && true;
+bool gog::RtGuiView_fix::isEnabled() { return true; }
+bool gog::SurfaceHolder_setTexture_patch::isEnabled() { return true; }
 
-bool gog::BullfrogWindow_proc_patch::enable = gog::enable && true;
+bool gog::enable = true;
+bool gog::RegistryConfig_patch::isEnabled() { return gog::enable; }
+bool gog::parseCommandLine_patch::isEnabled() { return gog::enable; }
+
+bool gog::BullfrogWindow_proc_patch::isEnabled() { return gog::enable; }
 bool gog::BullfrogWindow_proc_patch::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
-    if (!enable) return false;
+    if (!isEnabled()) return false;
     switch (Msg) {
         case WM_KILLFOCUS:
             ShowWindow(gog::g_hWnd, SW_MINIMIZE);

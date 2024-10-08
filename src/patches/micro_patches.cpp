@@ -27,6 +27,10 @@ bool creatures_setup_lair_fix::enabled = true;
 bool wooden_bridge_burn_fix::enabled = true;
 bool max_host_port_number_fix::enabled = true;
 
+bool override_max_room_count::enabled = true;
+bool override_max_room_count::predictLimit = false;
+size_t override_max_room_count::limit = 96;
+
 void use_wasd_by_default_patch::useAlternativeName(LPCSTR &lpValueName) {
     if(!use_wasd_by_default_patch::enabled) return;
     if(lpValueName && strncmp(lpValueName, "Key Table", 12) == 0) {
@@ -96,6 +100,10 @@ namespace {
     POINT window_size = {0, 0};
     bool ignore_size = true;
 }
+void remember_window_location_and_size::setInitialSize(int x, int y) {
+    window_size = {x, y};
+}
+
 bool remember_window_location_and_size::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
     switch(Msg) {
         case WM_DESTROY: {

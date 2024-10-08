@@ -54,7 +54,7 @@ void dk2::drawTexToSurfTriangles() {
 }
 
 void __cdecl dk2::renderer_setSurfaceHolder(SurfaceHolder *holder, uint32_t stage) {
-    if(gog::SurfaceHolder_setTexture_patch::enable) {
+    if(gog::SurfaceHolder_setTexture_patch::isEnabled()) {
         if(!holder) return;
     }
     if ( (mydd_scene.flags & 1) != 0 ) {  // 3dengine == 4

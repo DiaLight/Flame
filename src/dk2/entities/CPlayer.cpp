@@ -52,7 +52,7 @@ int dk2::CPlayer::creatureDidWorkshopWork(int workMade, CCreature *a3_creature) 
     memset(&a3a_item.pos, 0, sizeof(a3a_item.pos));
     this->manufactures.getItem(&a3a_item);
     uint8_t typeId = this->manufactures.sub_506BA0(&a3a_item);
-    MyObjectDataObj *v7 = g_pCWorld->v_findMyObjectDataObjByTypeId_50DB20(typeId);
+    MyObjectDataObj *v7 = g_pCWorld->v_f188_50DB20_getMyObjectDataObj(typeId);
     CRoom *room;
     if (!this->sub_4C3B50(&a3a_item, 10, v7->f114, &room)) return 0;
     this->manufactureCompleted = 0;

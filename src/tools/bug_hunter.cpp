@@ -23,6 +23,7 @@
 #include <fstream>
 #include <filesystem>
 #include <ShlObj_core.h>
+#include <codecvt>
 
 namespace fs = std::filesystem;
 
@@ -215,6 +216,7 @@ void parseFpomap() {
 struct AppThread {
     DWORD tid = 0;
     HANDLE hThread = NULL;
+    bool suspended = false;
 
     AppThread() = default;
     AppThread(DWORD tid, HANDLE hThread) : tid(tid), hThread(hThread) {}
@@ -243,11 +245,15 @@ struct AppThread {
         hThread = NULL;
     }
 
-    void suspend() const {
+    void suspend() {
+        if(suspended) return;
         SuspendThread(hThread);
+        suspended = true;
     }
-    void resume() const {
+    void resume() {
+        if(!suspended) return;
         ResumeThread(hThread);
+        suspended = false;
     }
     void terminate() const {
         __try{
@@ -339,6 +345,57 @@ std::ostream &operator<<(std::ostream &os, const StackFrame &frame) {
     return os;
 }
 
+void dumpStackPart(StackLimits &limits, LoadedModules &modules, DWORD esp) {
+    DWORD *p = (DWORD *) esp;
+    for (; (DWORD) p < limits.high; ++p) {
+        DWORD val = *p;
+        std::stringstream ss;
+        ss << fmtHex(limits.high - (DWORD) p) << "->" << fmtHex32(val);
+        if(limits.contains(val)) {
+            ss << " " << "stack";
+            ss << "+" << fmtHex(limits.high - val);
+        } else {
+            const char *appCode = nullptr;
+            if(bughunter::isDkiiCode(val)) {
+                appCode = "DKII";
+            }
+            if(bughunter::isFlameCode(val)) {
+                appCode = "Flame";
+            }
+            if(appCode) {
+                ss << " " << appCode;
+                auto it = bughunter::find_le(val);
+                if (it != bughunter::fpomap.end() && val < it->end) {
+                    auto &fpo = *it;
+                    ss << ":" << fpo.name << "+" << fmtHex(val - fpo.ptr);
+                } else {
+                    ss << "+" << fmtHex(val - bughunter::base);
+                }
+            } else if (auto *mod = modules.find(val)) {
+                ss << " " << mod->name;
+                if (auto *exp = mod->find_export_le(val)) {
+                    ss << ":" << exp->name << "+" << fmtHex(val - exp->addr);
+                } else {
+                    ss << "+" << fmtHex(val - mod->base);
+                }
+            } else {
+                continue;
+            }
+        }
+//        if (auto *mod = modules.find(val)) {
+//            DWORD ebpCand = p[-1];
+//            if(ebpCand && ebpCand >= (DWORD) p && limits.contains(ebpCand)) {
+//                if (auto *mod2 = modules.find(((DWORD *) ebpCand)[1])) {
+//                    DWORD ebp = ebpCand;
+//                }
+//            }
+//            DWORD eip = *p++;
+//            break;
+//        }
+        std::cout << ss.str() << std::endl;
+    }
+}
+
 struct StackWalkerState {
     LoadedModules &modules;
     StackLimits &limits;
@@ -353,35 +410,15 @@ struct StackWalkerState {
         if(!err) {
             BaseThreadInitThunk = modules.findBaseThreadInitThunk();
         }
+//        dumpStackPart(limits, modules, ctx.Esp);
     }
 
     bool isAnyCode(DWORD eip) {
         if(eip == 0) return false;
-        if (auto *mod = modules.find(Eip)) return true;
+        if (auto *mod = modules.find(eip)) return true;
         return false;
     }
 
-    void dumpStackPart(DWORD esp) {
-        DWORD *p = (DWORD *) esp;
-        for (int i = -2; i < 6; ++i) {
-            DWORD val = p[i];
-            std::stringstream ss;
-            ss << fmtHex(limits.high - (DWORD) &p[i]) << "->" << fmtHex32(val);
-            if(limits.contains(val)) {
-                ss << " " << "stack";
-                ss << "+" << fmtHex(limits.high - val);
-            } else if (auto *mod = modules.find(val)) {
-                if (auto *exp = mod->find_export_le(val)) {
-                    ss << " " << mod->name;
-                    ss << ":" << exp->name << "+" << fmtHex(val - exp->addr);
-                } else {
-                    ss << " " << mod->name;
-                    ss << "+" << fmtHex(val - mod->base);
-                }
-            }
-            std::cout << ss.str() << std::endl;
-        }
-    }
     void setEbp(DWORD ebpCand) {
         Ebp = 0;
         if(ebpCand && ebpCand >= Esp && limits.contains(ebpCand)) {
@@ -420,6 +457,12 @@ struct StackWalkerState {
             return;
         }
         StackFrame_reset(frame);
+        if(!(limits.low <= Esp && Esp < (limits.high + 0x1000))) {
+            std::stringstream ss;
+            ss << "invalid esp";
+            err.set(ss.str());
+            return;
+        }
         if(Esp >= limits.high) {
             std::stringstream ss;
             ss << "stack limit reached";
@@ -428,8 +471,6 @@ struct StackWalkerState {
         frame.eip = Eip;
         frame.esp = Esp;
         if(Ebp && Ebp >= Esp) frame.ebp = Ebp;
-        // todo: describe how we get here
-        // ebp can be invalid
 
         bool isAppCode = false;
         if(bughunter::isDkiiCode(Eip)) {
@@ -474,9 +515,9 @@ struct StackWalkerState {
                     if (auto *exp = mod->find_export_le(Eip)) {
                         frame.symName = exp->name;
                         frame.symAddr = exp->addr;
-//                    printf("unwind lib %s:%s+%X\n", frame.libName.c_str(), frame.symName.c_str(), Eip - frame.symAddr);
+//                        printf("unwind lib %s:%s+%X\n", frame.libName.c_str(), frame.symName.c_str(), Eip - frame.symAddr);
                     } else {
-//                    printf("unwind lib %s+%X\n", frame.libName.c_str(), Eip - frame.libBase);
+//                        printf("unwind lib %s+%X\n", frame.libName.c_str(), Eip - frame.libBase);
                     }
                 } else {
                     std::stringstream ss;
@@ -486,7 +527,7 @@ struct StackWalkerState {
             }
         }
         // step
-        if(Ebp && Ebp >= Esp) {
+        if(Esp <= Ebp && Ebp < limits.high) {
             Esp = Ebp;
             auto *bp = (uint32_t *) Esp;
             setEbp(*bp++);
@@ -559,6 +600,42 @@ void onlyImportantFrames(StackWalkerIter &&it, std::deque<StackFrame> &frames, W
     }
 }
 
+
+std::string wide_string_to_string(const wchar_t *wide_string) {
+    if (wide_string == NULL || wide_string[0] == L'\0') return "";
+
+    size_t wlen = wcslen(wide_string);
+    const auto size_needed = WideCharToMultiByte(CP_UTF8, 0, wide_string, wlen, nullptr, 0, nullptr, nullptr);
+    if (size_needed <= 0) {
+        std::string ret(wlen, 0);
+        for (int i = 0; i < wlen; ++i) ret[i] = wide_string[i];
+        return ret;
+    }
+
+    std::string result(size_needed, 0);
+    WideCharToMultiByte(CP_UTF8, 0, wide_string, wlen, result.data(), size_needed, nullptr, nullptr);
+    return result;
+}
+template<typename charT>
+struct my_equal {
+    my_equal( const std::locale& loc ) : loc_(loc) {}
+    bool operator()(charT ch1, charT ch2) {
+        return std::toupper(ch1, loc_) == std::toupper(ch2, loc_);
+    }
+private:
+    const std::locale& loc_;
+};
+
+// find substring (case insensitive)
+template<typename T>
+int ci_find_substr( const T& str1, const T& str2, const std::locale& loc = std::locale() ) {
+    typename T::const_iterator it = std::search(
+            str1.begin(), str1.end(), str2.begin(), str2.end(),
+            my_equal<typename T::value_type>(loc) );
+    if ( it != str1.end() ) return it - str1.begin();
+    else return -1; // not found
+}
+
 void formatHeader(std::stringstream &ss, FILETIME &timestamp) {
     ss << "timestamp: " << fmtHex32(timestamp.dwHighDateTime) << fmtHex32(timestamp.dwLowDateTime);
     {
@@ -574,6 +651,10 @@ void formatHeader(std::stringstream &ss, FILETIME &timestamp) {
     std::string version = game_version_patch::getFileVersion();
     std::replace(version.begin(), version.end(), '\n', ' ');
     ss << "version: " << version << std::endl;
+    std::string commandLine = wide_string_to_string(GetCommandLineW());
+    int pos = ci_find_substr<std::string>(commandLine, ".exe");
+    if(pos != -1) commandLine = commandLine.substr(pos);
+    ss << "command line: " << commandLine << std::endl;
 }
 
 void formatModules(std::stringstream &ss, LoadedModules &modules) {
@@ -652,8 +733,11 @@ LONG WINAPI TopLevelExceptionFilter(_In_ struct _EXCEPTION_POINTERS *ExceptionIn
         }
         if(err) {
             ss << "[StackWalker ERROR]: " << err.str() << std::endl;
+            std::cout << ss.str() << std::endl;
+            MessageBoxA(NULL, "err", "err", MB_OK);
         }
     }
+    std::vector<DWORD> ntdllWorkers;
     for(auto &ts : states) {
         WalkerError err;
         StackLimits limits;
@@ -671,11 +755,20 @@ LONG WINAPI TopLevelExceptionFilter(_In_ struct _EXCEPTION_POINTERS *ExceptionIn
             DWORD lastError = GetLastError();
             ss << "thread " << ts.tid << " stack=" << fmtHex32(limits.low) << "-" << fmtHex32(limits.high) << std::endl;
             ss << "[StackWalker ERROR]: GetThreadContext failed " << fmtHex32(lastError) << std::endl;
+            continue;
         }
 
         std::deque<StackFrame> frames;
         StackWalker sw(modules, limits, ctx, err);
         for(auto &frame : sw) frames.push_back(frame);
+
+        // collect ntdll workers. dont know how to detect them properly
+        if(frames.size() >= 2) {
+            if(frames[frames.size() - 2].symName == "ZwWaitForWorkViaWorkerFactory") {
+                ntdllWorkers.push_back(ts.tid);
+            }
+            if(frames.size() == 2) continue;  // dont log waiting ntdll workers
+        }
 
         ss << std::endl;
         ss << "thread " << ts.tid << " stack=" << fmtHex32(limits.low) << "-" << fmtHex32(limits.high) << std::endl;
@@ -685,6 +778,13 @@ LONG WINAPI TopLevelExceptionFilter(_In_ struct _EXCEPTION_POINTERS *ExceptionIn
         if(err) {
             ss << "[StackWalker ERROR]: " << err.str() << std::endl;
         }
+    }
+
+    // dont block ntdll workers. they are important for ShellExecuteA at least
+    for(auto &ts : states) {
+        // if(!ntdllWorkers.contains(ts.tid)) continue;
+        if (std::find(ntdllWorkers.begin(), ntdllWorkers.end(), ts.tid) == ntdllWorkers.end()) continue;
+        ts.resume();
     }
 
     ss << std::endl;
@@ -749,6 +849,17 @@ void traceThread(HANDLE hThread, std::vector<StackFrame> &frames, WalkerError &e
     for(auto &frame : sw) frames.push_back(frame);
 }
 
+void dumpCurrentStack() {
+    std::vector<StackFrame> frames;
+    WalkerError err;
+    traceCurrentStack(frames, err);
+    for(auto &fr : frames) {
+        std::cout << fr << std::endl;
+    }
+    if(err) {
+        std::cout << "[StackWalker ERROR]: " << err.str() << std::endl;
+    }
+}
 void traceCurrentStack(std::vector<StackFrame> &frames, WalkerError &err) {
     CONTEXT ctx;
     ZeroMemory(&ctx, sizeof(ctx));

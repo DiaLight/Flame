@@ -169,6 +169,12 @@ void mangleType(std::stringstream &ss, Type *ty, std::map<std::string, size_t> &
                 return;
             }
         }
+        if(intTy->size == 1 && intTy->is_signed) {
+            if(intTy->fname == "int8_t") {
+                ss << "C";
+                return;
+            }
+        }
         // if 32 bit
         if(intTy->size == 4) {
             if(intTy->fname.starts_with("long") ||

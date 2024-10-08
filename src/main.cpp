@@ -8,6 +8,8 @@
 #include "gog_patch.h"
 #include "tools/bug_hunter.h"
 #include <thread>
+#include <stdexcept>
+#include <iostream>
 
 namespace dk2 {
 
@@ -242,9 +244,51 @@ int dk2::WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *lpCmdLine, 
     return dk2_main(g_argc, g_argv);
 }
 
-int main() {
-    if(wcsstr(GetCommandLineW(), L" -console") == NULL) {
+
+const char *getCmdOption(const char **begin, const char **end, const std::string &option) {
+    const char **it = std::find(begin, end, option);
+    if (it != end && ++it != end) return *it;
+    return nullptr;
+}
+
+bool hasCmdOption(const char **begin, const char **end, const std::string &option) {
+    return std::find(begin, end, option) != end;
+}
+int main(int argc, const char **argv) {
+    const char *roomsLimitStr = getCmdOption(argv, argv + argc, "-experimental_rooms_limit");
+    if (roomsLimitStr != nullptr) {
+        try {
+            uint32_t roomsLimit = std::stoul(roomsLimitStr, nullptr, 10);
+            override_max_room_count::limit = roomsLimit;
+        } catch(std::invalid_argument &e) {
+            std::cout << "cant parse int \"" << roomsLimitStr << "\"" << std::endl;
+            exit(-1);
+        }
+    }
+    if(hasCmdOption(argv, argv + argc, "-experimental_predict_limit")) {
+        override_max_room_count::predictLimit = true;
+    }
+    if(!hasCmdOption(argv, argv + argc, "-console")) {
         ::ShowWindow(::GetConsoleWindow(), SW_HIDE);
+    }
+    if(hasCmdOption(argv, argv + argc, "-windowed")) {
+        gog::enable = false;  // gog is incompatible with windowed mode
+        control_windowed_mode::enabled = true;
+        if(!hasCmdOption(argv, argv + argc, "-no_initial_size")) {
+            // Finding the user's screen resolution
+            int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+            int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+            int height;
+            int width;
+            if(screenHeight < screenWidth) {
+                height = screenHeight * 5 / 6;
+                width = height * 12 / 9;
+            } else {
+                width = screenWidth * 5 / 6;
+                height = width * 9 / 12;
+            }
+            remember_window_location_and_size::setInitialSize(width, height);
+        }
     }
     bug_hunter::init();
     std::thread keyWatcher([] { bug_hunter::keyWatcher(); });

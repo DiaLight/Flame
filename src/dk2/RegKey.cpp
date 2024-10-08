@@ -50,7 +50,7 @@ uint32_t *__thiscall dk2::RegKey::settings_readBytes(uint32_t *pstatus, LPCSTR l
 
 
 int *dk2::RegKey::settings_readValue(int *pstatus, LPCSTR lpValueName, uint32_t *pValue) {
-    if(gog::RegistryConfig_patch::enable) {
+    if(gog::RegistryConfig_patch::isEnabled()) {
         if (gog::cfg::patchRegistryConfig(pstatus, lpValueName, (DWORD *) pValue) != -1) return pstatus;
     }
     if (!lpValueName || this->key == NULL) {
