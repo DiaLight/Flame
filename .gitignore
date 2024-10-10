@@ -90,7 +90,7 @@ venv.bak/
 /tools/obj_research/
 /libs/dkii_exe/api/
 /install/
-/mapping/ida/entry.py
+/src/dev/
 **/genlib/*.exp
 **/genlib/*.lib
 **/genlib/*.def

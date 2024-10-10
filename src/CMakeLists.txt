@@ -15,6 +15,7 @@ add_executable(${TARGET}
         dk2/MyComputerPlayer.cpp
         dk2/CRoom.cpp
         dk2/CBridge.cpp
+        dk2/CCamera.cpp
         dk2/button/button_types.cpp
         dk2/button/CTextInput.cpp
         dk2/entities/entities_type.cpp

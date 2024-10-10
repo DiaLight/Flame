@@ -60,10 +60,13 @@ namespace max_host_port_number_fix {
     extern bool enabled;
 }
 
+namespace increase_zoom_level {
+    extern bool enabled;
+}
+
 namespace override_max_room_count {
     extern bool enabled;
-    extern bool predictLimit;
-    extern size_t limit;
+    extern uint8_t limit;
 }
 
 namespace use_wasd_by_default_patch {

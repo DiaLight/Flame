@@ -97,4 +97,6 @@
 005622B0 uint32_t settings_readBytesCount(const CHAR *);  /* auto */
 005626C0 int *settings_readValue(int *, LPCSTR, uint32_t *);  /* auto */
 
+# CCamera.h
+00449CA0 void zoomRel_449CA0(int);  // ---------------  /* auto */
 

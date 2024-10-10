@@ -26,10 +26,10 @@ bool print_game_start_errors::enabled = true;
 bool creatures_setup_lair_fix::enabled = true;
 bool wooden_bridge_burn_fix::enabled = true;
 bool max_host_port_number_fix::enabled = true;
+bool increase_zoom_level::enabled = true;
 
 bool override_max_room_count::enabled = true;
-bool override_max_room_count::predictLimit = false;
-size_t override_max_room_count::limit = 96;
+uint8_t override_max_room_count::limit = 255;  // default is 96
 
 void use_wasd_by_default_patch::useAlternativeName(LPCSTR &lpValueName) {
     if(!use_wasd_by_default_patch::enabled) return;
@@ -82,15 +82,28 @@ void fix_close_window::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lP
     }
 }
 
+namespace {
+    bool appIsActive = false;
+}
 bool hide_mouse_cursor_in_window::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
     switch(Msg) {
         case WM_SETCURSOR: {
-            if (LOWORD(lParam) == HTCLIENT) {
-                SetCursor(NULL);
-                return true;
+            if(appIsActive) {
+                if (LOWORD(lParam) == HTCLIENT) {
+                    SetCursor(NULL);
+                    return true;
+                }
             }
             break;
         }
+        case WM_ACTIVATEAPP:
+            if (wParam) {  // activated
+                SetCursor(NULL);
+                appIsActive = true;
+            } else {  // deactivated
+                appIsActive = false;
+            }
+            break;
     }
     return false;
 }

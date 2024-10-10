@@ -214,7 +214,7 @@ namespace {
     POINT clientResetPos;
 }
 
-void handle_fpv_mouse_move(HWND hWnd, POINT pos) {
+void dev_handle_fpv_mouse_move(HWND hWnd, POINT pos) {
     // update safe area
     RECT clientRect;
     GetClientRect(hWnd, &clientRect);
@@ -280,7 +280,7 @@ void dev_mouse_dinput_to_user32::handle_mouse_move(HWND hWnd, POINT pos) {
 //        if(dk2::CPlayer *pl = (dk2::CPlayer *) dk2::sceneObjects[dk2::g_pWorld->v_getMEPlayerTagId()]) {
 //            if(pl->creaturePossessed != 0 && !dk2::CDefaultPlayerInterface_instance.inMenu) {
 //                // keep mouse in the center of window
-//                handle_fpv_mouse_move(hWnd, pos);
+//                dev_handle_fpv_mouse_move(hWnd, pos);
 //            }
 //        }
     }

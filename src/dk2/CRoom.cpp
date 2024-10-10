@@ -95,8 +95,8 @@ unsigned int dk2::CMap::attachToRoom(
         int a3_y,
         unsigned __int16 a4_roomObjId,
         __int16 a5_playerId,
-        int a6,
-        int a7) {
+        int a6_bool,
+        int a7_bool2) {
     int v8_y = a3_y;
     MyMapElement *v9_mapElem = &this->mapElements[a2_x + a3_y * this->width];
     int v10_flags = g_MyTerrainDataObj_arr[v9_mapElem->arr6DA4A8_idx]->_flags;
@@ -116,18 +116,17 @@ unsigned int dk2::CMap::attachToRoom(
     }
     v9_mapElem->fun_4559D0(a5_playerId);
     MyRoomDataObj *v11_roomDataObj = this->world->v_f98_50D0B0_getMyRoomDataObj(typeId);
-    this->fun_44FC40(a2_x, v8_y, (int) v11_roomDataObj->_terrainType, v9_mapElem->_playerIdFFF & 0xFFF, 0, a7);
-//    v9_mapElem->roomId = v9_mapElem->roomId ^ ((v9_mapElem->roomId ^ a4_roomObjId) & 0xFFF);
+    this->tickSlab(a2_x, v8_y, (int) v11_roomDataObj->_terrainType, v9_mapElem->_playerIdFFF & 0xFFF, 0, a7_bool2);
     v9_mapElem->_roomIdFFF = (v9_mapElem->_roomIdFFF & 0xF000) | (a4_roomObjId & 0xFFF);
     return this->sub_4522A0(a2_x, v8_y);
 }
 
-int dk2::MyRooms::sub_4ED1A0__reattach2(
+int dk2::MyRooms::eventAttachAndReset(
         int a2_x,
         int arg4_y,
         int a4_roomTypeId,
         unsigned __int16 a5_playerId,
-        unsigned __int16 a6_roomObjId,
+        unsigned __int8 a6_roomNum,
         int8_t *a7_pNearCountNeg,
         int a8) {
     if ((g_MyTerrainDataObj_arr[this->world->getMapElem(a2_x, arg4_y)->arr6DA4A8_idx]->_flags & 0x80) != 0) {
@@ -148,39 +147,37 @@ int dk2::MyRooms::sub_4ED1A0__reattach2(
         } while ((int) p_y < (int) 0x6BC374);
 //        } while ( (int)p_y < (int)&dword_6BC374 );
     }
-    CRoom *v19[4];
-    memset(v19, 0, sizeof(v19));
-    CRoom *a3 = 0;
-    int v14 = this->sub_4ED320__reattach1(a2_x, arg4_y, a4_roomTypeId, a5_playerId, a6_roomObjId, a7_pNearCountNeg, &a3, v19);
+    CRoom *roomArr[4];
+    memset(roomArr, 0, sizeof(roomArr));
+    CRoom *a3_room = 0;
+    int v14 = this->attachToNearForceOrCreate(a2_x, arg4_y, a4_roomTypeId, a5_playerId, a6_roomNum, a7_pNearCountNeg, &a3_room, roomArr);
     if (wooden_bridge_burn_fix::enabled) {
         if (((BYTE) a4_roomTypeId) == CRoom_typeId_WoodenBridge) {
             CMap &map = this->world->cmap;
             map.mapElements[a2_x + arg4_y * map.width].roomSetBurnLevel(0);
         }
     }
-    CRoom *v15 = a3;
+    CRoom *v15 = a3_room;
     int arg4_ya = v14;
-    if (!a3)
+    if (!a3_room)
         return arg4_ya;
     if (a8 != 8) {
-        a3->orientation = a8;
-        v15 = a3;
+        a3_room->orientation = a8;
+        v15 = a3_room;
     }
-    v15->removeObject();
-    this->fun_4ECEB0(a3, a2_x, arg4_y);
-    this->fun_4EF5E0(a3);
-    this->RoomManager_cpp_4EDFC0((int) a3);
-    a3->sub_4E4480();
+    v15->removeObjectsInRoom();
+    this->calcRoomWallAlignmentMap(a3_room, a2_x, arg4_y);
+    this->calcSpecialTileOffset(a3_room);
+    this->RoomManager_cpp_4EDFC0(a3_room);
+    a3_room->tickChangeSize();
     if ((BYTE) a4_roomTypeId == 8 || (BYTE) a4_roomTypeId == 17 || (BYTE) a4_roomTypeId == 22)
-        ((CPlayer *) sceneObjects[(unsigned __int16) a5_playerId])->sub_4BA720(a2_x, arg4_y);
+        ((CPlayer *) sceneObjects[(unsigned __int16) a5_playerId])->updateOwnedArea(a2_x, arg4_y);
     return arg4_ya;
 }
 
-#define MaxRoomCount (96 * 7)  // 0x2A0
+#define MaxRoomCount (override_max_room_count::limit * 7)  // 0x2A0
 
 int dk2::MyRooms::createRooms(CWorld *a2_world) {
-    static_assert(0xA9 == sizeof(CRoom));
-    static_assert(0x1BBA4u == (sizeof(CRoom) * 0x2A0 + 4));
     DWORD *v3 = (DWORD *) __nh_malloc(sizeof(CRoom) * MaxRoomCount + 4, 1);  //operator new(0x1BBA4u);
     CRoom *v4;
     if (v3) {
@@ -209,17 +206,17 @@ int dk2::MyRooms::createRooms(CWorld *a2_world) {
     for (i = 0; i < MaxRoomCount; ++i) {
         CRoom *v7 = &this->CRoom_arr_p[i];
         unsigned __int16 f0_tagId = v7->f0_tagId;
-        v7->roomManagerNodeX = 0;
-        v7->roomManagerNodeY = 0;
+        v7->roomManagerNode.x = 0;
+        v7->roomManagerNode.y = 0;
         CRoom *fA_CRoom_arr_p = this->CRoom_arr_p;
         fA_CRoom_arr_p[i].playerRoomListNodeX = 0;
         fA_CRoom_arr_p[i].playerRoomListNodeY = 0;
         CRoom *v10 = this->CRoom_arr_p;
-        v10[i].changedAreaRoomListNodeX = 0;
-        v10[i].changedAreaRoomListNodeY = 0;
-        ((CRoom *) sceneObjects[f0_tagId])->roomManagerNodeY = this->_nextRoomId;
+        v10[i].changedAreaRoomListNode.x = 0;
+        v10[i].changedAreaRoomListNode.y = 0;
+        ((CRoom *) sceneObjects[f0_tagId])->roomManagerNode.y = this->_nextRoomId;
         if (this->_nextRoomId)
-            ((CRoom *) sceneObjects[this->_nextRoomId])->roomManagerNodeX = f0_tagId;
+            ((CRoom *) sceneObjects[this->_nextRoomId])->roomManagerNode.x = f0_tagId;
         this->_nextRoomId = f0_tagId;
     }
     this->world = a2_world;
@@ -233,13 +230,13 @@ int dk2::MyRooms::createRoom(
         int a2_roomTypeId,
         unsigned __int16 a3_playerId,
         unsigned __int16 *a4_pRoomObjId) {
-    if (this->_counter >= MaxRoomCount)
+    if (this->roomsCount >= MaxRoomCount)
         return 0;
     unsigned __int16 roomObjId;
-    if (this->f16) {
-        roomObjId = this->_roomSceneObjId;
-        this->f16 = 0;
-        this->_roomSceneObjId = 0;
+    if (this->_forceSetSceneIdx) {
+        roomObjId = this->_forceRoomSceneIdx;
+        this->_forceSetSceneIdx = 0;
+        this->_forceRoomSceneIdx = 0;
     } else {
         roomObjId = this->_nextRoomId;
     }
@@ -247,27 +244,27 @@ int dk2::MyRooms::createRoom(
         return 0;
     CRoom *v6 = (CRoom *) sceneObjects[roomObjId];
     // unlink X
-    if (v6->roomManagerNodeX) {
-        ((CRoom *) sceneObjects[((CRoom *) sceneObjects[roomObjId])->roomManagerNodeX])->roomManagerNodeY = v6->roomManagerNodeY;
+    if (v6->roomManagerNode.x) {
+        ((CRoom *) sceneObjects[((CRoom *) sceneObjects[roomObjId])->roomManagerNode.x])->roomManagerNode.y = v6->roomManagerNode.y;
     } else {
-        this->_nextRoomId = v6->roomManagerNodeY;
+        this->_nextRoomId = v6->roomManagerNode.y;
     }
     // unlink Y
-    if (((CRoom *) sceneObjects[roomObjId])->roomManagerNodeY) {
-        ((CRoom *) sceneObjects[((CRoom *) sceneObjects[roomObjId])->roomManagerNodeY])->roomManagerNodeX = ((CRoom *) sceneObjects[roomObjId])->roomManagerNodeX;
+    if (((CRoom *) sceneObjects[roomObjId])->roomManagerNode.y) {
+        ((CRoom *) sceneObjects[((CRoom *) sceneObjects[roomObjId])->roomManagerNode.y])->roomManagerNode.x = ((CRoom *) sceneObjects[roomObjId])->roomManagerNode.x;
     }
     CRoom *v7 = (CRoom *) sceneObjects[roomObjId];
-    v7->roomManagerNodeX = 0;
-    v7->roomManagerNodeY = 0;
+    v7->roomManagerNode.x = 0;
+    v7->roomManagerNode.y = 0;
     __int16 f10__nextRoomId = this->_nextRoomId;
     if (roomObjId == f10__nextRoomId)
         this->_nextRoomId = f10__nextRoomId - 1;
     // link to list
-    ((CRoom *) sceneObjects[roomObjId])->roomManagerNodeY = this->firstRoomId;
+    ((CRoom *) sceneObjects[roomObjId])->roomManagerNode.y = this->firstRoomId;
     if (this->firstRoomId)
-        ((CRoom *) sceneObjects[this->firstRoomId])->roomManagerNodeX = roomObjId;
+        ((CRoom *) sceneObjects[this->firstRoomId])->roomManagerNode.x = roomObjId;
     this->firstRoomId = roomObjId;
-    this->_counter++;
+    this->roomsCount++;
     *a4_pRoomObjId = roomObjId;
     return 1;
 }
@@ -288,18 +285,18 @@ int dk2::CPlayer::fun_4C5C30_buildRoom(
         if (!g_pCWorld->v_sub_509280(a2_x, a3_y, v11_playerId_and_roomTypeId, a4_roomTypeId))
             return 0;
     }
-    size_t maxRoomLimit = 96;
+    uint8_t maxRoomLimit = 96;
     if (override_max_room_count::enabled) {
         maxRoomLimit = override_max_room_count::limit;
     }
-    int v9_roomNum = maxRoomLimit - this->numberOfRooms;
+    uint8_t numRoomsLeft = maxRoomLimit - this->numberOfRooms;
     int8_t roomsCountNeg;
-    if (!g_pCWorld->rooms.sub_4ED1A0__reattach2(
+    if (!g_pCWorld->rooms.eventAttachAndReset(
             a2_x,
             a3_y,
             a4_roomTypeId,
             this->f0_tagId,
-            v9_roomNum,
+            numRoomsLeft,
             &roomsCountNeg,
             a8_orientation))
         return 0;
@@ -330,13 +327,6 @@ namespace dk2 {
         if(visited.contains(x | (y << 8))) return false;
         return cmap.hasPlayerRoomWithType(x, y, typeId, playerId);
     }
-    bool hasNearPlayerRoomWithTypeExcept(int x, int y, char typeId, __int16 playerId, std::set<int> &visited) {
-        if(hasPlayerRoomWithTypeExcept(x, y - 1, typeId, playerId, visited)) return true;
-        if(hasPlayerRoomWithTypeExcept(x + 1, y, typeId, playerId, visited)) return true;
-        if(hasPlayerRoomWithTypeExcept(x, y + 1, typeId, playerId, visited)) return true;
-        if(hasPlayerRoomWithTypeExcept(x - 1, y, typeId, playerId, visited)) return true;
-        return false;
-    }
     void travelRoom(int x, int y, char typeId, __int16 playerId, std::set<int> &visited) {
         if(!hasPlayerRoomWithTypeExcept(x, y, typeId, playerId, visited)) return;
         visited.insert(x | (y << 8));
@@ -344,24 +334,6 @@ namespace dk2 {
         travelRoom(x + 1, y, typeId, playerId, visited);
         travelRoom(x, y + 1, typeId, playerId, visited);
         travelRoom(x - 1, y, typeId, playerId, visited);
-    }
-    int getNewRoomsCountIfRemove(int x, int y) {
-        CRoom &room = *g_pCWorld->v_getMapElem(x, y)->getRoom();
-        CMap &cmap = g_pCWorld->cmap;
-        if(!cmap.hasNearPlayerRoomWithType(x, y, room.typeId, room.playerId)) return -1;
-
-        std::set<int> visited;
-        visited.insert(x | (y << 8));
-        Pos2ub pos = room.firstSlab;
-        size_t splitCount = 0;
-        while(pos.x || pos.y) {
-            if(!visited.contains(pos.x | (pos.y << 8))) {
-                travelRoom(pos.x, pos.y, room.typeId, room.playerId, visited);
-                splitCount++;
-            }
-            pos = cmap.mapElements[pos.x + pos.y * cmap.width].nextSlab;
-        }
-        return splitCount - 1;
     }
 }
 
@@ -372,25 +344,39 @@ int dk2::CPlayer::destroyRoom(int a2_x, int a3_y, int a4_bool) {
     MyMapElement *v7_mapElem = g_pCWorld->v_getMapElem(a2_x, v6_y);
     CRoom *room = v7_mapElem->getRoom();
     int salePrice = (unsigned __int16) room->pRoomDataObj->_getSalePrice();
-    size_t maxRoomLimit = 96;
+    uint8_t maxRoomLimit = 96;
     if (override_max_room_count::enabled) {
         maxRoomLimit = override_max_room_count::limit;
     }
-    int v9_roomNum = maxRoomLimit - this->numberOfRooms;
+    uint8_t numRoomsLeft = maxRoomLimit - this->numberOfRooms;
 
-    if(override_max_room_count::enabled && override_max_room_count::predictLimit) {
-        // trying predict limit reach on room destroy
-        if(v9_roomNum <= 4) {
-            int splitCount = getNewRoomsCountIfRemove(a2_x, a3_y);
-            if(v9_roomNum < splitCount) return false;
+    uint8_t roomTypeId = room->typeId;  // remember now as room obj will be released
+    int8_t deltaRooms;
+    if(numRoomsLeft < 4) {  // remove whole room
+        std::set<int> visited;
+        travelRoom(a2_x, a3_y, room->typeId, room->playerId, visited);
+        deltaRooms = 0;
+        {
+            int8_t localDeltaRooms = 0;
+            if (!g_pCWorld->rooms.eventRemoveReset(a2_x, a3_y, 4, &localDeltaRooms)) return 0;
+            deltaRooms += localDeltaRooms;
+            visited.erase(a2_x | (a3_y << 8));
         }
+        if(deltaRooms > numRoomsLeft && !visited.empty()) {
+            salePrice *= visited.size();
+            for(auto pos : visited) {
+                uint8_t x = pos;
+                uint8_t y = pos >> 8;
+                int8_t localDeltaRooms = 0;
+                if (!g_pCWorld->rooms.eventRemoveReset(x, y, 4, &localDeltaRooms)) return 0;
+                deltaRooms += localDeltaRooms;
+            }
+        }
+    } else {
+        if (!g_pCWorld->rooms.eventRemoveReset(a2_x, v6_y, numRoomsLeft, &deltaRooms)) return 0;
     }
 
-    uint8_t roomTypeId = room->typeId;  // room obj will be released
-    int8_t roomsCountNeg;
-    if (!g_pCWorld->rooms.sub_4ED440__sailRoom2(a2_x, v6_y, v9_roomNum, &roomsCountNeg))
-        return 0;
-    this->numberOfRooms += roomsCountNeg;
+    this->numberOfRooms += deltaRooms;
     MyRoomDataObj *v9_roomDataObj = g_pCWorld->v_f98_50D0B0_getMyRoomDataObj(roomTypeId);
     MyTerrainDataObj *v10_terrainDataObj = g_pCWorld->v_f70_508DD0_getTerrainDataObj(v9_roomDataObj->_terrainType);
     Vec3i v15_vec;

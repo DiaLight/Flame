@@ -70,10 +70,7 @@ void click_mouse(DWORD dik_scancode, DWORD flags) {
 namespace {
     DWORD controlFlags = 0;
     dk2::Pos2i clientSize;
-    POINT lastPos = {0, 0};
-
-    RECT safeArea;
-    POINT clientResetPos;
+    bool appIsActive = false;
 }
 
 void handle_fpv_mouse_move(HWND hWnd, POINT pos) {
@@ -81,6 +78,7 @@ void handle_fpv_mouse_move(HWND hWnd, POINT pos) {
     RECT clientRect;
     GetClientRect(hWnd, &clientRect);
 
+    RECT safeArea;
     safeArea = clientRect;
     safeArea.left += (clientRect.right - clientRect.left) / 3;
     safeArea.top += (clientRect.bottom - clientRect.top) / 3;
@@ -88,34 +86,25 @@ void handle_fpv_mouse_move(HWND hWnd, POINT pos) {
     safeArea.bottom -= (clientRect.bottom - clientRect.top) / 3;
 
     // update reset pos
+    POINT clientResetPos;
     clientResetPos.x = (clientRect.left + clientRect.right) / 2;
     clientResetPos.y = (clientRect.top + clientRect.bottom) / 2;
+    POINT lastPos = clientResetPos;
 
     float sensitivity = dk2::MyResources_instance.playerCfg.mouseSensitivity / 10.0;
     if(pos.x != lastPos.x) {
-        dk2::MyInputManagerCb_instance.f60_mouse->f24_flX_delta = (float) (pos.x - lastPos.x) * sensitivity;
+        float delta = (float) (pos.x - lastPos.x) / (float) clientSize.x * 640;
+        dk2::MyInputManagerCb_instance.f60_mouse->f24_flX_delta = delta * sensitivity;
         lastPos.x = pos.x;
     }
     if(pos.y != lastPos.y) {
-        dk2::MyInputManagerCb_instance.f60_mouse->f28_flY_delta = (float) (pos.y - lastPos.y) * sensitivity;
+        float delta = (float) (pos.y - lastPos.y) / (float) clientSize.y * 480;
+        dk2::MyInputManagerCb_instance.f60_mouse->f28_flY_delta = delta * sensitivity;
         lastPos.y = pos.y;
     }
-
-    if(!PtInRect(&safeArea, pos)) {
-        lastPos = clientResetPos;
-        POINT screenResetPos = clientResetPos;
-        ClientToScreen(hWnd, &screenResetPos);
-        SetCursorPos(screenResetPos.x, screenResetPos.y);
-//        printf("move to center cur=%d,%d client=%d,%d,%d,%d  reset=%d,%d safe=%d,%d,%d,%d  screen=%d,%d\n",
-//               pos.x, pos.y,
-//               clientRect.left, clientRect.top,
-//               clientRect.right, clientRect.bottom,
-//               clientResetPos.x, clientResetPos.y,
-//               safeArea.left, safeArea.top,
-//               safeArea.right, safeArea.bottom,
-//               screenResetPos.x, screenResetPos.y
-//        );
-    }
+    POINT screenResetPos = clientResetPos;
+    ClientToScreen(hWnd, &screenResetPos);
+    SetCursorPos(screenResetPos.x, screenResetPos.y);
 }
 
 void replace_mouse_dinput_to_user32::handle_mouse_move(HWND hWnd, POINT pos) {
@@ -145,14 +134,29 @@ void replace_mouse_dinput_to_user32::emulate_dinput_from_user32(HWND hWnd, UINT 
     if(!enabled) return;
     switch (Msg) {
         case WM_SIZE: {
-            clientSize = {LOWORD(lParam), HIWORD(lParam)};
+            RECT clientRect;
+            GetClientRect(hWnd, &clientRect);
+            clientSize = {clientRect.right - clientRect.left, clientRect.bottom - clientRect.top};
+//            clientSize = {LOWORD(lParam), HIWORD(lParam)};
             break;
         }
         case WM_MOUSEMOVE: {
-            POINT mousePos = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
-            handle_mouse_move(hWnd, mousePos);
+            if(appIsActive) {
+                POINT mousePos;
+                GetCursorPos(&mousePos);
+                ScreenToClient(hWnd, &mousePos);
+//                POINT mousePos = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+                handle_mouse_move(hWnd, mousePos);
+            }
             break;
         }
+        case WM_ACTIVATEAPP:
+            if (wParam) {  // activated
+                appIsActive = true;
+            } else {  // deactivated
+                appIsActive = false;
+            }
+            break;
         case WM_LBUTTONDOWN:
             click_mouse(DIK_DK2_LEFTMOUSE, DK2_IsPressed | controlFlags);
             break;

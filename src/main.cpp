@@ -265,9 +265,6 @@ int main(int argc, const char **argv) {
             exit(-1);
         }
     }
-    if(hasCmdOption(argv, argv + argc, "-experimental_predict_limit")) {
-        override_max_room_count::predictLimit = true;
-    }
     if(!hasCmdOption(argv, argv + argc, "-console")) {
         ::ShowWindow(::GetConsoleWindow(), SW_HIDE);
     }
