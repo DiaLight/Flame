@@ -1973,7 +1973,7 @@ struct: id=vtbl_0066C4A4,name=CDefaultPlayerInterface,size=20273,vtable=instance
   field: name=f4_profiler
     type: kind=ptr
       type: kind=struct,id=constructor_00526020
-  field: name=f8__cpyToF10
+  field: name=f8_playerTagId
     type: kind=int,size=2
   field: name=fA__counter
     type: kind=int,size=4,signed=True
@@ -2255,11 +2255,11 @@ struct: id=vtbl_0066C4A4,name=CDefaultPlayerInterface,size=20273,vtable=instance
   field: name=f1C27_chatHistory
     type: kind=array,count=3
       type: kind=struct,id=fill_00409E9D
-  field: name=f1F39__showChat
+  field: name=f1F39_chatUpdated
     type: kind=int,size=4,signed=True
-  field: name=f1F3D
+  field: name=f1F3D_sendPlayerMask
     type: kind=int,size=4,signed=True
-  field: name=field_1F41
+  field: name=f1F41_sendTarget
     type: kind=int,size=4,signed=True
   field: name=f1F45__chatMessageHistoryWindowText
     type: kind=struct,id=construct_00402752
@@ -2514,7 +2514,7 @@ struct: id=instance_0066C4A4,name=CDefaultPlayerInterface_vtbl,size=92
       type: kind=function,declspec=thiscall
         ret: kind=int,size=4,signed=True
         arg: kind=ptr
-          type: kind=int,size=1,signed=True,winapi=char
+          type: kind=void
         arg: kind=int,size=2,signed=True
   field: name=CDefaultPlayerInterface::fun_4033F0
     type: kind=ptr
@@ -4947,9 +4947,9 @@ struct: id=vtbl_0066EF3C,name=CFrontEndComponent,size=201210,vtable=instance_006
     type: kind=int,size=4,signed=True
   field: name=field_5944
     type: kind=int,size=4
-  field: name=gap_5948
-    type: kind=array,count=356
-      type: kind=int,size=1
+  field: name=f5948_chatDataToSend
+    type: kind=array,count=178
+      type: kind=int,size=2,signed=True
   field: name=f5AAC_playersCount
     type: kind=int,size=1
   field: name=gap5AAD
@@ -5471,7 +5471,8 @@ struct: id=vtbl_0066ED1C,name=CGuiManager,size=484,vtable=instance_0066ED1C
     type: kind=ptr
       type: kind=struct,id=vtbl_0066EE94
   field: name=fA0_unkObj
-    type: kind=int,size=4
+    type: kind=ptr
+      type: kind=struct,id=vtbl_0066ECA4
   field: name=field_A4
     type: kind=int,size=4
   field: name=field_A8
@@ -5497,7 +5498,7 @@ struct: id=vtbl_0066ED1C,name=CGuiManager,size=484,vtable=instance_0066ED1C
     type: kind=int,size=4
   field: name=f1E0_pBtn
     type: kind=ptr
-      type: kind=struct,id=vtbl_0066ED8C
+      type: kind=struct,id=vtbl_0066ECA4
   vtable_value: va=0052B8C0
 struct: id=instance_0066ED1C,name=CGuiManager_vtbl,size=4
   field: name=CGuiManager::_scalar_deleting_destructor_uint
@@ -12794,7 +12795,7 @@ struct: id=constructor_00521F40,name=GameAction,size=18
     type: kind=int,size=4
   field: name=fC_actionKind
     type: kind=int,size=4,signed=True
-  field: name=f10__cpyFrF8
+  field: name=f10__playerTagId
     type: kind=int,size=2,signed=True
 struct: id=constructor_00525EB0,name=GameActionArray,size=588
   field: name=f0_arr
@@ -13132,6 +13133,16 @@ struct: id=construct_0057D91E,name=MeshVertEx,size=20
     type: kind=float,size=4
   field: name=f10_uv
     type: kind=int,size=4,signed=True
+struct: id=construct_00409E13,name=MessageData,size=262
+  field: name=f0_flags_playerMask
+    type: kind=int,size=4
+  field: name=f4_sendTarget
+    type: kind=int,size=2,signed=True
+  field: name=f6_text
+    type: kind=array,count=127
+      type: kind=int,size=2,winapi=wchar_t,fname=wchar_t
+  field: name=f104_eos
+    type: kind=int,size=2,signed=True
 struct: id=vtbl_006728F8,name=MouseRgbDxAction,size=36,vtable=instance_006728F8,super=get_005DA009
   field: name=gap_C
     type: kind=array,count=4
@@ -14030,13 +14041,15 @@ struct: id=construct_0062D2BB,path=dk2/text/render,name=MyCharRenderCtx,size=40
     type: kind=ptr
       type: kind=struct,id=pos_xy
 struct: id=fill_00409E9D,name=MyChatMessage,size=262
-  field: name=field_0
+  field: name=f0_expireTime
     type: kind=int,size=4,signed=True
-  field: name=f4_msg
+  field: name=f4_sendTarget
+    type: kind=int,size=2,signed=True
+  field: name=f6_msg
     type: kind=array,count=127
       type: kind=int,size=2,signed=True
-  field: name=field_102
-    type: kind=int,size=4,signed=True
+  field: name=f104_eos
+    type: kind=int,size=2,signed=True
 struct: id=call_new_00555576,name=MyCmdHandler,size=40
   field: name=f0_str
     type: kind=ptr
@@ -22524,8 +22537,8 @@ global: va=00402D00,name=fun_402D00,size=854,member_of=vtbl_0066C4A4
     ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066C4A4
-    arg: kind=int,size=2,signed=True
-global: va=00403060,name=sub_403060,size=742
+    arg: kind=int,size=2
+global: va=00403060,name=FSMAP_load_403060,size=742
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
 global: va=00403350,name=TbGraphicFileLoader_destructor,size=7
@@ -22789,21 +22802,21 @@ global: va=00409CF0,name=fun_409CF0,size=163,member_of=vtbl_0066C4A4
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066C4A4
-global: va=00409DA0,name=sub_409DA0,size=138
+global: va=00409DA0,name=sendChatMessage,size=138,member_of=vtbl_0066C4A4
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=2
+      type: kind=struct,id=vtbl_0066C4A4
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=2,signed=True
     arg: kind=int,size=4,signed=True
 global: va=00409E30,name=CDefaultPlayerInterface_chatCallback,size=144
   type: kind=function,declspec=cdecl
-    ret: kind=int,size=4,signed=True
+    ret: kind=void
     arg: kind=ptr
       type: kind=void
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=construct_00409E13
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066C4A4
 global: va=00409EC0,name=fun_409EC0,size=101,member_of=vtbl_0066C4A4
@@ -22895,10 +22908,11 @@ global: va=0040ABC0,name=sub_40ABC0,size=115
       type: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=0040AC40,name=sub_40AC40,size=140
+global: va=0040AC40,name=sub_40AC40,size=140,member_of=vtbl_0066C4A4
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066C4A4
 global: va=0040ACD0,name=sub_40ACD0,size=423,member_of=vtbl_0066C4A4
   type: kind=function,declspec=thiscall
     ret: kind=ptr
@@ -23933,10 +23947,11 @@ global: va=0041E620,name=sub_41E620,size=488,member_of=vtbl_0066C4A4
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066C4A4
-global: va=0041E810,name=sub_41E810,size=1224
+global: va=0041E810,name=sub_41E810,size=1224,member_of=vtbl_0066C4A4
   type: kind=function,declspec=thiscall
     ret: kind=void
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066C4A4
 global: va=0041ECE0,name=sub_41ECE0,size=216
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
@@ -24324,7 +24339,7 @@ global: va=00426000,name=sub_426000,size=102
     arg: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066C4A4
-global: va=00426070,name=sub_426070,size=123
+global: va=00426070,name=InputTextField_reset,size=123
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
@@ -36644,7 +36659,7 @@ global: va=004BF390,name=fun_4BF390,size=54,member_of=vtbl_0066D99C
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D99C
     arg: kind=int,size=2
-global: va=004BF3D0,name=fun_4BF3D0,size=50,member_of=vtbl_0066D99C
+global: va=004BF3D0,name=isAlly,size=50,member_of=vtbl_0066D99C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -46673,7 +46688,7 @@ global: va=0052C464,name=jpt_52C3FB,size=36
 global: va=0052C488,name=idt_52C3F5,size=91
   type: kind=array,count=91
     type: kind=int,size=1
-global: va=0052C4F0,name=fun_52C4F0,size=44,member_of=vtbl_0066ED1C
+global: va=0052C4F0,name=setInputMessage,size=44,member_of=vtbl_0066ED1C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,winapi=size_t,fname=size_t
     arg: kind=ptr
@@ -51082,8 +51097,7 @@ global: va=00559DA0,name=filterService,size=293,member_of=init_00559BE0
     arg: kind=int,size=4,signed=True
 global: va=00559ED0,name=MLDPlay_HandleMessage_callback,size=138
   type: kind=function,declspec=stdcall
-    ret: kind=ptr
-      type: kind=int,size=4
+    ret: kind=void
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
@@ -63992,12 +64006,15 @@ global: va=005DBC30,name=destructor,size=86,member_of=vtbl_006723D0
 global: va=005DBC90,name=registerCb,size=49,member_of=vtbl_006723D0
   type: kind=function,declspec=thiscall
     ret: kind=ptr
-      type: kind=int,size=4
+      type: kind=ptr
+        type: kind=struct,id=pos_xy
     arg: kind=ptr
       type: kind=struct,id=vtbl_006723D0
     arg: kind=ptr
-      type: kind=int,size=4
-    arg: kind=int,size=4,signed=True
+      type: kind=ptr
+        type: kind=struct,id=pos_xy
+    arg: kind=ptr
+      type: kind=struct,id=pos_xy
 global: va=005DBCD0,name=call,size=90,member_of=vtbl_006723D0
   type: kind=function,declspec=thiscall
     ret: kind=void
@@ -80146,7 +80163,7 @@ global: va=006ED540,name=sceneObjectsPresent,size=4096
 global: va=006EE540,name=sceneObjects,size=16384
   type: kind=array,count=4096
     type: kind=ptr
-      type: kind=struct,id=vtbl_0066E3DC
+      type: kind=struct,id=vtbl_0066D99C
 global: va=006F2540,name=isSceneObjectForceIdx,size=4
   type: kind=int,size=4,signed=True
 global: va=006F2548,name=g_neutralPlayerId,size=2

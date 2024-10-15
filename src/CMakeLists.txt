@@ -147,3 +147,7 @@ add_custom_target(dkii_flame ALL DEPENDS ${ABS_MERGED_EXE})
 
 install(FILES ${ABS_MERGED_EXE} DESTINATION ".")
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/DKII-${OUTPUT_NAME}.map" DESTINATION ".")
+
+if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/dev")
+    include(dev/dev.cmake)
+endif ()

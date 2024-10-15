@@ -27,6 +27,7 @@ bool creatures_setup_lair_fix::enabled = true;
 bool wooden_bridge_burn_fix::enabled = true;
 bool max_host_port_number_fix::enabled = true;
 bool increase_zoom_level::enabled = true;
+bool fix_chat_buffer_invalid_memory_access::enabled = true;
 
 bool override_max_room_count::enabled = true;
 uint8_t override_max_room_count::limit = 255;  // default is 96
@@ -43,7 +44,10 @@ void fix_keyboard_state_on_alt_tab::window_proc(HWND hWnd, UINT Msg, WPARAM wPar
         case WM_ACTIVATEAPP:
             if (wParam) {  // activated
                 // clear buttons state
-                memset(dk2::MyInputManagerCb_instance.pdxInputState->keyboardState, 0, 256);
+                dk2::MyDxInputState *inputState = dk2::MyInputManagerCb_instance.pdxInputState;
+                if(inputState != nullptr) {
+                    memset(inputState->keyboardState, 0, 256);
+                }
             }
             break;
     }
@@ -72,7 +76,7 @@ void fix_close_window::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lP
                 dk2::GameAction action;
                 ZeroMemory(&action, sizeof(action));
                 action.actionKind = dk2::GA_ExitToWindows;
-                action._cpyFrF8 = playetIf->_cpyToF10;
+                action._playerTagId = playetIf->playerTagId;
                 playetIf->pushAction(&action);
             } else {
                 dk2::setAppExitStatus(true);

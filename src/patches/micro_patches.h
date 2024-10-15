@@ -64,6 +64,10 @@ namespace increase_zoom_level {
     extern bool enabled;
 }
 
+namespace fix_chat_buffer_invalid_memory_access {
+    extern bool enabled;
+}
+
 namespace override_max_room_count {
     extern bool enabled;
     extern uint8_t limit;

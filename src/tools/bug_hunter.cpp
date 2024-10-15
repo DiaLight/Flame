@@ -24,14 +24,74 @@
 #include <filesystem>
 #include <ShlObj_core.h>
 #include <codecvt>
+#include "sha1.hpp"
 
 namespace fs = std::filesystem;
 
 #define fmtHex32(val) std::hex << std::setw(8) << std::setfill('0') << std::uppercase << (val) << std::dec
 #define fmtHex16(val) std::hex << std::setw(4) << std::setfill('0') << std::uppercase << (val) << std::dec
+#define fmtHex8(val) std::hex << std::setw(2) << std::setfill('0') << std::uppercase << ((DWORD) val) << std::dec
 #define fmtHex32W(val) std::hex << std::setw(8) << std::setfill(L'0') << std::uppercase << (val) << std::dec
 #define fmtHex(val) std::hex << std::uppercase << (val) << std::dec
 
+struct MyCodeViewInfo {
+
+    enum class CodeViewMagic : unsigned int {
+        pdb70 = 'SDSR', // RSDS
+        pdb20 = '01BN', // NB10
+    };
+
+    struct DebugInfoPdb20 {
+        CodeViewMagic magic;
+        unsigned int offset;
+        unsigned int signature;
+        unsigned int age;
+        char pdbName[1];
+    };
+
+    struct DebugInfoPdb70 {
+        CodeViewMagic magic;
+        GUID guid;
+        unsigned int age;
+        char pdbName[1];
+    };
+
+    union DebugInfo {
+        CodeViewMagic magic;
+        DebugInfoPdb20 pdb20;
+        DebugInfoPdb70 pdb70;
+    };
+
+    HMODULE base;
+    DebugInfo *codeView = nullptr;
+    explicit MyCodeViewInfo(HMODULE hModule) : base(hModule) {}
+
+    bool find() {
+        auto *pHeader = (PIMAGE_DOS_HEADER) base;
+        if (pHeader->e_magic != IMAGE_DOS_SIGNATURE) return false;
+        auto *header = (PIMAGE_NT_HEADERS) ((BYTE *) base + ((PIMAGE_DOS_HEADER) base)->e_lfanew);
+        if (header->Signature != IMAGE_NT_SIGNATURE) return false;
+        if (header->OptionalHeader.NumberOfRvaAndSizes == 0) return false;
+        DWORD debugRva = header->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].VirtualAddress;
+        if (debugRva == 0) return false;
+        DWORD debugSize = header->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].Size;
+        PIMAGE_DEBUG_DIRECTORY debug = (PIMAGE_DEBUG_DIRECTORY) ((BYTE *) base + debugRva);
+        PIMAGE_DEBUG_DIRECTORY debugEnd = (PIMAGE_DEBUG_DIRECTORY) ((BYTE *) debug + debugSize);
+        DWORD codeViewRva = 0;
+        DWORD codeViewSize = 0;
+        for(; debug < debugEnd; debug++) {
+            if (debug->Type != IMAGE_DEBUG_TYPE_CODEVIEW) continue;
+            codeViewRva = debug->AddressOfRawData;
+            codeViewSize = debug->SizeOfData;
+            break;
+        }
+        if(codeViewRva == 0) return false;
+        DebugInfo *codeView = (DebugInfo *) ((BYTE *) base + codeViewRva);
+        if(codeView->magic != CodeViewMagic::pdb70) return false;
+        this->codeView = codeView;
+        return true;
+    }
+};
 struct MyVersionInfo {
     struct LANGANDCODEPAGE {
         WORD wLanguage;
@@ -136,6 +196,9 @@ namespace bughunter {
     uintptr_t flame_text_start = 0;
     uintptr_t flame_text_end = 0;
 
+    uintptr_t weanetr_base = 0;
+    uintptr_t qmixer_base = 0;
+
     std::vector<MyFpoFun> fpomap;
 
     bool isDkiiCode(DWORD p) noexcept {
@@ -162,6 +225,13 @@ namespace bughunter {
         return it - 1;
     }
 }
+bool ichar_equals(char a, char b) {
+    return std::tolower(static_cast<unsigned char>(a)) ==
+           std::tolower(static_cast<unsigned char>(b));
+}
+bool iequals(const std::string& a, const std::string& b) {
+    return std::equal(a.begin(), a.end(), b.begin(), b.end(), ichar_equals);
+}
 
 void resolveLocs() {
     uintptr_t base = (uintptr_t) GetModuleHandleA(NULL);
@@ -179,6 +249,13 @@ void resolveLocs() {
     bughunter::dkii_text_end = base + (uint32_t) (uint8_t *) &_dkii_text_end;
     bughunter::flame_text_start = base + (uint32_t) (uint8_t *) &_flame_text_start;
     bughunter::flame_text_end = base + (uint32_t) (uint8_t *) &_flame_text_end;
+
+    LoadedModules modules;
+    modules.update();
+    for(auto &mod : modules) {
+        if(iequals(mod->name, "weanetr.dll")) bughunter::weanetr_base = mod->base;
+        if(iequals(mod->name, "QMIXER.dll")) bughunter::qmixer_base = mod->base;
+    }
 }
 
 void parseFpomap() {
@@ -662,6 +739,7 @@ void formatModules(std::stringstream &ss, LoadedModules &modules) {
     for(auto &mod : modules) {
         ss << fmtHex32(mod->base) << "-" << fmtHex32(mod->end) << " ";
         ss << std::left << std::setw(16) << std::setfill(' ') << mod->name;
+        bool hasId = false;
         MyVersionInfo ver((HMODULE) mod->base);
         if(ver.open()) {
             std::string version = ver.queryValue("FileVersion");
@@ -675,7 +753,49 @@ void formatModules(std::stringstream &ss, LoadedModules &modules) {
             auto desc = ver.queryValue("FileDescription");
             if(!desc.empty()) ss << " desc=\"" << desc << "\"";
             if(!prodictName.empty()) ss << " product_name=\"" << prodictName << "\"";
-            if(!version.empty()) ss << " ver=\"" << version << "\"";
+            if(!version.empty()) {
+                ss << " ver=\"" << version << "\"";
+                hasId = true;  // here we can identify dll
+            }
+        }
+        if(!hasId) {
+            // try find pdb guid or calc sha1 hashsum
+            MyCodeViewInfo cvi((HMODULE) mod->base);
+            if(cvi.find()) {
+                GUID &guid = cvi.codeView->pdb70.guid;
+                DWORD age = cvi.codeView->pdb70.age;
+                ss << " codeview=\"";
+                ss << fmtHex32(guid.Data1);
+                ss << fmtHex16(guid.Data2);
+                ss << fmtHex16(guid.Data3);
+                for (int i = 0; i < 8; ++i) ss << fmtHex8(guid.Data4[i]);
+                ss << fmtHex(age);
+                ss << "\"";
+                hasId = true;  // here we can identify dll
+            }
+        }
+        if(!hasId) {
+            // try calc sha1 hashsum
+            wchar_t dllPath[MAX_PATH];
+            DWORD len = GetModuleFileNameW((HMODULE) mod->base, dllPath, MAX_PATH);
+            std::string buffer;
+            {
+
+                std::ifstream file(dllPath, std::ios::binary | std::ios::ate);
+                std::streamsize size = file.tellg();
+                file.seekg(0, std::ios::beg);
+                buffer.resize(size);
+                if (!file.read(buffer.data(), size)) buffer.clear();
+            }
+            if(!buffer.empty()) {
+                SHA1 checksum;
+                checksum.update(buffer);
+                std::string hash = checksum.final();
+                ss << " sha1=\"";
+                ss << hash;
+                ss << "\"";
+                hasId = true;
+            }
         }
         ss << std::endl;
     }
@@ -693,6 +813,13 @@ void buildFileName(FILETIME &timestamp, const char *namePart, char *reportFile, 
         snprintf(reportFile, bufCount, "%s\\Flame-%s-%02d%02d%02d[%d].txt", curDir, namePart,
                  stime.wYear % 100, stime.wMonth, stime.wDay, suffix);
     }
+}
+
+bool isGameFrame(StackFrame &frame) {
+    if(frame.libBase == bughunter::base) return true;
+    if(bughunter::weanetr_base && frame.libBase == bughunter::weanetr_base) return true;
+    if(bughunter::qmixer_base && frame.libBase == bughunter::qmixer_base) return true;
+    return false;
 }
 
 LPTOP_LEVEL_EXCEPTION_FILTER g_prev = nullptr;
@@ -737,7 +864,7 @@ LONG WINAPI TopLevelExceptionFilter(_In_ struct _EXCEPTION_POINTERS *ExceptionIn
             MessageBoxA(NULL, "err", "err", MB_OK);
         }
     }
-    std::vector<DWORD> ntdllWorkers;
+    std::vector<DWORD> gameThreads;
     for(auto &ts : states) {
         WalkerError err;
         StackLimits limits;
@@ -762,13 +889,14 @@ LONG WINAPI TopLevelExceptionFilter(_In_ struct _EXCEPTION_POINTERS *ExceptionIn
         StackWalker sw(modules, limits, ctx, err);
         for(auto &frame : sw) frames.push_back(frame);
 
-        // collect ntdll workers. dont know how to detect them properly
-        if(frames.size() >= 2) {
-            if(frames[frames.size() - 2].symName == "ZwWaitForWorkViaWorkerFactory") {
-                ntdllWorkers.push_back(ts.tid);
-            }
-            if(frames.size() == 2) continue;  // dont log waiting ntdll workers
+        bool hasGameFrame = false;
+        for(auto &frame : frames) {
+            if(!isGameFrame(frame)) continue;
+            hasGameFrame = true;
+            break;
         }
+        if(!hasGameFrame) continue;
+        gameThreads.push_back(ts.tid);
 
         ss << std::endl;
         ss << "thread " << ts.tid << " stack=" << fmtHex32(limits.low) << "-" << fmtHex32(limits.high) << std::endl;
@@ -780,10 +908,10 @@ LONG WINAPI TopLevelExceptionFilter(_In_ struct _EXCEPTION_POINTERS *ExceptionIn
         }
     }
 
-    // dont block ntdll workers. they are important for ShellExecuteA at least
+    // resume non game workers
+    // they are important for ShellExecuteA at least
     for(auto &ts : states) {
-        // if(!ntdllWorkers.contains(ts.tid)) continue;
-        if (std::find(ntdllWorkers.begin(), ntdllWorkers.end(), ts.tid) == ntdllWorkers.end()) continue;
+        if (std::find(gameThreads.begin(), gameThreads.end(), ts.tid) != gameThreads.end()) continue;  // if(gameThreads.contains(ts.tid)) continue;
         ts.resume();
     }
 

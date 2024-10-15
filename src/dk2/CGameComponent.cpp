@@ -102,7 +102,7 @@ dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
             int v8 = this->mt_profiler.cworld->v_getMEPlayerTagId();
             if ( !this->mt_profiler.attachPlayerI(&CDefaultPlayerInterface_instance, v8) )
                 return 0;
-            this->mt_profiler.player_i->_cpyToF10 = playerTagId;
+            this->mt_profiler.player_i->playerTagId = playerTagId;
         }
         if(CPCEngineInterface_instance_start.pCBridge) {
             CBridge *cBridge = CPCEngineInterface_instance_start.pCBridge;

@@ -21,6 +21,7 @@
 
 # CDefaultPlayerInterface.h
 00406DF0 int tickKeyboard2();  // --------------------  /* auto */
+00409E30 int __cdecl CDefaultPlayerInterface_chatCallback(void *, MessageData *, CDefaultPlayerInterface *);  /* auto */
 
 # MyDxMouse.h
 005BC760 int *__cdecl MyDxMouse_create(int *, MyDxMouse **);  /* auto */

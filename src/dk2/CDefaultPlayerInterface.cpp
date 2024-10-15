@@ -2,6 +2,8 @@
 // Created by DiaLight on 10.09.2024.
 //
 #include "dk2/CDefaultPlayerInterface.h"
+#include "dk2/MessageData.h"
+#include "dk2/entities/CPlayer.h"
 #include "dk2_functions.h"
 #include "dk2_globals.h"
 #include "patches/micro_patches.h"
@@ -38,13 +40,13 @@ int dk2::CDefaultPlayerInterface::tickKeyboard2() {
         int v8_isLShift = v13_isLShift;
         if ( isActionKeyPressed(18, controlKeyFlags, ignoreModifiers) ) {  // DIK_LEFT
             if (MyResources_instance.playerCfg.isAlternativeScroll) {
-                __int16 v7 = this->_cpyToF10;
+                __int16 v7 = this->playerTagId;
                 GameAction v17_action;
                 v17_action.f0 = -64;
                 v17_action.f4 = 0.0;
                 v17_action.f8 = 0;
                 v17_action.actionKind = 8;
-                v17_action._cpyFrF8 = v7;
+                v17_action._playerTagId = v7;
                 v18_try_catch = 0;
                 this->pushAction(&v17_action);
                 v18_try_catch = -1;
@@ -54,13 +56,13 @@ int dk2::CDefaultPlayerInterface::tickKeyboard2() {
         }
         if ( isActionKeyPressed(19, controlKeyFlags, ignoreModifiers) ) {  // DIK_RIGHT
             if ( MyResources_instance.playerCfg.isAlternativeScroll ) {
-                __int16 f8__cpyToF10 = this->_cpyToF10;
+                __int16 f8__cpyToF10 = this->playerTagId;
                 GameAction v17_action;
                 v17_action.f0 = 64;
                 v17_action.f4 = 0.0;
                 v17_action.f8 = 0;
                 v17_action.actionKind = 8;
-                v17_action._cpyFrF8 = f8__cpyToF10;
+                v17_action._playerTagId = f8__cpyToF10;
                 v18_try_catch = 1;
                 this->pushAction(&v17_action);
                 v18_try_catch = -1;
@@ -82,7 +84,7 @@ int dk2::CDefaultPlayerInterface::tickKeyboard2() {
     v17_action.f0 = ((result * MyResources_instance.playerCfg.scrollSpeed) << 6) / 10;
     int v11 = (MyResources_instance.playerCfg.scrollSpeed * this->f1098) << 6;
     *(DWORD *) &v17_action.f4 = (v11 / 10);
-    v17_action._cpyFrF8 = this->_cpyToF10;
+    v17_action._playerTagId = this->playerTagId;
     v18_try_catch = 2;
     return this->pushAction(&v17_action);
 }
@@ -118,4 +120,29 @@ void dk2::CDefaultPlayerInterface::createSurfacesForView_42CDF0(RtGuiView *view)
     }
 }
 
+void __cdecl dk2::CDefaultPlayerInterface_chatCallback(
+        void *a1,
+        MessageData *a2_message,
+        CDefaultPlayerInterface *a3_defPlayerIf) {
+    int playerFlag = 1 << ((CPlayer *) sceneObjects[a3_defPlayerIf->playerTagId])->playerNumber;
+    uint32_t sendPlayerFlags = ((a2_message->flags_playerMask & 0x7FFF0000) >> 1) | a2_message->flags_playerMask & 0x7FFF;
+    if ((sendPlayerFlags & playerFlag) == 0 ) return;  // this message is not for you
 
+    MyChatMessage *hist = a3_defPlayerIf->chatHistory;
+    for (int i = 0; i < 2; ++i) {
+        memcpy(&hist[i], &hist[i + 1], 0x102u);
+    }
+
+    if(fix_chat_buffer_invalid_memory_access::enabled) {
+        size_t strLen = wcslen((wchar_t *) &a2_message->sendTarget);  // whole message concept is being wchar_t[] compatible zero terminated string
+        size_t strSize = 2 * strLen + 2;  // precise message buffer size
+        memset(&a3_defPlayerIf->chatHistory[2].sendTarget, 0, 0x102u);
+        if(strSize > 0x102u) strSize = 0x102u;
+        memcpy(&a3_defPlayerIf->chatHistory[2].sendTarget, &a2_message->sendTarget, strSize);  // don't read behind allocated buffer
+    } else {
+        memcpy(&a3_defPlayerIf->chatHistory[2].sendTarget, &a2_message->sendTarget, 0x102u);
+    }
+    int expireTime = getTimeMs() + 30000;
+    a3_defPlayerIf->chatHistory[2].expireTime = expireTime;
+    a3_defPlayerIf->chatUpdated = 1;
+}
