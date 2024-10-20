@@ -101,3 +101,6 @@
 # CCamera.h
 00449CA0 void zoomRel_449CA0(int);  // ---------------  /* auto */
 
+# CWorld.h
+00519F90 int WorldTrigger_cpp_519F90(int16_t, int, int);  /* auto */
+

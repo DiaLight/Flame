@@ -62,7 +62,7 @@ int dk2::CPlayer::creatureDidWorkshopWork(int workMade, CCreature *a3_creature) 
 }
 
 void dk2::CPlayer::resetCreaturesState() {
-    for (CCreature *creature = (CCreature *) sceneObjects[this->thingsOwnedList[0]];
+    for (CCreature *creature = (CCreature *) sceneObjects[this->ownedCreature_first];
           creature;
           creature = (CCreature *) sceneObjects[creature->fC_playerNodeY]) {
         int curStateId = creature->cstate.currentStateId;

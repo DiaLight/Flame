@@ -28,6 +28,7 @@ bool wooden_bridge_burn_fix::enabled = true;
 bool max_host_port_number_fix::enabled = true;
 bool increase_zoom_level::enabled = true;
 bool fix_chat_buffer_invalid_memory_access::enabled = true;
+bool hero_party_spawn_limit_fix::enabled = true;
 
 bool override_max_room_count::enabled = true;
 uint8_t override_max_room_count::limit = 255;  // default is 96

@@ -37,7 +37,7 @@ namespace dk2 {
                 updateFlags_success(cp);
                 return;
             }
-            CTag *v68_creature = sceneObjects[fE_cplayer->thingsOwnedList[0]];
+            CTag *v68_creature = sceneObjects[fE_cplayer->ownedCreature_first];
             CCreature *v20_creature = (CCreature *) v68_creature;
             if (v68_creature) {
                 do {
@@ -252,7 +252,7 @@ namespace dk2 {
                 return;
             }
             CCreature *i_creature;
-            for (i_creature = (CCreature *) sceneObjects[cp->cplayer->thingsOwnedList[0]];
+            for (i_creature = (CCreature *) sceneObjects[cp->cplayer->ownedCreature_first];
                  i_creature;
                  i_creature = (CCreature *) sceneObjects[i_creature->fC_playerNodeY]) {
                 int v5_respondIdx = (cp->flags >> 14) & 0xF;

@@ -76,13 +76,13 @@ int dk2::CRoom::tickWoodenBridge() {
         ++burnedCount;
         mapElem->roomSetBurnLevel(0);
         if (v8_unkIdx) {
-            CBridgeCmd v21_cmd;
-            v21_cmd.a1 = (pos.x << 12) + 2048;
-            v21_cmd.a2 = (pos.y << 12) + 2048;
-            v21_cmd.a3 = 0;
-            __int16 v14 = 0;
-            Pos2ub v19_bridgeLoc;
-            g_CWorld_ptr->v_sub_509580(v8_unkIdx, this->playerId, (int) &v21_cmd, (int) &v14, (int) &v19_bridgeLoc);
+            Vec3i pos2;
+            pos2.x = (pos.x << 12) + 2048;
+            pos2.y = (pos.y << 12) + 2048;
+            pos2.z = 0;
+            uint16_t v14_direction = 0;
+            CEffect *effect;
+            g_CWorld_ptr->v_sub_509580(v8_unkIdx, this->playerId, &pos2, &v14_direction, &effect);
         }
         if (burnedCount == 8) break;
     }
