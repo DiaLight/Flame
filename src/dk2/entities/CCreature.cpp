@@ -46,8 +46,8 @@ int dk2::CCreature::processDealDamage() {
             if ( v9_object->typeId == CCreature_typeId_DarkAngel ) {
                 targetCreature->cstate.setCurrentState_476D30(84, 0);
             } else {
-                v9_object->renderInfo.fAF = v9_object->renderInfo.fAF & 0xFE ^ 1;
-                targetCreature->renderInfo.fAF = targetCreature->renderInfo.fAF & 0xFE ^ 1;
+                v9_object->renderInfo._flags2 = v9_object->renderInfo._flags2 & 0xFE ^ 1;
+                targetCreature->renderInfo._flags2 = targetCreature->renderInfo._flags2 & 0xFE ^ 1;
                 int f1C_type = targetCreature->inst.type;
                 BOOL v11 = f1C_type != 21 && f1C_type != 0;
                 if ( v11 && g_Obj6E4198_arr[f1C_type].f1C )

@@ -977,12 +977,13 @@ void traceThread(HANDLE hThread, std::vector<StackFrame> &frames, WalkerError &e
     for(auto &frame : sw) frames.push_back(frame);
 }
 
-void dumpCurrentStack() {
+void dumpCurrentStack(int numFrames) {
     std::vector<StackFrame> frames;
     WalkerError err;
     traceCurrentStack(frames, err);
     for(auto &fr : frames) {
         std::cout << fr << std::endl;
+        if(numFrames-- == 0) break;
     }
     if(err) {
         std::cout << "[StackWalker ERROR]: " << err.str() << std::endl;

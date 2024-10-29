@@ -6,6 +6,23 @@
 #define FLAME_ENTITIES_TYPE_H
 
 
+#define CThing_types(cb) \
+    cb(0, CCreature)\
+    cb(1, CShot)\
+    cb(2, CObject)\
+    cb(3, CTrap)\
+    cb(4, CDoor)\
+    cb(5, CActionPoint)\
+    cb(6, CDeadBody)\
+    cb(7, CEffectGenerator)
+
+enum CThing_typeId {
+#define _CThing_typeId(id, pascalName) CThing_type_##pascalName = id,
+    CThing_types(_CThing_typeId)
+};
+const char *CThing_type_toString(int ty);
+
+
 #define CCreature_types(cb)\
     cb(1, true, Imp, imp)\
     cb(2, false, Prince, prince)\

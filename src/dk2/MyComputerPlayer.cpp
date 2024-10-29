@@ -67,7 +67,7 @@ namespace dk2 {
                                                                / 100;
                                 if (f3C_health > (int) (v26_modHealth >> 1)
                                     && v20_creature->cstate.fun_478050() != 22
-                                    && !cp->cplayer->fun_4BCAE0(v20_creature->f0_tagId)
+                                    && !cp->cplayer->hasThingInHand(v20_creature->f0_tagId)
                                     && v20_creature->cstate.currentStateId != 76
                                     && !v20_creature->fun_48F350()
                                     && (v20_creature->creatureData->flags & 1) == 0) {
@@ -85,7 +85,7 @@ namespace dk2 {
                 updateFlags_failed(cp);
                 return;
             }
-            if (v20_creature->sub_48E6A0_dif(cp->cplayer->f0_tagId)) {
+            if (v20_creature->_belongsTo(cp->cplayer->f0_tagId)) {
                 int v27_doDrop = 0;
                 if(response_to_threat_fix::enabled) {
                     // dirty fix. better is to understand why devs made v27_doDrop condition
@@ -126,7 +126,7 @@ namespace dk2 {
                         CWorld *v42_cworld = cp->world;
                         MyMapElement *v43_mapElement = &v42_cworld->cmap.mapElements[v33_locX +
                                                                                      v73_locY * v42_cworld->cmap.width];
-                        if ((v42_cworld->cmap.pNavigationSystem->map.ptr_ui8[
+                        if ((v42_cworld->cmap.pNavigationSystem->map.mapBuf[
                                      v73_locY * v42_cworld->cmap.pNavigationSystem->map.width + v33_locX] & 8) == 0
                             && !v43_mapElement->sub_454110()
                             && (v43_mapElement->_playerIdFFF & 0xFFF) == cp->cplayer->f0_tagId) {
@@ -150,7 +150,7 @@ namespace dk2 {
                                         CWorld *v48_cworld = cp->world;
                                         MyMapElement *v49_mapElem = &v48_cworld->cmap.mapElements[
                                                 v44_locX + v73_locY * v48_cworld->cmap.width];
-                                        if ((v48_cworld->cmap.pNavigationSystem->map.ptr_ui8[
+                                        if ((v48_cworld->cmap.pNavigationSystem->map.mapBuf[
                                                      v73_locY * v48_cworld->cmap.pNavigationSystem->map.width +
                                                      v44_locX] & 8) == 0
                                             && !v49_mapElem->sub_454110()
@@ -175,7 +175,7 @@ namespace dk2 {
                                         CWorld *v45_cworld = cp->world;
                                         MyMapElement *v46_mapElem = &v45_cworld->cmap.mapElements[
                                                 v44_locX + v73_locY * v45_cworld->cmap.width];
-                                        if ((v45_cworld->cmap.pNavigationSystem->map.ptr_ui8[
+                                        if ((v45_cworld->cmap.pNavigationSystem->map.mapBuf[
                                                      v73_locY * v45_cworld->cmap.pNavigationSystem->map.width +
                                                      v44_locX] & 8) == 0
                                             && !v46_mapElem->sub_454110()
@@ -218,12 +218,12 @@ namespace dk2 {
                 if (v27_doDrop) {
                     cp->cplayer->fun_4BFBD0(v20_creature);
                     cp->cplayer->fun_4BC500(v20_creature->f0_tagId);
-                    if (cp->cplayer->fun_4BCAE0(v20_creature->f0_tagId)) {
+                    if (cp->cplayer->hasThingInHand(v20_creature->f0_tagId)) {
                         v59_loc.x += 256;
                         CPlayer *v52_cplayer = cp->cplayer;
                         v59_loc.y += 256;
                         uint16_t v74_direction = 0;
-                        v52_cplayer->dropItemFromHand(&v59_loc, &v74_direction);
+                        v52_cplayer->dropThingFromHand(&v59_loc, &v74_direction);
                     }
                 }
                 unsigned __int8 v53_level = v20_creature->level;
@@ -268,7 +268,7 @@ namespace dk2 {
                     && (i_creature->creatureData->flags & 0x4000) == 0
                     && !i_creature->fun_4888C0_checkState()
                     && (i_creature->lastDroppedCounter > 0x12Cu || cp->world->getGameTick() <= 0x12C)
-                    && !cp->cplayer->fun_4BCAE0(i_creature->f0_tagId)
+                    && !cp->cplayer->hasThingInHand(i_creature->f0_tagId)
                     && i_creature->cstate.currentStateId != 76) {
                     break;
                 }
@@ -278,10 +278,10 @@ namespace dk2 {
                 updateFlags_failed(cp);
                 return;
             }
-            if (i_creature->sub_48E6A0_dif(cp->cplayer->f0_tagId)) {
+            if (i_creature->_belongsTo(cp->cplayer->f0_tagId)) {
                 cp->cplayer->fun_4BFBD0(i_creature);
                 cp->cplayer->fun_4BC500(i_creature->f0_tagId);
-                if (cp->cplayer->fun_4BCAE0(i_creature->f0_tagId)) {
+                if (cp->cplayer->hasThingInHand(i_creature->f0_tagId)) {
                     CPlayer *v7_cplayer = cp->cplayer;
                     Vec3i v59_loc;
                     memset(&v59_loc, 0, sizeof(v59_loc));
@@ -293,7 +293,7 @@ namespace dk2 {
                     CPlayer *v11_cplayer = cp->cplayer;
                     v59_loc.z = 0;
                     uint16_t v74_direction = 0;
-                    v11_cplayer->dropItemFromHand(&v59_loc, &v74_direction);
+                    v11_cplayer->dropThingFromHand(&v59_loc, &v74_direction);
                 }
                 unsigned __int8 v12_level = i_creature->level;
                 MyCreatureDataObj *v13_creatureData = i_creature->creatureData;

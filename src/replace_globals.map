@@ -22,6 +22,10 @@
 # CDefaultPlayerInterface.h
 00406DF0 int tickKeyboard2();  // --------------------  /* auto */
 00409E30 int __cdecl CDefaultPlayerInterface_chatCallback(void *, MessageData *, CDefaultPlayerInterface *);  /* auto */
+00408EE0 void handleRightClick(uint32_t, ObjUnderHand *);  /* auto */
+004BC710 int dropItemFromHand(Vec3i *, uint16_t *);     /* auto */
+0040E0D0 void tickThingsInHand();  // ----------------  /* auto */
+00406530 BOOL __cdecl CDefaultPlayerInterface_onMouseAction(int, uint32_t, Pos2i, CDefaultPlayerInterface *);  /* auto */
 
 # MyDxMouse.h
 005BC760 int *__cdecl MyDxMouse_create(int *, MyDxMouse **);  /* auto */

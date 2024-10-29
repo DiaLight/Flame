@@ -245,7 +245,7 @@ namespace dk2 {
                 v53_creature->fun_49AA30(3, 0, 0);
                 if (v55_bool) {
                     v53_creature->setCurrentState_48AD30(269);
-                    v53_creature->renderInfo.fAF &= ~1u;
+                    v53_creature->renderInfo._flags2 &= ~1u;
                 }
             }
             ++v23_goodIdx;

@@ -79,7 +79,7 @@ public:
 
 };
 
-void dumpCurrentStack();
+void dumpCurrentStack(int numFrames=-1);
 void traceCurrentStack(std::vector<StackFrame> &frames, WalkerError &err);
 
 

@@ -1,5 +1,36 @@
 # Flame
-A new approach to modifying the compiled code of Dungeon Keeper 2
+
+Flame modifies the Dungeon Keeper 2 code to fix the bugs found in both single and multiplayer.
+It works with the Disk, Steam and GOG versions of the game.
+
+If you have any bugs in the game, please describe them in the discord channel: https://discord.gg/RvrQpCFUZc
+When you do, be sure to have followed the recommended installation steps.
+
+## How to install
+1) Go to the [releases](https://github.com/DiaLight/Flame/releases) page and download the Flame-1.7.0-*.zip file of the newest release
+2) Extract the zip file into your Dungeon Keeper 2 game directory
+
+Now run `DKII-Flame-1.7.0-*.exe` to play. It is possible to rename the .exe file to play Multiplayer via GameRanger.
+
+Note: It is possible to find newer test builds on [github actions](https://github.com/DiaLight/Flame/actions)
+
+Note 2: The `Data` directory and `ddraw.dll` file are not required for this to work, but are recommended.
+
+## Files explained
+
+The `Data` folder in the zip file contains patches for some campaign maps taken from the link https://keeperklan.com/downloads.php?do=file&id=141. These fix creatures like Dark Angels not spawning in some campaign maps.
+
+The `ddraw.dll` in the `flame.zip` file are taken from https://github.com/narzoul/DDrawCompat/releases/tag/v0.5.3
+It fixing some graphical bugs and i think improve general stability.
+This dll is especially needed for those who observe graphic artifacts when starting the game
+or whose game crashes immediately upon starting any game level
+The Steam version of the game is installed along with this `ddraw.dll`
+
+# For Software Developers
+
+## How it is done
+
+Flame is a new approach to modifying the compiled code of Dungeon Keeper 2
 
 Flame recompiles some functions of `DKII.EXE` into a separate `.exe` file.
 Then it merges this file with the original `.exe` file, replacing the references to
@@ -8,27 +39,6 @@ Recompiled functions are supplemented with switchable changes that fix some game
 
 [Earlier](https://github.com/DiaLight/Flame/tree/46e5b0c1df93060bd01a83bb6d14d064e9c8c3dc "Full relinking approach"), this project implemented an approach to fully relinking `DKII.EXE`,
 which contains false positive references that caused new bugs.
-
-## How to install
-- download `flame.zip` file from github actions https://github.com/DiaLight/Flame/actions
-- copy `DKII-Flame-1.7.0-*.exe` from `flame.zip` to game directory (no need rename to DKII-DX.exe or DKII.exe. exe name does not matter)
-- (optional, but recommended) copy `Data` directory from `flame.zip` with replacement to the game directory
-- (optional, but recommended) copy `ddraw.dll` from `flame.zip` to the game directory
-- run `DKII-Flame-1.7.0-*.exe`
-
-The `DKII-Flame-1.7.0-*.map` file in the `flame.zip` file you dont need to copy.
-I need it if I suddenly need to debug an old build
-
-The `Date` folder in the `flame.zip` file contains patches for some campaign maps taken from the link https://keeperklan.com/downloads.php?do=file&id=141
-
-The `ddraw.dll` in the `flame.zip` file are taken from https://github.com/narzoul/DDrawCompat/releases/tag/v0.5.3
-It fixing some graphical bugs and i think improve general stability.
-This dll is especially needed for those who observe graphic artifacts when starting the game
-or whose game crashes immediately upon starting any game level
-The Steam version of the game is installed along with this `ddraw.dll`
-
-If you have any bugs in the game, please describe them in the discord channel https://discord.gg/RvrQpCFUZc
-When report issue please ensure that you are uses `ddraw.dll`
 
 ## Build requirements
 - CMake 3.25 or higher https://cmake.org/download/

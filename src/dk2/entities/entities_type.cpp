@@ -3,6 +3,14 @@
 //
 #include "entities_type.h"
 
+const char *CThing_type_toString(int ty) {
+    switch (ty) {
+#define _CThing_typeId_toString(id, pascalName) case CThing_type_##pascalName: return #pascalName;
+        CThing_types(_CThing_typeId_toString)
+    }
+    return "Unknown";
+}
+
 const char *CCreature_typeId_toString(int ty) {
     switch (ty) {
 #define _CCreature_typeId_toString(id, isEvil, pascalName, snakeName) case CCreature_typeId_##pascalName: return #pascalName;
