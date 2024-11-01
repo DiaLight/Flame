@@ -20,8 +20,7 @@ namespace dk2 {
         CCreature *v68_leaderCreature = nullptr;
         unsigned int v47_movementSpeed = 0x7FFFFFFF;
         ++self->invasionPartyCountArr[a2_heroPartyIdx];
-        CCreature *v53_creature_ = (CCreature *) sceneObjects[v57_player->ownedCreature_first];
-        for (CCreature *j = v53_creature_; j; j = (CCreature *) sceneObjects[j->fC_playerNodeY]) {
+        for (CCreature *j = (CCreature *) sceneObjects[v57_player->ownedCreature_first]; j; j = (CCreature *) sceneObjects[j->fC_playerNodeY]) {
             if (j->partyId != a2_heroPartyIdx) continue;
             if (v47_movementSpeed > j->creatureData->speed_0)
                 v47_movementSpeed = j->creatureData->speed_0;
@@ -45,8 +44,7 @@ namespace dk2 {
                     &v71_direction,
                     &effect);
         }
-        CCreature *v53_creature = (CCreature *) sceneObjects[v57_player->ownedCreature_first];
-        for (CCreature *i = v53_creature; i; i = (CCreature *) sceneObjects[i->fC_playerNodeY]) {
+        for (CCreature *i = (CCreature *) sceneObjects[v57_player->ownedCreature_first]; i; i = (CCreature *) sceneObjects[i->fC_playerNodeY]) {
             if (i->partyId != a2_heroPartyIdx) continue;
             i->setMovementSpeed(0, v47_movementSpeed);
             if ((i->flags & 4) != 0) {  // FOLLOWER
@@ -80,7 +78,7 @@ namespace dk2 {
     MyCreatureDataObj *findCreatureDataObjForParty(
             CWorld *self, bool a4_bool, unsigned int v23_goodIdx,
             int v59_creatureDataArrCount, GoodCreature &v68_goodCr,
-            char &f1C_creatureTypeId) {
+            BYTE &f1C_creatureTypeId) {
         if (!a4_bool) {
             f1C_creatureTypeId = v68_goodCr.creatureTypeId;
             return self->v_fun_50D390(v68_goodCr.creatureTypeId);
@@ -93,7 +91,7 @@ namespace dk2 {
             char v27_randomType = randomInt(
                     v59_creatureDataArrCount,
                     &self->gameSeed,
-                    (char *) "D:\\Dev\\DK2\\Projects\\Source\\Game\\WorldTrigger.cpp",
+                    (char *) R"(D:\Dev\DK2\Projects\Source\Game\WorldTrigger.cpp)",
                     1586
             );
             f1C_creatureTypeId = v27_randomType + 1;
@@ -105,27 +103,18 @@ namespace dk2 {
     }
 
     int spawnWholeParty(CWorld *self, uint8_t a2_heroPartyIdx, int a3_actionPointId, bool a4_bool) {
-        CPlayer *fA_players_7 = self->playerList.players_7;
-        CPlayer *v57_player = fA_players_7;
-        GoodCreature v68_goodCr;
-        int v55_bool = 1;
-        Vec3i v65_vecCenter = findActionPointCenter(self, a3_actionPointId);
+        int v55_bool = 0;
+        Vec3i v65_vecCenter = findActionPointCenter(self, (BYTE) a3_actionPointId);
         MyMapElement *v12_mapelem = self->v_getMapElem_2(&v65_vecCenter);
         unsigned __int8 fA_arr6DA4A8_idx = v12_mapelem->arr6DA4A8_idx;
         if (fA_arr6DA4A8_idx == 33) {
             v65_vecCenter.y += 4096;
             v65_vecCenter.x += 4096;
-            uint16_t v69_direction = 0;
+            uint16_t direction = 0;
             CEffect *v61_effect;
-            self->v_sub_509580(
-                    311,
-                    g_goodPlayerId,
-                    &v65_vecCenter,
-                    &v69_direction,
-                    &v61_effect);
-            v55_bool = 0;
-        } else if (fA_arr6DA4A8_idx == 37) {
-            v55_bool = 0;
+            self->v_sub_509580(311, g_goodPlayerId, &v65_vecCenter, &direction, &v61_effect);
+        } else if (fA_arr6DA4A8_idx != 37) {
+            v55_bool = 1;
         }
         for (CCreature *i_creature = (CCreature *) sceneObjects[v12_mapelem->sceneObjIdx];
              i_creature;
@@ -133,9 +122,9 @@ namespace dk2 {
             int fE_type = i_creature->fE_type;
             if (fE_type == 4 || fE_type == 3) {
                 i_creature->v_f20();
-                uint16_t v69_direction = 0;
+                uint16_t direction = 0;
                 CEffect *v61_effect;
-                self->v_sub_509580(1, i_creature->f24_playerId, &v65_vecCenter, &v69_direction, &v61_effect);
+                self->v_sub_509580(1, i_creature->f24_playerId, &v65_vecCenter, &direction, &v61_effect);
             }
         }
 
@@ -143,17 +132,18 @@ namespace dk2 {
         if (v21_triggerId) self->_set_trigger_flag_sub_519A20(v21_triggerId, 1);
         int v22_creatureDataArrCount = self->v_loc_508E50();
         unsigned int v23_goodIdx = 0;
+        CPlayer *v57_player = self->playerList.players_7;
         while (true) {
-            v68_goodCr = self->_heroPartyArr[a2_heroPartyIdx].goodCreatures[v23_goodIdx];
+            GoodCreature v68_goodCr = self->_heroPartyArr[a2_heroPartyIdx].goodCreatures[v23_goodIdx];
             if (v68_goodCr.creatureTypeId) {
-                CCreature *v53_creature;
-                char f1C_creatureTypeId;
+                BYTE v54_creatureTypeId;
                 MyCreatureDataObj *v30_creatureDataObj = findCreatureDataObjForParty(
                         self, a4_bool, v23_goodIdx, v22_creatureDataArrCount, v68_goodCr,
-                        f1C_creatureTypeId);
+                        v54_creatureTypeId);
+                CCreature *v53_creature;
                 if (!self->WorldTrigger_spawnCreatureByTrigger(
                         v57_player->f0_tagId,
-                        f1C_creatureTypeId,
+                        v54_creatureTypeId,
                         &v65_vecCenter,
                         &v53_creature)) {
                     if(hero_party_spawn_limit_fix::enabled) {
@@ -162,20 +152,18 @@ namespace dk2 {
                     }
                     return 0;
                 }
-                if (f1C_creatureTypeId == 21) {  // King
+                if (v54_creatureTypeId == 21) {  // King
                     for (CPlayer *j_player = (CPlayer *) sceneObjects[self->playerList.allocatedList];
                          j_player;
                          j_player = (CPlayer *) sceneObjects[j_player->nextIdx]) {
-                        self->playerMessageQueue.fun_4C4600(
-                                5, j_player->f0_tagId,
-                                1, v53_creature->f0_tagId, 1);
+                        self->playerMessageQueue.fun_4C4600(5, j_player->f0_tagId, 1, v53_creature->f0_tagId, 1);
                     }
                 }
                 unsigned __int8 fE_level = v68_goodCr.level;
                 BYTE v69_count = v68_goodCr.level - 1;
                 if (a4_bool) {
                     unsigned __int8 InvasionPartyCount = self->getInvasionPartyCount(a2_heroPartyIdx);
-                    v69_count = InvasionPartyCount + (BYTE) v69_count;
+                    v69_count = InvasionPartyCount + v69_count;
                 }
                 v69_count %= 10;
 
@@ -203,7 +191,7 @@ namespace dk2 {
 
                 int v38_count = v69_count;
                 if ((BYTE) v69_count) {
-                    int v39_count = (unsigned __int8) v69_count;
+                    int v39_count = v69_count;
                     do {
                         v53_creature->fun_48B120();
                         --v39_count;
@@ -258,16 +246,18 @@ namespace dk2 {
 
 }
 
-
 int dk2::CWorld::WorldTrigger_cpp_519F90(__int16 a2_heroPartyIdx, int a3_actionPointId, int a4_bool) {
-    if (!(BYTE) a4_bool) return spawnWholeParty(this, a2_heroPartyIdx, a3_actionPointId, (BYTE) a4_bool);
-    CPlayer *fA_players_7 = this->playerList.players_7;
-    CCreature *v6_creature = (CCreature *) sceneObjects[fA_players_7->ownedCreature_first];
-    for (CCreature *i = v6_creature; i; v6_creature = (CCreature *) sceneObjects[v6_creature->fC_playerNodeY]) {
-        if(v6_creature->partyId == (uint8_t) a2_heroPartyIdx
-           && (v6_creature->prisonOwner == 0)
-           && (v6_creature->stateFlags & 0x200000) == 0  // creatureDying
-        ) return 1;
+    if ((BYTE) a4_bool != 0) {
+        CPlayer *fA_players_7 = this->playerList.players_7;
+        for (CCreature *i = (CCreature *) sceneObjects[fA_players_7->ownedCreature_first]; i;
+             i = (CCreature *) sceneObjects[i->fC_playerNodeY]) {
+            if (i->partyId == (uint8_t) a2_heroPartyIdx
+                && !i->prisonOwner
+                && (i->stateFlags & 0x200000) == 0  // creatureDying
+                    )
+                return 1;
+        }
     }
-    return spawnWholeParty(this, (uint8_t) a2_heroPartyIdx, a3_actionPointId, (BYTE) a4_bool);
+    return spawnWholeParty(this, (uint8_t) a2_heroPartyIdx, a3_actionPointId, (uint8_t) a4_bool);
 }
+
