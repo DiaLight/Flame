@@ -9,6 +9,8 @@
 #include "dk2/entities/CTrap.h"
 #include "dk2/entities/data/MyObjectDataObj.h"
 #include "dk2/entities/data/MyTrapDataObj.h"
+#include "dk2/entities/data/MyCreatureDataObj.h"
+#include "dk2/world/map/MyMapElement.h"
 #include "dk2_functions.h"
 #include "dk2_globals.h"
 #include "patches/micro_patches.h"
@@ -163,32 +165,32 @@ BOOL __cdecl dk2::CDefaultPlayerInterface_onMouseAction(
         CDefaultPlayerInterface *a4_dplif) {
     CBridge *f10_c_bridge = a4_dplif->profiler->c_bridge;
     CCamera *a4_dplifa = f10_c_bridge->v_getCamera();
-    if ( a4_dplif->cgui_manager.f18 ) return 1;
+    if (a4_dplif->cgui_manager.f18) return 1;
     CCamera *v6_camera = f10_c_bridge->v_getCamera();
     BOOL result = v6_camera->isInputAllowed();
-    if ( !result ) return result;
-    if ( a4_dplif->fFD
-         || a4_dplifa->_mode != 7
-            && a4_dplif->is3dEngineNe1
-            && a4_dplifa->fun_44D620()
-            && (a4_dplifa->_mode != 2 || a4_dplif->inMenu)
-            && !a4_dplif->f10C
-            && (a4_dplif->cgui_manager.fun_52C0A0(a3_coord, a1_KeyCode_F0toF3, a2_isPressed)
-                || a4_dplif->sub_41FCF0(a3_coord.x, a3_coord.y, a1_KeyCode_F0toF3, a2_isPressed))
-         || a4_dplif->profiler->inMenu ) {
+    if (!result) return result;
+    if (a4_dplif->fFD
+        || a4_dplifa->_mode != 7
+           && a4_dplif->is3dEngineNe1
+           && a4_dplifa->fun_44D620()
+           && (a4_dplifa->_mode != 2 || a4_dplif->inMenu)
+           && !a4_dplif->f10C
+           && (a4_dplif->cgui_manager.fun_52C0A0(a3_coord, a1_KeyCode_F0toF3, a2_isPressed)
+               || a4_dplif->sub_41FCF0(a3_coord.x, a3_coord.y, a1_KeyCode_F0toF3, a2_isPressed))
+        || a4_dplif->profiler->inMenu) {
         return 1;
     }
     Pos2i v8_coord = a3_coord;
     a4_dplif->sub_40BFF0(&v8_coord, 0);
-    if ( a1_KeyCode_F0toF3 == 0xF0 ) {
+    if (a1_KeyCode_F0toF3 == 0xF0) {
         a4_dplif->handleLeftClick(a2_isPressed, &a4_dplif->_underHand);
     } else {
-        if ( a1_KeyCode_F0toF3 == 0xF1 ) {
+        if (a1_KeyCode_F0toF3 == 0xF1) {
             // underHand filled here 0040BFF0 -> 005992B0
             a4_dplif->handleRightClick(a2_isPressed, &a4_dplif->_underHand);
             return 1;
         }
-        if ( a1_KeyCode_F0toF3 == 0xF2 && a4_dplif->f10C ) {
+        if (a1_KeyCode_F0toF3 == 0xF2 && a4_dplif->f10C) {
             a4_dplif->f10C = 0;
             return 1;
         }
@@ -206,7 +208,7 @@ namespace dk2 {
             thingInHand = cur;
             break;
         }
-        if(thingInHand == nullptr) return false;
+        if (thingInHand == nullptr) return false;
         if (self->checkAllowToDrop((CThing *) sceneObjects[thingInHand->tagId], a3_underHand->x, a3_underHand->y)) {
             thingInHand->hasUnderHand = 1;
             static_assert(sizeof(ObjUnderHand) == 0x22);
@@ -348,8 +350,10 @@ void dk2::CDefaultPlayerInterface::handleRightClick(unsigned int a2_isPressed, O
                 v42_act._playerTagId = v34_playerTagId;
                 v43_try = 7;
                 this->pushAction(&v42_act);
-            } break;
-            default: return;
+            }
+                break;
+            default:
+                return;
         }
         v43_try = -1;
         this->ingameCursor.sub_40ABC0(11, 0);
@@ -358,50 +362,125 @@ void dk2::CDefaultPlayerInterface::handleRightClick(unsigned int a2_isPressed, O
     if (scheduleDropNextTick(this, a3_underHand)) return;
     if (!this->pCWorld->v_hasThingsInHand_5094B0(this->playerTagId)) return;
     int thingInHandIdx = this->pCWorld->v_getNumThingsInPlayerHand_5094D0(this->playerTagId) - 1;
-    if(drop_thing_from_hand_fix::enabled) {
+    if (drop_thing_from_hand_fix::enabled) {
         CPlayer *player = (CPlayer *) this->pCWorld->v_getCTag_508C40(this->playerTagId);
         drop_thing_from_hand_fix::modifyCheckIdx(this, player, thingInHandIdx);
-        if(thingInHandIdx < 0) return;
+        if (thingInHandIdx < 0) return;
     }
-    unsigned __int16 v36_thingInHandTagId;
+    uint16_t v36_thingInHandTagId;
     if (!this->pCWorld->v_getThingInPlayerHand_5094F0(this->playerTagId, thingInHandIdx, &v36_thingInHandTagId)) return;
     if (!this->pCWorld->v_fun_510000(a3_underHand->x, a3_underHand->y)) return;
     CThing *thingInHand = (CThing *) sceneObjects[v36_thingInHandTagId];
 
     if (!this->checkAllowToDrop(thingInHand, a3_underHand->x, a3_underHand->y)) return;
-    if(drop_thing_from_hand_fix::enabled) {
+    if (drop_thing_from_hand_fix::enabled) {
         CPlayer *player = (CPlayer *) this->pCWorld->v_getCTag_508C40(this->playerTagId);
-        drop_thing_from_hand_fix::onPushDropThing(player);
+        drop_thing_from_hand_fix::onPushDropThing(player, v36_thingInHandTagId);
     }
     this->pushDropThingFromHandAction(thingInHand, a3_underHand);
 }
 
 typedef int (__thiscall *CPlayer_init_t)(dk2::CPlayer *_this, void *edx, dk2::PlayerList *a2);
+
 int dk2::CPlayer::init(dk2::PlayerList *a2) {
     int ret = ((CPlayer_init_t) 0x004B8640)(this, NULL, a2);
-    if(drop_thing_from_hand_fix::enabled) {
+    if (drop_thing_from_hand_fix::enabled) {
         drop_thing_from_hand_fix::init(this);
     }
     return ret;
 }
 
-typedef int (__fastcall *CPlayer_dropItemFromHand)(void *_this, void *edx, dk2::Vec3i *a2_pos, WORD *a3);
-int dk2::CPlayer::dropThingFromHand(Vec3i *a2_pos, WORD *a3) {
-    if(drop_thing_from_hand_fix::enabled) {
-        drop_thing_from_hand_fix::commitThingDropped(this);
+
+int dk2::CPlayer::dropThingFromHand(Vec3i *a2_pos, uint16_t *a3_pDirection) {
+    if (this->thingsInHand_count == 0) return 0;
+    Vec3i *v5_pos = a2_pos;
+    uint16_t v5_tagId;
+    if (drop_thing_from_hand_fix::enabled) {
+        v5_tagId = drop_thing_from_hand_fix::popThingFromHand(this);
+    } else {
+        v5_tagId = thingsInHand[this->thingsInHand_count - 1];
     }
-    int ret = ((CPlayer_dropItemFromHand) 0x004BC710)(this, NULL, a2_pos, a3);
-    return ret;
+    this->thingsInHand_count--;
+
+    CThing *v6_thing = (CThing *) sceneObjects[v5_tagId];
+    v6_thing->fun_4B5560(v5_pos);
+    int MapWhoType = v6_thing->getMapWhoType_except2();
+    v6_thing->fun_4B4E70(MapWhoType);
+    if (v6_thing->fE_type != 0 && v6_thing->fE_type != 2) return 1;
+
+    if (v6_thing->fE_type == 0) {
+        CCreature *creature = (CCreature *) v6_thing;
+        MyMapElement *v10_mapElem = g_pCWorld->v_getMapElem_2(v5_pos);
+        __int16 v11_mapElem = v10_mapElem->_playerIdFFF & 0xFFF;
+        if (v11_mapElem != v6_thing->f24_playerId && v11_mapElem != this->f0_tagId) {
+            if (v10_mapElem->sub_453A20(2))
+                v6_thing->v_f24(v10_mapElem->_playerIdFFF & 0xFFF);
+        }
+        unsigned int f3E6_stateFlags = creature->stateFlags;
+        creature->stateFlags = f3E6_stateFlags & ~1;
+        creature->pickupTick = g_pWorld->getGameTick();
+        creature->setCurrentState_48AD30(76);
+        creature->lastPosition = *v5_pos;
+        creature->pilotNavigation.fun_4D1070(creature);
+        MySound_ptr->v_CSoundSystem_fun_5678F0(0, creature->creatureData->f6E3, 196, v5_pos);
+        creature->sub_48CC90();
+    } else if (v6_thing->fE_type == 2) {
+        CObject *object = (CObject *) v6_thing;
+        MyMapElement *v13_mapElem = g_pCWorld->v_getMapElem_2(v5_pos);
+        MyMapElement *v14_mapelem = v13_mapElem;
+        if ((v13_mapElem->_playerIdFFF & 0xFFF) != object->f24_playerId
+            && object->typeId == 9
+            && v13_mapElem->sub_453A20(4)) {
+            object->v_f24(v14_mapelem->_playerIdFFF & 0xFFF);
+        }
+        object->fun_49EF60(1);
+        int f10_underHandTagId = LOWORD(this->inst__playerAction.data3);
+        if (!sceneObjectsPresent[(unsigned __int16) f10_underHandTagId]) {
+            if (object->typeId != 0 && object->typeId <= 3u) {
+                uint16_t direction = 0;
+                CEffect *v26_effect;
+                g_pCWorld->v_sub_509580(32, (int) this->f0_tagId, v5_pos, &direction, &v26_effect);
+                object->v_f24(g_neutralPlayerId);
+            }
+        } else {
+            CCreature *v15_creature = (CCreature *) sceneObjects[f10_underHandTagId];
+            if (v15_creature->fE_type == 0) {
+                if (object->typeId) {
+                    if (object->typeId <= 3u) {
+                        MyCreatureDataObj *f370_creatureData = v15_creature->creatureData;
+                        uint8_t level = v15_creature->level;
+                        int v19_valByLevel = level == 1 ? f370_creatureData->f69A : f370_creatureData->f69A * g_pObj6F2550->f129[level] / 100;
+                        if (v19_valByLevel) object->whoGetsThisFromADrop = v15_creature->f0_tagId;
+                    } else if (object->typeId == 9) {  // Chicken
+                        MyCreatureDataObj *v18_creatureData = v15_creature->creatureData;
+                        uint8_t level = v15_creature->level;
+                        int v19_valByLevel = level == 1 ? v18_creatureData->f66D : v18_creatureData->f66D * g_pObj6F2550->f171[level] / 100;
+                        if (v19_valByLevel) object->whoGetsThisFromADrop = v15_creature->f0_tagId;
+                    }
+                }
+            }
+        }
+        object->field_2A = MySound_ptr->v_CSoundSystem_fun_5678F0(
+                object->field_2A,
+                object->typeObj->f10E,
+                196,
+                &object->f16_pos);
+    }
+    CMovingThing *movingThing = (CMovingThing *) v6_thing;
+    movingThing->fF0_direction = *a3_pDirection;
+    movingThing->lastAngle = *a3_pDirection;
+    return 1;
 }
+
 
 namespace dk2 {
 
     void dropThing(CDefaultPlayerInterface *self, CPI_ThingInHand *curThing) {
         if (curThing->dropped != 0) return;
         CThing *thingInHand = (CThing *) sceneObjects[curThing->tagId];
-//        if(drop_thing_from_hand_fix::enabled) {
+//        if (drop_thing_from_hand_fix::enabled) {
 //            printf("ex drop [%d, %d] %d %s", curThing->underHand.x, curThing->underHand.y, thingInHand->f0_tagId, CThing_type_toString(thingInHand->fE_type));
-//            if(thingInHand->fE_type == CThing_type_CObject) {
+//            if (thingInHand->fE_type == CThing_type_CObject) {
 //                dk2::CObject *object = (dk2::CObject *) thingInHand;
 //                printf(" obj.ty=%s", CObject_typeId_toString(object->typeId));
 //            }
@@ -415,17 +494,17 @@ namespace dk2 {
 
 void dk2::CDefaultPlayerInterface::tickThingsInHand() {
     CPlayer *v16_player = (CPlayer *) this->pCWorld->v_getCTag_508C40(this->playerTagId);
-    if ( (v16_player->playerFlags & 0x80000) != 0 ) return;
-    if ( !this->thingsInHand_count ) return;
+    if ((v16_player->playerFlags & 0x80000) != 0) return;
+    if (!this->thingsInHand_count) return;
     DWORD v17_timeMs = getTimeMs();
     unsigned int startIdx = 0;
-    if ( !this->thingsInHand_count ) return;
+    if (!this->thingsInHand_count) return;
 
     for (unsigned int i = 0; i < this->thingsInHand_count;) {
         CPI_ThingInHand *curThing = &this->thingsInHand[i];
-        if ( sceneObjectsPresent[curThing->tagId] ) {
+        if (sceneObjectsPresent[curThing->tagId]) {
             int hasThingInHand = v16_player->hasThingInHand(curThing->tagId);
-            if(hasThingInHand && curThing->hasUnderHand) {
+            if (hasThingInHand && curThing->hasUnderHand) {
                 dropThing(this, curThing);
                 ++i;
                 startIdx = i;
@@ -435,7 +514,7 @@ void dk2::CDefaultPlayerInterface::tickThingsInHand() {
                     !hasThingInHand &&
                     curThing->dropped != 1 &&
                     (v17_timeMs - curThing->timeMs) <= 2000
-            ) {
+                    ) {
                 ++i;
                 startIdx = i;
                 continue;
@@ -443,7 +522,7 @@ void dk2::CDefaultPlayerInterface::tickThingsInHand() {
             CRenderInfo &renderInfo = ((CPhysicalThing *) sceneObjects[curThing->tagId])->renderInfo;
             renderInfo._flags2 = renderInfo._flags2 & 0xFE ^ 1;
         }
-        if (i < this->thingsInHand_count ) {
+        if (i < this->thingsInHand_count) {
             for (unsigned int j = i; j < this->thingsInHand_count; ++j) {
                 this->thingsInHand[j] = this->thingsInHand[j + 1];
             }

@@ -16,8 +16,8 @@ namespace drop_thing_from_hand_fix {
     extern bool enabled;
     void init(dk2::CPlayer *player);
     void modifyCheckIdx(dk2::CDefaultPlayerInterface *dplif, dk2::CPlayer *player, int &thingInHandIdx);
-    void commitThingDropped(dk2::CPlayer *player);
-    void onPushDropThing(dk2::CPlayer *player);
+    uint16_t popThingFromHand(dk2::CPlayer *player);
+    void onPushDropThing(dk2::CPlayer *player, uint16_t tagId);
 
     void dump(dk2::CDefaultPlayerInterface *a4_dplif, dk2::CPlayer *player, const char *name);
     void dump(dk2::CPlayer *player, dk2::CThing *thingInHand, dk2::ObjUnderHand *a3_underHand);

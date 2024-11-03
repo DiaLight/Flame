@@ -2835,8 +2835,9 @@ struct: id=vtbl_0066FAD4,path=dk2/engine/primitive/2d,name=CEngine2DAnimMesh,siz
     type: kind=float,size=4
   field: name=field_4C
     type: kind=float,size=4
-  field: name=field_50
-    type: kind=int,size=4,signed=True
+  field: name=f50_resource
+    type: kind=ptr
+      type: kind=struct,id=call_new_0057EF64
   vtable_value: va=005769D0
   vtable_value: va=00577F10
   vtable_value: va=005783D0
@@ -8224,7 +8225,7 @@ struct: id=instance_0066D464,path=dk2/entities,name=CThing_vtbl,size=84,super=in
       type: kind=function,declspec=thiscall
         ret: kind=int,size=1,signed=True,winapi=char
         arg: kind=ptr
-          type: kind=int,size=2
+          type: kind=void
         arg: kind=int,size=4,signed=True
   field: name=f28
     type: kind=ptr
@@ -12861,7 +12862,7 @@ struct: id=constructor_00521F40,name=GameAction,size=18
   field: name=fC_actionKind
     type: kind=int,size=4,signed=True
   field: name=f10__playerTagId
-    type: kind=int,size=2,signed=True
+    type: kind=int,size=2
 struct: id=constructor_00525EB0,name=GameActionArray,size=588
   field: name=f0_loopArr32
     type: kind=array,count=32
@@ -14643,7 +14644,7 @@ struct: id=constructor_00491DC0,path=dk2/entities/data,name=MyCreatureDataObj,si
   field: name=f698__threatLevel
     type: kind=int,size=2
   field: name=field_69A
-    type: kind=int,size=2,signed=True
+    type: kind=int,size=2
   field: name=f69C__maxGoldHeld
     type: kind=int,size=2
   field: name=field_69E
@@ -17316,7 +17317,19 @@ struct: id=constructor_0049DC80,path=dk2/entities/data,name=MyObjectDataObj,size
     type: kind=int,size=1,signed=True,winapi=char
 struct: id=constructor_004D55B0,name=MyPilotNavigation,size=274
   field: name=f0_gap
-    type: kind=array,count=132
+    type: kind=array,count=8
+      type: kind=int,size=1
+  field: name=field_8
+    type: kind=int,size=1
+  field: name=field_9
+    type: kind=int,size=4,signed=True
+  field: name=fd_gap
+    type: kind=array,count=17
+      type: kind=int,size=1
+  field: name=f1E_tagId
+    type: kind=int,size=2,signed=True
+  field: name=f20_gap
+    type: kind=array,count=100
       type: kind=int,size=1
   field: name=f84_pos
     type: kind=struct,id=pos_xy
@@ -30818,7 +30831,7 @@ global: va=00468D10,name=ImpUtils_cpp_468D10,size=1305
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vtbl_0066D404
     arg: kind=ptr
       type: kind=function,declspec=thiscall
         ret: kind=int,size=4,signed=True
@@ -35880,7 +35893,7 @@ global: va=004B5570,name=fun_4B5570,size=13,member_of=vtbl_0066D464
       type: kind=struct,id=vtbl_0066D464
     arg: kind=ptr
       type: kind=int,size=4,signed=True
-global: va=004B5580,name=fun_4B5580,size=15,member_of=vtbl_0066D464
+global: va=004B5580,name=getMapWhoType_except2,size=15,member_of=vtbl_0066D464
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -54675,7 +54688,8 @@ global: va=00577E60,name=constructor,size=167,member_of=vtbl_0066FAD4
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=call_new_0057EF64
     arg: kind=int,size=4
     arg: kind=ptr
       type: kind=float,size=4
@@ -55431,11 +55445,12 @@ global: va=0057E590,name=deleting_destructor,size=30,member_of=vtbl_0066FBBC
     arg: kind=ptr
       type: kind=int,size=4
     arg: kind=int,size=1,signed=True,winapi=char
-global: va=0057E5B0,name=sub_57E5B0,size=432
+global: va=0057E5B0,name=sub_57E5B0,size=432,member_of=vtbl_0066FBBC
   type: kind=function,declspec=thiscall
     ret: kind=ptr
       type: kind=struct,id=vecf_xyz
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066FBBC
     arg: kind=int,size=4,signed=True
     arg: kind=float,size=4
     arg: kind=int,size=4
