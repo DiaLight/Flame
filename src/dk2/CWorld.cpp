@@ -7,6 +7,7 @@
 #include <dk2/entities/CCreature.h>
 #include <dk2/entities/data/MyCreatureDataObj.h>
 #include <dk2/world/map/MyMapElement.h>
+#include <dk2/world/nav/MyNavigationSystem.h>
 #include "dk2_globals.h"
 #include "dk2_functions.h"
 #include "patches/micro_patches.h"
@@ -261,3 +262,10 @@ int dk2::CWorld::WorldTrigger_cpp_519F90(__int16 a2_heroPartyIdx, int a3_actionP
     return spawnWholeParty(this, (uint8_t) a2_heroPartyIdx, a3_actionPointId, (uint8_t) a4_bool);
 }
 
+BOOL dk2::CWorld::checkAllowObjectToDrop_509340(
+        int x,
+        int y,
+        uint16_t playerTagId,
+        int objTypeId) {
+    return this->cmap.checkAllowObjectToDrop_450BE0(x, y, playerTagId, objTypeId);
+}

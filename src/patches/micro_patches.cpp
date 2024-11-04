@@ -29,6 +29,7 @@ bool max_host_port_number_fix::enabled = true;
 bool increase_zoom_level::enabled = true;
 bool fix_chat_buffer_invalid_memory_access::enabled = true;
 bool hero_party_spawn_limit_fix::enabled = true;
+bool drop_thing_from_hand_fix::enabled = true;
 
 bool override_max_room_count::enabled = true;
 uint8_t override_max_room_count::limit = 255;  // default is 96
@@ -77,7 +78,7 @@ void fix_close_window::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lP
                 dk2::GameAction action;
                 ZeroMemory(&action, sizeof(action));
                 action.actionKind = dk2::GA_ExitToWindows;
-                action._playerTagId = playetIf->playerTagId;
+                action.playerTagId = playetIf->playerTagId;
                 playetIf->pushAction(&action);
             } else {
                 dk2::setAppExitStatus(true);

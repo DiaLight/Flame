@@ -72,6 +72,10 @@ namespace hero_party_spawn_limit_fix {
     extern bool enabled;
 }
 
+namespace drop_thing_from_hand_fix {
+    extern bool enabled;
+}
+
 namespace override_max_room_count {
     extern bool enabled;
     extern uint8_t limit;

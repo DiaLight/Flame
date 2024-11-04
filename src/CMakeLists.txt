@@ -37,7 +37,6 @@ add_executable(${TARGET}
         patches/use_wheel_to_zoom.cpp
         patches/micro_patches.cpp
         patches/game_version_patch.cpp
-        patches/drop_thing_from_hand_fix.cpp
 
         patches/gog_patch_dll/gog_patch_dll.cpp
         patches/gog_patch_dll/gog_cfg.cpp

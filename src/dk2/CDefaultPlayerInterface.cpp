@@ -7,6 +7,7 @@
 #include "dk2/entities/CCreature.h"
 #include "dk2/entities/CObject.h"
 #include "dk2/entities/CTrap.h"
+#include "dk2/entities/CDeadBody.h"
 #include "dk2/entities/data/MyObjectDataObj.h"
 #include "dk2/entities/data/MyTrapDataObj.h"
 #include "dk2/entities/data/MyCreatureDataObj.h"
@@ -16,7 +17,6 @@
 #include "patches/micro_patches.h"
 #include "gog_patch.h"
 #include "dk2/entities/entities_type.h"
-#include "patches/drop_thing_from_hand_fix.h"
 #include "tools/bug_hunter.h"
 
 
@@ -56,7 +56,7 @@ int dk2::CDefaultPlayerInterface::tickKeyboard2() {
                 v17_action.data2 = 0.0;
                 v17_action.data3 = 0;
                 v17_action.actionKind = 8;
-                v17_action._playerTagId = v7;
+                v17_action.playerTagId = v7;
                 v18_try_catch = 0;
                 this->pushAction(&v17_action);
                 v18_try_catch = -1;
@@ -72,7 +72,7 @@ int dk2::CDefaultPlayerInterface::tickKeyboard2() {
                 v17_action.data2 = 0.0;
                 v17_action.data3 = 0;
                 v17_action.actionKind = 8;
-                v17_action._playerTagId = f8__cpyToF10;
+                v17_action.playerTagId = f8__cpyToF10;
                 v18_try_catch = 1;
                 this->pushAction(&v17_action);
                 v18_try_catch = -1;
@@ -94,7 +94,7 @@ int dk2::CDefaultPlayerInterface::tickKeyboard2() {
     int v11 = (MyResources_instance.playerCfg.scrollSpeed * this->f1098) << 6;
     v17_action.data2 = (v11 / 10);
     v17_action.data3 = 0;
-    v17_action._playerTagId = this->playerTagId;
+    v17_action.playerTagId = this->playerTagId;
     v18_try_catch = 2;
     return this->pushAction(&v17_action);
 }
@@ -232,7 +232,7 @@ void dk2::CDefaultPlayerInterface::handleRightClick(unsigned int a2_isPressed, O
             v38_act.data2 = 0;
             v38_act.data3 = 0;
             v38_act.actionKind = 15;
-            v38_act._playerTagId = this->playerTagId;
+            v38_act.playerTagId = this->playerTagId;
             v43_try = 0;
             this->pushAction(&v38_act);
             v43_try = -1;
@@ -253,7 +253,7 @@ void dk2::CDefaultPlayerInterface::handleRightClick(unsigned int a2_isPressed, O
         v38_act.data2 = 0;
         v38_act.data3 = this->playerTagId;
         v38_act.actionKind = 21;  // __Posessed___ReleaseCreature
-        v38_act._playerTagId = this->playerTagId;
+        v38_act.playerTagId = this->playerTagId;
         v43_try = 1;
         this->pushAction(&v38_act);
         v43_try = -1;
@@ -266,7 +266,7 @@ void dk2::CDefaultPlayerInterface::handleRightClick(unsigned int a2_isPressed, O
         v38_act.data2 = 0;
         v38_act.data3 = 0;
         v38_act.actionKind = 22;
-        v38_act._playerTagId = this->playerTagId;
+        v38_act.playerTagId = this->playerTagId;
         v43_try = 2;
         this->pushAction(&v38_act);
         return;
@@ -288,7 +288,7 @@ void dk2::CDefaultPlayerInterface::handleRightClick(unsigned int a2_isPressed, O
                 v38_act.data2 = fD84_direction;
                 v38_act.data3 = 0;
                 v38_act.actionKind = 62;  // SlapCreature
-                v38_act._playerTagId = this->playerTagId;
+                v38_act.playerTagId = this->playerTagId;
                 v43_try = 3;
                 this->pushAction(&v38_act);
             } break;
@@ -305,7 +305,7 @@ void dk2::CDefaultPlayerInterface::handleRightClick(unsigned int a2_isPressed, O
                         v39_act.data2 = v25_camDirection;
                         v39_act.data3 = 0;
                         v39_act.actionKind = 62;  // SlapCreature
-                        v39_act._playerTagId = this->playerTagId;
+                        v39_act.playerTagId = this->playerTagId;
                         v43_try = 4;
                         this->pushAction(&v39_act);
                         v43_try = -1;
@@ -317,7 +317,7 @@ void dk2::CDefaultPlayerInterface::handleRightClick(unsigned int a2_isPressed, O
                     GameAction v40_act;
                     v40_act.data3 = 0;
                     v40_act.actionKind = 106;  // MarkCreature
-                    v40_act._playerTagId = v24_playerTagId;
+                    v40_act.playerTagId = v24_playerTagId;
                     v40_act.data1 = a3_underHand->tagId;
                     v40_act.data2 = (unsigned __int16) (f3F7_highPriorityBody & v29_playerMask) == 0;
                     v43_try = 5;
@@ -333,7 +333,7 @@ void dk2::CDefaultPlayerInterface::handleRightClick(unsigned int a2_isPressed, O
                 v41_act.data1 = a3_underHand->tagId;
                 v41_act.data3 = 0;
                 v41_act.actionKind = 63;  // SlapObject
-                v41_act._playerTagId = this->playerTagId;
+                v41_act.playerTagId = this->playerTagId;
                 v43_try = 6;
                 this->pushAction(&v41_act);
             } break;
@@ -347,7 +347,7 @@ void dk2::CDefaultPlayerInterface::handleRightClick(unsigned int a2_isPressed, O
                 v42_act.data2 = v33_direction;
                 v42_act.data3 = 0;
                 v42_act.actionKind = 64;
-                v42_act._playerTagId = v34_playerTagId;
+                v42_act.playerTagId = v34_playerTagId;
                 v43_try = 7;
                 this->pushAction(&v42_act);
             }
@@ -362,21 +362,12 @@ void dk2::CDefaultPlayerInterface::handleRightClick(unsigned int a2_isPressed, O
     if (scheduleDropNextTick(this, a3_underHand)) return;
     if (!this->pCWorld->v_hasThingsInHand_5094B0(this->playerTagId)) return;
     int thingInHandIdx = this->pCWorld->v_getNumThingsInPlayerHand_5094D0(this->playerTagId) - 1;
-    if (drop_thing_from_hand_fix::enabled) {
-        CPlayer *player = (CPlayer *) this->pCWorld->v_getCTag_508C40(this->playerTagId);
-        drop_thing_from_hand_fix::modifyCheckIdx(this, player, thingInHandIdx);
-        if (thingInHandIdx < 0) return;
-    }
     uint16_t v36_thingInHandTagId;
     if (!this->pCWorld->v_getThingInPlayerHand_5094F0(this->playerTagId, thingInHandIdx, &v36_thingInHandTagId)) return;
     if (!this->pCWorld->v_fun_510000(a3_underHand->x, a3_underHand->y)) return;
     CThing *thingInHand = (CThing *) sceneObjects[v36_thingInHandTagId];
 
     if (!this->checkAllowToDrop(thingInHand, a3_underHand->x, a3_underHand->y)) return;
-    if (drop_thing_from_hand_fix::enabled) {
-        CPlayer *player = (CPlayer *) this->pCWorld->v_getCTag_508C40(this->playerTagId);
-        drop_thing_from_hand_fix::onPushDropThing(player, v36_thingInHandTagId);
-    }
     this->pushDropThingFromHandAction(thingInHand, a3_underHand);
 }
 
@@ -384,25 +375,72 @@ typedef int (__thiscall *CPlayer_init_t)(dk2::CPlayer *_this, void *edx, dk2::Pl
 
 int dk2::CPlayer::init(dk2::PlayerList *a2) {
     int ret = ((CPlayer_init_t) 0x004B8640)(this, NULL, a2);
-    if (drop_thing_from_hand_fix::enabled) {
-        drop_thing_from_hand_fix::init(this);
-    }
     return ret;
 }
 
 
+namespace dk2 {
+    bool checkPlayerAllowToDrop(CWorld *world, uint16_t playerTagId, CThing *thingInHand, int a4_x, int a5_y) {
+        if (!thingInHand) return FALSE;
+        if (thingInHand->fE_type == 0) {  // CCreature
+            CCreature *creature = (CCreature *) thingInHand;
+            MyMapElement *a5_ya = world->v_getMapElem(a4_x, a5_y);
+            if (!world->v_sub_509310(a4_x, a5_y, playerTagId, creature->typeId)) {
+                unsigned int stateFlags2 = creature->stateFlags2;
+                return (stateFlags2 & 0x100) != 0 &&  // isTool
+                       a5_ya->arr6DA4A8_idx == 35 &&
+                       (stateFlags2 & 0x400) == 0;  // !hasBeenKnockedOut
+            }
+            MyMapElement *v9_mapElem = a5_ya;
+            if (playerTagId != creature->f24_playerId) {
+                if (a5_ya->sub_453A20(3) && a5_ya->fC == 4) return false;
+            }
+            int stateFlags2 = creature->stateFlags2;
+            if ((stateFlags2 & 0x100) != 0 &&  // isTool
+                (stateFlags2 & 0x400) == 0  // !hasBeenKnockedOut
+                    ) {
+                if ((v9_mapElem->_roomIdFFF & 0xFFF) == 0) return true;
+                if (!v9_mapElem->sub_453A20(11)
+                    && !v9_mapElem->sub_453A20(13)
+                    && !v9_mapElem->sub_453A20(16)
+                    || !v9_mapElem->sub_454110()) {
+                    return !v9_mapElem->sub_453A20(12);
+                }
+                return false;
+            }
+            return true;
+        }
+        if (thingInHand->fE_type == 2)  // CObject
+            return world->v_sub_509340(a4_x, a5_y, playerTagId, ((CObject *) thingInHand)->typeId);
+        if (thingInHand->fE_type == 6)  // CDeadBody
+            return world->v_sub_509370(a4_x, a5_y, playerTagId, ((CDeadBody *) thingInHand)->typeId);
+        return true;
+    }
+}
+
+BOOL dk2::CDefaultPlayerInterface::checkAllowToDrop(CThing *thingInHand, int a4_x, int a5_y) {
+    return checkPlayerAllowToDrop(this->pCWorld, this->playerTagId, thingInHand, a4_x, a5_y);
+}
+
 int dk2::CPlayer::dropThingFromHand(Vec3i *a2_pos, uint16_t *a3_pDirection) {
     if (this->thingsInHand_count == 0) return 0;
     Vec3i *v5_pos = a2_pos;
-    uint16_t v5_tagId;
+    CThing *v6_thing;
     if (drop_thing_from_hand_fix::enabled) {
-        v5_tagId = drop_thing_from_hand_fix::popThingFromHand(this);
+        uint16_t v5_tagId = thingsInHand[this->thingsInHand_count - 1];
+        v6_thing = (CThing *) sceneObjects[v5_tagId];
+        BOOL allowToDrop = checkPlayerAllowToDrop(
+                g_pWorld, this->f0_tagId, v6_thing,
+                a2_pos->x >> 12, a2_pos->y >> 12);
+        if (!allowToDrop) {
+//            printf("cancel drop\n");
+            return 0;
+        }
     } else {
-        v5_tagId = thingsInHand[this->thingsInHand_count - 1];
+        uint16_t v5_tagId = thingsInHand[this->thingsInHand_count - 1];
+        v6_thing = (CThing *) sceneObjects[v5_tagId];
     }
     this->thingsInHand_count--;
-
-    CThing *v6_thing = (CThing *) sceneObjects[v5_tagId];
     v6_thing->fun_4B5560(v5_pos);
     int MapWhoType = v6_thing->getMapWhoType_except2();
     v6_thing->fun_4B4E70(MapWhoType);
@@ -478,14 +516,6 @@ namespace dk2 {
     void dropThing(CDefaultPlayerInterface *self, CPI_ThingInHand *curThing) {
         if (curThing->dropped != 0) return;
         CThing *thingInHand = (CThing *) sceneObjects[curThing->tagId];
-//        if (drop_thing_from_hand_fix::enabled) {
-//            printf("ex drop [%d, %d] %d %s", curThing->underHand.x, curThing->underHand.y, thingInHand->f0_tagId, CThing_type_toString(thingInHand->fE_type));
-//            if (thingInHand->fE_type == CThing_type_CObject) {
-//                dk2::CObject *object = (dk2::CObject *) thingInHand;
-//                printf(" obj.ty=%s", CObject_typeId_toString(object->typeId));
-//            }
-//            printf("\n");
-//        }
         self->pushDropThingFromHandAction(thingInHand, &curThing->underHand);
         curThing->dropped = 1;
     }
@@ -531,3 +561,119 @@ void dk2::CDefaultPlayerInterface::tickThingsInHand() {
         --this->thingsInHand_count;
     }
 }
+
+namespace dk2 {
+
+    GameAction buildDropItemAction(CDefaultPlayerInterface *self, int x_if12, int y_if12, uint16_t tagId) {
+        GameAction act;
+        act.data1 = x_if12;  // x
+        act.data2 = y_if12;  // y
+        uint16_t v19_direction = self->profiler->c_bridge->v_getCamera()->direction;
+        act.data3 = tagId | (v19_direction << 16);
+        act.actionKind = 61;  // DropItemFromHand
+        act.playerTagId = self->playerTagId;
+        return act;
+    }
+
+}
+
+/**
+ *
+ * 0040E0D0 CDefaultPlayerInterface_tickThingsInHand
+ *   CDefaultPlayerInterface_sub_40BBE0
+ *     CDefaultPlayerInterface_sub_40BFF0
+ *       CDefaultPlayerInterface_onMouseAction ->
+ *         00402D00 CDefaultPlayerInterface__fun_402D00 ->
+ *     004039A0 CDefaultPlayerInterface__fun_4039A0 ->
+ *   004039A0 CDefaultPlayerInterface__fun_4039A0 ->
+ * 00408EE0 CDefaultPlayerInterface_handleRightClick
+ *   CDefaultPlayerInterface_onMouseAction ->
+ *
+ * CDefaultPlayerInterface_onMouseAction
+ *   00402D00 CDefaultPlayerInterface__fun_402D00
+ *     00526FF0 MyProfiler_attachPlayerI
+ *       00525370 CGameComponent_mainGuiLoop
+ *
+ * 004039A0 CDefaultPlayerInterface__fun_4039A0
+ *   00526590 MyProfiler_draw3dScene
+ *     00525370 CGameComponent_mainGuiLoop
+ */
+void dk2::CDefaultPlayerInterface::pushDropThingFromHandAction(CThing *a2_thing, ObjUnderHand *a3_underHand) {
+    int v21_try;
+    if (a2_thing->fE_type == 0) {  // CCreature
+        GameAction act = buildDropItemAction(
+                this, a3_underHand->x_if12, a3_underHand->y_if12, 0
+        );
+        // will go to 00513650 and then 004C0EE0
+        v21_try = 0;
+        this->pushAction(&act);
+        v21_try = -1;
+        this->f12DA.sub_40ABC0(8, 0);
+        return;
+    }
+    if (a2_thing->fE_type == 2) {  // CObject
+        int f1C_type = a3_underHand->type;
+        switch (f1C_type) {
+            case 2: {  // your CCreature
+                GameAction act = buildDropItemAction(
+                        this, a3_underHand->x_if12, a3_underHand->y_if12, a3_underHand->tagId
+                );
+                v21_try = 1;
+                this->pushAction(&act);
+                v21_try = -1;
+                this->f12DA.sub_40ABC0(8, 0);
+            }
+                return;
+            case 3: {  // others CCreature
+                GameAction act = buildDropItemAction(
+                        this, a3_underHand->x_if12, a3_underHand->y_if12, a3_underHand->tagId
+                );
+                v21_try = 2;
+                this->pushAction(&act);
+                v21_try = -1;
+                this->f12DA.sub_40ABC0(8, 0);
+            }
+                return;
+            case 4: {  // CObject
+                GameAction act = buildDropItemAction(
+                        this, a3_underHand->x_if12, a3_underHand->y_if12, a3_underHand->tagId
+                );
+                v21_try = 3;
+                this->pushAction(&act);
+                v21_try = -1;
+                this->f12DA.sub_40ABC0(8, 0);
+            }
+                return;
+            default: {
+                GameAction act = buildDropItemAction(
+                        this, a3_underHand->x_if12, a3_underHand->y_if12, 0
+                );
+                v21_try = 4;
+                this->pushAction(&act);
+                v21_try = -1;
+                this->f12DA.sub_40ABC0(8, 0);
+            }
+                return;
+        }
+    }
+    if (a2_thing->fE_type == 6) {
+        GameAction act = buildDropItemAction(
+                this, a3_underHand->x_if12, a3_underHand->y_if12, 0
+        );
+        v21_try = 5;
+        this->pushAction(&act);
+        v21_try = -1;
+        this->f12DA.sub_40ABC0(8, 0);
+        return;
+    }
+
+    GameAction act = buildDropItemAction(
+            this, a3_underHand->x_if12, a3_underHand->y_if12, 0
+    );
+    v21_try = 6;
+    this->pushAction(&act);
+    v21_try = -1;
+    this->f12DA.sub_40ABC0(8, 0);
+}
+
+

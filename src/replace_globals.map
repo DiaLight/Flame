@@ -26,6 +26,8 @@
 004BC710 int dropItemFromHand(Vec3i *, uint16_t *);     /* auto */
 0040E0D0 void tickThingsInHand();  // ----------------  /* auto */
 00406530 BOOL __cdecl CDefaultPlayerInterface_onMouseAction(int, uint32_t, Pos2i, CDefaultPlayerInterface *);  /* auto */
+0040DAB0 void pushDropThingFromHandAction(CThing *, ObjUnderHand *);  /* auto */
+0040D8F0 BOOL checkAllowToDrop(CThing *, int, int);     /* auto */
 
 # MyDxMouse.h
 005BC760 int *__cdecl MyDxMouse_create(int *, MyDxMouse **);  /* auto */
@@ -107,4 +109,5 @@
 
 # CWorld.h
 00519F90 int WorldTrigger_cpp_519F90(int16_t, int, int);  /* auto */
+00509340 BOOL checkAllowObjectToDrop_509340(int, int, uint16_t, int);  /* auto */
 
