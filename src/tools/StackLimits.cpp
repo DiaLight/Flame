@@ -56,6 +56,12 @@ ULONG_PTR GetThreadStackLimits(HANDLE hThread, ULONG_PTR &low) {
 
 StackLimits::StackLimits() {}
 
+//// windows 7 has no GetCurrentThreadStackLimits method
+//void WINAPI GetCurrentThreadStackLimits(PULONG_PTR LowLimit, PULONG_PTR HighLimit) {
+//    NT_TIB *teb = (NT_TIB *) NtCurrentTeb();
+//    *LowLimit = *(PULONG_PTR) ((BYTE *) teb + 0xE0C);  // DeallocationStack
+//    *HighLimit = (ULONG_PTR) teb->StackBase;
+//}
 void StackLimits::resolve() {
     GetCurrentThreadStackLimits(&low, &high);
 }

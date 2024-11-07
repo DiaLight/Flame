@@ -199,7 +199,7 @@ BOOL __cdecl dk2::CDefaultPlayerInterface_onMouseAction(
 }
 
 namespace dk2 {
-    bool scheduleDropNextTick(CDefaultPlayerInterface *self, ObjUnderHand *a3_underHand) {
+    bool scheduleDropAfterTakingActionComplete(CDefaultPlayerInterface *self, ObjUnderHand *a3_underHand) {
         if (!self->thingsInHand_count) return false;
         CPI_ThingInHand *thingInHand = nullptr;
         for (int i = 0; i < self->thingsInHand_count; ++i) {
@@ -209,6 +209,9 @@ namespace dk2 {
             break;
         }
         if (thingInHand == nullptr) return false;
+        if(drop_thing_from_hand_fix::enabled) {
+            if (!self->pCWorld->v_isCoordReachable_510000(a3_underHand->x, a3_underHand->y)) return true;
+        }
         if (self->checkAllowToDrop((CThing *) sceneObjects[thingInHand->tagId], a3_underHand->x, a3_underHand->y)) {
             thingInHand->hasUnderHand = 1;
             static_assert(sizeof(ObjUnderHand) == 0x22);
@@ -359,14 +362,13 @@ void dk2::CDefaultPlayerInterface::handleRightClick(unsigned int a2_isPressed, O
         this->ingameCursor.sub_40ABC0(11, 0);
         return;
     }
-    if (scheduleDropNextTick(this, a3_underHand)) return;
+    if (scheduleDropAfterTakingActionComplete(this, a3_underHand)) return;
     if (!this->pCWorld->v_hasThingsInHand_5094B0(this->playerTagId)) return;
     int thingInHandIdx = this->pCWorld->v_getNumThingsInPlayerHand_5094D0(this->playerTagId) - 1;
     uint16_t v36_thingInHandTagId;
     if (!this->pCWorld->v_getThingInPlayerHand_5094F0(this->playerTagId, thingInHandIdx, &v36_thingInHandTagId)) return;
-    if (!this->pCWorld->v_fun_510000(a3_underHand->x, a3_underHand->y)) return;
+    if (!this->pCWorld->v_isCoordReachable_510000(a3_underHand->x, a3_underHand->y)) return;
     CThing *thingInHand = (CThing *) sceneObjects[v36_thingInHandTagId];
-
     if (!this->checkAllowToDrop(thingInHand, a3_underHand->x, a3_underHand->y)) return;
     this->pushDropThingFromHandAction(thingInHand, a3_underHand);
 }

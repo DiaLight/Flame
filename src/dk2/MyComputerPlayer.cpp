@@ -122,7 +122,7 @@ namespace dk2 {
                     else
                         v41_maxSize = v40_cworld->v_getCMapWidth_508FA0();
                     int v62_maxSize_x2 = 2 * v41_maxSize;
-                    if (cp->world->v_loc_509090(v33_locX, v73_locY)) {
+                    if (cp->world->v_testCoordsInBounds_509090(v33_locX, v73_locY)) {
                         CWorld *v42_cworld = cp->world;
                         MyMapElement *v43_mapElement = &v42_cworld->cmap.mapElements[v33_locX +
                                                                                      v73_locY * v42_cworld->cmap.width];
@@ -146,7 +146,7 @@ namespace dk2 {
                         do {
                             if (f3C_health) {
                                 while (true) {
-                                    if (cp->world->v_loc_509090(v44_locX, v73_locY)) {
+                                    if (cp->world->v_testCoordsInBounds_509090(v44_locX, v73_locY)) {
                                         CWorld *v48_cworld = cp->world;
                                         MyMapElement *v49_mapElem = &v48_cworld->cmap.mapElements[
                                                 v44_locX + v73_locY * v48_cworld->cmap.width];
@@ -171,7 +171,7 @@ namespace dk2 {
                                 }
                             } else {
                                 while (true) {
-                                    if (cp->world->v_loc_509090(v44_locX, v73_locY)) {
+                                    if (cp->world->v_testCoordsInBounds_509090(v44_locX, v73_locY)) {
                                         CWorld *v45_cworld = cp->world;
                                         MyMapElement *v46_mapElem = &v45_cworld->cmap.mapElements[
                                                 v44_locX + v73_locY * v45_cworld->cmap.width];
