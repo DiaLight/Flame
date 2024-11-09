@@ -130,7 +130,7 @@ int dk2::CCreature::processDealDamage() {
         }
     }
     if ( (this->creatureData->flags & 0x4000) != 0 ) {
-        if ( v7_target->v_f28() )
+        if ( v7_target->v_f28_hasNoHealth() )
             this->setCurrentState_48AD30(239);
     }
     this->field_2A = MySound_ptr->v_CSoundSystem_fun_5678F0(
@@ -139,4 +139,40 @@ int dk2::CCreature::processDealDamage() {
             219,
             &this->f16_pos);
     return 0;
+}
+
+namespace dk2 {
+    bool calcIsAttackable(dk2::CCreature *self) {
+        if(self->f12_mapWhoType == 2) return false;  // CObject
+        if((self->stateFlags & 0x8000) != 0) return false;  // combatPitFighter
+        if(self->cstate.currentStateId == 76) return false;  // 76: 2599"idle"
+        if((self->stateFlags & 0x200000) != 0) return false;  // creatureDying
+        if(self->v_f28_hasNoHealth()) return false;
+        if(self->f12_mapWhoType == 2) return false;  // CObject
+        if(self->fun_473990()) return false;
+        if(self->fun_485210() && (self->stateFlags2 & 0x4000) == 0) return false;  // !tortureVoluntary
+        if((self->stateFlags & 0x4000) != 0) return false;  // leaving
+        if(self->invisibleTimer) return false;
+        if((self->flags & 8) == 0) return false;  // !WILL_BE_ATTACKED
+        if(sleeping_possession_fix::enabled) {
+            if((self->stateFlags & 0x80) == 0 &&  // !possessed
+                    (g_stateEntries[self->cstate.currentStateId].seFlags & 4) != 0) return false;
+        } else {
+            if((g_stateEntries[self->cstate.currentStateId].seFlags & 4) != 0) return false;
+        }
+        // what for is this logic?
+        for (int i = 0; i < 8; ++i) {
+            if (self->fight.rangeAttackers[i] && self->fight.meleeAttackers[i]) continue;
+            return true;
+        }
+        return false;
+    }
+}
+
+void dk2::CCreature::updateIsAttackable() {
+    if(calcIsAttackable(this)) {
+        this->stateFlags2 |= 0x40;  // isAttackable
+    } else {
+        this->stateFlags2 &= ~0x40;  // !isAttackable
+    }
 }

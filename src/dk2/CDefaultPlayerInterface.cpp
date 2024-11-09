@@ -461,7 +461,7 @@ int dk2::CPlayer::dropThingFromHand(Vec3i *a2_pos, uint16_t *a3_pDirection) {
         creature->pickupTick = g_pWorld->getGameTick();
         creature->setCurrentState_48AD30(76);
         creature->lastPosition = *v5_pos;
-        creature->pilotNavigation.fun_4D1070(creature);
+        creature->pilotNavigation.calcPath_setPosVel_4D1070(creature);
         MySound_ptr->v_CSoundSystem_fun_5678F0(0, creature->creatureData->f6E3, 196, v5_pos);
         creature->sub_48CC90();
     } else if (v6_thing->fE_type == 2) {

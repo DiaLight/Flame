@@ -76,7 +76,7 @@ void dk2::CPlayer::resetCreaturesState() {
             if(curStateId == 7 && creature->cstate.utilityNewState == 80) doResetState = false;
         }
         if (doResetState) {
-            creature->fun_48ECE0();
+            creature->calcPath_noIgnore_48ECE0();
             creature->setCurrentState_48AD30(1);
         }
     }

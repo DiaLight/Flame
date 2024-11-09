@@ -28,7 +28,7 @@
 #define StateFlags1_CheckingAllDoors 0x00080000
 #define StateFlags1_CallToArmsOn 0x00100000
 #define StateFlags1_CreatureDying 0x00200000
-#define StateFlags1_FightProcessCounter 0x00400000
+#define StateFlags1_FightProcessCounter 0x03C00000
 #define StateFlags1_WasLastDroppedOnARoom 0x04000000
 #define StateFlags1_ShouldDelayGetUp 0x08000000
 #define StateFlags1_FlyingCreatureMovingUp 0x10000000

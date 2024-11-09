@@ -61,6 +61,7 @@
 
 # CCreature.h
 00498E30 int processDealDamage();  // ----------------  /* auto */
+0045A8B0 void updateIsAttackable();  // --------------  /* auto */
 
 # CTextBox.h
 00537E10 void __cdecl CTextBox_renderVersion(CTextBox *, CFrontEndComponent *);  /* auto */
