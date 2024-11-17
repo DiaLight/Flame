@@ -81,3 +81,37 @@ void dk2::CPlayer::resetCreaturesState() {
         }
     }
 }
+
+namespace dk2 {
+    bool checkPlayerAllowToDrop(CWorld *world, uint16_t playerTagId, CThing *thingInHand, int a4_x, int a5_y);
+}
+
+int dk2::CPlayer::act4_dropThingFromHand() {
+    uint16_t v1_dropTag = this->inst__playerAction.evData3;
+    unsigned int v2_direction = HIWORD(this->inst__playerAction.evData3) & 0x7FF;  // v19_direction << 16
+    Vec3i dropPos;
+    memset(&dropPos, 0, sizeof(dropPos));
+    if ( v1_dropTag && sceneObjectsPresent[v1_dropTag] ) {
+        dropPos = ((CThing *) sceneObjects[v1_dropTag])->f16_pos;
+    } else {
+        dropPos.x = this->inst__playerAction.evData1;  // a3_underHand->f10_x_if12
+        dropPos.y = this->inst__playerAction.evData2;  // a3_underHand->f14_y_if12
+    }
+    dropPos.z = 0x2000;
+
+    if (drop_thing_from_hand_fix::enabled) {
+        uint16_t v5_tagId = thingsInHand[this->thingsInHand_count - 1];
+        CThing *v6_thing = (CThing *) sceneObjects[v5_tagId];
+        BOOL allowToDrop = checkPlayerAllowToDrop(
+                g_pWorld, this->f0_tagId, v6_thing,
+                dropPos.x >> 12, dropPos.y >> 12);
+        if (!allowToDrop) {
+//            printf("cancel drop\n");
+            return 0;
+        }
+    }
+
+    uint16_t v5_direction = v2_direction;
+    this->dropThingFromHand(&dropPos, &v5_direction);
+    return 1;
+}

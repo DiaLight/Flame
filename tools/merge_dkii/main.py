@@ -137,12 +137,19 @@ def append_dll_sections_into_exe(dkii_data: bytes, flame_data: bytes) -> my_pe.M
   # assert sections has same alignment
   assert dkii_pe.nt.OptionalHeader.SectionAlignment == flame_pe.nt.OptionalHeader.SectionAlignment
   assert dkii_pe.nt.OptionalHeader.FileAlignment == flame_pe.nt.OptionalHeader.FileAlignment
-  delta_virt = sections_virt_end - flame_pe['.text'].VirtualAddress
-  delta_file = sections_file_end - flame_pe['.text'].PointerToRawData
-  flame_data_start = flame_pe.base + flame_pe['.text'].PointerToRawData
-  flame_data_size = (flame_pe['.data'].PointerToRawData + flame_pe['.data'].SizeOfRawData) - flame_pe['.text'].PointerToRawData
-  if flame_pe.has_section('.idata'):
-    flame_data_size = (flame_pe['.idata'].PointerToRawData + flame_pe['.idata'].SizeOfRawData) - flame_pe['.text'].PointerToRawData
+
+  flame_sections = []
+  for sec in flame_pe.sections:
+    sec_name = bytes(sec.Name).rstrip(b'\x00').decode('ascii')
+    if sec_name in ['.rsrc', '.reloc']:
+      break
+    flame_sections.append(sec)
+
+  delta_virt = sections_virt_end - flame_sections[0].VirtualAddress
+  delta_file = sections_file_end - flame_sections[0].PointerToRawData
+  flame_data_start = flame_pe.base + flame_sections[0].PointerToRawData
+  last_sec_raw_end = flame_sections[-1].PointerToRawData + flame_sections[-1].SizeOfRawData
+  flame_data_size = last_sec_raw_end - flame_sections[0].PointerToRawData
 
   free_sections_left = (dkii_pe.nt.OptionalHeader.SizeOfHeaders - (dkii_pe.sections_end - dkii_pe.base)) / ctypes.sizeof(pe_types.IMAGE_SECTION_HEADER)
   assert free_sections_left >= 4.0
@@ -155,13 +162,11 @@ def append_dll_sections_into_exe(dkii_data: bytes, flame_data: bytes) -> my_pe.M
     sec.Name = Name_ty(*name)
     sec.VirtualAddress += delta_virt
     sec.PointerToRawData += delta_file
-  convert_sec(sections[0], flame_pe['.text'], b'.flame_x')
-  convert_sec(sections[1], flame_pe['.rdata'], b'.flame_r')
-  convert_sec(sections[2], flame_pe['.data'], b'.flame_w')
-  dkii_pe.nt.FileHeader.NumberOfSections += 3
-  if flame_pe.has_section('.idata'):
-    convert_sec(sections[3], flame_pe['.idata'], b'.flame_i')
-    dkii_pe.nt.FileHeader.NumberOfSections += 1
+  suffix_map = {'.text': b'x', '.rdata': b'r', '.data': b'w', '.idata': b'i', '.fptable': b'f'}
+  for i, sec in enumerate(flame_sections):
+    sec_name = bytes(sec.Name).rstrip(b'\x00').decode('ascii')
+    convert_sec(sections[i], sec, b'.flame_' + suffix_map[sec_name])
+  dkii_pe.nt.FileHeader.NumberOfSections += len(flame_sections)
 
   sections: list[pe_types.IMAGE_SECTION_HEADER] = ctypes.pointer(pe_types.IMAGE_SECTION_HEADER.from_address(dkii_pe.sections_end))
   sections[0].Name = Name_ty(*b'.imports')

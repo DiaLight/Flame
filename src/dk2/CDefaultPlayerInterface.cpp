@@ -427,21 +427,8 @@ BOOL dk2::CDefaultPlayerInterface::checkAllowToDrop(CThing *thingInHand, int a4_
 int dk2::CPlayer::dropThingFromHand(Vec3i *a2_pos, uint16_t *a3_pDirection) {
     if (this->thingsInHand_count == 0) return 0;
     Vec3i *v5_pos = a2_pos;
-    CThing *v6_thing;
-    if (drop_thing_from_hand_fix::enabled) {
-        uint16_t v5_tagId = thingsInHand[this->thingsInHand_count - 1];
-        v6_thing = (CThing *) sceneObjects[v5_tagId];
-        BOOL allowToDrop = checkPlayerAllowToDrop(
-                g_pWorld, this->f0_tagId, v6_thing,
-                a2_pos->x >> 12, a2_pos->y >> 12);
-        if (!allowToDrop) {
-//            printf("cancel drop\n");
-            return 0;
-        }
-    } else {
-        uint16_t v5_tagId = thingsInHand[this->thingsInHand_count - 1];
-        v6_thing = (CThing *) sceneObjects[v5_tagId];
-    }
+    uint16_t v5_tagId = thingsInHand[this->thingsInHand_count - 1];
+    CThing *v6_thing = (CThing *) sceneObjects[v5_tagId];
     this->thingsInHand_count--;
     v6_thing->fun_4B5560(v5_pos);
     int MapWhoType = v6_thing->getMapWhoType_except2();
@@ -474,7 +461,7 @@ int dk2::CPlayer::dropThingFromHand(Vec3i *a2_pos, uint16_t *a3_pDirection) {
             object->v_f24(v14_mapelem->_playerIdFFF & 0xFFF);
         }
         object->fun_49EF60(1);
-        int f10_underHandTagId = LOWORD(this->inst__playerAction.data3);
+        int f10_underHandTagId = LOWORD(this->inst__playerAction.evData3);
         if (!sceneObjectsPresent[(unsigned __int16) f10_underHandTagId]) {
             if (object->typeId != 0 && object->typeId <= 3u) {
                 uint16_t direction = 0;

@@ -74,6 +74,7 @@
 00506B70 int getManufactureRequired(uint16_t);  // ---  /* auto */
 004C3200 int creatureDidWorkshopWork(int, CCreature *);  /* auto */
 004E8D30 void resetCreaturesState();  // -------------  /* auto */
+004C0EE0 int act4_dropThingFromHand();  // -----------  /* auto */
 
 004C5C30 int fun_4C5C30_buildRoom(int, int, int, int, int, int, int);  /* auto */
 004C5DB0 int destroyRoom(int, int, int);  // ---------  /* auto */

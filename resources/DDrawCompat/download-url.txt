@@ -1,1 +1,0 @@
-https://github.com/narzoul/DDrawCompat/releases/tag/v0.5.3

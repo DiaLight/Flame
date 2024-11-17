@@ -18,7 +18,7 @@ def is_windows_type(tname):
   starts_with = [
     'tag', 'std', 'D3D', 'DXGI', 'IDX', 'IDirect', 'enum ',
     'in_addr', 'midihdr_tag',
-    'MLD', 'ID3D', 'DI', 'DD', 'MM', 'MCI', 'EXC', 'HMIDIOUT',
+    'ID3D', 'DI', 'DD', 'MM', 'MCI', 'EXC', 'HMIDIOUT',
     '_RTL', '_ACT', '_TEB', '_PEB', '_EXC', '_ASS', '_FLS', '_D3D',
     '_CONTEXT', '_s_', '_SCOPE', '_EH3', '_OSVER', '_MEM',
     '_SYS', '_TIME', '_STAR', '_SEC', '_WIN', '_RTTI', '_DDSUR',

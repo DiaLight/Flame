@@ -14,17 +14,11 @@ Now run `DKII-Flame-1.7.0-*.exe` to play. It is possible to rename the .exe file
 
 Note: It is possible to find newer test builds on [github actions](https://github.com/DiaLight/Flame/actions)
 
-Note 2: The `Data` directory and `ddraw.dll` file are not required for this to work, but are recommended.
+Note 2: The `Data` directory are not required for this to work, but are recommended.
 
 ## Files explained
 
 The `Data` folder in the zip file contains patches for some campaign maps taken from the link https://keeperklan.com/downloads.php?do=file&id=141. These fix creatures like Dark Angels not spawning in some campaign maps.
-
-The `ddraw.dll` in the `flame.zip` file are taken from https://github.com/narzoul/DDrawCompat/releases/tag/v0.5.3
-It fixing some graphical bugs and i think improve general stability.
-This dll is especially needed for those who observe graphic artifacts when starting the game
-or whose game crashes immediately upon starting any game level
-The Steam version of the game is installed along with this `ddraw.dll`
 
 # For Software Developers
 

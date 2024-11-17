@@ -8,6 +8,10 @@ option(USE_CONFIGURE_DATE "Add configure date marker in output build")
 # generate pdb to use debuggers with release builds
 string(APPEND CMAKE_EXE_LINKER_FLAGS_RELEASE " /debug")
 
+message(STATUS "CMAKE_SYSTEM_VERSION: ${CMAKE_SYSTEM_VERSION}")
+message(STATUS "CMAKE_RC_COMPILER: ${CMAKE_RC_COMPILER}")
+message(STATUS "CMAKE_CXX_COMPILER: ${CMAKE_CXX_COMPILER}")
+
 # force using python through venv
 if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/venv/Scripts/python.exe)
   set(Python3_EXECUTABLE "${CMAKE_CURRENT_LIST_DIR}/venv/Scripts/python.exe")
