@@ -33,5 +33,13 @@ configure_file(
 
 set(DKII_RESOURCES_FILE ${CMAKE_CURRENT_BINARY_DIR}/resources.rc)
 
+# https://keeperklan.com/downloads.php?do=file&id=141
 install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/PatchLevels170/ DESTINATION Data/editor/maps)
+
+# https://discord.com/channels/480505152806191114/1289590948702982176/1311063368907362466
+install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/PatchSoundByQuuz/ DESTINATION Data/Sound)
+
+# https://discord.com/channels/480505152806191114/1289590948702982176/1311063421818638396
+install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/PatchEditorByQuuz/ DESTINATION Data/editor)
+
 install(FILES "${CMAKE_CURRENT_LIST_DIR}/readme.txt" DESTINATION ".")

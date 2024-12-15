@@ -7,7 +7,8 @@
 #include "write_protect.h"
 #include <vector>
 #include <windowsx.h>
-#include <ntstatus.h>
+
+#define STATUS_SUCCESS                   ((NTSTATUS)0x00000000L)    // ntsubauth
 
 // click flags
 #define DK2_Shift 0x01

@@ -3,8 +3,16 @@
 Flame modifies the Dungeon Keeper 2 code to fix the bugs found in both single and multiplayer.
 It works with the Disk, Steam and GOG versions of the game.
 
-If you have any bugs in the game, please describe them in the discord channel: https://discord.gg/RvrQpCFUZc
-When you do, be sure to have followed the recommended installation steps.
+Warning: Saves between Flame and non-Flame Dungeon Keeper 2 versions are [incompatible](https://github.com/DiaLight/Flame/issues/57) for now.
+
+## How to report a bug
+
+1) If you have any bugs in the game, please describe them in the discord channel: https://discord.gg/RvrQpCFUZc or in the GitHub issues.
+2) It helps a lot if you include steps how to reproduce found bug
+3) Attaching a good test map is welcome
+
+If you reporting several bugs, please split them to several Discord messages / GitHub issues. Please, be sure to have followed the recommended installation steps.
+
 
 ## How to install
 1) Go to the [releases](https://github.com/DiaLight/Flame/releases) page and download the Flame-1.7.0-*.zip file of the newest release
