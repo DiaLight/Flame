@@ -14,6 +14,7 @@
 #include "dk2_functions.h"
 #include "patches/replace_mouse_dinput_to_user32.h"
 #include "patches/use_wheel_to_zoom.h"
+#include "dk2_memory.h"
 
 int *dk2::MyDxInputManagerCb::initMouse(int *pstatus) {
     if (this->f58_pdxmouse) {
@@ -46,7 +47,7 @@ int *__cdecl dk2::MyDxMouse_create(int *pstatus, MyDxMouse **pObj) {
         *pstatus = 0x80004003;
         return pstatus;
     }
-    MyDxMouse *obj = (MyDxMouse *) operator new(0x5Cu);
+    MyDxMouse *obj = (MyDxMouse *) dk2::operator_new(sizeof(MyDxMouse));
     if (obj == nullptr) {
         *pstatus = 0xCFFE0100;
         return pstatus;

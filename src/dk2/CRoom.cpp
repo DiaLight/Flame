@@ -14,6 +14,7 @@
 #include "tools/bug_hunter.h"
 #include "patches/micro_patches.h"
 #include "dk2_functions.h"
+#include "dk2_memory.h"
 
 
 namespace dk2 {
@@ -178,7 +179,7 @@ int dk2::MyRooms::eventAttachAndReset(
 #define MaxRoomCount (override_max_room_count::limit * 7)  // 0x2A0
 
 int dk2::MyRooms::createRooms(CWorld *a2_world) {
-    DWORD *v3 = (DWORD *) __nh_malloc(sizeof(CRoom) * MaxRoomCount + 4, 1);  //operator new(0x1BBA4u);
+    DWORD *v3 = (DWORD *) dk2::operator_new(sizeof(CRoom) * MaxRoomCount + 4);  // 0x1BBA4
     CRoom *v4;
     if (v3) {
         v4 = (CRoom *) (v3 + 1);

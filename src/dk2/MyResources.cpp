@@ -49,7 +49,7 @@ dk2::MyResources *dk2::MyResources::init_resources() {
     if(use_cwd_as_dk2_home_dir::enabled) {
         GetCurrentDirectoryA(MAX_PATH, exeDir);
         strcat(exeDir, "\\");
-        printf("replace exe dir path2: %s -> %s\n", cmdl, exeDir);
+//        printf("replace exe dir path2: %s -> %s\n", cmdl, exeDir);
     }
     MyGame_debugMsg(&MyGame_instance, "HD Path: %s\n", exeDir);
     _strcpy(this->executableDir, exeDir);

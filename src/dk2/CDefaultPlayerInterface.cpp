@@ -476,7 +476,7 @@ int dk2::CPlayer::dropThingFromHand(Vec3i *a2_pos, uint16_t *a3_pDirection) {
                     if (object->typeId <= 3u) {
                         MyCreatureDataObj *f370_creatureData = v15_creature->creatureData;
                         uint8_t level = v15_creature->level;
-                        int v19_valByLevel = level == 1 ? f370_creatureData->f69A : f370_creatureData->f69A * g_pObj6F2550->f129[level] / 100;
+                        int v19_valByLevel = level == 1 ? f370_creatureData->f69A : f370_creatureData->f69A * g_pObj6F2550->field_129__money_byLevel[level] / 100;
                         if (v19_valByLevel) object->whoGetsThisFromADrop = v15_creature->f0_tagId;
                     } else if (object->typeId == 9) {  // Chicken
                         MyCreatureDataObj *v18_creatureData = v15_creature->creatureData;

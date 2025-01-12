@@ -17,8 +17,11 @@ add_executable(${TARGET}
         dk2/CBridge.cpp
         dk2/CCamera.cpp
         dk2/CWorld.cpp
+        dk2/dk2_memory.cpp
+
         dk2/button/button_types.cpp
         dk2/button/CTextInput.cpp
+
         dk2/entities/entities_type.cpp
         dk2/entities/CCreature.cpp
         dk2/entities/CPlayer.cpp
@@ -59,6 +62,17 @@ add_executable(${TARGET}
         patches/gog_patch_dll/fake/FakeZBuffer.cpp
         patches/gog_patch_dll/fake/FakeUnknown.cpp
 
+        patches/weanetr_dll/NetworkServiceProvider.cpp
+        patches/weanetr_dll/BullfrogNET.cpp
+        patches/weanetr_dll/DPlay.cpp
+        patches/weanetr_dll/DnsResolver.cpp
+        patches/weanetr_dll/MLDPlay.cpp
+        patches/weanetr_dll/MySocket.cpp
+        patches/weanetr_dll/logging.cpp
+        patches/weanetr_dll/weanetr.cpp
+        patches/weanetr_dll/globals.cpp
+        patches/weanetr_dll/weanetr_memory.cpp
+
 #        ${DKII_RESOURCES_FILE}
         )
 target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_LIST_DIR} patches/gog_patch_dll)
@@ -73,6 +87,7 @@ target_link_libraries(${TARGET} PRIVATE
         # dk2 specific libs
         qmixer_genlib  # generated in qmixer_dll/genlib
         weanetr_genlib  # generated in weanetr_dll/genlib
+        dplay_headers
 
         # the others libs dk2 depends on
         winmm

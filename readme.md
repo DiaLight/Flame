@@ -13,6 +13,13 @@ Warning: Saves between Flame and non-Flame Dungeon Keeper 2 versions are [incomp
 
 If you reporting several bugs, please split them to several Discord messages / GitHub issues. Please, be sure to have followed the recommended installation steps.
 
+### What bugs are in priority to fix?
+Imagine you are playing through a storyline campaign and there are moments
+that are extremely frustrating or simply prevent you from progressing further in the game.
+These bugs, I consider them critical, and those are the ones I will focus on fixing.
+
+You can vote for an bug that you consider critical at your discretion by placing a rocket emoji(?) on the corresponding issue
+
 
 ## How to install
 1) Go to the [releases](https://github.com/DiaLight/Flame/releases) page and download the Flame-1.7.0-*.zip file of the newest release

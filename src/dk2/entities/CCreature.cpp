@@ -71,7 +71,7 @@ int dk2::CCreature::processDealDamage() {
             this->fun_48F3F0();
             this->setCurrentState_48AD30(242);
             targetCreature->stateFlags &= ~StateFlags1_DeadBodyOnDestroy;
-            targetCreature->v_f20();
+            targetCreature->v_f20_setHealth0();
             return 0;
         }
         if(!disable_bonus_damage::enabled) {

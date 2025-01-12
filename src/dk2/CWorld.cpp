@@ -122,7 +122,7 @@ namespace dk2 {
              i_creature = (CCreature *) sceneObjects[i_creature->f8_mapWhoNodeY]) {
             int fE_type = i_creature->fE_type;
             if (fE_type == 4 || fE_type == 3) {
-                i_creature->v_f20();
+                i_creature->v_f20_setHealth0();
                 uint16_t direction = 0;
                 CEffect *v61_effect;
                 self->v_sub_509580(1, i_creature->f24_playerId, &v65_vecCenter, &direction, &v61_effect);

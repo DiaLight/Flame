@@ -7,6 +7,7 @@
 #include "patches/micro_patches.h"
 #include "gog_patch.h"
 #include "tools/bug_hunter.h"
+#include "patches/weanetr_dll/weanetr.h"
 #include <thread>
 #include <stdexcept>
 #include <iostream>
@@ -31,7 +32,7 @@ bool dk2::dk2_main2() {
     }
     if ( cmd_flag_NOSOUND || CSpeechSystem_instance.sub_567F90() ) {
         if ( !WeaNetR_instance.init() ) {
-            WeaNetR_instance.sub_559CB0();
+            WeaNetR_instance.destroy();
             if ( !cmd_flag_NOSOUND ) {
                 MySound_ptr->v_fun_567410();
                 CSpeechSystem_instance.sub_568020();
@@ -42,7 +43,7 @@ bool dk2::dk2_main2() {
             return false;
         }
         if ( !MyGame_instance.isOsCompatible() ) {
-            WeaNetR_instance.sub_559CB0();
+            WeaNetR_instance.destroy();
             if ( !cmd_flag_NOSOUND ) MySound_ptr->v_fun_567410();
             if(print_game_start_errors::enabled) {
                 printf("failed to call MyGame_instance.isOsCompatible()\n");
@@ -50,7 +51,7 @@ bool dk2::dk2_main2() {
             return false;
         }
         if ( !all_components_fillStaticListeners() ) {
-            WeaNetR_instance.sub_559CB0();
+            WeaNetR_instance.destroy();
             if ( !cmd_flag_NOSOUND ) MySound_ptr->v_fun_567410();
             if(print_game_start_errors::enabled) {
                 printf("failed to call all_components_fillStaticListeners()\n");
@@ -86,7 +87,7 @@ bool dk2::dk2_main2() {
             cur = next;
         }
         all_components_clearStaticListeners();
-        WeaNetR_instance.sub_559CB0();
+        WeaNetR_instance.destroy();
         CSpeechSystem_instance.sub_568020();
         if ( !cmd_flag_NOSOUND )
             MySound_ptr->v_fun_567410();
@@ -153,7 +154,7 @@ bool dk2::dk2_main1(int argc, LPCSTR *argv) {
             int status_;
             TbDiscFile_delete(&status_, pTbDiscFile);
         }
-        g_fileHashsum = hashsum_;
+        g_fileHashsum = hashsum_;  // 1.7=FF542FAC
         closeFindFile(&status_2, (int)&FindFileData);
     }
     MyResources_instance.sub_55B120();
@@ -288,10 +289,14 @@ int main(int argc, const char **argv) {
         }
     }
     bug_hunter::init();
+
+    net::init();
+
     std::thread keyWatcher([] { bug_hunter::keyWatcher(); });
     // call entry point of DKII.EXE,
     if(gog::enable) gog::patch_init();
     // initialize its runtime and call dk2::WinMain
     dk2::dk2_start();
 }
+
 

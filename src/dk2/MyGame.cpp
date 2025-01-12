@@ -18,8 +18,9 @@ int dk2::MyGame::prepareScreenEx(
         int screenSwap,
         int screenHardware3D) {
     if (control_windowed_mode::enabled) {
-        printf("prepareScreen %p %dx%d %d %d %d %d\n", this, dwWidth, dwHeight, dwRGBBitCount, isWindowed, screenSwap,
-               screenHardware3D);
+//        printf("prepareScreen %p %dx%d %d %d %d %d\n",
+//               this, dwWidth, dwHeight, dwRGBBitCount, isWindowed,
+//               screenSwap, screenHardware3D);
         isWindowed = true;  // todo: control
     }
     int sel_dd_idx = this->selected_dd_idx;

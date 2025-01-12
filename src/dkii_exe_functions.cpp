@@ -24,7 +24,7 @@ void dk2::resolveDk2HomeDir() {
         char tmp[MAX_PATH];
         DWORD len = GetCurrentDirectoryA(MAX_PATH, tmp);
         strcpy(tmp + len, "\\");
-        printf("replace exe dir path1: %s -> %s\n", dk2::dk2HomeDir, tmp);
+//        printf("replace exe dir path1: %s -> %s\n", dk2::dk2HomeDir, tmp);
         strcpy(dk2::dk2HomeDir, tmp);
         return;
     }
