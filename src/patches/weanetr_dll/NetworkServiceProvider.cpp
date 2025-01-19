@@ -7,6 +7,7 @@
 #include "messages.h"
 #include "logging.h"
 #include "weanetr_memory.h"
+#include "patches/logging.h"
 
 using namespace net;
 
@@ -718,14 +719,17 @@ void NetworkServiceProvider::handlePacket_C(MyPacket_C_HandledPackets *a2_packet
         break;
     }
     if (found == NULL) {
+        patch::log::err("player not found for MyPacket_C_HandledPackets");
         return;
     }
     char v8_slotIdx = v3_slotIdx;
     MyPlayerDesc *playerDesc = &this->f24_playerList[v3_slotIdx];
     if (!playerDesc->isJoined()) {
+        patch::log::err("player is not joined");
         return;
     }
     if (a2_packet->playerId != playerDesc->f20_playerId_slot) {
+        patch::log::err("player id missmatch");
         return;
     }
     for (int i = 0; i < 50; ++i) {
@@ -1858,6 +1862,8 @@ int NetworkServiceProvider::AddGuaranteedPacketToMessageQueue(
     unsigned int v30_playerListIdx_m1_m2_1 = a2_playerListIdx_m1_m2;
     int v27_numPlayersToSend = 0;
     int v32_return = 0;
+    patch::log::gdata("queue dty=%X sz=%X pid=%08X",
+                      (int) (*(uint8_t *) a3_data), a4_dataSize, a2_playerListIdx_m1_m2);
     if ( a2_playerListIdx_m1_m2 == net_HostPlayer ) {
         MyPlayerDesc *f24_desc = this->f24_playerList;
         MyPlayerDesc *v8_listEnd = &f24_desc[this->f186_sessionDesc.totalMaxPlayers];

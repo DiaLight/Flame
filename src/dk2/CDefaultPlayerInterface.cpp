@@ -2,7 +2,7 @@
 // Created by DiaLight on 10.09.2024.
 //
 #include "dk2/CDefaultPlayerInterface.h"
-#include "dk2/MessageData.h"
+#include "dk2/network/MessageData.h"
 #include "dk2/entities/CPlayer.h"
 #include "dk2/entities/CCreature.h"
 #include "dk2/entities/CObject.h"
@@ -16,8 +16,8 @@
 #include "dk2_globals.h"
 #include "patches/micro_patches.h"
 #include "gog_patch.h"
-#include "dk2/entities/entities_type.h"
 #include "tools/bug_hunter.h"
+#include "patches/inspect_tools.h"
 
 
 int dk2::CDefaultPlayerInterface::tickKeyboard2() {
@@ -182,6 +182,7 @@ BOOL __cdecl dk2::CDefaultPlayerInterface_onMouseAction(
     }
     Pos2i v8_coord = a3_coord;
     a4_dplif->sub_40BFF0(&v8_coord, 0);
+    patch::inspect_tools::onMouseAction(a4_dplif);
     if (a1_KeyCode_F0toF3 == 0xF0) {
         a4_dplif->handleLeftClick(a2_isPressed, &a4_dplif->_underHand);
     } else {

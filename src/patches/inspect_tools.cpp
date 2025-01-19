@@ -1,0 +1,133 @@
+//
+// Created by DiaLight on 19.01.2025.
+//
+
+#include "inspect_tools.h"
+#include "dk2_globals.h"
+#include <sstream>
+#include "dk2/entities/entities_type.h"
+#include "dk2/entities/CObject.h"
+#include "dk2/entities/CPlayer.h"
+#include "tools/command_line.h"
+#include "dk2_functions.h"
+#include "patches/weanetr_dll/protocol.h"
+#include "patches/weanetr_dll/MySocket.h"
+#include "patches/logging.h"
+
+#define fmtHex(val) std::hex << std::uppercase << (val) << std::dec
+
+bool patch::inspect_tools::enable = false;
+
+void patch::inspect_tools::init() {
+    inspect_tools::enable = hasCmdOption("-inspect");
+}
+
+void patch::inspect_tools::onMouseAction(dk2::CDefaultPlayerInterface *dplif) {
+    if(!inspect_tools::enable) return;
+    int x = 0;
+    int y = 0;
+    uint16_t whoGets = 0;
+    uint16_t chickPl = 0;
+    if(dk2::sceneObjectsPresent[0x98D]) {
+        dk2::CObject *chick = (dk2::CObject *) dk2::sceneObjects[0x98D];
+        x = chick->f16_pos.x;
+        y = chick->f16_pos.y;
+        whoGets = chick->whoGetsThisFromADrop;
+        chickPl = chick->f24_playerId;
+    }
+    printf("left click [%.2f %.2f] tag=%X  pl=%X   [%.2f %.2f] %X\n",
+           dplif->_underHand.x_if12 / 2048.0,
+           dplif->_underHand.y_if12 / 2048.0,
+           dplif->_underHand.tagId,
+           dplif->playerTagId,
+           x / 2048.0, y / 2048.0, whoGets
+    );
+    if(chickPl) {
+        dk2::CPlayer *pl = (dk2::CPlayer *) dk2::sceneObjects[chickPl];
+        std::stringstream ss;
+        for (int i = 0; i < pl->thingsInHand_count; ++i) {
+            if(i != 0) ss << ", ";
+            uint16_t tag = pl->thingsInHand[i];
+            dk2::CThing *pThing = (dk2::CThing *) dk2::sceneObjects[tag];
+            if(pThing->fE_type == CThing_type_CObject) {
+                dk2::CObject *pObj = (dk2::CObject *) pThing;
+                ss << fmtHex(tag) << "(" << CObject_typeId_toString(pObj->typeId) << ")";
+            } else {
+                ss << fmtHex(tag) << "(" << CThing_type_toString(pThing->fE_type) << ")";
+            }
+        }
+        printf("[%s]\n", ss.str().c_str());
+    }
+}
+
+void patch::inspect_tools::windowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
+    if(!inspect_tools::enable) return;
+    switch(Msg) {
+        case WM_KEYDOWN: {
+            switch (wParam) {
+                case VK_UP:
+                {
+                    int textId = 218;
+                    uint8_t *MbString = (uint8_t *) dk2::MyMbStringList_idx1091_getMbString(textId);
+//                        uint8_t *MbString = (uint8_t *) dk2::MyMbStringList_idx1090_getMbString(textId);
+//                        uint8_t *MbString = (uint8_t *) dk2::MyMbStringList_getMbString_idx1000_1023(textId);
+                    wchar_t text[256] = {0};
+                    dk2::MBToUni_convert(MbString, text, 256);
+                    printf("%d: %S\n", textId, text);
+                }
+                    break;
+            }
+            break;
+        }
+    }
+}
+
+void patch::inspect_tools::sockSend(void *buf, int len, net::MySocket *dst, net::MySocket *src) {
+    if (!patch::inspect_tools::enable) return;
+    auto pkt = (net::PacketHeader *) buf;
+    if (pkt->packetTy != 0xD && pkt->packetTy != 0x10) return;
+    if(pkt->packetTy == net::MyPacket_3_Data::ID) {
+        auto data = (net::MyPacket_3_Data *) pkt;
+        patch::log::sock("send data dty=%X sz=%X %d.%d.%d.%d -> %d.%d.%d.%d",
+                         (uint32_t) data->fC_data[0], len,
+                         src->ipv4 & 0xFF, (src->ipv4 >> 8) & 0xFF, (src->ipv4 >> 16) & 0xFF,
+                         (src->ipv4 >> 24) & 0xFF,
+                         dst->ipv4 & 0xFF, (dst->ipv4 >> 8) & 0xFF, (dst->ipv4 >> 16) & 0xFF,
+                         (dst->ipv4 >> 24) & 0xFF
+        );
+    } else {
+        patch::log::sock("send ty=%X sz=%X %d.%d.%d.%d -> %d.%d.%d.%d",
+                         (uint32_t) pkt->packetTy, len,
+                         src->ipv4 & 0xFF, (src->ipv4 >> 8) & 0xFF, (src->ipv4 >> 16) & 0xFF,
+                         (src->ipv4 >> 24) & 0xFF,
+                         dst->ipv4 & 0xFF, (dst->ipv4 >> 8) & 0xFF, (dst->ipv4 >> 16) & 0xFF,
+                         (dst->ipv4 >> 24) & 0xFF
+        );
+    }
+
+}
+void patch::inspect_tools::sockRecv(void *buf, int len, net::MySocket *dst, net::MySocket *src) {
+    if (!patch::inspect_tools::enable) return;
+    auto pkt = (net::PacketHeader *) buf;
+    if (pkt->packetTy != 0xD && pkt->packetTy != 0x10) return;
+    if(pkt->packetTy == net::MyPacket_3_Data::ID) {
+        auto data = (net::MyPacket_3_Data *) pkt;
+        patch::log::sock("recv data dty=%X sz=%X %d.%d.%d.%d <- %d.%d.%d.%d",
+                         (uint32_t) data->fC_data[0], len,
+                         dst->ipv4 & 0xFF, (dst->ipv4 >> 8) & 0xFF, (dst->ipv4 >> 16) & 0xFF,
+                         (dst->ipv4 >> 24) & 0xFF,
+                         src->ipv4 & 0xFF, (src->ipv4 >> 8) & 0xFF, (src->ipv4 >> 16) & 0xFF,
+                         (src->ipv4 >> 24) & 0xFF
+        );
+    } else {
+        patch::log::sock("recv ty=%X sz=%X %d.%d.%d.%d <- %d.%d.%d.%d",
+                         (uint32_t) pkt->packetTy, len,
+                         dst->ipv4 & 0xFF, (dst->ipv4 >> 8) & 0xFF, (dst->ipv4 >> 16) & 0xFF,
+                         (dst->ipv4 >> 24) & 0xFF,
+                         src->ipv4 & 0xFF, (src->ipv4 >> 8) & 0xFF, (src->ipv4 >> 16) & 0xFF,
+                         (src->ipv4 >> 24) & 0xFF
+        );
+    }
+
+}
+

@@ -59,7 +59,12 @@ def format_type(ty: sgmap.Type, name: str = None, is_ptr=False, is_const=False):
   if ty.kind is sgmap.TypeKind.Struct:
     stru_t = ty  # type: sgmap.StructType
     suffix = f" {name}" if name else ''
-    return f"{stru_t.struct.name}{suffix}"
+    struct_name = stru_t.struct.name
+    if struct_name == 'MLDPlay':  # hardcode
+      struct_name = 'net::MLDPlay'
+    if struct_name == 'net_LocalService':  # hardcode
+      struct_name = 'net::MyLocalService'
+    return f"{struct_name}{suffix}"
   if ty.kind is sgmap.TypeKind.Function:
     fun_t = ty  # type: sgmap.FunctionType
     args = [format_type(arg) for arg in fun_t.args]

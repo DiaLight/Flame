@@ -4,6 +4,7 @@
 
 #include "DnsResolver.h"
 #include "logging.h"
+#include "patches/micro_patches.h"
 
 using namespace net;
 
@@ -16,17 +17,12 @@ int DnsResolver::resolve(const char *a2_hostname) {
     strcpy(this->f18E_hostname, a2_hostname);
     struct hostent *hostent = gethostbyname(this->f18E_hostname);
 
-    if ( hostent ) ipv4 = ((in_addr *) hostent->h_addr_list[0])->S_un.S_addr;
-
-//    if (hostent) {
-//        _log("resolved %s\n", hostent->h_name);
-//        for(int i = 0; ; ++i) {
-//            in_addr *addr = (in_addr *) hostent->h_addr_list[i];
-//            if(addr == NULL) break;
-//            _log(" - %s\n", inet_ntoa(*addr));
-//            ipv4 = addr->S_un.S_addr;
-//        }
-//    }
+    if ( hostent ) {
+        ipv4 = ((in_addr *) hostent->h_addr_list[0])->S_un.S_addr;
+        if(multi_interface_fix::enabled) {
+            ipv4 = multi_interface_fix::getLocalIp(hostent);
+        }
+    }
 
     if ( !ipv4 ) return -1;
     return ipv4;

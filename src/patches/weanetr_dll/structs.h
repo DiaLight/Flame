@@ -52,6 +52,14 @@ struct MLDPLAY_PLAYERINFO {
     BYTE f5_slotNo;
     wchar_t f6_shortName[16];  // unused?
     PlayerId f26_playerId_slot;
+
+    [[nodiscard]] inline bool isHost() const {
+        return (this->f0_flags & 0xF0) != 0;
+    }
+
+    [[nodiscard]] inline bool isJoined() const {
+        return (this->f0_flags & 0x0F) != 0;
+    }
 };
 #pragma pack(pop)
 static_assert(sizeof(MLDPLAY_PLAYERINFO) == 0x2A);
@@ -284,7 +292,7 @@ struct MyLocalService {
     wchar_t *f18_pName;
     MyLocalService *f1C_next;
     MyLocalServiceAddr *f20_addr;
-    GUID *f24_guid2;
+    GUID *f24_pGuid;
     wchar_t f28_name[];
 };
 #pragma pack(pop)

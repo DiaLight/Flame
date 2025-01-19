@@ -7,6 +7,7 @@
 
 #include <Windows.h>
 
+namespace net {
 
 #pragma pack(push, 1)
 class MySocket {
@@ -26,5 +27,6 @@ int __stdcall MySocket_recv(void *buf, int len, MySocket *dst, MySocket *src);
 void __cdecl MySocket_toSockAddr(MySocket *sock, struct sockaddr_in *outAddr);
 int __stdcall MySocket_send(MySocket *src, MySocket *dst, void *buf, size_t len);
 
+}
 
 #endif //FLAME_MYSOCKET_H

@@ -41,9 +41,19 @@ def format_struct_h(
       if complete_struct.name in ref_types:
         ref_types.remove(complete_struct.name)
     if ref_types:
+      if any(filter(lambda n: n in ['MLDPlay', 'net_LocalService'], ref_types)):  # hardcode
+        yield empty_line
+        yield f"namespace net {{"
+        yield f"  class MLDPlay;"
+        yield f"  class MyLocalService;"
+        yield f"}}  // namespace net"
       yield empty_line
       yield f"namespace dk2 {{"
       for name in sorted(ref_types):
+        if name == 'MLDPlay':  # hardcode
+          continue
+        if name == 'net_LocalService':  # hardcode
+          continue
         yield f"  struct {name};"
       yield f"}}  // namespace dk2"
     yield empty_line

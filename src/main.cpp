@@ -8,6 +8,9 @@
 #include "gog_patch.h"
 #include "tools/bug_hunter.h"
 #include "patches/weanetr_dll/weanetr.h"
+#include "tools/command_line.h"
+#include "patches/inspect_tools.h"
+#include "patches/original_compatible.h"
 #include <thread>
 #include <stdexcept>
 #include <iostream>
@@ -155,6 +158,7 @@ bool dk2::dk2_main1(int argc, LPCSTR *argv) {
             TbDiscFile_delete(&status_, pTbDiscFile);
         }
         g_fileHashsum = hashsum_;  // 1.7=FF542FAC
+        patch::original_compatible::patch_hashsum();
         closeFindFile(&status_2, (int)&FindFileData);
     }
     MyResources_instance.sub_55B120();
@@ -246,15 +250,6 @@ int dk2::WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *lpCmdLine, 
 }
 
 
-const char *getCmdOption(const char **begin, const char **end, const std::string &option) {
-    const char **it = std::find(begin, end, option);
-    if (it != end && ++it != end) return *it;
-    return nullptr;
-}
-
-bool hasCmdOption(const char **begin, const char **end, const std::string &option) {
-    return std::find(begin, end, option) != end;
-}
 int main(int argc, const char **argv) {
     const char *roomsLimitStr = getCmdOption(argv, argv + argc, "-experimental_rooms_limit");
     if (roomsLimitStr != nullptr) {
@@ -288,8 +283,9 @@ int main(int argc, const char **argv) {
             remember_window_location_and_size::setInitialSize(width, height);
         }
     }
-    bug_hunter::init();
 
+    patch::inspect_tools::init();
+    bug_hunter::init();
     net::init();
 
     std::thread keyWatcher([] { bug_hunter::keyWatcher(); });

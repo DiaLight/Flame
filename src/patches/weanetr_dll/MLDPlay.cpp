@@ -90,7 +90,7 @@ int MLDPlay::EnumerateServices(EnumerateServicesCallback a2_callback, void *a3_a
         a2_callback(
                 curService,
                 curService->f18_pName,
-                curService->f24_guid2,
+                curService->f24_pGuid,
                 curService->f10_count,
                 a3_arg);
         curService = curService->f1C_next;
@@ -133,8 +133,8 @@ void MLDPlay::serviceCallback(MyLocalService *a1_service, wchar_t *name, GUID *a
     memcpy(dataPos, a1_service->f20_addr, a1_service->f14_addr_size);
     dataPos += a1_service->f14_addr_size;
 
-    v9_newService->f24_guid2 = (GUID *) dataPos;
-    memcpy(dataPos, a1_service->f24_guid2, a1_service->f10_count * sizeof(GUID));
+    v9_newService->f24_pGuid = (GUID *) dataPos;
+    memcpy(dataPos, a1_service->f24_pGuid, a1_service->f10_count * sizeof(GUID));
 }
 
 int MLDPlay::AreWeLobbied(MessageHandlerType messageHandler, GUID *a3_guid, char *a4_outNGLD,
@@ -455,9 +455,7 @@ int MLDPlay::GetPlayerDesc(MLDPLAY_PLAYERINFO *playerDesc, unsigned int a3_slot_
     if (f8_playersSlot < provider->f186_sessionDesc.totalMaxPlayers ) {
         MyPlayerDesc *v8_playerDesc = &f24_playerList[f8_playersSlot];
         if (v8_playerDesc->isJoined()) {
-            char v9_flags = playerDesc->f0_flags & 0xF0 | 1;
-            playerDesc->f0_flags = v9_flags;
-            playerDesc->f0_flags = v8_playerDesc->flags ^ (v8_playerDesc->flags ^ v9_flags) & 0xF;
+            playerDesc->f0_flags = v8_playerDesc->flags & 0xF0 | 1;
             playerDesc->f26_playerId_slot = v8_playerDesc->f20_playerId_slot;
             playerDesc->f5_slotNo = v8_playerDesc->f35_slotNo;
             playerDesc->dword_1 = v8_playerDesc->field_24;
@@ -556,10 +554,7 @@ int MLDPlay::GetPlayerInfo(MLDPLAY_PLAYERINFO *a2_pInfoArr) {
             MLDPLAY_PLAYERINFO *v6_dstPos = a2_pInfoArr;
             do {
                 if (f24_curDesc->isJoined()) {
-                    char v7_flags = v6_dstPos->f0_flags & 0xF0 | 1;
-                    v6_dstPos->f0_flags = v7_flags;
-                    v6_dstPos->f0_flags =
-                            f24_curDesc->flags ^ (f24_curDesc->flags ^ v7_flags) & 0xF;
+                    v6_dstPos->f0_flags = f24_curDesc->flags & 0xF0 | 1;
                     v6_dstPos->f26_playerId_slot = f24_curDesc->f20_playerId_slot;
                     v6_dstPos->f5_slotNo = f24_curDesc->f35_slotNo;
                     v6_dstPos->dword_1 = f24_curDesc->field_24;

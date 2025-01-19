@@ -113,3 +113,17 @@
 00519F90 int WorldTrigger_cpp_519F90(int16_t, int, int);  /* auto */
 00509340 BOOL checkAllowObjectToDrop_509340(int, int, uint16_t, int);  /* auto */
 
+# WeaNetR.h
+00559BE0 int init();  // -----------------------------  /* auto */
+00559CB0 void destroy();  // -------------------------  /* auto */
+00559D00 int reinitializeNetworkSystem();  // --------  /* auto */
+00559FE0 int SetupConnection(net::MyLocalService *);    /* auto */
+0055AC20 int sendDataMessage(void *, uint32_t, uint32_t);  /* auto */
+0055AC90 int sendGuaranteedData(void *, uint32_t, uint32_t);  /* auto */
+
+# NetworkCfg.h
+0055E0C0 int appendIpWithHostname();  // -------------  /* auto */
+
+# CNetworkCommunication.h
+00522FA0 BOOL collectActions(GameActionCtx *);  // ---  /* auto */
+

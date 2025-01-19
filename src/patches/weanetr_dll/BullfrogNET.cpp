@@ -12,6 +12,7 @@
 #include "logging.h"
 #include "globals.h"
 #include "weanetr_memory.h"
+#include "patches/logging.h"
 
 using namespace net;
 
@@ -445,7 +446,8 @@ int BullfrogNET::SetupConnection(MyDPlayCompoundAddress *a2_dplayAddr, GUID *a3_
 }
 
 int BullfrogNET::EnumerateLocalServices(NetworkServiceProvider::ServiceEnumCallback a2_fun, void *a3_arg) {
-    size_t v4_nameLen = wcslen(L"WinSock TCP/IP Internet Connection");
+    const wchar_t *serviceName = L"WinSock TCP/IP Internet Connection";
+    size_t v4_nameLen = wcslen(serviceName);
     MyLocalService *v5_localService = (MyLocalService *) net::_malloc(sizeof(MyLocalService) + (v4_nameLen + 1) * sizeof(wchar_t) + sizeof(GUID));
     static_assert(0x3A == (2 + sizeof(GUID) + sizeof(MyLocalService)));
     if (!v5_localService) {
@@ -460,10 +462,10 @@ int BullfrogNET::EnumerateLocalServices(NetworkServiceProvider::ServiceEnumCallb
     v5_localService->f20_addr = NULL;
     v5_localService->f14_addr_size = 0;
     v5_localService->f1C_next = NULL;
-    wcscpy(v5_localService->f28_name, L"WinSock TCP/IP Internet Connection");
+    wcscpy(v5_localService->f28_name, serviceName);
     GUID *v7_guid2 = (GUID *) &v5_localService->f28_name[wcslen(v5_localService->f28_name) + 1];
     *v7_guid2 = BFAID_INet;
-    v5_localService->f24_guid2 = v7_guid2;
+    v5_localService->f24_pGuid = v7_guid2;
     size_t v8_addrSize = 2 * (wcslen(L"255.255.255.255") + 1) + sizeof(MyLocalServiceAddr);
 
     MyLocalServiceAddr *localServiceAddr = (MyLocalServiceAddr *) net::_malloc(v8_addrSize);
@@ -488,7 +490,7 @@ int BullfrogNET::EnumerateLocalServices(NetworkServiceProvider::ServiceEnumCallb
             a2_fun(
                     v5_localService,
                     v5_localService->f18_pName,
-                    v5_localService->f24_guid2,
+                    v5_localService->f24_pGuid,
                     v5_localService->f10_count,
                     a3_arg);
             result = 1;
@@ -510,7 +512,7 @@ int BullfrogNET::EnumerateLocalServices(NetworkServiceProvider::ServiceEnumCallb
         a2_fun(
                 v5_localService,
                 v5_localService->f18_pName,
-                v5_localService->f24_guid2,
+                v5_localService->f24_pGuid,
                 v5_localService->f10_count,
                 a3_arg);
         result = 1;
@@ -1925,8 +1927,10 @@ PacketHeader *BullfrogNET::ReadSPMessage() {
         if (v5_size < sizeof(PacketHeader) || this->f565_recvdData->signature != PacketHeader::MAGIC) continue;
         if (this->f226_curPlayer.isHost()) {
             if(this->handleLobbyPacket(this->f565_recvdData, v5_size, sockSrc)) {
+                patch::log::spmsg("sp[lb] return %X", this->f565_recvdData->packetTy);
                 return this->f565_recvdData;
             }
+            patch::log::spmsg("sp[lb] handled %X", this->f565_recvdData->packetTy);
             continue;
         }
 
@@ -1934,12 +1938,15 @@ PacketHeader *BullfrogNET::ReadSPMessage() {
         int isPacketHandled = this->handlePacket_1_2_9_B_E(this->f565_recvdData, v5_size, &sockSrc);
         LeaveCriticalSection(&this->dataLock);
         if (isPacketHandled) {
+            patch::log::spmsg("sp[nl] handled 129BE %X", this->f565_recvdData->packetTy);
             continue;
         }
 
         if(this->handleNotLobbyPacket(this->f565_recvdData, v5_size, sockSrc)) {
+            patch::log::spmsg("sp[nl] return %X", this->f565_recvdData->packetTy);
             return this->f565_recvdData;
         }
+        patch::log::spmsg("sp[nl] handled %X", this->f565_recvdData->packetTy);
     }
     return NULL;
 }

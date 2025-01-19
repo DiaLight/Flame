@@ -9,6 +9,7 @@
 #include "dk2/MyDxInputState.h"
 #include "dk2_globals.h"
 #include "dk2_functions.h"
+#include "logging.h"
 #include <windowsx.h>
 
 
@@ -186,3 +187,17 @@ void limit_fps::call() {
     }
     lastTime = time;
 }
+
+bool multi_interface_fix::enabled = false;
+DWORD multi_interface_fix::getLocalIp(struct hostent *hostent) {
+    DWORD ipv4 = 0;
+    patch::log::dbg("resolved %s", hostent->h_name);
+    for(int i = 0; ; ++i) {
+        in_addr *addr = (in_addr *) hostent->h_addr_list[i];
+        if(addr == NULL) break;
+        patch::log::dbg(" - %s", inet_ntoa(*addr));
+        ipv4 = addr->S_un.S_addr;  // use last ip
+    }
+    return ipv4;
+}
+

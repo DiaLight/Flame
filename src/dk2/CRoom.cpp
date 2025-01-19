@@ -186,14 +186,7 @@ int dk2::MyRooms::createRooms(CWorld *a2_world) {
         *v3 = MaxRoomCount;
         typedef void (*___for_each_construct_t)(char *, uint32_t, int, void (__thiscall *)(void *),
                                                 void (__thiscall *)(void *));
-        auto __for_each_construct = (___for_each_construct_t) 0x00635EC0;
-        __for_each_construct(
-                (char *) v3 + 4,
-                0xA9u,
-                MaxRoomCount,
-                (void (__thiscall *)(void *)) 0x004E3790, // CRoom::constructor
-                (void (__thiscall *)(void *)) 0x004E37F0 // CRoom::destructor
-        );
+        for_each_construct<CRoom>((char *) v3 + 4, MaxRoomCount);
     } else {
         v4 = nullptr;
     }

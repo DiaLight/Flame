@@ -17,7 +17,9 @@ add_executable(${TARGET}
         dk2/CBridge.cpp
         dk2/CCamera.cpp
         dk2/CWorld.cpp
+        dk2/WeaNetR.cpp
         dk2/dk2_memory.cpp
+        dk2/CNetworkCommunication.cpp
 
         dk2/button/button_types.cpp
         dk2/button/CTextInput.cpp
@@ -35,11 +37,15 @@ add_executable(${TARGET}
         tools/LoadedModules.cpp
         tools/win32_gui_layout.cpp
         tools/ExceptionWindow.cpp
+        tools/command_line.cpp
 
         patches/replace_mouse_dinput_to_user32.cpp
         patches/use_wheel_to_zoom.cpp
         patches/micro_patches.cpp
         patches/game_version_patch.cpp
+        patches/logging.cpp
+        patches/inspect_tools.cpp
+        patches/original_compatible.cpp
 
         patches/gog_patch_dll/gog_patch_dll.cpp
         patches/gog_patch_dll/gog_cfg.cpp

@@ -123,5 +123,10 @@ namespace limit_fps {
     void call();
 }
 
+namespace multi_interface_fix {
+    extern bool enabled;
+    DWORD getLocalIp(struct hostent *hostent);
+}
+
 
 #endif //FLAME_MICRO_PATCHES_H

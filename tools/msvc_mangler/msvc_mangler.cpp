@@ -174,6 +174,10 @@ void mangleType(std::stringstream &ss, Type *ty, std::map<std::string, size_t> &
                 ss << "C";
                 return;
             }
+            if(intTy->winapi == "bool") {
+                ss << "_N";
+                return;
+            }
         }
         // if 32 bit
         if(intTy->size == 4) {
