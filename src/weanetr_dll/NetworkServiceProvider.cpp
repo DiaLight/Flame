@@ -1735,7 +1735,10 @@ int NetworkServiceProvider::SendDataDatagram(
     }
     a4_size += sizeof(PacketHeader);
     MyPacket_3_Data *v8_packetbuf = (MyPacket_3_Data *) net::operator_new(a4_size);
-    if ( !v8_packetbuf ) return 0x20;
+    if ( !v8_packetbuf ) {
+        patch::log::err(fname("failed to allocate packet sz=%X", a4_size));
+        return 0x20;
+    }
 
     int v15_result = 0x20;
     EnterCriticalSection(&this->dataLock);
@@ -1751,6 +1754,7 @@ int NetworkServiceProvider::SendDataDatagram(
             v15_result = 0x40;
         }
     } else {
+        patch::log::err(fname("no such player found plid=%X", a2_playerListIdx_m1_m2));
         v15_result = 0x40;
     }
     LeaveCriticalSection(&this->dataLock);
@@ -1802,7 +1806,10 @@ int NetworkServiceProvider::SendChat(unsigned int a2_FFFF, wchar_t *chatMesage, 
         return 0x20;
     }
     MyPacket_4_ChatMessage *v9_data = (MyPacket_4_ChatMessage *) net::operator_new(v8_dataSize);
-    if ( !v9_data ) return 0x20;
+    if ( !v9_data ) {
+        patch::log::err(fname("failed to allocate packet sz=%X", v8_dataSize));
+        return 0x20;
+    }
 
     int v19_status = 0x20;
     EnterCriticalSection(&this->dataLock);
@@ -1818,6 +1825,7 @@ int NetworkServiceProvider::SendChat(unsigned int a2_FFFF, wchar_t *chatMesage, 
             v19_status = 0x40;
         }
     } else {
+        patch::log::err(fname("no such player found plid=%X", a2_FFFF));
         v19_status = 0x40;
     }
     LeaveCriticalSection(&this->dataLock);
@@ -1862,8 +1870,7 @@ int NetworkServiceProvider::AddGuaranteedPacketToMessageQueue(
     unsigned int v30_playerListIdx_m1_m2_1 = a2_playerListIdx_m1_m2;
     int v27_numPlayersToSend = 0;
     int v32_return = 0;
-    patch::log::gdata("queue dty=%X sz=%X pid=%08X",
-                      (int) (*(uint8_t *) a3_data), a4_dataSize, a2_playerListIdx_m1_m2);
+    patch::log::gdata("queue dty=%X sz=%X pid=%08X", (int) (*(uint8_t *) a3_data), a4_dataSize, a2_playerListIdx_m1_m2);
     if ( a2_playerListIdx_m1_m2 == net_HostPlayer ) {
         MyPlayerDesc *f24_desc = this->f24_playerList;
         MyPlayerDesc *v8_listEnd = &f24_desc[this->f186_sessionDesc.totalMaxPlayers];
@@ -1876,7 +1883,6 @@ int NetworkServiceProvider::AddGuaranteedPacketToMessageQueue(
                     v29_playerId_slot = f20_playerId_slot;
                     a2_playerListIdx_m1_m2 = f24_desc->f35_slotNo;
                     v5_hasAnyoneToSend = 1;
-                    // if(host player is current player) return 0;
                     if ( f20_playerId_slot == this->f226_curPlayer.playerId )
                         return 0;
                     v27_numPlayersToSend = 1;

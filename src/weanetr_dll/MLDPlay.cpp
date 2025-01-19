@@ -8,11 +8,15 @@
 #include "logging.h"
 #include "globals.h"
 #include "weanetr_memory.h"
+#include "patches/logging.h"
 
 using namespace net;
 
 int MLDPlay::StartupNetwork(MessageHandlerType messageHandler) {
-    if ( !messageHandler ) return 1;
+    if ( !messageHandler ) {
+        patch::log::err(fname("message handler is not provided"));
+        return 1;
+    }
     this->f8_messageHandler = messageHandler;
     this->fc_hasHandler = 1;
     // call _log
@@ -20,7 +24,10 @@ int MLDPlay::StartupNetwork(MessageHandlerType messageHandler) {
 }
 
 int MLDPlay::ShutdownNetwork() {
-    if ( !this->fc_hasHandler ) return 0;
+    if ( !this->fc_hasHandler ) {
+        patch::log::err(fname("message handler was not provided"));
+        return 0;
+    }
 
     this->f8_messageHandler = 0;
     this->fc_hasHandler = 0;
@@ -45,7 +52,10 @@ int MLDPlay::ShutdownNetwork() {
 }
 
 int MLDPlay::SetupConnection(MyDPlayCompoundAddress *a2_dplayAddr, GUID *a3_guid, void *a4_arg) {
-    if ( !a2_dplayAddr ) return 0;
+    if ( !a2_dplayAddr ) {
+        patch::log::err(fname("compound addr is null"));
+        return 0;
+    }
     if ( a2_dplayAddr->f0_signature[0] == 'B' && a2_dplayAddr->f0_signature[1] == 'F' ) {
         if ( a2_dplayAddr->f2_guid_BFSPGUID_TCPIP == BFSPGUID_TCPIP) {
             this->f4_pNetworkServiceProvider = new BullfrogNET();
@@ -55,9 +65,18 @@ int MLDPlay::SetupConnection(MyDPlayCompoundAddress *a2_dplayAddr, GUID *a3_guid
     }
 
     NetworkServiceProvider *v4_provider = this->f4_pNetworkServiceProvider;
-    if (!v4_provider) return 0;
-    if (!v4_provider->Startup(this->f8_messageHandler)) return 0;
-    if (!v4_provider->SetupConnection(a2_dplayAddr, a3_guid, a4_arg)) return 0;
+    if (!v4_provider) {
+        patch::log::err(fname("NetworkServiceProvider is null"));
+        return 0;
+    }
+    if (!v4_provider->Startup(this->f8_messageHandler)) {
+        patch::log::err(fname("NetworkServiceProvider::Startup is failed"));
+        return 0;
+    }
+    if (!v4_provider->SetupConnection(a2_dplayAddr, a3_guid, a4_arg)) {
+        patch::log::err(fname("NetworkServiceProvider::SetupConnection is failed"));
+        return 0;
+    }
     return 1;
 }
 
@@ -85,7 +104,10 @@ int MLDPlay::EnumerateServices(EnumerateServicesCallback a2_callback, void *a3_a
         // this->f0_service_first has changed
     }
     MyLocalService *curService = this->f0_service_first;
-    if (!this->f0_service_first) return 0;
+    if (!this->f0_service_first) {
+        patch::log::err(fname("no service found from available providers"));
+        return 0;
+    }
     do {
         a2_callback(
                 curService,
@@ -99,7 +121,10 @@ int MLDPlay::EnumerateServices(EnumerateServicesCallback a2_callback, void *a3_a
 }
 
 void MLDPlay::serviceCallback(MyLocalService *a1_service, wchar_t *name, GUID *a3_guid, unsigned int a4_idx) {
-    if (!a1_service) return;
+    if (!a1_service) {
+        patch::log::err(fname("service is NULL"));
+        return;
+    }
     MyLocalService *v9_newService = (MyLocalService *)net::_malloc(
             sizeof(MyLocalService) +
             (wcslen(name) + 1) * sizeof(wchar_t) +
@@ -116,7 +141,10 @@ void MLDPlay::serviceCallback(MyLocalService *a1_service, wchar_t *name, GUID *a
     } else {
         this->f0_service_first = v9_newService;
     }
-    if (!v9_newService) return;
+    if (!v9_newService) {
+        patch::log::err(fname("failed to allocate service"));
+        return;
+    }
     memset(v9_newService, 0, sizeof(MyLocalService));
     v9_newService->f0_guid = a1_service->f0_guid;
     v9_newService->f10_count = a1_service->f10_count;
@@ -145,7 +173,7 @@ int MLDPlay::AreWeLobbied(MessageHandlerType messageHandler, GUID *a3_guid, char
         _log("MLDPlay::AreWeLobbied Error:-Not Initialised\n");
         if (v10_result == 0x20)
             this->ShutdownNetwork();
-        return v10_result;
+        return 0x20;
     }
     int v16_isLobbied = 0;
     NetworkServiceProvider *v12_provider = net::call_new<DPlay>();
@@ -209,7 +237,10 @@ int MLDPlay::RunLobbyApplication(
         int a2_flags, wchar_t *a3_sessionName, wchar_t *a4_playerName, GUID *a5_guidApplication,
         wchar_t *a6_address, unsigned int a7_ignore, unsigned int a8_maxPlayers) {
     NetworkServiceProvider *v10_provider = net::call_new<DPlay>();
-    if ( !v10_provider ) return 0x20;
+    if ( !v10_provider ) {
+        patch::log::err(fname("failed to allocate DPlay provider"));
+        return 0x20;
+    }
     int v8_result = v10_provider->connectLobby(
             a2_flags, a3_sessionName, a4_playerName,
             a5_guidApplication, a6_address, a7_ignore, a8_maxPlayers);
@@ -218,8 +249,14 @@ int MLDPlay::RunLobbyApplication(
 }
 
 BOOL MLDPlay::IsProviderInitialised() {
-    if (!this->fc_hasHandler) return false;
-    if (!this->f4_pNetworkServiceProvider) return false;
+    if (!this->fc_hasHandler) {
+        patch::log::err(fname("handler is NULL"));
+        return false;
+    }
+    if (!this->f4_pNetworkServiceProvider) {
+        patch::log::err(fname("provider is NULL"));
+        return false;
+    }
     return this->f4_pNetworkServiceProvider->f20_isServiceProviderInitialized != 0;
 }
 
@@ -351,23 +388,41 @@ int MLDPlay::SendChat(unsigned int a2_FFFF, wchar_t *chatMessage, unsigned int a
 }
 
 int MLDPlay::GetSessionDesc(MLDPLAY_SESSIONDESC *a2_pDesc, DWORD *a3_pSize) {
-    if ( !this->fc_hasHandler ) return 0x20;
+    if ( !this->fc_hasHandler ) {
+        patch::log::err(fname("handler is NULL"));
+        return 0x20;
+    }
     NetworkServiceProvider *provider = this->f4_pNetworkServiceProvider;
-    if (!provider) return 0x20;
+    if (!provider) {
+        patch::log::err(fname("provider is NULL"));
+        return 0x20;
+    }
     return provider->getSessionDesc(a2_pDesc, a3_pSize);
 }
 
 int MLDPlay::SetSessionDesc(MLDPLAY_SESSIONDESC *a2_desc, unsigned int a3_size) {
-    if ( !this->fc_hasHandler ) return 0x20;
+    if ( !this->fc_hasHandler ) {
+        patch::log::err(fname("handler is NULL"));
+        return 0x20;
+    }
     NetworkServiceProvider *provider = this->f4_pNetworkServiceProvider;
-    if (!provider) return 0x20;
+    if (!provider) {
+        patch::log::err(fname("provider is NULL"));
+        return 0x20;
+    }
     return provider->setSessionDesc(a2_desc, a3_size);
 }
 
 int MLDPlay::SendMSResults(char *a2_message) {
-    if ( !this->fc_hasHandler ) return 0x20;
+    if ( !this->fc_hasHandler ) {
+        patch::log::err(fname("handler is NULL"));
+        return 0x20;
+    }
     NetworkServiceProvider *provider = this->f4_pNetworkServiceProvider;
-    if (!provider) return 0x20;
+    if (!provider) {
+        patch::log::err(fname("provider is NULL"));
+        return 0x20;
+    }
     return provider->SendMSResults(a2_message);
 }
 
@@ -418,8 +473,10 @@ int MLDPlay::GetPlayerDesc(MLDPLAY_PLAYERINFO *playerDesc, unsigned int a3_slot_
         _log("MLDPlay::GetPlayerDesc Error:-No Service Provider.\n");
         return 0x20;
     }
-    if (!provider->f226_curPlayer.isConnectedToSession())
+    if (!provider->f226_curPlayer.isConnectedToSession()) {
+        patch::log::err(fname("current player is not connected to session"));
         return 0x20;
+    }
     int countLeft = 2000;
     MSG Msg;
     while ( PeekMessageA(&Msg, NULL, 0, 0, 0) ) {
@@ -431,6 +488,7 @@ int MLDPlay::GetPlayerDesc(MLDPLAY_PLAYERINFO *playerDesc, unsigned int a3_slot_
     EnterCriticalSection(&provider->dataLock);
     MyPlayerDesc *f24_playerList = provider->f24_playerList;
     if ( !f24_playerList ) {
+        patch::log::err(fname("player list is NULL"));
         LeaveCriticalSection(&provider->dataLock);
         return 0x20;
     }
@@ -477,12 +535,15 @@ unsigned int MLDPlay::GetPlayerAddress(unsigned int a2_slot_m2_m3, MyPlayerSubDe
         _log("MLDPlay::GetPlayerAddress Error:-No Service Provider.\n");
         return 0x20;
     }
-    if (!provider->f226_curPlayer.isConnectedToSession())
+    if (!provider->f226_curPlayer.isConnectedToSession()) {
+        patch::log::err(fname("current player is not connected to session"));
         return 0x20;
+    }
     CRITICAL_SECTION *lpCriticalSection = &provider->dataLock;
     EnterCriticalSection(&provider->dataLock);
     MyPlayerDesc *f24_playerList = provider->f24_playerList;
     if ( !f24_playerList ) {
+        patch::log::err(fname("player list is NULL"));
         LeaveCriticalSection(lpCriticalSection);
         return 0x20;
     }
@@ -515,16 +576,15 @@ unsigned int MLDPlay::GetPlayerAddress(unsigned int a2_slot_m2_m3, MyPlayerSubDe
         LeaveCriticalSection(lpCriticalSection);
         return 0x20;
     }
-    if ( a3_pAddr && *a4_pSize >= sizeof(MyPlayerSubDesc) ) {
-        *a3_pAddr = v7_desc->f36_subDesc;
-        *a4_pSize = sizeof(MyPlayerSubDesc);
-        LeaveCriticalSection(lpCriticalSection);
-        return 2;
-    } else {
+    if (!a3_pAddr || *a4_pSize < sizeof(MyPlayerSubDesc)) {
         *a4_pSize = sizeof(MyPlayerSubDesc);
         LeaveCriticalSection(lpCriticalSection);
         return 0x10;
     }
+    *a3_pAddr = v7_desc->f36_subDesc;
+    *a4_pSize = sizeof(MyPlayerSubDesc);
+    LeaveCriticalSection(lpCriticalSection);
+    return 2;
 }
 
 int MLDPlay::GetPlayerInfo(MLDPLAY_PLAYERINFO *a2_pInfoArr) {
@@ -597,8 +657,18 @@ int MLDPlay::EnumerateNetworkMediums(void *a2, void *a3_dataBuf, DWORD *a4_pSize
 
 int MLDPlay::CreateNetworkAddress(DPCOMPOUNDADDRESSELEMENT *a2_elements, size_t a3_elementCount,
                                   MyDPlayCompoundAddress *a4_outAddr, unsigned int *a5_outSize) {
-    if ( !this->fc_hasHandler || !a2_elements || !a3_elementCount )
+    if (!this->fc_hasHandler) {
+        patch::log::err(fname("handler is NULL"));
         return 0x20;
+    }
+    if (!a2_elements) {
+        patch::log::err(fname("elements is NULL"));
+        return 0x20;
+    }
+    if (!a3_elementCount) {
+        patch::log::err(fname("element count is 0"));
+        return 0x20;
+    }
     NetworkServiceProvider *provider;
     if ( *(GUID *) a2_elements->lpData == BFSPGUID_TCPIP) {
         provider = net::call_new<BullfrogNET>();
@@ -607,8 +677,12 @@ int MLDPlay::CreateNetworkAddress(DPCOMPOUNDADDRESSELEMENT *a2_elements, size_t 
     } else {
         provider = net::call_new<DPlay>();
     }
-    if ( !provider ) return 0x20;
+    if ( !provider ) {
+        patch::log::err(fname("failed to allocate provider"));
+        return 0x20;
+    }
     if (!provider->Startup(this->f8_messageHandler)) {
+        patch::log::err(fname("failed to provider->Startup"));
         net::operator_delete(provider);
         return 0x20;
     }
@@ -620,38 +694,74 @@ int MLDPlay::CreateNetworkAddress(DPCOMPOUNDADDRESSELEMENT *a2_elements, size_t 
 
 void MLDPlay::AddPacketToMemoryQueue(struct MLDPLAY_SYSTEMQUEUE *a2_queue, void *a3_data, unsigned int a4_copySize,
                                      unsigned int a5_dataSize) {
-    if (!this->fc_hasHandler) return;
-    if (!this->f4_pNetworkServiceProvider) return;
+    if (!this->fc_hasHandler) {
+        patch::log::err(fname("has no handler"));
+        return;
+    }
+    if (!this->f4_pNetworkServiceProvider) {
+        patch::log::err(fname("provider is NULL"));
+        return;
+    }
     MLDPLAY_SYSTEMQUEUE::addEntry(a2_queue, a3_data, a4_copySize, a5_dataSize);
 }
 
 void MLDPlay::DestroyMemoryQueue(struct MLDPLAY_SYSTEMQUEUE *a2_queue) {
-    if (!this->fc_hasHandler) return;
-    if (!this->f4_pNetworkServiceProvider) return;
+    if (!this->fc_hasHandler) {
+        patch::log::err(fname("has no handler"));
+        return;
+    }
+    if (!this->f4_pNetworkServiceProvider) {
+        patch::log::err(fname("provider is NULL"));
+        return;
+    }
     MLDPLAY_SYSTEMQUEUE::release(a2_queue);
 }
 
 MLDPLAY_SYSTEMQUEUE_Entry *MLDPlay::ReadPacketHeadFromMemoryQueue(MLDPLAY_SYSTEMQUEUE *a2_queue) {
-    if (!this->fc_hasHandler) return NULL;
-    if (!this->f4_pNetworkServiceProvider) return NULL;
+    if (!this->fc_hasHandler) {
+        patch::log::err(fname("has no handler"));
+        return NULL;
+    }
+    if (!this->f4_pNetworkServiceProvider) {
+        patch::log::err(fname("provider is NULL"));
+        return NULL;
+    }
     return MLDPLAY_SYSTEMQUEUE::getFirst(a2_queue);
 }
 
 void MLDPlay::RemovePacketFromMemoryQueue(MLDPLAY_SYSTEMQUEUE *a2_queue, MLDPLAY_SYSTEMQUEUE_Entry *Block) {
-    if (!this->fc_hasHandler) return;
-    if (!this->f4_pNetworkServiceProvider) return;
+    if (!this->fc_hasHandler) {
+        patch::log::err(fname("has no handler"));
+        return;
+    }
+    if (!this->f4_pNetworkServiceProvider) {
+        patch::log::err(fname("provider is NULL"));
+        return;
+    }
     MLDPLAY_SYSTEMQUEUE::removeEntry(a2_queue, Block);
 }
 
 void MLDPlay::SetLatency(unsigned int a2_latency) {
-    if (!this->fc_hasHandler) return;
-    if (!this->f4_pNetworkServiceProvider) return;
+    if (!this->fc_hasHandler) {
+        patch::log::err(fname("has no handler"));
+        return;
+    }
+    if (!this->f4_pNetworkServiceProvider) {
+        patch::log::err(fname("provider is NULL"));
+        return;
+    }
     // ignore
 }
 
 void MLDPlay::SetServerGrabber(const char *a2_host, uint16_t a3_port) {
-    if (!this->fc_hasHandler) return;
+    if (!this->fc_hasHandler) {
+        patch::log::err(fname("has no handler"));
+        return;
+    }
     NetworkServiceProvider *provider = this->f4_pNetworkServiceProvider;
-    if (!provider) return;
+    if (!provider) {
+        patch::log::err(fname("provider is NULL"));
+        return;
+    }
     provider->initGetHostByName(a2_host, a3_port);
 }

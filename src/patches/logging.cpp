@@ -25,14 +25,22 @@ void patch::log::spmsg(const char *format, ...) {
 }
 
 void patch::log::sock(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+    char msg[1024];
+    vsnprintf(msg, sizeof(msg), format, args);
+    printf("[sock] %s\n", msg);
+    va_end(args);
+}
+
+void patch::log::data(const char *format, ...) {  // guaranteed data
 //    va_list args;
 //    va_start(args, format);
 //    char msg[1024];
 //    vsnprintf(msg, sizeof(msg), format, args);
-//    printf("[sock] %s\n", msg);
+//    printf("[data] %s\n", msg);
 //    va_end(args);
 }
-
 void patch::log::gdata(const char *format, ...) {  // guaranteed data
 //    va_list args;
 //    va_start(args, format);

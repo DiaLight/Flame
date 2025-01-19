@@ -16,6 +16,7 @@ namespace patch::log {
 
     void sock(const char *format, ...);
 
+    void data(const char *format, ...);
     void gdata(const char *format, ...);
 
     void err(const char *format, ...);

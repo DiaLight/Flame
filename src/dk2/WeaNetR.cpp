@@ -14,6 +14,7 @@
 #include "dplobby.h"
 #include "dplay.h"
 #include "patches/logging.h"
+#include "patches/micro_patches.h"
 
 
 int dk2::WeaNetR::filterService(void *a2_service) {
@@ -52,7 +53,7 @@ void __stdcall dk2_MLDPlay_EnumerateServices_callbaack(net::MyLocalService *serv
 
 void dk2_MLDPlay_HandleMessage_callback(int playersSlot, void *msg, int msgSz, int msgTy, void *arg) {
     dk2::WeaNetR *a5_weanetr = (dk2::WeaNetR *) arg;
-//    patch::log::dbg("* data recv ty=%X sz=%X pl=%X  hty=%X", (int) (*(uint8_t *) a2_messsage), a3_messageSize, a1_playersSlot, a4_messageType);
+    patch::log::data("recv ty=%X sz=%X pl=%X  hty=%X", (int) (*(uint8_t *) msg), msgSz, playersSlot, msgTy);
     ++a5_weanetr->receivedData;
     switch (msgTy) {
         case 1:
@@ -151,33 +152,37 @@ int dk2::WeaNetR::reinitializeNetworkSystem() {
 }
 
 int dk2::WeaNetR::sendDataMessage(void *a2_data, unsigned int a3_size, unsigned int a4_playerListIdx_m1_m2) {
-//    patch::log::dbg("* data send ty=%X sz=%X pl=%X", (int) (*(uint8_t *) a2_data), a3_size, a4_playerListIdx_m1_m2);
+    patch::log::data("send ty=%X sz=%X pl=%X", (int) (*(uint8_t *) a2_data), a3_size, a4_playerListIdx_m1_m2);
 
     unsigned int v7;
     unsigned int status = this->mldplay->SendData(a4_playerListIdx_m1_m2, a2_data, a3_size, 0, &v7);
-    if (status == 2 || status == 0x40)
-        return 1;
-    char *error = WeaNetR_error_to_string(status);
-    char Buffer[128];
-    sprintf(Buffer, "Unable to send DATA message - Error: %s\n", error);
-    // logs printing intentionally deleted by Bullfrog devs
-    patch::log::err(Buffer);
-    return 0;
+    if (status != 2 && status != 0x40) {
+        char *error = WeaNetR_error_to_string(status);
+        char Buffer[128];
+        sprintf(Buffer, "Unable to send DATA message - Error: %s\n", error);
+        // logs printing intentionally deleted by Bullfrog devs
+        patch::log::err(Buffer);
+        patch::log::data("failed to send gdata ty=%X sz=%X pl=%X", (int) (*(uint8_t *) a2_data), a3_size, a4_playerListIdx_m1_m2);
+        return FALSE;
+    }
+    return TRUE;
 }
 
 int dk2::WeaNetR::sendGuaranteedData(void *a2_data, unsigned int a3_size, unsigned int a4_playerListIdx_m1_m2) {
-//    patch::log::dbg("* guar send ty=%X sz=%X pl=%X", (int) (*(uint8_t *) a2_data), a3_size, a4_playerListIdx_m1_m2);
+    patch::log::gdata("send ty=%X sz=%X pl=%X", (int) (*(uint8_t *) a2_data), a3_size, a4_playerListIdx_m1_m2);
 
     unsigned int v7;
     unsigned int v4_status = this->mldplay->SendData(a4_playerListIdx_m1_m2, a2_data, a3_size, 2u, &v7);
-    if (v4_status == 2 || v4_status == 0x40)
-        return 1;
-    char *error = WeaNetR_error_to_string(v4_status);
-    char Buffer[128];
-    sprintf(Buffer, "Unable to send GUARANTEED DATA message - %s\n", error);
-    // logs printing intentionally deleted by Bullfrog devs
-    patch::log::err(Buffer);
-    return 0;
+    if (v4_status != 2 && v4_status != 0x40) {
+        char *error = WeaNetR_error_to_string(v4_status);
+        char Buffer[128];
+        sprintf(Buffer, "Unable to send GUARANTEED DATA message - %s\n", error);
+        // logs printing intentionally deleted by Bullfrog devs
+        patch::log::err(Buffer);
+        patch::log::err(fname("failed to send data ty=%X sz=%X pl=%X", (int) (*(uint8_t *) a2_data), a3_size, a4_playerListIdx_m1_m2));
+        return FALSE;
+    }
+    return TRUE;
 }
 
 
@@ -277,7 +282,7 @@ int dk2::WeaNetR::SetupConnection(void *a2_service_) {
 
 int dk2::NetworkCfg::appendIpWithHostname() {
     struct WSAData WSAData;
-    int result = WSAStartup(0x101u, &WSAData);
+    int result = ::WSAStartup(0x101u, &WSAData);
     if ( result )
         return result;
     char name[256];
@@ -287,15 +292,14 @@ int dk2::NetworkCfg::appendIpWithHostname() {
     const char **p_h_name = (const char **)&v3_hostent->h_name;  // Bullfrog devs mistake
     if ( !v3_hostent )
         return ::WSACleanup();
-    char *v5_ipAddr = ij_inet_ntoa(**(struct in_addr **)v3_hostent->h_addr_list);
+    in_addr ipv4 = **(struct in_addr **) v3_hostent->h_addr_list;
+    if(patch::multi_interface_fix::enabled) {
+        ipv4.S_un.S_addr = patch::multi_interface_fix::getLocalIp(v3_hostent);
+    }
 
-//    for(int i = 0; ; ++i) {
-//        in_addr *addr = (in_addr *) v3_hostent->h_addr_list[i];
-//        if(addr == NULL) break;
-//        v5_ipAddr = ij_inet_ntoa(*addr);
-//    }
+    char *v5_ipAddr = ::inet_ntoa(ipv4);
     strcpy(this->ipAddr, "IP: ");
     strcat(this->ipAddr, v5_ipAddr);
     strcpy(this->localMachineName, *p_h_name);
-    return ij_WSACleanup();
+    return ::WSACleanup();
 }
