@@ -6,7 +6,7 @@
 
 using namespace net;
 
-#define print_notDecompiled(prefix) printf(prefix "function " __FUNCTION__ " is not decompiled\n")
+#define print_notDecompiled(prefix) printf(prefix "function %s is not decompiled\n", __FUNCTION__)
 #define assert_notDecompiled() do { print_notDecompiled("[FATAL] "); exit(1); } while(false)
 
 int DPlay::Startup(MessageHandlerType handler) {

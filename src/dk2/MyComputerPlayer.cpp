@@ -87,7 +87,7 @@ namespace dk2 {
             }
             if (v20_creature->_belongsTo(cp->cplayer->f0_tagId)) {
                 int v27_doDrop = 0;
-                if(response_to_threat_fix::enabled) {
+                if(patch::response_to_threat_fix::enabled) {
                     // dirty fix. better is to understand why devs made v27_doDrop condition
                     // v1.5.1 does not have it
                     v27_doDrop = 1;

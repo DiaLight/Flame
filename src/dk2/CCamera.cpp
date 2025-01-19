@@ -9,7 +9,7 @@ void dk2::CCamera::zoomRel_449CA0(int delta) {
     if ((this->fD92 & 8) != 0 || this->endTime) return;
     int min = this->minZoomLevel;
     int max = this->maxZoomLevel - 1;
-    if(increase_zoom_level::enabled) {
+    if(patch::increase_zoom_level::enabled) {
         max += 50000;
         if(min > 2000) min -= 2000;
     }

@@ -10,7 +10,7 @@
 #include "dk2/entities/CPlayer.h"
 #include "dk2_globals.h"
 #include "dk2_functions.h"
-#include "patches/weanetr_dll/MLDPlay.h"
+#include "weanetr_dll/MLDPlay.h"
 #include "dk2/MySemaphore.h"
 #include "dk2/network/protocol/DataMessage_1.h"
 #include "dk2_memory.h"

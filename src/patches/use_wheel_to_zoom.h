@@ -9,7 +9,7 @@
 
 typedef struct DIDEVICEOBJECTDATA DIDEVICEOBJECTDATA;
 
-namespace use_wheel_to_zoom {
+namespace patch::use_wheel_to_zoom {
 
     extern bool enabled;
     void window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);

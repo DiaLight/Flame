@@ -53,7 +53,7 @@ namespace dk2 {
                 i->positionInParty = ++v46_positionInParty;
             }
         }
-        if(hero_party_spawn_limit_fix::enabled) if(v68_leaderCreature == nullptr) return;
+        if(patch::hero_party_spawn_limit_fix::enabled) if(v68_leaderCreature == nullptr) return;
         v68_leaderCreature->positionInParty = v46_positionInParty;
     }
 
@@ -147,7 +147,7 @@ namespace dk2 {
                         v54_creatureTypeId,
                         &v65_vecCenter,
                         &v53_creature)) {
-                    if(hero_party_spawn_limit_fix::enabled) {
+                    if(patch::hero_party_spawn_limit_fix::enabled) {
                         finalizeSpawnParty(self, v57_player, a2_heroPartyIdx, v55_bool);
                         return 1;
                     }

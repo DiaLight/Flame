@@ -725,7 +725,7 @@ void formatHeader(std::stringstream &ss, FILETIME &timestamp) {
                  stime.wHour, stime.wMinute, stime.wSecond, stime.wMilliseconds);
         ss << " (" << timeStr << ")" << std::endl;
     }
-    std::string version = game_version_patch::getFileVersion();
+    std::string version = patch::game_version_patch::getFileVersion();
     std::replace(version.begin(), version.end(), '\n', ' ');
     ss << "version: " << version << std::endl;
     std::string commandLine = wide_string_to_string(GetCommandLineW());

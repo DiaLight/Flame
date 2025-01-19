@@ -23,7 +23,7 @@ int dk2::CTextInput::fun_52AA10_configure(ButtonCfg *a2_cfg) {
         else
             this->f27C_inputLimit = 16;
     } else {
-        if(max_host_port_number_fix::enabled) {
+        if(patch::max_host_port_number_fix::enabled) {
             if(this->f70_idx == 0x212) {  // port number
                 f1A_inputLimit++;
             }

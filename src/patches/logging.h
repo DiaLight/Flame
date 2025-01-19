@@ -6,6 +6,8 @@
 #define FLAME_PATCH_LOGGING_H
 
 
+#define fname(fmt, ...) "%s: " fmt, __FUNCTION__, __VA_ARGS__
+
 namespace patch::log {
 
     void dbg(const char *format, ...);

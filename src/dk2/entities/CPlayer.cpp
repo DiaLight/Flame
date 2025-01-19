@@ -12,7 +12,7 @@
 
 BOOL dk2::MyManufactureList::testManufactureCompleted(unsigned __int16 a2_completed) {
     if (!this->numberOfUsedItems) return FALSE;
-    if(workshop_manufacture_build_time_fix::enabled) {
+    if(patch::workshop_manufacture_build_time_fix::enabled) {
         return a2_completed >= (unsigned int) this->items[this->startIndex].manufactureRequired;
     }
     return a2_completed >= (unsigned int) this->items[0].manufactureRequired;
@@ -20,7 +20,7 @@ BOOL dk2::MyManufactureList::testManufactureCompleted(unsigned __int16 a2_comple
 
 int dk2::MyManufactureList::getPercentCompleted(unsigned __int16 a2_completed) {
     if (!this->numberOfUsedItems) return 0;
-    if(workshop_manufacture_build_time_fix::enabled) {
+    if(patch::workshop_manufacture_build_time_fix::enabled) {
         return 100 * a2_completed / (unsigned __int16) this->items[this->startIndex].manufactureRequired;
     }
     return 100 * a2_completed / (unsigned __int16) this->items[0].manufactureRequired;
@@ -70,7 +70,7 @@ void dk2::CPlayer::resetCreaturesState() {
         if (curStateId >= 3 && curStateId <= 4 || curStateId == 7) doResetState = true;
         if (curStateId == 6 && creature->cstate.utilityNewState == 1) doResetState = true;
 
-        if(creatures_setup_lair_fix::enabled) {
+        if(patch::creatures_setup_lair_fix::enabled) {
             // curStateId == 7: creature on the way to CRoom
             // utilityNewState == 80: making a home
             if(curStateId == 7 && creature->cstate.utilityNewState == 80) doResetState = false;
@@ -99,7 +99,7 @@ int dk2::CPlayer::act4_dropThingFromHand() {
     }
     dropPos.z = 0x2000;
 
-    if (drop_thing_from_hand_fix::enabled) {
+    if (patch::drop_thing_from_hand_fix::enabled) {
         uint16_t v5_tagId = thingsInHand[this->thingsInHand_count - 1];
         CThing *v6_thing = (CThing *) sceneObjects[v5_tagId];
         BOOL allowToDrop = checkPlayerAllowToDrop(

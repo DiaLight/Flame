@@ -7,7 +7,7 @@
 
 
 
-namespace game_version_patch {
+namespace patch::game_version_patch {
     extern bool enabled;
     char *getFileVersion();
 }

@@ -7,7 +7,7 @@
 #include "patches/micro_patches.h"
 #include "gog_patch.h"
 #include "tools/bug_hunter.h"
-#include "patches/weanetr_dll/weanetr.h"
+#include "weanetr_dll/weanetr.h"
 #include "tools/command_line.h"
 #include "patches/inspect_tools.h"
 #include "patches/original_compatible.h"
@@ -40,7 +40,7 @@ bool dk2::dk2_main2() {
                 MySound_ptr->v_fun_567410();
                 CSpeechSystem_instance.sub_568020();
             }
-            if(print_game_start_errors::enabled) {
+            if(patch::print_game_start_errors::enabled) {
                 printf("failed to call WeaNetR_instance.init()\n");
             }
             return false;
@@ -48,7 +48,7 @@ bool dk2::dk2_main2() {
         if ( !MyGame_instance.isOsCompatible() ) {
             WeaNetR_instance.destroy();
             if ( !cmd_flag_NOSOUND ) MySound_ptr->v_fun_567410();
-            if(print_game_start_errors::enabled) {
+            if(patch::print_game_start_errors::enabled) {
                 printf("failed to call MyGame_instance.isOsCompatible()\n");
             }
             return false;
@@ -56,7 +56,7 @@ bool dk2::dk2_main2() {
         if ( !all_components_fillStaticListeners() ) {
             WeaNetR_instance.destroy();
             if ( !cmd_flag_NOSOUND ) MySound_ptr->v_fun_567410();
-            if(print_game_start_errors::enabled) {
+            if(patch::print_game_start_errors::enabled) {
                 printf("failed to call all_components_fillStaticListeners()\n");
             }
             return false;
@@ -163,13 +163,13 @@ bool dk2::dk2_main1(int argc, LPCSTR *argv) {
     }
     MyResources_instance.sub_55B120();
     if (!parse_command_line(argc, argv)) {
-        if(print_game_start_errors::enabled) {
+        if(patch::print_game_start_errors::enabled) {
             printf("failed to parse command line\n");
         }
         return false;
     }
     if (!loadResources()) {
-        if(print_game_start_errors::enabled) {
+        if(patch::print_game_start_errors::enabled) {
             printf("failed to load resources\n");
         }
         return false;
@@ -206,12 +206,12 @@ bool dk2::dk2_main1(int argc, LPCSTR *argv) {
         if(dk2_main2()) {
             success = true;
         } else {
-            if(print_game_start_errors::enabled) {
+            if(patch::print_game_start_errors::enabled) {
                 printf("failed to call dk2_main2()\n");
             }
         }
     } else {
-        if(print_game_start_errors::enabled) {
+        if(patch::print_game_start_errors::enabled) {
             printf("failed to call MyGame_instance.init()\n");
         }
     }
@@ -227,14 +227,14 @@ int __cdecl dk2::dk2_main(int argc, LPCSTR *argv) {
     mutex.constructor("DKII MUTEX");
     if (!mutex.alredyExists ) {
         if(!dk2_main1(argc, argv)) {
-            if(print_game_start_errors::enabled) {
+            if(patch::print_game_start_errors::enabled) {
                 MessageBoxA(NULL, "Game failed to start", "Flame", MB_OK);
             }
             finalStatus = -1;
             mutex.destroy();
             return 0;
         }
-    } else if(notify_another_instance_is_running::enabled) {
+    } else if(patch::notify_another_instance_is_running::enabled) {
         printf("[ERROR]: another instance of DK2 is already running");
         MessageBoxA(NULL, "Another instance of DK2 is already running", "Dungeon Keeper 2", MB_OK);
     }
@@ -255,7 +255,7 @@ int main(int argc, const char **argv) {
     if (roomsLimitStr != nullptr) {
         try {
             uint32_t roomsLimit = std::stoul(roomsLimitStr, nullptr, 10);
-            override_max_room_count::limit = roomsLimit;
+            patch::override_max_room_count::limit = roomsLimit;
         } catch(std::invalid_argument &e) {
             std::cout << "cant parse int \"" << roomsLimitStr << "\"" << std::endl;
             exit(-1);
@@ -266,7 +266,7 @@ int main(int argc, const char **argv) {
     }
     if(hasCmdOption(argv, argv + argc, "-windowed")) {
         gog::enable = false;  // gog is incompatible with windowed mode
-        control_windowed_mode::enabled = true;
+        patch::control_windowed_mode::enabled = true;
         if(!hasCmdOption(argv, argv + argc, "-no_initial_size")) {
             // Finding the user's screen resolution
             int screenWidth = GetSystemMetrics(SM_CXSCREEN);
@@ -280,7 +280,7 @@ int main(int argc, const char **argv) {
                 width = screenWidth * 5 / 6;
                 height = width * 9 / 12;
             }
-            remember_window_location_and_size::setInitialSize(width, height);
+            patch::remember_window_location_and_size::setInitialSize(width, height);
         }
     }
 

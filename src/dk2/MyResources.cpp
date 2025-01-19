@@ -46,7 +46,7 @@ dk2::MyResources *dk2::MyResources::init_resources() {
     }
     _strcpy(exeDir, cmdl);
     LABEL_12:
-    if(use_cwd_as_dk2_home_dir::enabled) {
+    if(patch::use_cwd_as_dk2_home_dir::enabled) {
         GetCurrentDirectoryA(MAX_PATH, exeDir);
         strcat(exeDir, "\\");
 //        printf("replace exe dir path2: %s -> %s\n", cmdl, exeDir);

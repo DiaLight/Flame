@@ -6,8 +6,8 @@
 #include "dk2_globals.h"
 #include <windowsx.h>
 
-bool use_wheel_to_zoom::enabled = true;
-void use_wheel_to_zoom::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
+bool patch::use_wheel_to_zoom::enabled = true;
+void patch::use_wheel_to_zoom::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
     switch (Msg) {
         case WM_MOUSEWHEEL: {
             DWORD fwKeys = GET_KEYSTATE_WPARAM(wParam);
@@ -26,7 +26,7 @@ void use_wheel_to_zoom::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM l
 namespace {
     DWORD g_lastTimestamp = 0;
 }
-void use_wheel_to_zoom::dinput_proc(DIDEVICEOBJECTDATA *data) {
+void patch::use_wheel_to_zoom::dinput_proc(DIDEVICEOBJECTDATA *data) {
     switch (data->dwOfs) {
         case DIMOFS_Z: {  // mouse wheel
             int zDelta = data->dwData;  // +-150 with timestamp

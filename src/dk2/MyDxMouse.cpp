@@ -21,7 +21,7 @@ int *dk2::MyDxInputManagerCb::initMouse(int *pstatus) {
         *pstatus = 0xCFFE0102;
         return pstatus;
     }
-    if (replace_mouse_dinput_to_user32::enabled) {
+    if (patch::replace_mouse_dinput_to_user32::enabled) {
         *pstatus = STATUS_SUCCESS;
         return pstatus;
     }
@@ -119,13 +119,13 @@ void dk2::MyDxMouse::handleData(int count) {
                 break;
         }
         // hook::DIRECT_INPUT_MOUSE_DATA
-        use_wheel_to_zoom::dinput_proc(&pdevObj);
+        patch::use_wheel_to_zoom::dinput_proc(&pdevObj);
     }
 }
 
 uint32_t *dk2::MyDxInputManagerCb::onWindowActivated(uint32_t *psatatus, int isActivated) {
     this->f54_pdxKeyboard->dx_device.updateWindowActive(isActivated);
-    if (!replace_mouse_dinput_to_user32::enabled) {
+    if (!patch::replace_mouse_dinput_to_user32::enabled) {
         this->f58_pdxmouse->dx_device.updateWindowActive(isActivated);
     }
     this->updateCoopLevelAndSignal(psatatus);

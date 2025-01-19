@@ -192,7 +192,7 @@ void dk2::PlayerCfg::fillKeyMaps() {
     this->actionToDxKey[62].dxKey = 5;
     this->actionToDxKey[63].dxKey = 0x19;
 
-    if(use_wasd_by_default_patch::enabled) {
+    if(patch::use_wasd_by_default_patch::enabled) {
         this->actionToDxKey[Key_ToggleAllyWindow].dxKey = DIK_Y;  // was at DIK_A
         this->actionToDxKey[Key_MoveUp].dxKey = DIK_W;
         this->actionToDxKey[Key_MoveLeft].dxKey = DIK_A;

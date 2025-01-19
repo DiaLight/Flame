@@ -13,14 +13,14 @@
 
 
 int32_t dk2::MyGame::isOsCompatible() {
-    if(add_win10_support::enabled) {
+    if(patch::modern_windows_support::enabled) {
         return !dk2::isOsVersionGE(11, 0, 0);
     }
     return !isOsVersionGE(6, 0, 0);
 }
 
 void dk2::resolveDk2HomeDir() {
-    if(use_cwd_as_dk2_home_dir::enabled) {
+    if(patch::use_cwd_as_dk2_home_dir::enabled) {
         char tmp[MAX_PATH];
         DWORD len = GetCurrentDirectoryA(MAX_PATH, tmp);
         strcpy(tmp + len, "\\");
@@ -241,7 +241,7 @@ BOOL __cdecl dk2::parse_command_line(int argc, const char **argv) {
             MyResources_instance.fillPaths();
         }
     }
-    if(force_32bit_everything::enabled) {
+    if(patch::force_32bit_everything::enabled) {
         MyResources_instance.video_settings.cmd_flag_32BITTEXTURES = 1;
         MyResources_instance.video_settings.zbuffer_bitnes = 32;
         MyResources_instance.video_settings.display_bitnes = 32;
@@ -265,7 +265,7 @@ void __cdecl dk2::CTextBox_renderVersion(dk2::CTextBox *textBox, CFrontEndCompon
     renderer.selectMyCR(&status, 0);
     renderer.selectMyTR(&status, 2);
     wchar_t wstring[64];
-    if(char *version = game_version_patch::getFileVersion()) {
+    if(char *version = patch::game_version_patch::getFileVersion()) {
         swprintf(wstring, L"%S", version);
     } else {
         swprintf(wstring, L"V%lu.%lu", g_majorVersion, g_minorVersion);

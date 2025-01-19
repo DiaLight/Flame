@@ -25,7 +25,7 @@
 #define DIK_DK2_MIDDLEMOUSE 0xF2
 #define DIK_DK2_UNKMOUSE 0xF3
 
-bool replace_mouse_dinput_to_user32::enabled = true;
+bool patch::replace_mouse_dinput_to_user32::enabled = true;
 
 namespace {
     std::vector<dk2::MouseRgbDxAction *> rgbActionsInProgress;
@@ -107,7 +107,7 @@ void handle_fpv_mouse_move(HWND hWnd, POINT pos) {
     SetCursorPos(screenResetPos.x, screenResetPos.y);
 }
 
-void replace_mouse_dinput_to_user32::handle_mouse_move(HWND hWnd, POINT pos) {
+void patch::replace_mouse_dinput_to_user32::handle_mouse_move(HWND hWnd, POINT pos) {
     // handle gui mouse
     dk2::AABB renderRect = dk2::MyInputManagerCb_instance.f60_mouse->f30_aabb;
     dk2::Pos2i renderSize = {renderRect.maxX - renderRect.minX, renderRect.maxY - renderRect.minY};
@@ -130,7 +130,7 @@ void replace_mouse_dinput_to_user32::handle_mouse_move(HWND hWnd, POINT pos) {
         }
     }
 }
-void replace_mouse_dinput_to_user32::emulate_dinput_from_user32(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
+void patch::replace_mouse_dinput_to_user32::emulate_dinput_from_user32(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
     if(!enabled) return;
     switch (Msg) {
         case WM_SIZE: {
@@ -217,7 +217,7 @@ void replace_mouse_dinput_to_user32::emulate_dinput_from_user32(HWND hWnd, UINT 
         }
     }
 }
-void replace_mouse_dinput_to_user32::release_handled_dinput_actions() {
+void patch::replace_mouse_dinput_to_user32::release_handled_dinput_actions() {
     {
         auto it = std::remove_if(rgbActionsInProgress.begin(), rgbActionsInProgress.end(), [](dk2::MouseRgbDxAction *action) {
             if (action->isNotHandled) return false;

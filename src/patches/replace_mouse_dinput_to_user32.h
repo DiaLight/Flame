@@ -7,7 +7,7 @@
 
 #include <Windows.h>
 
-namespace replace_mouse_dinput_to_user32 {
+namespace patch::replace_mouse_dinput_to_user32 {
 
     extern bool enabled;
     void emulate_dinput_from_user32(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);

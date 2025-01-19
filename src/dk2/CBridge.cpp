@@ -2,7 +2,6 @@
 // Created by DiaLight on 07.10.2024.
 //
 
-#include <iostream>
 #include "dk2/CBridge.h"
 #include "dk2/CWorld.h"
 #include "dk2/entities/CRoom.h"
@@ -53,7 +52,7 @@ void dk2::CBridge::sub_443610(
         MyTerrainDataObj *a5,
         CEngineStaticMeshDataArrays *a6_arrs) {
     CRoom *v7_room = a4->getRoom();
-    if(override_max_room_count::enabled) {
+    if(patch::override_max_room_count::enabled) {
         if(v7_room == nullptr) {
             return;  // fix
         }

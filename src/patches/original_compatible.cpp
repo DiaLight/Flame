@@ -13,6 +13,7 @@ bool patch::original_compatible::enable = false;
 void patch::original_compatible::init() {
     original_compatible::enable = hasCmdOption("-original_compatible");
     if(!original_compatible::enable) return;
+    printf("Flame will try to be compatible with DKII-DX.EXE\n");
 
     // minimal required to disable
     drop_thing_from_hand_fix::enabled = false;  // incompatible with 1.7
@@ -25,7 +26,7 @@ void patch::original_compatible::init() {
 //    notify_another_instance_is_running::enabled = true;  // backward compatible
 //    control_windowed_mode::enabled = false;  // backward compatible
 //    force_32bit_everything::enabled = true;  // backward compatible
-    disable_bonus_damage::enabled = true;
+//    disable_bonus_damage::enabled = false;  // enabling will cause desync
     backstab_fix::enabled = false;
     workshop_manufacture_build_time_fix::enabled = false;
 //    response_to_threat_fix::enabled = true;  // probably only server side

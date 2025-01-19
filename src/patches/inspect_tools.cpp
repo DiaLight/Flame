@@ -10,8 +10,8 @@
 #include "dk2/entities/CPlayer.h"
 #include "tools/command_line.h"
 #include "dk2_functions.h"
-#include "patches/weanetr_dll/protocol.h"
-#include "patches/weanetr_dll/MySocket.h"
+#include "weanetr_dll/protocol.h"
+#include "weanetr_dll/MySocket.h"
 #include "patches/logging.h"
 
 #define fmtHex(val) std::hex << std::uppercase << (val) << std::dec
@@ -20,6 +20,8 @@ bool patch::inspect_tools::enable = false;
 
 void patch::inspect_tools::init() {
     inspect_tools::enable = hasCmdOption("-inspect");
+    if(!inspect_tools::enable) return;
+    printf("Flame inspect tools enabled\n");
 }
 
 void patch::inspect_tools::onMouseAction(dk2::CDefaultPlayerInterface *dplif) {

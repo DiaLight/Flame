@@ -21,12 +21,12 @@ LRESULT dk2::CWindowTest_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
     patch::inspect_tools::windowProc(hWnd, Msg, wParam, lParam);
 
     // patch::BEFORE_WINDOW_PROC
-    remember_window_location_and_size::window_proc(hWnd, Msg, wParam, lParam);
-    replace_mouse_dinput_to_user32::emulate_dinput_from_user32(hWnd, Msg, wParam, lParam);
-    use_wheel_to_zoom::window_proc(hWnd, Msg, wParam, lParam);
-    fix_keyboard_state_on_alt_tab::window_proc(hWnd, Msg, wParam, lParam);
-    bring_to_foreground::window_proc(hWnd, Msg, wParam, lParam);
-    fix_close_window::window_proc(hWnd, Msg, wParam, lParam);
+    patch::remember_window_location_and_size::window_proc(hWnd, Msg, wParam, lParam);
+    patch::replace_mouse_dinput_to_user32::emulate_dinput_from_user32(hWnd, Msg, wParam, lParam);
+    patch::use_wheel_to_zoom::window_proc(hWnd, Msg, wParam, lParam);
+    patch::fix_keyboard_state_on_alt_tab::window_proc(hWnd, Msg, wParam, lParam);
+    patch::bring_to_foreground::window_proc(hWnd, Msg, wParam, lParam);
+    patch::fix_close_window::window_proc(hWnd, Msg, wParam, lParam);
     switch(Msg) {
         case WM_ACTIVATE:
             g_isNeedBlt_fullscr = wParam != 0;
@@ -45,7 +45,7 @@ LRESULT dk2::CWindowTest_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
             break;
         }
         case WM_MOUSEMOVE: {
-            if(!replace_mouse_dinput_to_user32::enabled) {
+            if(!patch::replace_mouse_dinput_to_user32::enabled) {
                 Pos2i pos;
                 pos.x = LOWORD(lParam);
                 pos.y = HIWORD(lParam);
@@ -54,7 +54,7 @@ LRESULT dk2::CWindowTest_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
             break;
         }
     }
-    if(hide_mouse_cursor_in_window::window_proc(hWnd, Msg, wParam, lParam)) return TRUE;
+    if(patch::hide_mouse_cursor_in_window::window_proc(hWnd, Msg, wParam, lParam)) return TRUE;
 
     if (auto CustomDefWindowProcA = (CustomDefWindowProcA_t) getCustomDefWindowProcA())
         return CustomDefWindowProcA(hWnd, Msg, wParam, lParam);
@@ -62,9 +62,9 @@ LRESULT dk2::CWindowTest_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 }
 
 LRESULT dk2::BullfrogWindow_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {  // fullscreen proc
-    replace_mouse_dinput_to_user32::emulate_dinput_from_user32(hWnd, Msg, wParam, lParam);
-    use_wheel_to_zoom::window_proc(hWnd, Msg, wParam, lParam);
-    fix_keyboard_state_on_alt_tab::window_proc(hWnd, Msg, wParam, lParam);
+    patch::replace_mouse_dinput_to_user32::emulate_dinput_from_user32(hWnd, Msg, wParam, lParam);
+    patch::use_wheel_to_zoom::window_proc(hWnd, Msg, wParam, lParam);
+    patch::fix_keyboard_state_on_alt_tab::window_proc(hWnd, Msg, wParam, lParam);
     if(gog::BullfrogWindow_proc_patch::window_proc(hWnd, Msg, wParam, lParam))
         return DefWindowProcA(hWnd, Msg, wParam, lParam);
     switch (Msg) {
@@ -98,7 +98,7 @@ LRESULT dk2::BullfrogWindow_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lPar
             }
             break;
     }
-    if(hide_mouse_cursor_in_window::window_proc(hWnd, Msg, wParam, lParam)) return TRUE;
+    if(patch::hide_mouse_cursor_in_window::window_proc(hWnd, Msg, wParam, lParam)) return TRUE;
 
     if (auto CustomDefWindowProcA = (CustomDefWindowProcA_t) getCustomDefWindowProcA())
         CustomDefWindowProcA(hWnd, Msg, wParam, lParam);

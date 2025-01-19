@@ -31,12 +31,12 @@ void dk2::CFrontEndComponent::showTitleScreen() {
         if ( MyDdSurface_addRef(&this->titleScreen.dd_surf, 0) )
             MyDdSurface_release(&status, &this->titleScreen.dd_surf);
 
-        if(!skippable_title_screen::enabled) {
+        if(!patch::skippable_title_screen::enabled) {
             DWORD waitEnd = getTimeMs() + 10000;
             while ( getTimeMs() <= waitEnd ) ;
         } else {
-            DWORD waitEnd = getTimeMs() + skippable_title_screen::waiting_time;
-            while ( getTimeMs() <= waitEnd && !skippable_title_screen::skipKeyPressed() ) ;
+            DWORD waitEnd = getTimeMs() + patch::skippable_title_screen::waiting_time;
+            while ( getTimeMs() <= waitEnd && !patch::skippable_title_screen::skipKeyPressed() ) ;
         }
         MyGame_instance.prepareScreen();
     }

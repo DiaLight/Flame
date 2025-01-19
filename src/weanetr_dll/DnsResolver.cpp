@@ -19,8 +19,8 @@ int DnsResolver::resolve(const char *a2_hostname) {
 
     if ( hostent ) {
         ipv4 = ((in_addr *) hostent->h_addr_list[0])->S_un.S_addr;
-        if(multi_interface_fix::enabled) {
-            ipv4 = multi_interface_fix::getLocalIp(hostent);
+        if(patch::multi_interface_fix::enabled) {
+            ipv4 = patch::multi_interface_fix::getLocalIp(hostent);
         }
     }
 

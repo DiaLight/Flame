@@ -154,7 +154,7 @@ def append_dll_sections_into_exe(dkii_data: bytes, flame_data: bytes) -> my_pe.M
   free_sections_left = (dkii_pe.nt.OptionalHeader.SizeOfHeaders - (dkii_pe.sections_end - dkii_pe.base)) / ctypes.sizeof(pe_types.IMAGE_SECTION_HEADER)
   assert free_sections_left >= 4.0
   sections: list[pe_types.IMAGE_SECTION_HEADER] = ctypes.pointer(pe_types.IMAGE_SECTION_HEADER.from_address(dkii_pe.sections_end))
-  Name_ty = (ctypes.c_ubyte*8)
+  Name_ty = (wintypes.BYTE*8)
 
   # add flame section headers to dkii and remap them
   def convert_sec(sec: pe_types.IMAGE_SECTION_HEADER, src: pe_types.IMAGE_SECTION_HEADER, name: bytes):
@@ -315,7 +315,7 @@ def unpack_data_jmp(pe: my_pe.MyPe, xrefs_map: dict[int, list[tuple[int, int, st
 
 def bundle_fpo_map(merged_pe, fpomap_data):
   sections: list[pe_types.IMAGE_SECTION_HEADER] = ctypes.pointer(pe_types.IMAGE_SECTION_HEADER.from_address(merged_pe.sections_end))
-  Name_ty = (ctypes.c_ubyte*8)
+  Name_ty = (wintypes.BYTE*8)
   sections[0].Name = Name_ty(*b'.fpomap')
   last_sec = sections[-1]
   sections[0].PointerToRawData = my_pe.align_up(last_sec.PointerToRawData + last_sec.SizeOfRawData, merged_pe.nt.OptionalHeader.FileAlignment)

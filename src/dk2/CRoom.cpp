@@ -108,7 +108,7 @@ unsigned int dk2::CMap::attachToRoom(
         v9_mapElem->_playerIdFFF &= ~0x1000u;
     }
     int typeId = ((CRoom *) sceneObjects[a4_roomObjId])->typeId;
-    if (wooden_bridge_burn_fix::enabled) {
+    if (patch::wooden_bridge_burn_fix::enabled) {
         if (typeId != CRoom_typeId_WoodenBridge) {  // ignore reset burn level at attach cell to room
             v9_mapElem->roomSetBurnLevel(0);
         }
@@ -152,7 +152,7 @@ int dk2::MyRooms::eventAttachAndReset(
     memset(roomArr, 0, sizeof(roomArr));
     CRoom *a3_room = 0;
     int v14 = this->attachToNearForceOrCreate(a2_x, arg4_y, a4_roomTypeId, a5_playerId, a6_roomNum, a7_pNearCountNeg, &a3_room, roomArr);
-    if (wooden_bridge_burn_fix::enabled) {
+    if (patch::wooden_bridge_burn_fix::enabled) {
         if (((BYTE) a4_roomTypeId) == CRoom_typeId_WoodenBridge) {
             CMap &map = this->world->cmap;
             map.mapElements[a2_x + arg4_y * map.width].roomSetBurnLevel(0);
@@ -176,7 +176,7 @@ int dk2::MyRooms::eventAttachAndReset(
     return arg4_ya;
 }
 
-#define MaxRoomCount (override_max_room_count::limit * 7)  // 0x2A0
+#define MaxRoomCount (patch::override_max_room_count::limit * 7)  // 0x2A0
 
 int dk2::MyRooms::createRooms(CWorld *a2_world) {
     DWORD *v3 = (DWORD *) dk2::operator_new(sizeof(CRoom) * MaxRoomCount + 4);  // 0x1BBA4
@@ -280,8 +280,8 @@ int dk2::CPlayer::fun_4C5C30_buildRoom(
             return 0;
     }
     uint8_t maxRoomLimit = 96;
-    if (override_max_room_count::enabled) {
-        maxRoomLimit = override_max_room_count::limit;
+    if (patch::override_max_room_count::enabled) {
+        maxRoomLimit = patch::override_max_room_count::limit;
     }
     uint8_t numRoomsLeft = maxRoomLimit - this->numberOfRooms;
     int8_t roomsCountNeg;
@@ -339,8 +339,8 @@ int dk2::CPlayer::destroyRoom(int a2_x, int a3_y, int a4_bool) {
     CRoom *room = v7_mapElem->getRoom();
     int salePrice = (unsigned __int16) room->pRoomDataObj->_getSalePrice();
     uint8_t maxRoomLimit = 96;
-    if (override_max_room_count::enabled) {
-        maxRoomLimit = override_max_room_count::limit;
+    if (patch::override_max_room_count::enabled) {
+        maxRoomLimit = patch::override_max_room_count::limit;
     }
     uint8_t numRoomsLeft = maxRoomLimit - this->numberOfRooms;
 

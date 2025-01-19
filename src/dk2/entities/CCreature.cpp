@@ -74,11 +74,11 @@ int dk2::CCreature::processDealDamage() {
             targetCreature->v_f20_setHealth0();
             return 0;
         }
-        if(!disable_bonus_damage::enabled) {
+        if(!patch::disable_bonus_damage::enabled) {
             unsigned __int16 v24_angle2048 = asm_calcNegYAngle2048(
                     this->f16_pos.x - targetCreature->f16_pos.x,
                     this->f16_pos.y - targetCreature->f16_pos.y) & 0x7FF;
-            if(backstab_fix::enabled) {
+            if(patch::backstab_fix::enabled) {
                 v24_angle2048 = (targetCreature->fF0_direction + 2048 - v24_angle2048) % 2048;
             }
             if (v24_angle2048 > 0x3FFu )
@@ -154,7 +154,7 @@ namespace dk2 {
         if((self->stateFlags & 0x4000) != 0) return false;  // leaving
         if(self->invisibleTimer) return false;
         if((self->flags & 8) == 0) return false;  // !WILL_BE_ATTACKED
-        if(sleeping_possession_fix::enabled) {
+        if(patch::sleeping_possession_fix::enabled) {
             if((self->stateFlags & 0x80) == 0 &&  // !possessed
                     (g_stateEntries[self->cstate.currentStateId].seFlags & 4) != 0) return false;
         } else {

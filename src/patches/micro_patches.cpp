@@ -13,37 +13,37 @@
 #include <windowsx.h>
 
 
-bool add_win10_support::enabled = true;
-bool use_cwd_as_dk2_home_dir::enabled = true;
-bool notify_another_instance_is_running::enabled = true;
-bool control_windowed_mode::enabled = false;
-bool force_32bit_everything::enabled = true;
-bool disable_bonus_damage::enabled = false;
-bool backstab_fix::enabled = true;
-bool workshop_manufacture_build_time_fix::enabled = true;
-bool response_to_threat_fix::enabled = true;
-bool use_wasd_by_default_patch::enabled = true;
-bool print_game_start_errors::enabled = true;
-bool creatures_setup_lair_fix::enabled = true;
-bool wooden_bridge_burn_fix::enabled = true;
-bool max_host_port_number_fix::enabled = true;
-bool increase_zoom_level::enabled = true;
-bool fix_chat_buffer_invalid_memory_access::enabled = true;
-bool hero_party_spawn_limit_fix::enabled = true;
-bool drop_thing_from_hand_fix::enabled = true;  // incompatible with 1.7
-bool sleeping_possession_fix::enabled = true;
+bool patch::modern_windows_support::enabled = true;
+bool patch::use_cwd_as_dk2_home_dir::enabled = true;
+bool patch::notify_another_instance_is_running::enabled = true;
+bool patch::control_windowed_mode::enabled = false;
+bool patch::force_32bit_everything::enabled = true;
+bool patch::disable_bonus_damage::enabled = false;
+bool patch::backstab_fix::enabled = true;
+bool patch::workshop_manufacture_build_time_fix::enabled = true;
+bool patch::response_to_threat_fix::enabled = true;
+bool patch::use_wasd_by_default_patch::enabled = true;
+bool patch::print_game_start_errors::enabled = true;
+bool patch::creatures_setup_lair_fix::enabled = true;
+bool patch::wooden_bridge_burn_fix::enabled = true;
+bool patch::max_host_port_number_fix::enabled = true;
+bool patch::increase_zoom_level::enabled = true;
+bool patch::fix_chat_buffer_invalid_memory_access::enabled = true;
+bool patch::hero_party_spawn_limit_fix::enabled = true;
+bool patch::drop_thing_from_hand_fix::enabled = true;  // incompatible with 1.7
+bool patch::sleeping_possession_fix::enabled = true;
 
-bool override_max_room_count::enabled = true;
-uint8_t override_max_room_count::limit = 255;  // default is 96  incompatible with 1.7
+bool patch::override_max_room_count::enabled = true;
+uint8_t patch::override_max_room_count::limit = 255;  // default is 96  incompatible with 1.7
 
-void use_wasd_by_default_patch::useAlternativeName(LPCSTR &lpValueName) {
+void patch::use_wasd_by_default_patch::useAlternativeName(LPCSTR &lpValueName) {
     if(!use_wasd_by_default_patch::enabled) return;
     if(lpValueName && strncmp(lpValueName, "Key Table", 12) == 0) {
         lpValueName = "Key Table Flame";
     }
 }
 
-void fix_keyboard_state_on_alt_tab::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
+void patch::fix_keyboard_state_on_alt_tab::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
     switch(Msg) {
         case WM_ACTIVATEAPP:
             if (wParam) {  // activated
@@ -57,7 +57,7 @@ void fix_keyboard_state_on_alt_tab::window_proc(HWND hWnd, UINT Msg, WPARAM wPar
     }
 }
 
-void bring_to_foreground::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
+void patch::bring_to_foreground::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
     switch(Msg) {
         case WM_CREATE: {
             SetForegroundWindow(hWnd);
@@ -72,7 +72,7 @@ namespace dk2 {
     };
 }
 
-void fix_close_window::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
+void patch::fix_close_window::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
     switch(Msg) {
         case WM_CLOSE: {
             dk2::CDefaultPlayerInterface *playetIf = &dk2::CDefaultPlayerInterface_instance;
@@ -93,7 +93,7 @@ void fix_close_window::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lP
 namespace {
     bool appIsActive = false;
 }
-bool hide_mouse_cursor_in_window::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
+bool patch::hide_mouse_cursor_in_window::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
     switch(Msg) {
         case WM_SETCURSOR: {
             if(appIsActive) {
@@ -121,11 +121,11 @@ namespace {
     POINT window_size = {0, 0};
     bool ignore_size = true;
 }
-void remember_window_location_and_size::setInitialSize(int x, int y) {
+void patch::remember_window_location_and_size::setInitialSize(int x, int y) {
     window_size = {x, y};
 }
 
-bool remember_window_location_and_size::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
+bool patch::remember_window_location_and_size::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
     switch(Msg) {
         case WM_DESTROY: {
             ignore_size = true;
@@ -149,20 +149,20 @@ bool remember_window_location_and_size::window_proc(HWND hWnd, UINT Msg, WPARAM 
     }
     return false;
 }
-void remember_window_location_and_size::patchWinLoc(int &xPos, int &yPos) {
+void patch::remember_window_location_and_size::patchWinLoc(int &xPos, int &yPos) {
     xPos = window_pos.x;
     yPos = window_pos.y;
 }
-void remember_window_location_and_size::resizeWindow(HWND hWnd) {
+void patch::remember_window_location_and_size::resizeWindow(HWND hWnd) {
     if(window_size.x != 0 && window_size.y != 0) {
         SetWindowPos(hWnd, NULL, 0, 0, window_size.x, window_size.y, SWP_NOMOVE | SWP_NOZORDER);
     }
     ignore_size = false;
 }
 
-bool skippable_title_screen::enabled = true;
-uint32_t skippable_title_screen::waiting_time = 600;  // in milliseconds. by default 10 seconds
-bool skippable_title_screen::skipKeyPressed() {
+bool patch::skippable_title_screen::enabled = true;
+uint32_t patch::skippable_title_screen::waiting_time = 600;  // in milliseconds. by default 10 seconds
+bool patch::skippable_title_screen::skipKeyPressed() {
     if(GetAsyncKeyState(VK_SPACE) & 0x8000) return true;
     if(GetAsyncKeyState(VK_ESCAPE) & 0x8000) return true;
     if(GetAsyncKeyState(VK_LBUTTON) & 0x8000) return true;
@@ -178,7 +178,7 @@ namespace {
     DWORD lastTime = 0;
 
 }
-void limit_fps::call() {
+void patch::limit_fps::call() {
     DWORD time = GetTickCount();
     int mspf = 1000 / DK2_fps_limit; // 16
     DWORD loopTime = time - lastTime;
@@ -188,8 +188,8 @@ void limit_fps::call() {
     lastTime = time;
 }
 
-bool multi_interface_fix::enabled = false;
-DWORD multi_interface_fix::getLocalIp(struct hostent *hostent) {
+bool patch::multi_interface_fix::enabled = false;
+DWORD patch::multi_interface_fix::getLocalIp(struct hostent *hostent) {
     DWORD ipv4 = 0;
     patch::log::dbg("resolved %s", hostent->h_name);
     for(int i = 0; ; ++i) {

@@ -17,7 +17,7 @@ int dk2::MyGame::prepareScreenEx(
         int isWindowed,
         int screenSwap,
         int screenHardware3D) {
-    if (control_windowed_mode::enabled) {
+    if (patch::control_windowed_mode::enabled) {
 //        printf("prepareScreen %p %dx%d %d %d %d %d\n",
 //               this, dwWidth, dwHeight, dwRGBBitCount, isWindowed,
 //               screenSwap, screenHardware3D);
@@ -112,14 +112,14 @@ int dk2::MyGame::prepareScreenEx(
         AABB aabb;
         int x = 50;
         int y = 50;
-        remember_window_location_and_size::patchWinLoc(x, y);
+        patch::remember_window_location_and_size::patchWinLoc(x, y);
         aabb.minX = x;
         aabb.minY = y;
         aabb.maxX = dwWidth + x;
         aabb.maxY = dwHeight + y;
         if (*this->c_window_test.probably_do_show_window_ev0_7(&dwHeight, &aabb) < 0)
             return 0;
-        remember_window_location_and_size::resizeWindow(this->c_window_test.hWnd);
+        patch::remember_window_location_and_size::resizeWindow(this->c_window_test.hWnd);
         dwRGBBitCount_ = dwRGBBitCount;
     } else {
         dwRGBBitCount_ = dwRGBBitCount;

@@ -8,7 +8,9 @@
 #include <Windows.h>
 #include <cstdint>
 
-namespace add_win10_support {
+namespace patch {
+
+namespace modern_windows_support {
     extern bool enabled;
 }
 
@@ -127,6 +129,8 @@ namespace multi_interface_fix {
     extern bool enabled;
     DWORD getLocalIp(struct hostent *hostent);
 }
+
+}  // namespace patch
 
 
 #endif //FLAME_MICRO_PATCHES_H

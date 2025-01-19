@@ -47,41 +47,41 @@ add_executable(${TARGET}
         patches/inspect_tools.cpp
         patches/original_compatible.cpp
 
-        patches/gog_patch_dll/gog_patch_dll.cpp
-        patches/gog_patch_dll/gog_cfg.cpp
-        patches/gog_patch_dll/gog_globals.cpp
-        patches/gog_patch_dll/gog_fake.cpp
-        patches/gog_patch_dll/gog_exports.cpp
-        patches/gog_patch_dll/gog_patch.cpp
-        patches/gog_patch_dll/fake/FakeD3D.cpp
-        patches/gog_patch_dll/fake/FakeD3D2.cpp
-        patches/gog_patch_dll/fake/FakeD3D3.cpp
-        patches/gog_patch_dll/fake/FakeDevice3.cpp
-        patches/gog_patch_dll/fake/FakeDirectDraw1.cpp
-        patches/gog_patch_dll/fake/FakeDirectDraw2.cpp
-        patches/gog_patch_dll/fake/FakeDirectDraw4.cpp
-        patches/gog_patch_dll/fake/FakeGammaControl.cpp
-        patches/gog_patch_dll/fake/FakeSurface.cpp
-        patches/gog_patch_dll/fake/FakeSurface4.cpp
-        patches/gog_patch_dll/fake/FakeTexture.cpp
-        patches/gog_patch_dll/fake/FakeViewport3.cpp
-        patches/gog_patch_dll/fake/FakeZBuffer.cpp
-        patches/gog_patch_dll/fake/FakeUnknown.cpp
+        gog_patch_dll/gog_patch_dll.cpp
+        gog_patch_dll/gog_cfg.cpp
+        gog_patch_dll/gog_globals.cpp
+        gog_patch_dll/gog_fake.cpp
+        gog_patch_dll/gog_exports.cpp
+        gog_patch_dll/gog_patch.cpp
+        gog_patch_dll/fake/FakeD3D.cpp
+        gog_patch_dll/fake/FakeD3D2.cpp
+        gog_patch_dll/fake/FakeD3D3.cpp
+        gog_patch_dll/fake/FakeDevice3.cpp
+        gog_patch_dll/fake/FakeDirectDraw1.cpp
+        gog_patch_dll/fake/FakeDirectDraw2.cpp
+        gog_patch_dll/fake/FakeDirectDraw4.cpp
+        gog_patch_dll/fake/FakeGammaControl.cpp
+        gog_patch_dll/fake/FakeSurface.cpp
+        gog_patch_dll/fake/FakeSurface4.cpp
+        gog_patch_dll/fake/FakeTexture.cpp
+        gog_patch_dll/fake/FakeViewport3.cpp
+        gog_patch_dll/fake/FakeZBuffer.cpp
+        gog_patch_dll/fake/FakeUnknown.cpp
 
-        patches/weanetr_dll/NetworkServiceProvider.cpp
-        patches/weanetr_dll/BullfrogNET.cpp
-        patches/weanetr_dll/DPlay.cpp
-        patches/weanetr_dll/DnsResolver.cpp
-        patches/weanetr_dll/MLDPlay.cpp
-        patches/weanetr_dll/MySocket.cpp
-        patches/weanetr_dll/logging.cpp
-        patches/weanetr_dll/weanetr.cpp
-        patches/weanetr_dll/globals.cpp
-        patches/weanetr_dll/weanetr_memory.cpp
+        weanetr_dll/NetworkServiceProvider.cpp
+        weanetr_dll/BullfrogNET.cpp
+        weanetr_dll/DPlay.cpp
+        weanetr_dll/DnsResolver.cpp
+        weanetr_dll/MLDPlay.cpp
+        weanetr_dll/MySocket.cpp
+        weanetr_dll/logging.cpp
+        weanetr_dll/weanetr.cpp
+        weanetr_dll/globals.cpp
+        weanetr_dll/weanetr_memory.cpp
 
 #        ${DKII_RESOURCES_FILE}
         )
-target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_LIST_DIR} patches/gog_patch_dll)
+target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_LIST_DIR} gog_patch_dll)
 target_compile_definitions(${TARGET} PRIVATE
         DIRECTINPUT_VERSION=0x0500
         DIRECT3D_VERSION=0x0600

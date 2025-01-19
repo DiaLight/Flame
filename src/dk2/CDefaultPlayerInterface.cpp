@@ -35,7 +35,7 @@ int dk2::CDefaultPlayerInterface::tickKeyboard2() {
     int dwWidth = MyGame_instance.dwWidth;
     int dwHeight = MyGame_instance.dwHeight;
 
-    if (!control_windowed_mode::enabled) {
+    if (!patch::control_windowed_mode::enabled) {
         if (x < 5)
             this->pushMoveKeyAction(0, 0);
         if (x > dwWidth - 5)
@@ -143,7 +143,7 @@ void __cdecl dk2::CDefaultPlayerInterface_chatCallback(
         memcpy(&hist[i], &hist[i + 1], 0x102u);
     }
 
-    if (fix_chat_buffer_invalid_memory_access::enabled) {
+    if (patch::fix_chat_buffer_invalid_memory_access::enabled) {
         size_t strLen = wcslen((wchar_t *) &a2_message->sendTarget);  // whole message concept is being wchar_t[] compatible zero terminated string
         size_t strSize = 2 * strLen + 2;  // precise message buffer size
         memset(&a3_defPlayerIf->chatHistory[2].sendTarget, 0, 0x102u);
@@ -210,7 +210,7 @@ namespace dk2 {
             break;
         }
         if (thingInHand == nullptr) return false;
-        if(drop_thing_from_hand_fix::enabled) {
+        if(patch::drop_thing_from_hand_fix::enabled) {
             if (!self->pCWorld->v_isCoordReachable_510000(a3_underHand->x, a3_underHand->y)) return true;
         }
         if (self->checkAllowToDrop((CThing *) sceneObjects[thingInHand->tagId], a3_underHand->x, a3_underHand->y)) {
