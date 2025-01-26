@@ -13,6 +13,7 @@
 #include "weanetr_dll/MLDPlay.h"
 #include "dk2/MySemaphore.h"
 #include "dk2/network/protocol/DataMessage_1.h"
+#include "dk2/network/protocol/DataMessage_3.h"
 #include "dk2_memory.h"
 
 
@@ -361,3 +362,121 @@ BOOL dk2::CNetworkCommunication::collectActions(GameActionCtx *a2_outCtx) {
     ++this->ff728_req;
     return 0;
 }
+
+uint32_t dk2::CNetworkCommunication::fun_523DC0(int a2_idx) {
+    this->obj523DE1_arr[a2_idx]._abool = 0;
+    this->slotMasks[a2_idx] = 0;
+    this->fFDB4[a2_idx] = 0;
+    int TimeMs = getTimeMs();
+    DWORD v10_notDestroyedCount = 0;
+    for (int v3_slot = 0; v3_slot < 8; ++v3_slot) {
+        struc_250 *pos = &this->fF744[v3_slot];
+        if (!WeaNetR_instance.isPlayerJoined(v3_slot)) continue;
+        if (!pos->f0[a2_idx]) {
+            WeaNetR_instance.mldplay->DumpPlayer(v3_slot);  // DestroySession
+            continue;
+        }
+        pos->lastPacket_timeMs = TimeMs;
+        ++v10_notDestroyedCount;
+    }
+    this->obj523DE1_arr[a2_idx]._notDestroyedPlayers = v10_notDestroyedCount;
+    return v10_notDestroyedCount;
+}
+
+int dk2::CNetworkCommunication::handleDm_3(DataMessage_3 *a2_msg, unsigned int a3_slot) {
+    GameActionCtx v23_actionCtx;
+    for_each_construct<GameAction, true>(v23_actionCtx.actionArr, 16);
+    memset(&v23_actionCtx, 0, 17);
+    unsigned int f8__gameTick8 = this->obj522000._gameTick8;
+    int try_level = 0;
+    if (a2_msg->gameTick > f8__gameTick8) {
+        LABEL_26:
+        try_level = -1;
+        for_each_destruct<GameAction, true>(v23_actionCtx.actionArr, 16);
+        return 0;
+    }
+    if (a2_msg->gameTick > a2_msg->sendTick) {
+        try_level = -1;
+        for_each_destruct<GameAction, true>(v23_actionCtx.actionArr, 16);
+        return 1;
+    }
+    int v19_gameTick = a2_msg->gameTick;
+    unsigned int v20_i = 0;
+    while (v20_i < 0x20) {
+        if (!this->obj522000.sub_5224E0(v19_gameTick, (char *) &v23_actionCtx)) {
+            MyPlayerInf v22_inf;
+            v22_inf.timeMs = getTimeMs();
+            v22_inf.state = 5;
+            v22_inf.slot = a3_slot;
+            v22_inf.timeDelta = v19_gameTick;
+            if (!this->containsPlayerInf(&v22_inf)) {
+                int fF720_playersCount = this->playersCount;
+                if (fF720_playersCount != 32) {
+                    this->players[((BYTE) fF720_playersCount + (BYTE) this->playersStart) & 0x1F] = v22_inf;
+                    ++this->playersCount;
+                }
+            }
+            WeaNetR_instance.mldplay->DumpPlayer(a3_slot);  // DestroySession
+            goto LABEL_26;
+        }
+        unsigned int v6_gameTick_n = v19_gameTick + 1;
+        int v7_gameTick = this->obj522000.sub_5222C0(v6_gameTick_n, 0x20u);
+        int v8_ticks = v7_gameTick;
+        unsigned int v9_ticksLeft;
+        if (v7_gameTick)
+            v9_ticksLeft = v7_gameTick - v6_gameTick_n;
+        else
+            v9_ticksLeft = 0;
+        BOOL v14_sendStatus;
+        if (v9_ticksLeft) {
+            DataMessage_1 v25_dataMsg;
+            v25_dataMsg.init(&v23_actionCtx);
+            int f4_actionArr_count;
+            if (v25_dataMsg.actionArr_count == 0xFF)
+                f4_actionArr_count = 0;
+            else
+                f4_actionArr_count = v25_dataMsg.actionArr_count;
+            DataMessage_1 *v11_secondMsg = (DataMessage_1 *) &v25_dataMsg.actionArr[f4_actionArr_count];
+            v11_secondMsg->gameTick0 = v6_gameTick_n;
+            v11_secondMsg->actionArr_count = -1;
+            v11_secondMsg->sub_524CA0(v8_ticks);
+            int v12_firstSize = v25_dataMsg.calcSize();
+            int v13_secondSize = v11_secondMsg->calcSize();
+            v14_sendStatus = this->sendDataMessage(
+                    1,
+                    &v25_dataMsg,
+                    v13_secondSize + v12_firstSize,
+                    a3_slot) != 0;
+            v19_gameTick += v9_ticksLeft;
+        } else {
+            DataMessage_1 v24_dataMsg;
+            for_each_construct<GameAction, true>(v24_dataMsg.actionArr, 16);
+            try_level = 1;
+            v24_dataMsg.init(&v23_actionCtx);
+            int v15_msgSize = v24_dataMsg.calcSize();
+            int v16_sendStatus = this->sendDataMessage(1, &v24_dataMsg, v15_msgSize, a3_slot);
+            try_level = 0;
+            if (v16_sendStatus) {
+                for_each_destruct<GameAction, true>(v24_dataMsg.actionArr, 16);
+                v14_sendStatus = 1;
+            } else {
+                for_each_destruct<GameAction, true>(v24_dataMsg.actionArr, 16);
+                v14_sendStatus = 0;
+            }
+        }
+        if (!v14_sendStatus) {
+            try_level = -1;
+            for_each_destruct<GameAction, true>(v23_actionCtx.actionArr, 16);
+            return 0;
+        }
+        ++v20_i;
+        ++this->resendsCnt;
+        if ((unsigned int) ++v19_gameTick > a2_msg->sendTick)
+            break;
+    }
+    try_level = -1;
+    for_each_destruct<GameAction, true>(v23_actionCtx.actionArr, 16);
+    return 1;
+}
+
+

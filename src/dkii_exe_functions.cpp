@@ -10,6 +10,7 @@
 #include "patches/game_version_patch.h"
 #include "gog_patch.h"
 #include "gog_cfg.h"
+#include "weanetr_dll/MLDPlay.h"
 
 
 int32_t dk2::MyGame::isOsCompatible() {
@@ -274,4 +275,19 @@ void __cdecl dk2::CTextBox_renderVersion(dk2::CTextBox *textBox, CFrontEndCompon
     MyLangObj_static_toUniToMB_2(wstring, mbstring, 64);
     renderer.renderText(&status, &scaled, mbstring, &g_FontObj2_instance, NULL);
     renderer.destructor();
+}
+
+int __cdecl dk2::cmd_dumpPlayer(int a1, int a2) {
+    WeaNetR_instance.load_player_info();
+    if ( *(DWORD *)(a2 + 28) >= WeaNetR_instance.joinedPlayersCount ) {
+        ProbablyConsole_instance.appendOutput("Invaliud Player");
+        return 1;
+    } else {
+        // DestroySession
+        if ( WeaNetR_instance.mldplay->DumpPlayer(*(DWORD *)(a2 + 28)) )
+            ProbablyConsole_instance.appendOutput("Player Dumped");
+        else
+            ProbablyConsole_instance.appendOutput("Error!");
+        return 1;
+    }
 }

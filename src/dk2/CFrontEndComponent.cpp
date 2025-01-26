@@ -19,7 +19,7 @@ void dk2::CFrontEndComponent::showTitleScreen() {
     }
     unsigned __int16 extensionFlags = getResourceExtensionFlags();
     int status;
-    loadArtToSurface(
+    loadArtToSurfaceEx(
             &status,
             &this->titleScreen,
             &MyResources_instance.frontEndFileMan,

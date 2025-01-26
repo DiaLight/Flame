@@ -4,6 +4,8 @@
 005A5DA0 int __cdecl dk2_main(int, const CHAR **);      /* auto */
 005B74A0 void resolveDk2HomeDir();  // ---------------  /* auto */
 005A63B0 int __cdecl parse_command_line(int, const char **);  /* auto */
+00528080 int __cdecl cmd_dumpPlayer(int, int);  // ---  /* auto */
+005306F0 int __cdecl CButton_leftClick_changeMenu(uint32_t, int, CFrontEndComponent *);  /* auto */
 
 # engine
 0058A150 void drawTexToSurfTriangles();  // ----------  /* auto */
@@ -126,4 +128,7 @@
 
 # CNetworkCommunication.h
 00522FA0 BOOL collectActions(GameActionCtx *);  // ---  /* auto */
+00523DC0 uint32_t fun_523DC0(int);  // ---------------  /* auto */
+00524970 int handleDm_3(DataMessage_3 *, uint32_t);     /* auto */
+
 

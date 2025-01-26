@@ -23,6 +23,7 @@ add_executable(${TARGET}
 
         dk2/button/button_types.cpp
         dk2/button/CTextInput.cpp
+        dk2/button/button_functions.cpp
 
         dk2/entities/entities_type.cpp
         dk2/entities/CCreature.cpp
