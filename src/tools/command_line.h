@@ -7,12 +7,10 @@
 
 #include <string>
 
-
-bool hasCmdOption(const char **begin, const char **end, const std::string &option);
-const char *getCmdOption(const char **begin, const char **end, const std::string &option);
+void command_line_init(int argc, const char **argv);
 
 bool hasCmdOption(const std::string &option);
-std::string getCmdOption(const std::string &option);
+const char *getCmdOption(const std::string &option);
 
 
 #endif //FLAME_COMMAND_LINE_H

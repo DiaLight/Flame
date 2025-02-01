@@ -13,6 +13,7 @@
 #include "globals.h"
 #include "weanetr_memory.h"
 #include "patches/logging.h"
+#include "patches/micro_patches.h"
 
 using namespace net;
 
@@ -1612,6 +1613,7 @@ void BullfrogNET::handlePacket_5_SessionRequest(
     packet->f0_hdr.signature = PacketHeader::MAGIC;
     packet->f0_hdr.packetTy = MyPacket_6_sessionDesc::ID;
     packet->fC_desc = this->f186_sessionDesc;
+    patch::multi_interface_fix::replaceConnectAddress(packet->fC_desc.sock.ipv4, *a2_to);
     MySocket_send(&this->f571_joinSession_sock, a2_to, packet, sizeof(MyPacket_6_sessionDesc));
     net::_free(packet);
 }
@@ -2005,7 +2007,8 @@ void BullfrogNET::ListenThread_proc() {
                             v5_resp->f0_hdr.signature = PacketHeader::MAGIC;
                             v5_resp->f0_hdr.packetTy = MyPacket_6_sessionDesc::ID;
                             v5_resp->fC_desc = this->f186_sessionDesc;
-                            MySocket_send(&this->f585_listenThread_sock, &a2_to, v5_resp, 0xB0);
+                            patch::multi_interface_fix::replaceConnectAddress(v5_resp->fC_desc.sock.ipv4, a2_to);
+                            MySocket_send(&this->f585_listenThread_sock, &a2_to, v5_resp, sizeof(MyPacket_6_sessionDesc));
                             net::_free(v5_resp);
                         }
                     }
@@ -2082,6 +2085,7 @@ void BullfrogNET::sendPacket_6_SessionDesc() {
     packet->f0_hdr.signature = PacketHeader::MAGIC;
     packet->f0_hdr.packetTy = MyPacket_6_sessionDesc::ID;
     packet->fC_desc = this->f186_sessionDesc;
+    patch::multi_interface_fix::replaceConnectAddress(packet->fC_desc.sock.ipv4, v5_sock);
     MySocket_send(&this->f571_joinSession_sock, &v5_sock, packet, sizeof(MyPacket_6_sessionDesc));
     net::_free(packet);
 }

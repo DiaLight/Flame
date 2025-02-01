@@ -2,6 +2,8 @@
 // Created by DiaLight on 20.07.2024.
 //
 
+#include <WinSock2.h>
+#include <WS2tcpip.h>
 #include "micro_patches.h"
 #include "dk2/utils/Pos2i.h"
 #include "dk2/utils/AABB.h"
@@ -10,7 +12,8 @@
 #include "dk2_globals.h"
 #include "dk2_functions.h"
 #include "logging.h"
-#include <windowsx.h>
+#include "tools/command_line.h"
+#include "inspect_tools.h"
 
 
 bool patch::modern_windows_support::enabled = true;
@@ -188,16 +191,69 @@ void patch::limit_fps::call() {
     lastTime = time;
 }
 
-bool patch::multi_interface_fix::enabled = false;
-DWORD patch::multi_interface_fix::getLocalIp(struct hostent *hostent) {
-    DWORD ipv4 = 0;
-    patch::log::dbg("resolved %s", hostent->h_name);
+bool patch::multi_interface_fix::enabled = true;
+std::vector<ULONG> patch::multi_interface_fix::localAddresses;
+ULONG patch::multi_interface_fix::userProvidedIpv4 = 0;
+void patch::multi_interface_fix::init() {
+    const char *ipv4Str = getCmdOption("-myip");
+    if (!ipv4Str) return;
+    // if user specified address by flags, use it
+    struct sockaddr_in sa;
+    if(::inet_pton(AF_INET, ipv4Str, &(sa.sin_addr)) == 1) {
+        printf("[multi_interface_fix] force use provided by flags ipv4 %s\n", ipv4Str);
+        userProvidedIpv4 = sa.sin_addr.S_un.S_addr;
+    } else {
+        MessageBoxA(NULL, "you provided invalid -myip option", "Flame:multi_interface_fix", MB_OK);
+        exit(1);
+    }
+}
+void patch::multi_interface_fix::replaceLocalIp(struct hostent *hostent, ULONG &ipv4) {
+    if(!patch::multi_interface_fix::enabled) return;
+    localAddresses.clear();
+    if(userProvidedIpv4 != 0) {
+        ipv4 = userProvidedIpv4;
+        return;
+    }
+    if(patch::inspect_tools::enable)  // todo: verbose logging flags
+        printf("[multi_interface_fix] remember resolved ips from local hostname %s\n", hostent->h_name);
     for(int i = 0; ; ++i) {
         in_addr *addr = (in_addr *) hostent->h_addr_list[i];
         if(addr == NULL) break;
-        patch::log::dbg(" - %s", inet_ntoa(*addr));
-        ipv4 = addr->S_un.S_addr;  // use last ip
+        if(patch::inspect_tools::enable)
+            printf("[multi_interface_fix]  - %s\n", ::inet_ntoa(*addr));
+        localAddresses.push_back(addr->S_un.S_addr);
     }
-    return ipv4;
 }
 
+void patch::multi_interface_fix::replaceConnectAddress(_Inout_ DWORD &ipv4, net::MySocket &to) {
+    if(!patch::multi_interface_fix::enabled) return;
+    ULONG wouldBeUsed = ipv4;
+    std::string wouldBeUsedStr = ::inet_ntoa(*(struct in_addr *) &wouldBeUsed);
+    std::string toStr = ::inet_ntoa(*(struct in_addr *) &to.ipv4);
+
+    // dirty algorithm. but it works in local networks
+    ULONG mostSimilar = 0;
+    int mostSimilar_bitsMatched = 0;
+    for (ULONG local_ipv4 : localAddresses) {
+        int i = 0;
+        for (; i < sizeof(ULONG) * 8; ++i) {
+            if(((to.ipv4 >> i) & 1) != ((local_ipv4 >> i) & 1)) break;
+        }
+        if(i > mostSimilar_bitsMatched) {
+            mostSimilar_bitsMatched = i;
+            mostSimilar = local_ipv4;
+        }
+    }
+
+    if(mostSimilar != 0) {
+        static_assert(sizeof(struct in_addr) == sizeof(ULONG));
+        std::string mostSimilarStr = ::inet_ntoa(*(struct in_addr *) &mostSimilar);
+        patch::log::dbg("[multi_interface_fix] replace local ip %s -> %s as %d bits matched with remote %s",
+                wouldBeUsedStr.c_str(),
+                mostSimilarStr.c_str(),
+                mostSimilar_bitsMatched,
+                toStr.c_str()
+        );
+        ipv4 = mostSimilar;
+    }
+}

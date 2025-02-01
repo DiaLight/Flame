@@ -281,9 +281,6 @@ int dk2::WeaNetR::SetupConnection(void *a2_service_) {
     return TRUE;
 }
 
-
-
-
 int dk2::NetworkCfg::appendIpWithHostname() {
     struct WSAData WSAData;
     int result = ::WSAStartup(0x101u, &WSAData);
@@ -296,10 +293,8 @@ int dk2::NetworkCfg::appendIpWithHostname() {
     const char **p_h_name = (const char **)&v3_hostent->h_name;  // Bullfrog devs mistake
     if ( !v3_hostent )
         return ::WSACleanup();
-    in_addr ipv4 = **(struct in_addr **) v3_hostent->h_addr_list;
-    if(patch::multi_interface_fix::enabled) {
-        ipv4.S_un.S_addr = patch::multi_interface_fix::getLocalIp(v3_hostent);
-    }
+    in_addr ipv4 = *(struct in_addr *) v3_hostent->h_addr_list[0];
+    patch::multi_interface_fix::replaceLocalIp(v3_hostent, ipv4.S_un.S_addr);
 
     char *v5_ipAddr = ::inet_ntoa(ipv4);
     strcpy(this->ipAddr, "IP: ");
@@ -536,3 +531,4 @@ int dk2::WeaNetR::sendChatMessage(uint16_t *a2_chatMessage, unsigned int playerL
     patch::log::err(Buffer);
     return 0;
 }
+

@@ -13,15 +13,13 @@ int DnsResolver::wsaStartup() {
 }
 
 int DnsResolver::resolve(const char *a2_hostname) {
-    int ipv4 = 0;
+    ULONG ipv4 = 0;
     strcpy(this->f18E_hostname, a2_hostname);
     struct hostent *hostent = gethostbyname(this->f18E_hostname);
 
     if ( hostent ) {
         ipv4 = ((in_addr *) hostent->h_addr_list[0])->S_un.S_addr;
-        if(patch::multi_interface_fix::enabled) {
-            ipv4 = patch::multi_interface_fix::getLocalIp(hostent);
-        }
+        patch::multi_interface_fix::replaceLocalIp(hostent, ipv4);
     }
 
     if ( !ipv4 ) return -1;

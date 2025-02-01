@@ -48,7 +48,7 @@ the original functions with the references to recompiled functions.
 Recompiled functions are supplemented with switchable changes that fix some game bugs
 
 [Earlier](https://github.com/DiaLight/Flame/tree/46e5b0c1df93060bd01a83bb6d14d064e9c8c3dc "Full relinking approach"), this project implemented an approach to fully relinking `DKII.EXE`,
-which contains false positive references that caused new bugs.
+which contains false positive references that caused new bugs. Due to problems with false positive references, the relinking method was replaced by the exe merge method.
 
 ## Build requirements
 - CMake 3.25 or higher https://cmake.org/download/

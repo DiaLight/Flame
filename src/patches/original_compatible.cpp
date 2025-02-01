@@ -13,7 +13,7 @@ bool patch::original_compatible::enable = false;
 void patch::original_compatible::init() {
     original_compatible::enable = hasCmdOption("-original_compatible");
     if(!original_compatible::enable) return;
-    printf("Flame will try to be compatible with DKII-DX.EXE\n");
+    printf("[original_compatible] Flame will try to be compatible with DKII-DX.EXE v1.7.0\n");
 
     // minimal required to disable
     drop_thing_from_hand_fix::enabled = false;  // incompatible with 1.7

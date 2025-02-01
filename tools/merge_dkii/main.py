@@ -352,6 +352,7 @@ def main(
     flame_msvcmap_file: pathlib.Path,
     flame_pdb_file: pathlib.Path,
     flame_version: str,
+    flame_console: bool,
     # out
     output_exe: pathlib.Path,
 ):
@@ -484,7 +485,7 @@ def main(
   version_rva = version_va - flame_pe.nt.OptionalHeader.ImageBase + delta_virt
   offs = merged_pe.rva2raw(version_rva)
   version_val = (ctypes.c_char * 64).from_address(merged_pe.base + offs)
-  print(f'version: {flame_version}')
+  print(f'version: {flame_version}  console: {flame_console}')
   pos = flame_version.find('build')
   if pos != -1:
     flame_version = ' V' + flame_version[:pos - 1] + '\n ' + flame_version[pos:]
@@ -526,7 +527,7 @@ def main(
     src_val = wintypes.DWORD.from_address(merged_pe.base + offs)
     src_val.value = dst_rva + merged_pe.nt.OptionalHeader.ImageBase
 
-  merged_pe.nt.OptionalHeader.Subsystem = pe_types.IMAGE_SUBSYSTEM_WINDOWS_CUI
+  merged_pe.nt.OptionalHeader.Subsystem = pe_types.IMAGE_SUBSYSTEM_WINDOWS_CUI if flame_console else pe_types.IMAGE_SUBSYSTEM_WINDOWS_GUI
 
   output_exe.write_bytes(merged_pe.data)
   with open(output_exe.parent / f'{os.path.splitext(output_exe.name)[0]}.map', 'w') as f:
@@ -546,6 +547,7 @@ def start():
   parser.add_argument('-flame_msvcmap_file', type=str, required=True)
   parser.add_argument('-flame_pdb_file', type=str, required=True)
   parser.add_argument('-flame_version', type=str, required=True)
+  parser.add_argument('-flame_console', action='store_true')
   # out
   parser.add_argument('-output_exe', type=str, required=True)
   args = parser.parse_args()
@@ -561,6 +563,7 @@ def start():
     pathlib.Path(args.flame_msvcmap_file),
     pathlib.Path(args.flame_pdb_file),
     args.flame_version,
+    args.flame_console,
     # out
     pathlib.Path(args.output_exe)
   )

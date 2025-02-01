@@ -1,5 +1,10 @@
 set(TARGET flame)
 
+if(DEV_CONSOLE)
+    message(STATUS "Compile Flame in console mode")
+    set_source_files_properties(main.cpp PROPERTIES COMPILE_DEFINITIONS DEV_FORCE_CONSOLE=1)
+endif()
+
 add_executable(${TARGET}
         main.cpp
         dkii_exe_functions.cpp
@@ -39,6 +44,8 @@ add_executable(${TARGET}
         tools/win32_gui_layout.cpp
         tools/ExceptionWindow.cpp
         tools/command_line.cpp
+        tools/console.cpp
+        tools/last_error.cpp
 
         patches/replace_mouse_dinput_to_user32.cpp
         patches/use_wheel_to_zoom.cpp
@@ -132,6 +139,12 @@ set_target_properties(${TARGET} PROPERTIES TARGET_MAP_FILE "${CMAKE_CURRENT_BINA
 # === Merge Flame.exe with DKII.EXE ===
 
 set(MERGED_EXE "DKII-${OUTPUT_NAME}.exe")
+
+if(DEV_CONSOLE)
+    set(ABS_CONSOLE -flame_console)
+else()
+    set(ABS_CONSOLE)
+endif()
 set(ABS_MERGED_EXE ${MERGED_EXE})
 list(TRANSFORM ABS_MERGED_EXE PREPEND "${CMAKE_CURRENT_BINARY_DIR}/")
 
@@ -155,6 +168,7 @@ add_custom_command(
         -flame_msvcmap_file ${FLAME_MSVCMAP_FILE}
         -flame_pdb_file $<TARGET_PDB_FILE:flame>
         -flame_version "${VER_PRODUCT_NUMBER}.${VER_PRODUCT_VERSION}${VER_FILE_SUFFIX}"
+        ${ABS_CONSOLE}
         # out
         -output_exe ${ABS_MERGED_EXE}
         DEPENDS ${ABS_MERGE_SRCS}

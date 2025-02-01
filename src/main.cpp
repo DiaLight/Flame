@@ -10,6 +10,7 @@
 #include "tools/command_line.h"
 #include "patches/inspect_tools.h"
 #include "patches/original_compatible.h"
+#include "tools/console.h"
 #include <thread>
 #include <stdexcept>
 #include <iostream>
@@ -250,7 +251,8 @@ int dk2::WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *lpCmdLine, 
 
 
 int main(int argc, const char **argv) {
-    const char *roomsLimitStr = getCmdOption(argv, argv + argc, "-experimental_rooms_limit");
+    command_line_init(argc, argv);
+    const char *roomsLimitStr = getCmdOption("-experimental_rooms_limit");
     if (roomsLimitStr != nullptr) {
         try {
             uint32_t roomsLimit = std::stoul(roomsLimitStr, nullptr, 10);
@@ -260,13 +262,18 @@ int main(int argc, const char **argv) {
             exit(-1);
         }
     }
-    if(!hasCmdOption(argv, argv + argc, "-console")) {
-        ::ShowWindow(::GetConsoleWindow(), SW_HIDE);
+
+#if !DEV_FORCE_CONSOLE
+    // in windowed mode we can attach console with flag
+    if(hasCmdOption("-console")) {
+        initConsole();
     }
-    if(hasCmdOption(argv, argv + argc, "-windowed")) {
+#endif
+
+    if(hasCmdOption("-windowed")) {
         gog::enable = false;  // gog is incompatible with windowed mode
         patch::control_windowed_mode::enabled = true;
-        if(!hasCmdOption(argv, argv + argc, "-no_initial_size")) {
+        if(!hasCmdOption("-no_initial_size")) {
             // Finding the user's screen resolution
             int screenWidth = GetSystemMetrics(SM_CXSCREEN);
             int screenHeight = GetSystemMetrics(SM_CYSCREEN);
@@ -285,6 +292,8 @@ int main(int argc, const char **argv) {
 
     patch::inspect_tools::init();
     bug_hunter::init();
+    patch::multi_interface_fix::init();
+    patch::original_compatible::init();
 
     std::thread keyWatcher([] { bug_hunter::keyWatcher(); });
     // call entry point of DKII.EXE,

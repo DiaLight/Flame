@@ -7,6 +7,8 @@
 
 #include <Windows.h>
 #include <cstdint>
+#include <vector>
+#include "weanetr_dll/MySocket.h"
 
 namespace patch {
 
@@ -127,7 +129,11 @@ namespace limit_fps {
 
 namespace multi_interface_fix {
     extern bool enabled;
-    DWORD getLocalIp(struct hostent *hostent);
+    extern std::vector<ULONG> localAddresses;
+    extern ULONG userProvidedIpv4;
+    void init();
+    void replaceLocalIp(struct hostent *hostent, ULONG &ipv4);
+    void replaceConnectAddress(DWORD &ipv4, net::MySocket &to);
 }
 
 }  // namespace patch

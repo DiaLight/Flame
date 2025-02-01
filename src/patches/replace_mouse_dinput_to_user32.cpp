@@ -9,6 +9,7 @@
 #include "dk2/MyMouseUpdater.h"
 #include "dk2/MouseXyzDxAction.h"
 #include "dk2/entities/CPlayer.h"
+#include "dk2/dk2_memory.h"
 #include <vector>
 #include <windowsx.h>
 
@@ -37,7 +38,7 @@ void move_mouse(DWORD offs, DWORD value) {
     auto *updater = dk2::MyInputManagerCb_instance.f5C_controlKeys;
 
 //    MouseXyzDxAction *action = this->listXYZ.getOrCreateUnhandled();
-    auto *action = (dk2::MouseXyzDxAction *) new char[sizeof(dk2::MouseXyzDxAction)];
+    auto *action = (dk2::MouseXyzDxAction *) dk2::operator_new(sizeof(dk2::MouseXyzDxAction));
     *(void **) action = &dk2::MouseXyzDxAction::vftable;
     xyzActionsInProgress.push_back(action);
 
@@ -51,7 +52,7 @@ void move_mouse(DWORD offs, DWORD value) {
 void click_mouse(DWORD dik_scancode, DWORD flags) {
     auto *updater = dk2::MyInputManagerCb_instance.f5C_controlKeys;
     // do not try to call constructor/destructor
-    auto *action = (dk2::MouseRgbDxAction *) new char[sizeof(dk2::MouseRgbDxAction)];
+    auto *action = (dk2::MouseRgbDxAction *) dk2::operator_new(sizeof(dk2::MouseRgbDxAction));
     *(void **) action = &dk2::MouseRgbDxAction::vftable;
     rgbActionsInProgress.push_back(action);
 
@@ -221,7 +222,7 @@ void patch::replace_mouse_dinput_to_user32::release_handled_dinput_actions() {
     {
         auto it = std::remove_if(rgbActionsInProgress.begin(), rgbActionsInProgress.end(), [](dk2::MouseRgbDxAction *action) {
             if (action->isNotHandled) return false;
-            delete[] (char *) action;
+            dk2::operator_delete(action);
             return true;
         });
         rgbActionsInProgress.erase(it, rgbActionsInProgress.end());
@@ -229,7 +230,7 @@ void patch::replace_mouse_dinput_to_user32::release_handled_dinput_actions() {
 
     auto it = std::remove_if(xyzActionsInProgress.begin(), xyzActionsInProgress.end(), [](dk2::MouseXyzDxAction *action) {
         if (action->isNotHandled) return false;
-        delete[] (char *) action;
+        dk2::operator_delete(action);
         return true;
     });
     xyzActionsInProgress.erase(it, xyzActionsInProgress.end());

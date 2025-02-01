@@ -340,7 +340,7 @@ struct AppThread {
 
 };
 
-std::vector<AppThread> collectAppThreads() {
+std::vector<AppThread> collectAppThreadsExceptCurrent() {
     std::vector<AppThread> states;
     HANDLE h = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
     if (h == INVALID_HANDLE_VALUE) return {};
@@ -824,8 +824,11 @@ bool isGameFrame(StackFrame &frame) {
 
 LPTOP_LEVEL_EXCEPTION_FILTER g_prev = nullptr;
 LONG WINAPI TopLevelExceptionFilter(_In_ struct _EXCEPTION_POINTERS *ExceptionInfo) {
-    std::vector<AppThread> states = collectAppThreads();
+    std::vector<AppThread> states = collectAppThreadsExceptCurrent();
+
+    // suspend all collected threads
     for(auto &ts : states) ts.suspend();
+
     std::stringstream ss;
     FILETIME timespamp;
     GetSystemTimeAsFileTime(&timespamp);
@@ -864,7 +867,6 @@ LONG WINAPI TopLevelExceptionFilter(_In_ struct _EXCEPTION_POINTERS *ExceptionIn
             MessageBoxA(NULL, "err", "err", MB_OK);
         }
     }
-    std::vector<DWORD> gameThreads;
     for(auto &ts : states) {
         WalkerError err;
         StackLimits limits;
@@ -896,7 +898,6 @@ LONG WINAPI TopLevelExceptionFilter(_In_ struct _EXCEPTION_POINTERS *ExceptionIn
             break;
         }
         if(!hasGameFrame) continue;
-        gameThreads.push_back(ts.tid);
 
         ss << std::endl;
         ss << "thread " << ts.tid << " stack=" << fmtHex32(limits.low) << "-" << fmtHex32(limits.high) << std::endl;
@@ -908,12 +909,8 @@ LONG WINAPI TopLevelExceptionFilter(_In_ struct _EXCEPTION_POINTERS *ExceptionIn
         }
     }
 
-    // resume non game workers
-    // they are important for ShellExecuteA at least
-    for(auto &ts : states) {
-        if (std::find(gameThreads.begin(), gameThreads.end(), ts.tid) != gameThreads.end()) continue;  // if(gameThreads.contains(ts.tid)) continue;
-        ts.resume();
-    }
+    // resume all suspended threads
+    for(auto &ts : states) ts.resume();
 
     ss << std::endl;
     formatModules(ss, modules);
@@ -1061,7 +1058,7 @@ void collectStackInfo() {
     LoadedModules modules;
     modules.update();
 
-    std::vector<AppThread> states = collectAppThreads();
+    std::vector<AppThread> states = collectAppThreadsExceptCurrent();
     for(auto &ts : states) {
         WalkerError err;
         std::vector<StackFrame> frames;

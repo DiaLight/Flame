@@ -3,7 +3,7 @@
 //
 #include <dk2/CFrontEndComponent.h>
 #include <dk2/Obj543D99.h>
-#include <dk2/NetMessage_65.h>
+#include <dk2/network/protocol/NetMessage_65.h>
 #include <dk2/network/FoundSessionDesc.h>
 #include <dk2/button/CTextInput.h>
 #include <weanetr_dll/MLDPlay.h>
