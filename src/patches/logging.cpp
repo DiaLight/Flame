@@ -59,3 +59,9 @@ void patch::log::err(const char *format, ...) {
     va_end(args);
 }
 
+void patch::log::v_weanetr(const char *format, va_list args) {
+//    char msg[1024];
+//    vsnprintf(msg, sizeof(msg), format, args);
+//    printf("[weanetr] %s", msg);
+}
+

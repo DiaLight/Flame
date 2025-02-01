@@ -209,6 +209,8 @@ def append_dll_sections_into_exe(dkii_data: bytes, flame_data: bytes) -> my_pe.M
         thunk_rva += delta_virt
       imports[f'{imp.name.lower()}:{name if name is not None else ord}'] = (imp.desc.Name + delta_virt, imp.name, name, ord, thunk_rva)
   for imp in dkii_pe.imports():
+    if imp.name == 'weanetr.dll':
+      continue
     # print(imp.name)
     for rva, ord, name, thunk_rva in imp.thunks():
       # print(f' {rva:08X} {ord} {name}')
@@ -466,6 +468,8 @@ def main(
 
   dkii2merge_replace: list[ReplaceRefInfo] = []
   for imp in dkii_pe.imports():
+    if imp.name.lower() == 'weanetr.dll':
+      continue
     for rva, ord, name, thunk_rva in imp.thunks():
       str_id = f'{imp.name.lower()}:{name if name is not None else ord}'
       new_rva = merged_imports_map[str_id]

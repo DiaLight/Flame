@@ -7,7 +7,6 @@
 #include "patches/micro_patches.h"
 #include "gog_patch.h"
 #include "tools/bug_hunter.h"
-#include "weanetr_dll/weanetr.h"
 #include "tools/command_line.h"
 #include "patches/inspect_tools.h"
 #include "patches/original_compatible.h"
@@ -286,7 +285,6 @@ int main(int argc, const char **argv) {
 
     patch::inspect_tools::init();
     bug_hunter::init();
-    net::init();
 
     std::thread keyWatcher([] { bug_hunter::keyWatcher(); });
     // call entry point of DKII.EXE,

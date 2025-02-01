@@ -58,7 +58,7 @@ int MLDPlay::SetupConnection(MyDPlayCompoundAddress *a2_dplayAddr, GUID *a3_guid
     }
     if ( a2_dplayAddr->f0_signature[0] == 'B' && a2_dplayAddr->f0_signature[1] == 'F' ) {
         if ( a2_dplayAddr->f2_guid_BFSPGUID_TCPIP == BFSPGUID_TCPIP) {
-            this->f4_pNetworkServiceProvider = new BullfrogNET();
+            this->f4_pNetworkServiceProvider = net::call_new<BullfrogNET>();
         }
     } else {
         this->f4_pNetworkServiceProvider = net::call_new<DPlay>();

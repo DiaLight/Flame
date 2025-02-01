@@ -5,7 +5,12 @@
 005B74A0 void resolveDk2HomeDir();  // ---------------  /* auto */
 005A63B0 int __cdecl parse_command_line(int, const char **);  /* auto */
 00528080 int __cdecl cmd_dumpPlayer(int, int);  // ---  /* auto */
+005278C0 int cmd_Game();  // -------------------------  /* auto */
 005306F0 int __cdecl CButton_leftClick_changeMenu(uint32_t, int, CFrontEndComponent *);  /* auto */
+00545FC0 uint8_t __cdecl Button_addAiPlayer(int, int, CFrontEndComponent *);  /* auto */
+00543840 int __cdecl __onMapSelected(CButton *, int, CFrontEndComponent *);  /* auto */
+0053FC40 char sub_53FC40(int);  // -------------------  /* auto */
+00546300 int initMaxPlayers(uint8_t);  // ------------  /* auto */
 
 # engine
 0058A150 void drawTexToSurfTriangles();  // ----------  /* auto */
@@ -17,6 +22,14 @@
 
 # CFrontEndComponent.h
 005340F0 void showTitleScreen();  // -----------------  /* auto */
+005435E0 char sub_5435E0(int, CFrontEndComponent *);    /* auto */
+00543F80 uint32_t broadcastMsg_0x65();  // -----------  /* auto */
+0054DD10 char sub_54DD10(int);  // -------------------  /* auto */
+00543D40 char sendMsg_0x65(uint32_t);  // ------------  /* auto */
+00543E40 void sub_543E40(int, int);  // --------------  /* auto */
+0054D760 char createMultiplayerGame();  // -----------  /* auto */
+0054D920 char joinMultiplayerGame(int);  // ----------  /* auto */
+00542980 void sub_542980(FoundPlayService *);  // ----  /* auto */
 
 # CGameComponent.h
 00525370 CGameComponent *mainGuiLoop();  // ----------  /* auto */
@@ -122,6 +135,17 @@
 00559FE0 int SetupConnection(net::MyLocalService *);    /* auto */
 0055AC20 int sendDataMessage(void *, uint32_t, uint32_t);  /* auto */
 0055AC90 int sendGuaranteedData(void *, uint32_t, uint32_t);  /* auto */
+0055A6F0 int getCurrentPlayersCount(int *);  // ------  /* auto */
+0055A770 int collectPlayerInfo(WeanetrPlayerInfo *, uint32_t *);  /* auto */
+0055AD00 int getPlayerInfo();  // --------------------  /* auto */
+0055AD70 int updatePlayers_isHost();  // -------------  /* auto */
+0055AE30 int getCurrentPlayerIdx();  // --------------  /* auto */
+0055A5B0 int createSession(wchar_t *, wchar_t *, uint32_t *, int);  /* auto */
+0055A740 BOOL isPlayerJoined(uint32_t);  // ----------  /* auto */
+0055A430 BOOL collectNetworkSessions();  // ----------  /* auto */
+0055AED0 int enumerateSessions(int);  // -------------  /* auto */
+0055A650 int joinNetworkSession(FoundSessionDesc *, wchar_t *, uint32_t *);  /* auto */
+0055ABB0 int sendChatMessage(uint16_t *, uint32_t);     /* auto */
 
 # NetworkCfg.h
 0055E0C0 int appendIpWithHostname();  // -------------  /* auto */

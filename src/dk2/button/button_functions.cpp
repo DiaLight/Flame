@@ -11,6 +11,9 @@
 #include "dk2_globals.h"
 #include "weanetr_dll/MLDPlay.h"
 #include "dk2/dk2_memory.h"
+#include "dk2/MyMapInfo.h"
+#include "dk2/text/TbMBStringVTag.h"
+#include "patches/logging.h"
 
 
 namespace dk2 {
@@ -821,9 +824,9 @@ int __cdecl dk2::CButton_leftClick_changeMenu(uint32_t idx, int command, CFrontE
             comp->fun_5321A0(comp->f6037, 32);
             break;
         case 114:
-            comp->timeMs = getTimeMs();
+            comp->timeMs_463 = getTimeMs();
             comp->fun_5321A0(32, 44);
-            comp->timeMs = getTimeMs();
+            comp->timeMs_463 = getTimeMs();
             break;
         case 115: {
             CFrontEndComponent *v29_comp = comp;
@@ -871,5 +874,272 @@ int __cdecl dk2::CButton_leftClick_changeMenu(uint32_t idx, int command, CFrontE
     comp->mp_isHost = result;
     g_listItemNum = 0;
     return result;
+}
+
+
+int __cdecl dk2::__onMapSelected(CButton *a1_btn, int a2, CFrontEndComponent *a3_comp) {
+    if (!g_networkIsHost_740360)
+        return 1;
+    if ((f_staticInitialized_73F5C0 & 1) == 0) {
+        f_staticInitialized_73F5C0 |= 1u;
+        g_endTime_73F7C0 = getTimeMs() + 250;
+    }
+    MyPlayerConfig *f32__relations2 = &g_MyPlayerConfig_instance_arr[0];
+    do {
+        int v4_i = 0;
+        MyPlayerConfig *p_f3A_flags = &g_MyPlayerConfig_instance_arr[0];
+        do {
+            if ((p_f3A_flags->flags & 7) == 0) {
+                f32__relations2->_relations1[v4_i] = 0;
+                f32__relations2->_relations2[v4_i] = 0;
+            }
+            ++p_f3A_flags;
+            ++v4_i;
+        } while (p_f3A_flags < &g_MyPlayerConfig_instance_arr[8]);
+        ++f32__relations2;
+    } while (f32__relations2 < &g_MyPlayerConfig_instance_arr[8]);
+    if (a1_btn->f28_surfIdx == 9)
+        return 1;
+    if (a3_comp->f325 != 1) {
+        if (a3_comp->f15 == 1) {
+            a3_comp->f15 = 0;
+            CButton_leftClick_changeMenu(0, 82, a3_comp);
+            return 1;
+        }
+        a3_comp->broadcastMsg_0x65();
+        DWORD TimeMs = getTimeMs();
+        int f1D4_playersSlot = WeaNetR_instance.playersSlot;
+        unsigned int v11_timeMs = TimeMs;
+        char v12_hasMapName = a3_comp->hasMapName();
+        uint8_t f3A_flags = g_MyPlayerConfig_instance_arr[f1D4_playersSlot].flags;
+        uint8_t *v14_pFlags = &g_MyPlayerConfig_instance_arr[f1D4_playersSlot].flags;
+        bool v15_isWasFast = v11_timeMs < g_endTime_73F7C0;
+        *v14_pFlags = (16 * (v12_hasMapName & 1)) | f3A_flags & 0xEF;
+        if (v15_isWasFast)
+            return 1;
+        unsigned int v31_mp_isHost = a3_comp->mp_isHost;
+        unsigned int v16_mp_isHost = v31_mp_isHost;
+        a3_comp->sub_54DD10(v31_mp_isHost);
+        if (g__humanPlayersCount > (unsigned int) (a3_comp->mapPlayersCount_goldDencity_loseHeartType >> 4))
+            *v14_pFlags &= ~8u;
+        if (v16_mp_isHost) {
+            bool v17_isNotHost = g_networkIsHost_740360 == 0;
+            *v14_pFlags |= 0x20u;
+            if (!v17_isNotHost) {
+                size_t v18_dataSize = 2 * wcslen(g_networkData_0073FB90) + 3;
+                size_t v32_dataSize = v18_dataSize;
+                BYTE *v19_dataBuf = (BYTE *) malloc_2(v18_dataSize);
+                if (v19_dataBuf) {
+                    memset(v19_dataBuf, 0, v18_dataSize);
+                    memcpy(v19_dataBuf + 1, g_networkData_0073FB90, v18_dataSize - 3);
+                    *v19_dataBuf = 0x69;
+                    WeaNetR_instance.sendDataMessage(v19_dataBuf, v18_dataSize, 0xFFFFu);
+                    dk2::operator_delete(v19_dataBuf);
+                    v16_mp_isHost = v31_mp_isHost;
+                }
+            }
+            a3_comp->sendMessage_6F();
+            net::MLDPLAY_SESSIONDESC v34_sessionDesc;
+            DWORD descSize = sizeof(net::MLDPLAY_SESSIONDESC);
+            WeaNetR_instance.mldplay->GetSessionDesc(&v34_sessionDesc, &descSize);
+            memset(&v34_sessionDesc.mapNameHash, 0, 0xC);  // some kind of bit struct
+            v34_sessionDesc.mapNameLen_mapPlayersCount = g__aiPlayersCount & 0x7F;
+            const wchar_t *v20_mapName = a3_comp->getMapName();
+            char v21_mapNameLen = wcslen(v20_mapName);
+            int f660C_mapNameHash = a3_comp->mapNameHash;
+            v34_sessionDesc.fileHashsum = g_fileHashsum;
+            v34_sessionDesc.mapNameHash = f660C_mapNameHash;
+            {
+                int bitData = v34_sessionDesc.mapNameLen_mapPlayersCount;
+                bitData |= 0x80;
+                bitData |= (v21_mapNameLen << 8);
+                bitData |= ((a3_comp->mapPlayersCount_goldDencity_loseHeartType & 0xF0) << 12);
+                v34_sessionDesc.mapNameLen_mapPlayersCount = bitData;
+            }
+            WeaNetR_instance.mldplay->SetSessionDesc(&v34_sessionDesc, descSize);
+            a3_comp->sub_5454F0();
+            unsigned int v25_i = 0;
+            Obj54401A *f402_Obj54401A_arr = a3_comp->Obj54401A_arr;
+            while (true) {
+                if (f402_Obj54401A_arr->_aBool == 1) {
+                    if (f402_Obj54401A_arr->f8) {
+                        f402_Obj54401A_arr->timeMs = 0;
+                    } else if (f402_Obj54401A_arr->timeMs + 30000 < getTimeMs() && !a3_comp->_aBool_221) {
+                        a3_comp->_aBool_221 = 1;
+                        CButton_leftClick_changeMenu(v25_i, 116, a3_comp);
+                        return 1;
+                    }
+                }
+                ++v25_i;
+                ++f402_Obj54401A_arr;
+                if (v25_i >= 8) break;
+            }
+        } else {
+            *v14_pFlags &= ~0x20u;
+            a3_comp->sub_544530(0);
+            if (a3_comp->timeMs_463 + 30000 < getTimeMs() && !a3_comp->_aBool_221) {
+                a3_comp->_aBool_221 = 1;
+                a3_comp->timeMs_463 = getTimeMs();
+                a3_comp->fun_536BA0(2113, 0, 0, 82, 0, 1, 0, 0, 0);
+                return 1;
+            }
+        }
+        a3_comp->sub_5453F0();
+        int v27_rel1 = 0;
+        MyPlayerConfig *v28_pCfg_rel2 = &g_MyPlayerConfig_instance_arr[0];
+        do {
+            unsigned int v29_rel2 = 0;
+            MyPlayerConfig *v30_pCfg_rel1 = &g_MyPlayerConfig_instance_arr[0];
+            do {
+                v28_pCfg_rel2->_relations2[v29_rel2] = v30_pCfg_rel1->_relations1[v27_rel1]
+                                                       * v28_pCfg_rel2->_relations1[v29_rel2];
+                ++v29_rel2;
+                ++v30_pCfg_rel1;
+            } while (v29_rel2 < 8);
+            ++v28_pCfg_rel2;
+            ++v27_rel1;
+        } while (v28_pCfg_rel2 < &g_MyPlayerConfig_instance_arr[8]);
+        if (v16_mp_isHost) {
+            if (a3_comp->sub_545380()) {
+                if (g__humanPlayersCount == 1 && g__aiPlayersCount) {
+                    WeaNetR_instance.mldplay->DestroySession();
+                    CButton_leftClick_changeMenu(0, 90, a3_comp);
+                    return 1;
+                }
+                a3_comp->mp_hideButtons();
+                WeaNetR_instance.mldplay->EnableNewPlayers(0);
+                CButton_leftClick_changeMenu(0, 42, a3_comp);
+            }
+        } else if (a3_comp->f311B == 1 && !a3_comp->_aBool_221) {
+            a3_comp->_aBool_221 = 1;
+            a3_comp->f311B = 0;
+            CButton_leftClick_changeMenu(1u, 82, a3_comp);
+            a3_comp->fun_536BA0(0, 0, 2115, 108, 0, 1, 0, 0, 0);
+        }
+        g_endTime_73F7C0 = getTimeMs() + 1000;
+        return 1;
+    }
+    MyPlayerConfig *v6_pCfg = &g_MyPlayerConfig_instance_arr[0];
+    do {
+        if ((v6_pCfg->flags & 7) != 1)
+            v6_pCfg->flags &= ~8u;
+        ++v6_pCfg;
+    } while (v6_pCfg < &g_MyPlayerConfig_instance_arr[8]);
+    a3_comp->f325 = 0;
+    *(DWORD *) a3_comp->_wstr = 0;
+    uint8_t v35_mbMapName[64];
+    if (MyLangObj_static_toUniToMB_2(a3_comp->mapName, v35_mbMapName, 64)) {
+        uint8_t vtag_buf[sizeof(TbMBStringVTag)];
+        TbMBStringVTag &v33_vtag = *(TbMBStringVTag *) vtag_buf;
+        *(void **) &v33_vtag = &TbMBStringVTag::vftable;
+        v33_vtag.f4 = 1447121485;
+        v33_vtag.size = 28;
+        v33_vtag.value = v35_mbMapName;
+        MyMbStringList *v7_idx1091 = MyMbStringList_getinstance_idx1091();
+        MyMbStringList_VTagFormatWChar(v7_idx1091, a3_comp->_wstr, 128, 2908, &v33_vtag);
+    }
+    a3_comp->fun_5321A0(46, 32);
+    return 1;
+}
+
+
+uint8_t __cdecl dk2::Button_addAiPlayer(int a1, int a2, CFrontEndComponent *a3_frontend) {
+    uint8_t f311F2_mp_isHost = 0;
+    char v4 = a3_frontend->f30344;
+    if ( v4 == 16 )
+        f311F2_mp_isHost = a3_frontend->mp_isHost;
+    if ( f311F2_mp_isHost != 1 && v4 != 7 )
+    return (uint8_t) f311F2_mp_isHost;
+
+    uint8_t mapPlayersCount = (a3_frontend->mapPlayersCount_goldDencity_loseHeartType >> 4);
+    if (g__aiPlayersCount + g__humanPlayersCount >= (unsigned int) mapPlayersCount) return (uint8_t) mapPlayersCount;
+
+    unsigned int v5_playerIdx = -1;
+    for (int i = 0; i < a3_frontend->playersCount; ++i) {
+        MyPlayerConfig *playerCfg = &g_MyPlayerConfig_instance_arr[i];
+        if ((playerCfg->flags & 7) != 0) continue;
+        v5_playerIdx = i;
+        break;
+    }
+    if (v5_playerIdx == -1) return mapPlayersCount;
+    unsigned int v6_playerIdx = v5_playerIdx;
+
+    uint8_t flags = g_MyPlayerConfig_instance_arr[v5_playerIdx].flags;
+    flags = flags & 0xF8 | 1 | 0x18;
+    g_MyPlayerConfig_instance_arr[v6_playerIdx].flags = flags;
+
+    g_MyPlayerConfig_instance_arr[v6_playerIdx].totalTimeMs_shr4 = 0;
+    g_MyPlayerConfig_instance_arr[v6_playerIdx]._physMem_mb = 0;
+    *(DWORD *)g_MyPlayerConfig_instance_arr[v6_playerIdx].name_or_aiId = 0;
+    a3_frontend->findBtnBySomeId(681, 9)->f30_arg = (uint32_t *) 8;
+    uint8_t *MbString = MyMbStringList_idx1091_getMbString(g_Obj66F168_arr[*(DWORD *)g_MyPlayerConfig_instance_arr[v5_playerIdx].name_or_aiId].strId);
+    MBToUni_convert(MbString, g_wchar_buf, 511);
+    uint8_t *v8_mbstr = MyMbStringList_idx1091_getMbString(0x15u);
+
+    WCHAR WideCharStr[30];
+    MBToUni_convert(v8_mbstr, WideCharStr, 29);
+    unicodeToUtf8(g_wchar_buf, temp_string, 512);
+
+    CHAR MultiByteStr[32];
+    unicodeToUtf8(WideCharStr, MultiByteStr, 30);
+    swprintf(
+            g_playerDescs_73F858[v5_playerIdx].playerDesc,
+            L"%s\x01%lu\x01%lu\x01%s\x01",
+            temp_string,
+            g_MyPlayerConfig_instance_arr[v5_playerIdx].totalTimeMs_shr4,
+            g_MyPlayerConfig_instance_arr[v5_playerIdx]._physMem_mb,
+            MultiByteStr);
+    return (uint8_t) ++g__aiPlayersCount;
+}
+
+char dk2::CFrontEndComponent::sub_53FC40(int a2) {
+    wchar_t *MapName_531F80 = getMapName_531F80(this->mapIdx_6608, g_mapNames);
+    wcscpy(this->mapName, MapName_531F80);
+    MyMapInfo *v4_mapInfo = &this->mapInfoArr[this->mapIdx_6608];
+    this->mapNameHash = v4_mapInfo->nameHash;
+
+    uint8_t bitData = this->mapPlayersCount_goldDencity_loseHeartType & 0xF;
+    bitData |= (v4_mapInfo->playerCount & 0xFF) << 4;
+    this->mapPlayersCount_goldDencity_loseHeartType = bitData;
+    if (this->f30344 != 7) this->initMaxPlayers(v4_mapInfo->playerCount);
+
+    CHAR mapNameArr[260];
+    unicodeToUtf8(this->mapName, mapNameArr, 260);
+
+    char filePath[260];
+    sprintf(filePath, "%sGlobals.kld", mapNameArr);
+    int Level_data = this->loadLevel_data(filePath);
+    sprintf(filePath, "%sVariables.kld", mapNameArr);
+    this->loadVariable_data(filePath, Level_data);
+    MyMapInfo *v9_mapInfo = &this->mapInfoArr[this->mapIdx_6608];
+    char f88E_eos = v9_mapInfo->eos;
+    if ((f88E_eos & 2) != 0) {
+        int playersLeft = g__humanPlayersCount + g__aiPlayersCount - v9_mapInfo->playerCount + 1;
+        if (playersLeft > 0) {
+            for (int i = 0; i < 8 && playersLeft; ++i, --playersLeft) {
+                MyPlayerConfig *p_f3A_flags = &g_MyPlayerConfig_instance_arr[i];
+                if ((p_f3A_flags->flags & 7) != 1) continue;
+                Button_kickPlayer(-1, i, this);
+            }
+        }
+    } else if ((f88E_eos & 1) != 0) {
+        int playersLeft = g__aiPlayersCount - v9_mapInfo->playerCount + 1;
+        if (playersLeft > 0 ) {
+            for (int i = g__aiPlayersCount; playersLeft; --i, --playersLeft) {
+                Button_kickPlayer(-1, i, this);
+            }
+        }
+    }
+    return 0;
+}
+
+int dk2::CFrontEndComponent::initMaxPlayers(uint8_t playerCount) {
+    if (!this->mp_isHost) return 0;
+    if (playerCount < 2u) return 1;
+    net::MLDPLAY_SESSIONDESC v4_desc;
+    DWORD v3_size = sizeof(net::MLDPLAY_SESSIONDESC);
+    WeaNetR_instance.mldplay->GetSessionDesc(&v4_desc, &v3_size);
+    v4_desc.totalMaxPlayers = 4;
+    return WeaNetR_instance.mldplay->SetSessionDesc(&v4_desc, v3_size);
 }
 

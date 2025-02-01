@@ -278,7 +278,7 @@ void __cdecl dk2::CTextBox_renderVersion(dk2::CTextBox *textBox, CFrontEndCompon
 }
 
 int __cdecl dk2::cmd_dumpPlayer(int a1, int a2) {
-    WeaNetR_instance.load_player_info();
+    WeaNetR_instance.getPlayerInfo();
     if ( *(DWORD *)(a2 + 28) >= WeaNetR_instance.joinedPlayersCount ) {
         ProbablyConsole_instance.appendOutput("Invaliud Player");
         return 1;
@@ -290,4 +290,15 @@ int __cdecl dk2::cmd_dumpPlayer(int a1, int a2) {
             ProbablyConsole_instance.appendOutput("Error!");
         return 1;
     }
+}
+
+int dk2::cmd_Game() {  // there should be args
+    char msgData = 0x63;
+    if (!WeaNetR_instance.sendGuaranteedData(&msgData, 1u, 0xFFFFu)) {
+        ProbablyConsole_instance.appendOutput("Unable to Send Guaranteed Data");
+        return 0;
+    }
+    ProbablyConsole_instance.appendOutput("Send Guaranteed Data success");
+    WeaNetR_instance.mldplay->EnableNewPlayers(0);
+    return 1;
 }

@@ -6,6 +6,8 @@
 #define FLAME_PATCH_LOGGING_H
 
 
+#include <cstdarg>
+
 #define fname(fmt, ...) "%s: " fmt, __FUNCTION__, __VA_ARGS__
 
 namespace patch::log {
@@ -20,6 +22,8 @@ namespace patch::log {
     void gdata(const char *format, ...);
 
     void err(const char *format, ...);
+
+    void v_weanetr(const char *format, va_list args);
 
 }
 

@@ -76,7 +76,6 @@ add_executable(${TARGET}
         weanetr_dll/MLDPlay.cpp
         weanetr_dll/MySocket.cpp
         weanetr_dll/logging.cpp
-        weanetr_dll/weanetr.cpp
         weanetr_dll/globals.cpp
         weanetr_dll/weanetr_memory.cpp
 
