@@ -38,6 +38,8 @@ add_executable(${TARGET}
         dk2/engine/window_proc_functions.cpp
         dk2/engine/ddraw_functions.cpp
 
+        dk2/network/protocol.cpp
+
         tools/bug_hunter.cpp
         tools/StackLimits.cpp
         tools/LoadedModules.cpp
@@ -54,6 +56,7 @@ add_executable(${TARGET}
         patches/logging.cpp
         patches/inspect_tools.cpp
         patches/original_compatible.cpp
+        patches/protocol_dump.cpp
 
         gog_patch_dll/gog_patch_dll.cpp
         gog_patch_dll/gog_cfg.cpp

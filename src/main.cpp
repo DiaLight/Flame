@@ -14,6 +14,7 @@
 #include <thread>
 #include <stdexcept>
 #include <iostream>
+#include "patches/protocol_dump.h"
 
 namespace dk2 {
 
@@ -294,6 +295,7 @@ int main(int argc, const char **argv) {
     bug_hunter::init();
     patch::multi_interface_fix::init();
     patch::original_compatible::init();
+    patch::protocol_dump::init();
 
     std::thread keyWatcher([] { bug_hunter::keyWatcher(); });
     // call entry point of DKII.EXE,

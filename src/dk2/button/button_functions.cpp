@@ -251,7 +251,7 @@ int __cdecl dk2::CButton_leftClick_changeMenu(uint32_t idx, int command, CFrontE
         case 21:
             comp->f30344 = 7;
             comp->clear_MyPlayerConfig_instance_arr__setupMpGui();
-            comp->fun_549D10();
+            comp->buildLevelConfig();
             comp->fun_533460(0);
             if (comp->fun_53EF60(2u, comp->playersCount))
                 comp->fun_53F7F0(comp->mapName);
@@ -331,7 +331,7 @@ int __cdecl dk2::CButton_leftClick_changeMenu(uint32_t idx, int command, CFrontE
             comp->clear_MyPlayerConfig_instance_arr__setupMpGui();
             if (comp->createMultiplayerGame() == 1 && comp->sub_546680(10) == 1) {
                 MyResources_instance.gameCfg.f150 = 1;
-                comp->fun_549D10();
+                comp->buildLevelConfig();
                 break;
             }
             uint8_t *MbString = MyMbStringList_idx1091_getMbString(0x613u);
@@ -371,7 +371,7 @@ int __cdecl dk2::CButton_leftClick_changeMenu(uint32_t idx, int command, CFrontE
             wcsncpy(MyResources_instance.gameCfg.levelName, comp->mapName, 0x40u);
             MyResources_instance.gameCfg.levelName[63] = 0;
             MyResources_instance.gameCfg.hasSaveFile = 0;
-            comp->sub_549F60();
+            comp->applyLevelVariables();
             comp->sub_5435E0(0, comp);
             break;
         case 43:
@@ -462,10 +462,10 @@ int __cdecl dk2::CButton_leftClick_changeMenu(uint32_t idx, int command, CFrontE
             g_flags_74034C &= ~8u;
             comp->f30344 = 17;
             comp->f30C1E = 0;
-            comp->f603B = 0;
+            comp->levelConfig_ty = 0;
             comp->f3133 = -1;
             comp->sub_549160();
-            comp->fun_549D10();
+            comp->buildLevelConfig();
             if (command == 72) {
                 comp->wndId_6016 = 32;
             } else {
@@ -546,18 +546,18 @@ int __cdecl dk2::CButton_leftClick_changeMenu(uint32_t idx, int command, CFrontE
             if (comp->wndId_6016 == 32) {
                 comp->f30344 = 16;
                 comp->f30C1E = 2;
-                if (comp->mp_isHost) comp->sub_549F60();
+                if (comp->mp_isHost) comp->applyLevelVariables();
             } else {
                 comp->f30344 = 7;
                 comp->f30C1E = 2;
-                comp->sub_549F60();
+                comp->applyLevelVariables();
             }
             comp->fun_5321A0(comp->wndId_6016, 35);
             g_flags_74034C = g_flags_74034C & 0xFFFFFFF1 | 2;
         } break;
         case 81: {
             g_flags_74034C = g_flags_74034C & 0xFFFFFFF1 | 2;
-            comp->fun_549D10();
+            comp->buildLevelConfig();
             int f6016_wndId_6016 = comp->wndId_6016;
             if (f6016_wndId_6016 == 32) {
                 comp->f30344 = 16;
@@ -641,7 +641,7 @@ int __cdecl dk2::CButton_leftClick_changeMenu(uint32_t idx, int command, CFrontE
                 comp->sub_54E8B0(227, 11);
                 if (comp->createMultiplayerGame() == 1 && comp->sub_546680(11) == 1) {
                     MyResources_instance.gameCfg.f150 = 1;
-                    comp->fun_549D10();
+                    comp->buildLevelConfig();
                     break;
                 }
             }
@@ -718,7 +718,7 @@ int __cdecl dk2::CButton_leftClick_changeMenu(uint32_t idx, int command, CFrontE
             MyResources_instance.gameCfg.levelName[63] = 0;
             MyResources_instance.gameCfg.hasSaveFile = 0;
             MyResources_instance.playerCfg.f4 = 45;
-            comp->sub_549F60();
+            comp->applyLevelVariables();
             comp->fun_552C80((CComponent *) &CGameComponent_instance);
         } break;
         case 92:
@@ -920,18 +920,18 @@ int __cdecl dk2::__onMapSelected(CButton *a1_btn, int a2, CFrontEndComponent *a3
         unsigned int v31_mp_isHost = a3_comp->mp_isHost;
         unsigned int v16_mp_isHost = v31_mp_isHost;
         a3_comp->sub_54DD10(v31_mp_isHost);
-        if (g__humanPlayersCount > (unsigned int) (a3_comp->mapPlayersCount_goldDencity_loseHeartType >> 4))
+        if (g__humanPlayersCount > (unsigned int) (a3_comp->b4_mapPlayersCount_goldDencity_loseHeartType >> 4))
             *v14_pFlags &= ~8u;
         if (v16_mp_isHost) {
             bool v17_isNotHost = g_networkIsHost_740360 == 0;
             *v14_pFlags |= 0x20u;
             if (!v17_isNotHost) {
-                size_t v18_dataSize = 2 * wcslen(g_networkData_0073FB90) + 3;
+                size_t v18_dataSize = 2 * wcslen(g_selectedMapName_0073FB90) + 3;
                 size_t v32_dataSize = v18_dataSize;
                 BYTE *v19_dataBuf = (BYTE *) malloc_2(v18_dataSize);
                 if (v19_dataBuf) {
                     memset(v19_dataBuf, 0, v18_dataSize);
-                    memcpy(v19_dataBuf + 1, g_networkData_0073FB90, v18_dataSize - 3);
+                    memcpy(v19_dataBuf + 1, g_selectedMapName_0073FB90, v18_dataSize - 3);
                     *v19_dataBuf = 0x69;
                     WeaNetR_instance.sendDataMessage(v19_dataBuf, v18_dataSize, 0xFFFFu);
                     dk2::operator_delete(v19_dataBuf);
@@ -953,7 +953,7 @@ int __cdecl dk2::__onMapSelected(CButton *a1_btn, int a2, CFrontEndComponent *a3
                 int bitData = v34_sessionDesc.mapNameLen_mapPlayersCount;
                 bitData |= 0x80;
                 bitData |= (v21_mapNameLen << 8);
-                bitData |= ((a3_comp->mapPlayersCount_goldDencity_loseHeartType & 0xF0) << 12);
+                bitData |= ((a3_comp->b4_mapPlayersCount_goldDencity_loseHeartType & 0xF0) << 12);
                 v34_sessionDesc.mapNameLen_mapPlayersCount = bitData;
             }
             WeaNetR_instance.mldplay->SetSessionDesc(&v34_sessionDesc, descSize);
@@ -1010,9 +1010,9 @@ int __cdecl dk2::__onMapSelected(CButton *a1_btn, int a2, CFrontEndComponent *a3
                 WeaNetR_instance.mldplay->EnableNewPlayers(0);
                 CButton_leftClick_changeMenu(0, 42, a3_comp);
             }
-        } else if (a3_comp->f311B == 1 && !a3_comp->_aBool_221) {
+        } else if (a3_comp->wasKicked == 1 && !a3_comp->_aBool_221) {
             a3_comp->_aBool_221 = 1;
-            a3_comp->f311B = 0;
+            a3_comp->wasKicked = 0;
             CButton_leftClick_changeMenu(1u, 82, a3_comp);
             a3_comp->fun_536BA0(0, 0, 2115, 108, 0, 1, 0, 0, 0);
         }
@@ -1051,7 +1051,7 @@ uint8_t __cdecl dk2::Button_addAiPlayer(int a1, int a2, CFrontEndComponent *a3_f
     if ( f311F2_mp_isHost != 1 && v4 != 7 )
     return (uint8_t) f311F2_mp_isHost;
 
-    uint8_t mapPlayersCount = (a3_frontend->mapPlayersCount_goldDencity_loseHeartType >> 4);
+    uint8_t mapPlayersCount = (a3_frontend->b4_mapPlayersCount_goldDencity_loseHeartType >> 4);
     if (g__aiPlayersCount + g__humanPlayersCount >= (unsigned int) mapPlayersCount) return (uint8_t) mapPlayersCount;
 
     unsigned int v5_playerIdx = -1;
@@ -1098,9 +1098,9 @@ char dk2::CFrontEndComponent::sub_53FC40(int a2) {
     MyMapInfo *v4_mapInfo = &this->mapInfoArr[this->mapIdx_6608];
     this->mapNameHash = v4_mapInfo->nameHash;
 
-    uint8_t bitData = this->mapPlayersCount_goldDencity_loseHeartType & 0xF;
+    uint8_t bitData = this->b4_mapPlayersCount_goldDencity_loseHeartType & 0xF;
     bitData |= (v4_mapInfo->playerCount & 0xFF) << 4;
-    this->mapPlayersCount_goldDencity_loseHeartType = bitData;
+    this->b4_mapPlayersCount_goldDencity_loseHeartType = bitData;
     if (this->f30344 != 7) this->initMaxPlayers(v4_mapInfo->playerCount);
 
     CHAR mapNameArr[260];

@@ -154,5 +154,6 @@
 00522FA0 BOOL collectActions(GameActionCtx *);  // ---  /* auto */
 00523DC0 uint32_t fun_523DC0(int);  // ---------------  /* auto */
 00524970 int handleDm_3(DataMessage_3 *, uint32_t);     /* auto */
+00524240 void __cdecl CNetworkCommunication_dataCallback(void *, int, uint32_t, CNetworkCommunication *);  /* auto */
 
 

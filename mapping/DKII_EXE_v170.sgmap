@@ -1299,7 +1299,7 @@ struct: id=vtbl_0066ED24,path=dk2/button,name=CClickTextButton,size=128,vtable=i
   vtable_value: va=00528610
   vtable_value: va=005282A0
 struct: id=instance_0066ED24,path=dk2/button,name=CClickTextButton_vtbl,size=16,super=instance_0066ECA4
-struct: id=vtbl_0066EB3C,name=CCommunicationInterface,size=20,vtable=instance_0066EB3C
+struct: id=vtbl_0066EB3C,path=dk2,name=CCommunicationInterface,size=20,vtable=instance_0066EB3C
   field: name=f0_profiler
     type: kind=ptr
       type: kind=struct,id=constructor_00526020
@@ -1328,7 +1328,7 @@ struct: id=vtbl_0066EB3C,name=CCommunicationInterface,size=20,vtable=instance_00
   vtable_value: va=00580470
   vtable_value: va=0052B700
   vtable_value: va=00634D60
-struct: id=instance_0066EB3C,name=CCommunicationInterface_vtbl,size=76
+struct: id=instance_0066EB3C,path=dk2,name=CCommunicationInterface_vtbl,size=76
   field: name=deleting_destructor
     type: kind=ptr
       type: kind=function,declspec=thiscall
@@ -1380,7 +1380,7 @@ struct: id=instance_0066EB3C,name=CCommunicationInterface_vtbl,size=76
         ret: kind=int,size=4,signed=True
         arg: kind=ptr
           type: kind=void
-  field: name=f1C
+  field: name=f1C_sendData_15_WorldChecksum
     type: kind=ptr
       type: kind=function,declspec=thiscall
         ret: kind=void
@@ -1388,7 +1388,7 @@ struct: id=instance_0066EB3C,name=CCommunicationInterface_vtbl,size=76
           type: kind=void
         arg: kind=int,size=4,signed=True
         arg: kind=int,size=4,signed=True
-  field: name=f20
+  field: name=f20_sendData_1F
     type: kind=ptr
       type: kind=function,declspec=thiscall
         ret: kind=void
@@ -1396,7 +1396,7 @@ struct: id=instance_0066EB3C,name=CCommunicationInterface_vtbl,size=76
           type: kind=void
         arg: kind=int,size=4,signed=True
         arg: kind=int,size=4,signed=True
-  field: name=f24
+  field: name=f24_sendData_C_UploadTrackPong
     type: kind=ptr
       type: kind=function,declspec=thiscall
         ret: kind=void
@@ -1404,14 +1404,14 @@ struct: id=instance_0066EB3C,name=CCommunicationInterface_vtbl,size=76
           type: kind=void
         arg: kind=int,size=4,signed=True
         arg: kind=int,size=4,signed=True
-  field: name=f28
+  field: name=f28_sendData_B_UploadTrackPing
     type: kind=ptr
       type: kind=function,declspec=thiscall
         ret: kind=void
         arg: kind=ptr
           type: kind=void
         arg: kind=int,size=4,signed=True
-  field: name=f2C
+  field: name=f2C_sendData_20
     type: kind=ptr
       type: kind=function,declspec=thiscall
         ret: kind=ptr
@@ -1452,12 +1452,12 @@ struct: id=instance_0066EB3C,name=CCommunicationInterface_vtbl,size=76
           type: kind=void
         arg: kind=int,size=4,signed=True
         arg: kind=int,size=4,signed=True
-  field: name=fun_52B700
+  field: name=printfInfo
     type: kind=ptr
       type: kind=function,declspec=stdcall
         ret: kind=int,size=4,signed=True
         arg: kind=int,size=4,signed=True
-  field: name=f48
+  field: name=syncGameTickInit
     type: kind=ptr
       type: kind=function,declspec=thiscall
         ret: kind=void
@@ -4741,15 +4741,21 @@ struct: id=vtbl_0066EF3C,name=CFrontEndComponent,size=201210,vtable=instance_006
     type: kind=struct,id=constructor_005B5270
   field: name=field_30F3
     type: kind=struct,id=constructor_005B5270
-  field: name=field_311B
+  field: name=f311B_wasKicked
     type: kind=int,size=4,signed=True
-  field: name=gap311F
-    type: kind=array,count=20
-      type: kind=int,size=1
+  field: name=f311F_mbGameSpeed
+    type: kind=array,count=10
+      type: kind=int,size=1,signed=True,winapi=char
+  field: name=f3129_mbMaxCreatures
+    type: kind=array,count=10
+      type: kind=int,size=1,signed=True,winapi=char
   field: name=field_3133
     type: kind=int,size=4,signed=True
-  field: name=gap3137
-    type: kind=array,count=117
+  field: name=field_3137
+    type: kind=array,count=1
+      type: kind=int,size=4
+  field: name=f313b_gap
+    type: kind=array,count=113
       type: kind=int,size=1
   field: name=field_31AC
     type: kind=array,count=20
@@ -5065,7 +5071,7 @@ struct: id=vtbl_0066EF3C,name=CFrontEndComponent,size=201210,vtable=instance_006
     type: kind=int,size=4
   field: name=field_6011
     type: kind=int,size=4
-  field: name=field_6015
+  field: name=f6015__levelCfgWasBuild
     type: kind=int,size=1,signed=True,winapi=char
   field: name=f6016_wndId_6016
     type: kind=int,size=4,signed=True
@@ -5076,15 +5082,15 @@ struct: id=vtbl_0066EF3C,name=CFrontEndComponent,size=201210,vtable=instance_006
       type: kind=int,size=1
   field: name=f6022_key_DIK_SYSRQ
     type: kind=int,size=4
-  field: name=f6026_msg6F_start
+  field: name=f6026_b1_msg6F_start__levelCfg
     type: kind=int,size=1,signed=True,winapi=char
-  field: name=field_6027
+  field: name=f6027_b2
     type: kind=int,size=1,signed=True,winapi=char
-  field: name=field_6028
+  field: name=f6028_b3
     type: kind=int,size=1,signed=True,winapi=char
-  field: name=f6029_mapPlayersCount_goldDencity_loseHeartType
+  field: name=f6029_b4_mapPlayersCount_goldDencity_loseHeartType
     type: kind=int,size=1
-  field: name=f602A_msg6F_p1
+  field: name=f602A_b5_kickedPlayerMask
     type: kind=int,size=1,signed=True,winapi=char
   field: name=field_602B
     type: kind=array,count=8
@@ -5093,7 +5099,7 @@ struct: id=vtbl_0066EF3C,name=CFrontEndComponent,size=201210,vtable=instance_006
     type: kind=int,size=4,signed=True
   field: name=field_6037
     type: kind=int,size=4,signed=True
-  field: name=field_603B
+  field: name=f603B_levelConfig_ty
     type: kind=int,size=1,signed=True,winapi=char
   field: name=surf60_x8
     type: kind=array,count=8
@@ -5195,7 +5201,7 @@ struct: id=vtbl_0066EF3C,name=CFrontEndComponent,size=201210,vtable=instance_006
     type: kind=int,size=1,signed=True,winapi=char
   field: name=field_3031D
     type: kind=int,size=1,signed=True,winapi=char
-  field: name=f3031E_fontMask
+  field: name=f3031E_fontMask_3031E
     type: kind=int,size=1,signed=True,winapi=char
   field: name=field_3031F
     type: kind=int,size=1,signed=True,winapi=char
@@ -5225,7 +5231,7 @@ struct: id=vtbl_0066EF3C,name=CFrontEndComponent,size=201210,vtable=instance_006
     type: kind=int,size=1,signed=True,winapi=char
   field: name=field_3032C
     type: kind=int,size=1,signed=True,winapi=char
-  field: name=field_3032D
+  field: name=f3032D_fontMask_3032D
     type: kind=int,size=1,signed=True,winapi=char
   field: name=field_3032E
     type: kind=int,size=1,signed=True,winapi=char
@@ -5303,33 +5309,57 @@ struct: id=vtbl_0066EF3C,name=CFrontEndComponent,size=201210,vtable=instance_006
     type: kind=int,size=4,signed=True
   field: name=field_30CAF
     type: kind=int,size=4,signed=True
-  field: name=f30CB3_msg6F_p2
-    type: kind=ptr,is_const=True
-      type: kind=void
-  field: name=f30CB7_msg6F_p4
-    type: kind=ptr,is_const=True
-      type: kind=void
-  field: name=f30CBB_msg6F_p6
-    type: kind=ptr,is_const=True
-      type: kind=void
-  field: name=f30CBF_msg6F_p3
-    type: kind=ptr,is_const=True
-      type: kind=void
-  field: name=f30CC3_msg6F_p5
-    type: kind=ptr,is_const=True
-      type: kind=void
-  field: name=gap_30CC7
-    type: kind=array,count=40
+  field: name=f30CB3_poolValue_p2_creatures
+    type: kind=ptr
       type: kind=int,size=1
-  field: name=f30CEF_msg6F_p2_sz
+  field: name=f30CB7_availability_p4_rooms
+    type: kind=ptr
+      type: kind=int,size=1
+  field: name=f30CBB_availability_p6_doors
+    type: kind=ptr
+      type: kind=int,size=1
+  field: name=f30CBF_availability_p3_traps
+    type: kind=ptr
+      type: kind=int,size=1
+  field: name=f30CC3_availability_p5_spells
+    type: kind=ptr
+      type: kind=int,size=1
+  field: name=f30CC7_variable_creature_stringIds_name_tooltip
+    type: kind=ptr
+      type: kind=int,size=2
+  field: name=f30CCB_creatureIds
+    type: kind=ptr
+      type: kind=int,size=1
+  field: name=f30CCF_var_rooms
+    type: kind=ptr
+      type: kind=int,size=2
+  field: name=f30CD3_present_rooms
+    type: kind=ptr
+      type: kind=int,size=1
+  field: name=field_30CD7
     type: kind=int,size=4,signed=True
-  field: name=f30CF3_msg6F_p4_sz
+  field: name=f30CDB_present_doors
+    type: kind=ptr
+      type: kind=int,size=1
+  field: name=field_30CDF
     type: kind=int,size=4,signed=True
-  field: name=f30CF7_msg6F_p6_sz
+  field: name=f30CE3_present_traps
+    type: kind=ptr
+      type: kind=int,size=1
+  field: name=field_30CE7
     type: kind=int,size=4,signed=True
-  field: name=f30CFB_msg6F_p3_sz
+  field: name=f30CEB_present_spells
+    type: kind=ptr
+      type: kind=int,size=1
+  field: name=f30CEF_variable_creatures_count
     type: kind=int,size=4,signed=True
-  field: name=f30CFF_msg6F_p5_sz
+  field: name=f30CF3_variable_p4_rooms_sz
+    type: kind=int,size=4,signed=True
+  field: name=f30CF7_variable_p6_doors_sz
+    type: kind=int,size=4,signed=True
+  field: name=f30CFB_variable_p3_traps_sz
+    type: kind=int,size=4,signed=True
+  field: name=f30CFF_variable_p5_spells_sz
     type: kind=int,size=4,signed=True
   field: name=gap30D03
     type: kind=array,count=20
@@ -5880,7 +5910,7 @@ struct: id=vtbl_0066ED54,path=dk2/button,name=CListBox,size=144,vtable=instance_
   vtable_value: va=0052B160
   vtable_value: va=0052B390
 struct: id=instance_0066ED54,path=dk2/button,name=CListBox_vtbl,size=16,super=instance_0066ECA4
-struct: id=vtbl_0066EB8C,name=CLocalCommunication,size=608,vtable=instance_0066EB8C,super=vtbl_0066EB3C
+struct: id=vtbl_0066EB8C,path=dk2,name=CLocalCommunication,size=608,vtable=instance_0066EB8C,super=vtbl_0066EB3C
   field: name=f14_gameActionArray
     type: kind=struct,id=constructor_00525EB0
   vtable_value: va=005226D0
@@ -5902,7 +5932,7 @@ struct: id=vtbl_0066EB8C,name=CLocalCommunication,size=608,vtable=instance_0066E
   vtable_value: va=00580470
   vtable_value: va=0052B700
   vtable_value: va=0062A210
-struct: id=instance_0066EB8C,name=CLocalCommunication_vtbl,size=76,super=instance_0066EB3C
+struct: id=instance_0066EB8C,path=dk2,name=CLocalCommunication_vtbl,size=76,super=instance_0066EB3C
 struct: id=vtbl_0066D3E4,path=dk2/world,name=CMap,size=3014,vtable=instance_0066D3E4
   field: name=f4_opened
     type: kind=int,size=4
@@ -6158,8 +6188,8 @@ struct: id=instance_0066D5BC,path=dk2/entities,name=CMovingThing_vtbl,size=148,s
         ret: kind=int,size=4,signed=True
         arg: kind=ptr
           type: kind=void
-struct: id=vtbl_0066EBDC,name=CNetworkCommunication,size=65034,vtable=instance_0066EBDC,super=vtbl_0066EB3C
-  field: name=f14_MySemaphore
+struct: id=vtbl_0066EBDC,path=dk2,name=CNetworkCommunication,size=65034,vtable=instance_0066EBDC,super=vtbl_0066EB3C
+  field: name=f14_hMySemaphore
     type: kind=ptr
       type: kind=void
   field: name=f18_gameActionArray
@@ -6183,9 +6213,9 @@ struct: id=vtbl_0066EBDC,name=CNetworkCommunication,size=65034,vtable=instance_0
     type: kind=int,size=4,signed=True
   field: name=ff728_req
     type: kind=int,size=4,signed=True
-  field: name=fF72C_gameTickF72C
+  field: name=fF72C_lastScheduleOrderedInputTick
     type: kind=int,size=4,signed=True
-  field: name=ff730_hiTck
+  field: name=ff730_highTick
     type: kind=int,size=4
   field: name=ff734_unsafe
     type: kind=int,size=4,signed=True
@@ -6195,12 +6225,9 @@ struct: id=vtbl_0066EBDC,name=CNetworkCommunication,size=65034,vtable=instance_0
     type: kind=int,size=4,signed=True
   field: name=fF740_ticksLeftBeforeAction
     type: kind=int,size=4,signed=True
-  field: name=field_F744
-    type: kind=array,count=8
+  field: name=fF744_clientWorldState
+    type: kind=array,count=32
       type: kind=struct,id=use_005232CD
-  field: name=field_F8A4
-    type: kind=array,count=1056
-      type: kind=int,size=1,signed=True,winapi=char
   field: name=fFCC4_obj523DE1_arr
     type: kind=array,count=4
       type: kind=struct,id=init_00523DE1
@@ -6215,7 +6242,7 @@ struct: id=vtbl_0066EBDC,name=CNetworkCommunication,size=65034,vtable=instance_0
       type: kind=int,size=4,signed=True
   field: name=field_FDC4
     type: kind=int,size=4,signed=True
-  field: name=fFDC8_timeMsFDC8
+  field: name=fFDC8_lastSendWorldPacketTimeMs
     type: kind=int,size=4,signed=True
   field: name=fFDCC_timeMsFDCC
     type: kind=int,size=4,signed=True
@@ -6223,7 +6250,7 @@ struct: id=vtbl_0066EBDC,name=CNetworkCommunication,size=65034,vtable=instance_0
     type: kind=int,size=4
   field: name=fFDD4__timefdd4
     type: kind=int,size=4,signed=True
-  field: name=fFDD8__timefdd8
+  field: name=fFDD8_timeoutThresholdTimeMs
     type: kind=int,size=4,signed=True
   field: name=fFDDC__playerMask
     type: kind=int,size=4,signed=True
@@ -6238,7 +6265,10 @@ struct: id=vtbl_0066EBDC,name=CNetworkCommunication,size=65034,vtable=instance_0
   field: name=field_FDFE
     type: kind=int,size=4,signed=True
   field: name=fFE02_funFE02
-    type: kind=int,size=4,signed=True
+    type: kind=ptr
+      type: kind=function,declspec=cdecl
+        ret: kind=void
+        arg: kind=int,size=4,signed=True
   field: name=fFE06_ise
     type: kind=int,size=4,signed=True
   vtable_value: va=00522B30
@@ -6266,7 +6296,7 @@ struct: id=vtbl_0066EBDC,name=CNetworkCommunication,size=65034,vtable=instance_0
   vtable_value: va=00523B30
   vtable_value: va=00523DC0
   vtable_value: va=00523E60
-struct: id=instance_0066EBDC,name=CNetworkCommunication_vtbl,size=100,super=instance_0066EB3C
+struct: id=instance_0066EBDC,path=dk2,name=CNetworkCommunication_vtbl,size=100,super=instance_0066EB3C
   field: name=CNetworkCommunication::fun_522AF0
     type: kind=ptr
       type: kind=function,declspec=thiscall
@@ -6282,14 +6312,14 @@ struct: id=instance_0066EBDC,name=CNetworkCommunication_vtbl,size=100,super=inst
         arg: kind=ptr
           type: kind=int,size=4
         arg: kind=int,size=4,signed=True
-  field: name=CNetworkCommunication::fun_5239E0
+  field: name=fun_5239E0_uploadMapInit
     type: kind=ptr
       type: kind=function,declspec=thiscall
         ret: kind=int,size=4,signed=True
         arg: kind=ptr
           type: kind=void
         arg: kind=int,size=4,signed=True
-  field: name=CNetworkCommunication::fun_523B30
+  field: name=fun_523B30_uploadMapTrack
     type: kind=ptr
       type: kind=function,declspec=thiscall
         ret: kind=int,size=4,signed=True
@@ -6299,7 +6329,7 @@ struct: id=instance_0066EBDC,name=CNetworkCommunication_vtbl,size=100,super=inst
         arg: kind=ptr
           type: kind=int,size=4
         arg: kind=int,size=4,signed=True
-  field: name=CNetworkCommunication::fun_523DC0
+  field: name=fun_523DC0_uploadMapFinish
     type: kind=ptr
       type: kind=function,declspec=thiscall
         ret: kind=int,size=4,signed=True
@@ -7030,8 +7060,22 @@ struct: id=vtbl_0066D99C,path=dk2/entities,name=CPlayer,size=4389,vtable=instanc
   field: name=fF4A_discoInfernoCount
     type: kind=int,size=4,signed=True
   field: name=field_F4E
-    type: kind=array,count=128
-      type: kind=int,size=1,signed=True,winapi=char
+    type: kind=int,size=4,signed=True
+  field: name=field_F52
+    type: kind=int,size=4,signed=True
+  field: name=field_F56
+    type: kind=int,size=4,signed=True
+  field: name=field_F5A
+    type: kind=int,size=4,signed=True
+  field: name=field_F5E
+    type: kind=int,size=4,signed=True
+  field: name=field_F62
+    type: kind=int,size=4,signed=True
+  field: name=field_F66
+    type: kind=int,size=4,signed=True
+  field: name=ff6a_gap
+    type: kind=array,count=100
+      type: kind=int,size=1
   field: name=fFCE_creaturesUsed
     type: kind=array,count=47
       type: kind=int,size=4,signed=True
@@ -8825,9 +8869,8 @@ struct: id=vtbl_0066E3EC,path=dk2,name=CWorld,size=41931,vtable=instance_0066E3E
     type: kind=int,size=1
   field: name=f72EC_recearchOrder
     type: kind=struct,id=vtbl_0066E3C4
-  field: name=gap_7304
-    type: kind=array,count=4
-      type: kind=int,size=1
+  field: name=field_7304
+    type: kind=int,size=4,signed=True
   field: name=f7308_triggerWhens
     type: kind=ptr
       type: kind=struct,id=constructor_005085F0
@@ -8853,8 +8896,11 @@ struct: id=vtbl_0066E3EC,path=dk2,name=CWorld,size=41931,vtable=instance_0066E3E
   field: name=f7320_potentialMaxMana
     type: kind=int,size=4,signed=True
   field: name=f7324_gap
-    type: kind=array,count=10304
+    type: kind=array,count=10240
       type: kind=int,size=1
+  field: name=field_9B24
+    type: kind=array,count=32
+      type: kind=int,size=2,winapi=wchar_t,fname=wchar_t
   field: name=f9B64_levelTextId
     type: kind=array,count=7
       type: kind=int,size=4,signed=True
@@ -12122,7 +12168,7 @@ struct: id=instance_0066E3EC,path=dk2,name=CWorld_vtbl,size=920
         arg: kind=ptr
           type: kind=int,size=1
         arg: kind=int,size=1,signed=True,winapi=char
-  field: name=CWorld::fun_50E920
+  field: name=fun_50E920_loadsaveFile
     type: kind=ptr
       type: kind=function,declspec=thiscall
         ret: kind=int,size=4,signed=True
@@ -12235,6 +12281,19 @@ struct: id=construct_00633BB2,path=dk2/text/render,name=CharRenderCtx,size=24
   field: name=f15_gap
     type: kind=array,count=3
       type: kind=int,size=1
+struct: id=use_005232CD,name=ClientWorldState,size=44
+  field: name=field_0
+    type: kind=array,count=4
+      type: kind=int,size=4,signed=True
+  field: name=f10_loadLevelStatus
+    type: kind=array,count=4
+      type: kind=int,size=4,signed=True
+  field: name=f20_lastPacket_timeMs
+    type: kind=int,size=4,signed=True
+  field: name=f24_gameTick
+    type: kind=int,size=4,signed=True
+  field: name=f28_checksum
+    type: kind=int,size=4,signed=True
 struct: id=copy_0055A135,path=dk2/network,name=ComPortAddr,size=20
   field: name=field_0
     type: kind=int,size=4,signed=True
@@ -12388,9 +12447,9 @@ struct: id=init_00559920,path=dk2/network/protocol,name=DataMessage_1,size=303
     type: kind=array,count=16
       type: kind=struct,id=constructor_00521F40
 struct: id=init_00523892,path=dk2/network/protocol,name=DataMessage_3,size=8
-  field: name=f0_gameTick
+  field: name=f0_startTick
     type: kind=int,size=4,signed=True
-  field: name=f4_sendTick
+  field: name=f4_endTick
     type: kind=int,size=4,signed=True
 struct: id=constructor_005D1230,name=DdModeList,size=12
   field: name=next
@@ -12974,7 +13033,7 @@ struct: id=construct_005227B5,name=GameActionCtx,size=305
     type: kind=int,size=1
   field: name=f1_gameTick
     type: kind=int,size=4,signed=True
-  field: name=field_5
+  field: name=f5_tick
     type: kind=int,size=4,signed=True
   field: name=field_9
     type: kind=int,size=4,signed=True
@@ -12993,9 +13052,9 @@ struct: id=init_00521D30,name=GameActionCtxArr,size=29288
   field: name=f0_actionCtx_arr
     type: kind=array,count=96
       type: kind=struct,id=construct_005227B5
-  field: name=f7260_gameTick
+  field: name=f7260_startGameTick
     type: kind=int,size=4,signed=True
-  field: name=f7264_count
+  field: name=f7264_orderedInputCount
     type: kind=int,size=4,signed=True
 struct: id=constructor_005599A0,name=GameActionCtxQueue,size=32784
   field: name=f0_dynSizeElems
@@ -13005,7 +13064,7 @@ struct: id=constructor_005599A0,name=GameActionCtxQueue,size=32784
       type: kind=int,size=1,signed=True,winapi=char
   field: name=f8000_totalSize
     type: kind=int,size=4,signed=True
-  field: name=f8004_msgsCount
+  field: name=f8004_rawInputCount
     type: kind=int,size=4,signed=True
   field: name=f8008_maxReachedCount
     type: kind=int,size=4,signed=True
@@ -13100,25 +13159,30 @@ struct: id=constructor_0055CCA0,name=GameCfg,size=1073
     type: kind=int,size=4,signed=True
   field: name=f170_useFe2d_unk2
     type: kind=int,size=4,signed=True
-  field: name=field_174
+  field: name=f174_variable_creatures
+    type: kind=ptr
+      type: kind=int,size=1
+  field: name=f178_variable_traps
+    type: kind=ptr
+      type: kind=int,size=1
+  field: name=f17C_variable_rooms
+    type: kind=ptr
+      type: kind=int,size=1
+  field: name=f180_variable_spells
+    type: kind=ptr
+      type: kind=int,size=1
+  field: name=f184_variable_doors
+    type: kind=ptr
+      type: kind=int,size=1
+  field: name=f188_creaturesCfgCount
     type: kind=int,size=4
-  field: name=field_178
+  field: name=f18C_trapsCfgCount
     type: kind=int,size=4
-  field: name=field_17C
+  field: name=f190_roomsCfgCount
     type: kind=int,size=4
-  field: name=field_180
+  field: name=f194_spellsCfgCount
     type: kind=int,size=4
-  field: name=field_184
-    type: kind=int,size=4,signed=True
-  field: name=field_188
-    type: kind=int,size=4
-  field: name=field_18C
-    type: kind=int,size=4
-  field: name=field_190
-    type: kind=int,size=4
-  field: name=field_194
-    type: kind=int,size=4
-  field: name=field_198
+  field: name=f198_doorsCfgcount
     type: kind=int,size=4,signed=True
   field: name=f19C_preloadResources
     type: kind=int,size=4,signed=True
@@ -17768,9 +17832,8 @@ struct: id=constructor_00526020,name=MyProfiler,size=682
     type: kind=int,size=4
   field: name=f274_counter
     type: kind=int,size=4
-  field: name=gap_278
-    type: kind=array,count=4
-      type: kind=int,size=1
+  field: name=f278_gameTick278_last
+    type: kind=int,size=4,signed=True
   field: name=field_int_27C
     type: kind=int,size=4
   field: name=f280_savedGameTick
@@ -17793,7 +17856,7 @@ struct: id=constructor_00526020,name=MyProfiler,size=682
     type: kind=int,size=4,signed=True
   field: name=field_2A2
     type: kind=int,size=4,signed=True
-  field: name=field_2A6
+  field: name=f2A6_timeMs_2A6
     type: kind=int,size=4,signed=True
 struct: id=constructor_0055AF40,name=MyResources,size=12240
   field: name=field_0
@@ -18036,7 +18099,8 @@ struct: id=constructor_0057C420,name=MyScaledSurface,size=49
       type: kind=struct,id=constructor_0057C420
 struct: id=constructor_005B7610,name=MySemaphore,size=12
   field: name=f0_hSemaphore
-    type: kind=int,size=4
+    type: kind=ptr
+      type: kind=void
   field: name=f4_status
     type: kind=int,size=4,signed=True
   field: name=f8_semaTaken
@@ -19415,7 +19479,7 @@ struct: id=constructor_004AA330,path=dk2/entities/data,name=MyTrapDataObj,size=2
     type: kind=int,size=2,signed=True
   field: name=f94_manufactureRequired
     type: kind=int,size=2,signed=True
-  field: name=field_96
+  field: name=f96__manaCost
     type: kind=int,size=2,signed=True
   field: name=field_98
     type: kind=int,size=2,signed=True
@@ -20641,7 +20705,7 @@ struct: id=arr_006E4198,name=Obj6E4198,size=29
         ret: kind=int,size=4,signed=True,winapi=BOOL,fname=BOOL
         arg: kind=ptr
           type: kind=struct,id=vtbl_0066D524
-  field: name=field_4
+  field: name=f4_thisOffset
     type: kind=int,size=4,signed=True
   field: name=field_8
     type: kind=int,size=4,signed=True
@@ -22890,24 +22954,6 @@ struct: id=net::LocalService,path=net,name=net_LocalService,size=40
   field: name=f24_pGuid
     type: kind=ptr
       type: kind=winapi,name=_GUID,size=16
-struct: id=use_005232CD,name=struc_250,size=44
-  field: name=field_0
-    type: kind=array,count=4
-      type: kind=int,size=4,signed=True
-  field: name=field_10
-    type: kind=int,size=4,signed=True
-  field: name=field_14
-    type: kind=int,size=4,signed=True
-  field: name=field_18
-    type: kind=int,size=4,signed=True
-  field: name=field_1C
-    type: kind=int,size=4,signed=True
-  field: name=f20_lastPacket_timeMs
-    type: kind=int,size=4,signed=True
-  field: name=field_24
-    type: kind=int,size=4,signed=True
-  field: name=field_28
-    type: kind=int,size=4,signed=True
 struct: id=zlib_struct_config_s,name=zlib_config,size=12
   field: name=good_length
     type: kind=int,size=2,signed=True
@@ -24052,10 +24098,12 @@ global: va=00410A60,name=sub_410A60,size=113
 global: va=00410AE0,name=sub_410AE0,size=212
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=1
-    arg: kind=int,size=4,signed=True
+      type: kind=void
+    arg: kind=ptr
+      type: kind=int,size=1,signed=True,winapi=char
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066C4A4
 global: va=00410BC0,name=BtnHandler_sub_410BC0,size=529
   type: kind=function,declspec=cdecl
     ret: kind=int,size=1,signed=True,winapi=char
@@ -24073,7 +24121,7 @@ global: va=00410FE0,name=sub_410FE0,size=160
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=struct,id=vtbl_0066C4A4
+      type: kind=void
     arg: kind=ptr
       type: kind=int,size=1
     arg: kind=ptr
@@ -24081,10 +24129,12 @@ global: va=00410FE0,name=sub_410FE0,size=160
 global: va=00411080,name=sub_411080,size=191
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=void
     arg: kind=ptr
       type: kind=int,size=1
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066C4A4
 global: va=00411140,name=BtnHandler_sub_411140,size=623
   type: kind=function,declspec=cdecl
     ret: kind=int,size=1,signed=True,winapi=char
@@ -24104,17 +24154,20 @@ global: va=004115E0,name=sub_4115E0,size=170
     arg: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=int,size=1
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066C4A4
 global: va=00411690,name=sub_411690,size=244
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True,winapi=BOOL,fname=BOOL
     arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-global: va=00411790,name=sub_411790,size=282
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066C4A4
+global: va=00411790,name=sub_411790,size=282,member_of=vtbl_0066C4A4
   type: kind=function,declspec=thiscall
     ret: kind=ptr
       type: kind=struct,id=vtbl_0066E3DC
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066C4A4
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066E3DC
 global: va=004118B0,name=BtnHandler_sub_4118B0,size=77
@@ -24722,10 +24775,11 @@ global: va=0041F920,name=sub_41F920,size=538
       type: kind=int,size=4
     arg: kind=ptr
       type: kind=int,size=4
-global: va=0041FB40,name=sub_41FB40,size=430
+global: va=0041FB40,name=sub_41FB40,size=430,member_of=vtbl_0066C4A4
   type: kind=function,declspec=thiscall
     ret: kind=void
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066C4A4
 global: va=0041FCF0,name=sub_41FCF0,size=241,member_of=vtbl_0066C4A4
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
@@ -24906,7 +24960,8 @@ global: va=00423F50,name=sub_423F50,size=714
     ret: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066C4A4
 global: va=00424220,name=sub_424220,size=202
   type: kind=function,declspec=cdecl
     ret: kind=ptr
@@ -25873,10 +25928,11 @@ global: va=0042D488,name=jpt_42D265,size=24
   type: kind=array,count=6
     type: kind=ptr
       type: kind=void
-global: va=0042D4A0,name=sub_42D4A0,size=870
+global: va=0042D4A0,name=sub_42D4A0,size=870,member_of=vtbl_0066C4A4
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066C4A4
 global: va=0042D808,name=jpt_42D50C,size=24
   type: kind=array,count=6
     type: kind=ptr
@@ -25909,10 +25965,11 @@ global: va=0042E140,name=sub_42E140,size=1100
       type: kind=struct,id=vtbl_0066ECA4
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066C4A4
-global: va=0042E590,name=sub_42E590,size=1143
+global: va=0042E590,name=sub_42E590,size=1143,member_of=vtbl_0066C4A4
   type: kind=function,declspec=thiscall
     ret: kind=void
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066C4A4
 global: va=0042EA10,name=sub_42EA10,size=90
   type: kind=function,declspec=assembly
     ret: kind=ptr
@@ -25921,7 +25978,8 @@ global: va=0042EA70,name=sub_42EA70,size=960
   type: kind=function,declspec=thiscall
     ret: kind=ptr
       type: kind=int,size=1,signed=True,winapi=char
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066C4A4
 global: va=0042EE30,name=jpt_42EAED,size=16
   type: kind=array,count=4
     type: kind=ptr
@@ -29288,10 +29346,11 @@ global: va=0044DB70,name=CCamera_sub_44DB70,size=32
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True,winapi=BOOL,fname=BOOL
     arg: kind=int,size=4,signed=True
-global: va=0044DB90,name=sub_44DB90,size=224
+global: va=0044DB90,name=sub_44DB90,size=224,member_of=constructor_00449470
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00449470
     arg: kind=int,size=4,signed=True
 global: va=0044DC70,name=fun_44DC70,size=59,member_of=constructor_00449470
   type: kind=function,declspec=thiscall
@@ -29473,11 +29532,11 @@ global: va=0044F800,name=sub_44F800,size=116
     arg: kind=ptr
       type: kind=int,size=2
     arg: kind=int,size=4,signed=True
-global: va=0044F880,name=sub_44F880,size=490
+global: va=0044F880,name=sub_44F880,size=490,member_of=vtbl_0066D3E4
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vtbl_0066D3E4
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
 global: va=0044FA70,name=sub_44FA70,size=217
@@ -29486,10 +29545,11 @@ global: va=0044FA70,name=sub_44FA70,size=217
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=0044FB50,name=sub_44FB50,size=234
+global: va=0044FB50,name=sub_44FB50,size=234,member_of=vtbl_0066D3E4
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D3E4
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
 global: va=0044FC40,name=tickSlab,size=1645,member_of=vtbl_0066D3E4
@@ -29782,12 +29842,11 @@ global: va=00452340,name=fun_452340,size=889,member_of=vtbl_0066D3E4
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=004526C0,name=sub_4526C0,size=77
-  type: kind=function,declspec=fastcall
+global: va=004526C0,name=sub_4526C0,size=77,member_of=vtbl_0066D3E4
+  type: kind=function,declspec=thiscall
     ret: kind=int,size=1
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D3E4
-    arg: kind=int,size=4
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
@@ -29885,11 +29944,11 @@ global: va=00452BD0,name=sub_452BD0,size=425,member_of=constructor_00452B30
     arg: kind=ptr
       type: kind=struct,id=constructor_00452B30
     arg: kind=int,size=4
-global: va=00452D80,name=sub_452D80,size=64
+global: va=00452D80,name=sub_452D80,size=64,member_of=constructor_00452B30
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True,winapi=BOOL,fname=BOOL
     arg: kind=ptr
-      type: kind=int,size=1
+      type: kind=struct,id=constructor_00452B30
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
 global: va=00452DC0,name=sub_452DC0,size=254,member_of=constructor_00452B30
@@ -29951,12 +30010,11 @@ global: va=00453700,name=sub_453700,size=91,member_of=constructor_00452B30
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=constructor_00452B30
-    arg: kind=ptr
-      type: kind=struct,id=instance_0066E3DC
+    arg: kind=int,size=4,signed=True
     arg: kind=int,size=2,signed=True
     arg: kind=ptr
       type: kind=ptr
-        type: kind=struct,id=vtbl_0066E3DC
+        type: kind=struct,id=vtbl_0066D464
 global: va=00453760,name=sub_453760,size=114,member_of=constructor_00452B30
   type: kind=function,declspec=thiscall
     ret: kind=ptr
@@ -31948,11 +32006,11 @@ global: va=004752A0,name=sub_4752A0,size=11,member_of=vtbl_0066D404
       type: kind=struct,id=vtbl_0066D524
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D404
-global: va=004752B0,name=sub_4752B0,size=542
+global: va=004752B0,name=sub_4752B0,size=542,member_of=vtbl_0066D404
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vtbl_0066D404
     arg: kind=ptr
       type: kind=int,size=4,signed=True
     arg: kind=int,size=2,signed=True
@@ -33177,10 +33235,11 @@ global: va=0048B5C0,name=sub_48B5C0,size=42
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True,winapi=BOOL,fname=BOOL
     arg: kind=int,size=4,signed=True
-global: va=0048B5F0,name=sub_48B5F0,size=178
+global: va=0048B5F0,name=sub_48B5F0,size=178,member_of=vtbl_0066D524
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D524
 global: va=0048B6B0,name=sub_48B6B0,size=192
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
@@ -33224,7 +33283,7 @@ global: va=0048BE20,name=setGoodJob,size=35,member_of=vtbl_0066D524
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=2
     arg: kind=int,size=4,signed=True
-global: va=0048BE50,name=sub_48BE50,size=2467
+global: va=0048BE50,name=sub_48BE50,size=2467,member_of=vtbl_0066D524
   type: kind=function,declspec=thiscall
     ret: kind=int,size=1,signed=True,winapi=char
     arg: kind=ptr
@@ -33500,10 +33559,11 @@ global: va=0048EDC4,name=jpt_48ED78,size=24
 global: va=0048EDDC,name=idt_48ED72,size=19
   type: kind=array,count=19
     type: kind=int,size=1
-global: va=0048EDF0,name=sub_48EDF0,size=116
+global: va=0048EDF0,name=sub_48EDF0,size=116,member_of=vtbl_0066D524
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D524
 global: va=0048EE70,name=sub_48EE70,size=27,member_of=vtbl_0066D524
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
@@ -33633,17 +33693,17 @@ global: va=0048FE30,name=sub_48FE30,size=209,member_of=vtbl_0066D524
     ret: kind=int,size=1,signed=True,winapi=char
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D524
-global: va=0048FF10,name=sub_48FF10,size=87
+global: va=0048FF10,name=sub_48FF10,size=87,member_of=vtbl_0066D524
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vtbl_0066D524
     arg: kind=int,size=4,signed=True
-global: va=0048FF70,name=sub_48FF70,size=79
+global: va=0048FF70,name=sub_48FF70,size=79,member_of=vtbl_0066D524
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vtbl_0066D524
     arg: kind=int,size=4,signed=True
 global: va=0048FFC0,name=sub_48FFC0,size=338,member_of=vtbl_0066D524
   type: kind=function,declspec=thiscall
@@ -33723,11 +33783,11 @@ global: va=00491B70,name=sub_491B70,size=70
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=00491BC0,name=sub_491BC0,size=86
+global: va=00491BC0,name=sub_491BC0,size=86,member_of=vtbl_0066D524
   type: kind=function,declspec=thiscall
     ret: kind=int,size=2,signed=True
     arg: kind=ptr
-      type: kind=int,size=2
+      type: kind=struct,id=vtbl_0066D524
 global: va=00491C20,name=loadJcnKeyboard,size=294
   type: kind=function,declspec=stdcall
     ret: kind=void
@@ -34359,7 +34419,7 @@ global: va=0049BEC0,name=remove,size=17,member_of=vtbl_0066D654
     ret: kind=int,size=2
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D654
-global: va=0049BEE0,name=sub_49BEE0,size=605
+global: va=0049BEE0,name=sub_49BEE0,size=605,member_of=vtbl_0066D654
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -34878,10 +34938,11 @@ global: va=004A3F50,name=sub_4A3F50,size=102,member_of=vtbl_0066D654
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=004A3FC0,name=sub_4A3FC0,size=683
+global: va=004A3FC0,name=sub_4A3FC0,size=683,member_of=vtbl_0066D654
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D654
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D99C
     arg: kind=int,size=2
@@ -34892,67 +34953,84 @@ global: va=004A426C,name=jpt_4A4000,size=60
 global: va=004A42A8,name=idt_4A3FFA,size=24
   type: kind=array,count=24
     type: kind=int,size=1
-global: va=004A42C0,name=sub_4A42C0,size=284
-  type: kind=function,declspec=thiscall
-    ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-global: va=004A43E0,name=sub_4A43E0,size=520
+global: va=004A42C0,name=sub_4A42C0,size=284,member_of=vtbl_0066D654
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=1,signed=True,winapi=char
-    arg: kind=int,size=4,signed=True
-global: va=004A45F0,name=sub_4A45F0,size=284
-  type: kind=function,declspec=thiscall
-    ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+      type: kind=struct,id=vtbl_0066D654
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D99C
-global: va=004A4710,name=sub_4A4710,size=339
+global: va=004A43E0,name=sub_4A43E0,size=520,member_of=vtbl_0066D654
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=1,signed=True,winapi=char
-    arg: kind=int,size=4,signed=True
-global: va=004A4870,name=sub_4A4870,size=265
+      type: kind=struct,id=vtbl_0066D654
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D99C
+global: va=004A45F0,name=sub_4A45F0,size=284,member_of=vtbl_0066D654
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D654
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D99C
+global: va=004A4710,name=sub_4A4710,size=339,member_of=vtbl_0066D654
+  type: kind=function,declspec=thiscall
+    ret: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D654
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D99C
+global: va=004A4870,name=sub_4A4870,size=265,member_of=vtbl_0066D654
+  type: kind=function,declspec=thiscall
+    ret: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D654
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D99C
 global: va=004A4980,name=Specials_cpp_4A4980,size=583
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=1,signed=True,winapi=char
+      type: kind=struct,id=vtbl_0066D654
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D99C
-global: va=004A4BD0,name=sub_4A4BD0,size=178
+global: va=004A4BD0,name=sub_4A4BD0,size=178,member_of=vtbl_0066D654
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-global: va=004A4C90,name=sub_4A4C90,size=234
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D654
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D99C
+global: va=004A4C90,name=sub_4A4C90,size=234,member_of=vtbl_0066D654
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-global: va=004A4D80,name=sub_4A4D80,size=200
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D654
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D99C
+global: va=004A4D80,name=sub_4A4D80,size=200,member_of=vtbl_0066D654
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D654
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D99C
     arg: kind=int,size=2
-global: va=004A4E50,name=sub_4A4E50,size=282
+global: va=004A4E50,name=sub_4A4E50,size=282,member_of=vtbl_0066D654
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-global: va=004A4F70,name=sub_4A4F70,size=221
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D654
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D99C
+global: va=004A4F70,name=sub_4A4F70,size=221,member_of=vtbl_0066D654
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D654
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D99C
 global: va=004A5050,name=jpt_4A4F9A,size=20
   type: kind=array,count=5
     type: kind=ptr
@@ -34970,10 +35048,11 @@ global: va=004A5070,name=init,size=543,member_of=vtbl_0066D6EC
       type: kind=struct,id=vec_xyz
     arg: kind=int,size=2
     arg: kind=int,size=4,signed=True
-global: va=004A5290,name=sub_4A5290,size=568
+global: va=004A5290,name=sub_4A5290,size=568,member_of=vtbl_0066D6EC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=2
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D6EC
 global: va=004A54D0,name=CDoor::fun_4A54D0,size=134
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True,winapi=BOOL,fname=BOOL
@@ -35013,7 +35092,7 @@ global: va=004A66A0,name=fun_4A66A0,size=17,member_of=vtbl_0066D6EC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=2
     arg: kind=ptr
-      type: kind=int,size=2
+      type: kind=struct,id=vtbl_0066D6EC
 global: va=004A66C0,name=sub_4A66C0,size=39,member_of=vtbl_0066D6EC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=1,signed=True,winapi=char
@@ -35031,10 +35110,11 @@ global: va=004A67C0,name=fun_4A67C0,size=54,member_of=vtbl_0066D6EC
     ret: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=2
-global: va=004A6800,name=sub_4A6800,size=157
+global: va=004A6800,name=sub_4A6800,size=157,member_of=vtbl_0066D6EC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=1,signed=True,winapi=char
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D6EC
     arg: kind=int,size=4,signed=True
 global: va=004A68A0,name=CDoor::fun_4A68A0,size=25
   type: kind=function,declspec=stdcall
@@ -35113,10 +35193,11 @@ global: va=004A7B10,name=sub_4A7B10,size=7,member_of=vtbl_0066D754
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D754
-global: va=004A7B20,name=sub_4A7B20,size=173
+global: va=004A7B20,name=sub_4A7B20,size=173,member_of=vtbl_0066D754
   type: kind=function,declspec=thiscall
     ret: kind=int,size=2
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D754
 global: va=004A7BD0,name=CTrap::fun_4A7BD0,size=134
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True,winapi=BOOL,fname=BOOL
@@ -35154,10 +35235,11 @@ global: va=004A7D90,name=sub_4A7D90,size=218,member_of=vtbl_0066D754
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D754
     arg: kind=int,size=4,signed=True
-global: va=004A7E70,name=sub_4A7E70,size=348
+global: va=004A7E70,name=sub_4A7E70,size=348,member_of=vtbl_0066D754
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D754
     arg: kind=int,size=4,signed=True
 global: va=004A7FD0,name=sub_4A7FD0,size=257,member_of=vtbl_0066D754
   type: kind=function,declspec=thiscall
@@ -35217,7 +35299,7 @@ global: va=004A93E0,name=fun_4A93E0,size=17,member_of=vtbl_0066D754
   type: kind=function,declspec=thiscall
     ret: kind=int,size=2
     arg: kind=ptr
-      type: kind=int,size=2
+      type: kind=struct,id=vtbl_0066D754
 global: va=004A9400,name=sub_4A9400,size=661,member_of=vtbl_0066D754
   type: kind=function,declspec=thiscall
     ret: kind=int,size=2
@@ -35240,10 +35322,11 @@ global: va=004A9720,name=sub_4A9720,size=354,member_of=vtbl_0066D464
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D464
-global: va=004A9890,name=sub_4A9890,size=358
+global: va=004A9890,name=sub_4A9890,size=358,member_of=vtbl_0066D754
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D754
 global: va=004A9A00,name=sub_4A9A00,size=367,member_of=vtbl_0066D754
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
@@ -35339,7 +35422,7 @@ global: va=004AAF60,name=fun_4AAF60,size=7,member_of=vtbl_0066D86C
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D86C
-global: va=004AAF70,name=sub_4AAF70,size=278
+global: va=004AAF70,name=sub_4AAF70,size=278,member_of=vtbl_0066D86C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=2
     arg: kind=ptr
@@ -35371,7 +35454,7 @@ global: va=004AB7F0,name=fun_4AB7F0,size=17,member_of=vtbl_0066D86C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=2
     arg: kind=ptr
-      type: kind=int,size=2
+      type: kind=struct,id=vtbl_0066D86C
 global: va=004AB810,name=fun_4AB810,size=21,member_of=vtbl_0066D86C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
@@ -35862,11 +35945,11 @@ global: va=004B0F20,name=init,size=330,member_of=vtbl_0066D904
       type: kind=int,size=2
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=1
-global: va=004B1070,name=sub_4B1070,size=263
+global: va=004B1070,name=sub_4B1070,size=263,member_of=vtbl_0066D904
   type: kind=function,declspec=thiscall
     ret: kind=int,size=2
     arg: kind=ptr
-      type: kind=struct,id=vtbl_0066D4BC
+      type: kind=struct,id=vtbl_0066D904
 global: va=004B1180,name=fun_4B1180,size=186,member_of=vtbl_0066D904
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True,winapi=BOOL,fname=BOOL
@@ -35896,7 +35979,7 @@ global: va=004B16E0,name=fun_4B16E0,size=17,member_of=vtbl_0066D904
   type: kind=function,declspec=thiscall
     ret: kind=int,size=2
     arg: kind=ptr
-      type: kind=int,size=2
+      type: kind=struct,id=vtbl_0066D904
 global: va=004B1700,name=fun_4B1700,size=56,member_of=vtbl_0066D904
   type: kind=function,declspec=thiscall
     ret: kind=int,size=1,signed=True,winapi=char
@@ -36232,10 +36315,11 @@ global: va=004B4540,name=jpt_4B44E9,size=16
   type: kind=array,count=4
     type: kind=ptr
       type: kind=void
-global: va=004B4550,name=sub_4B4550,size=46
+global: va=004B4550,name=sub_4B4550,size=46,member_of=vtbl_0066D454
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D454
 global: va=004B4580,name=sub_4B4580,size=45,member_of=vtbl_0066D454
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
@@ -36256,11 +36340,11 @@ global: va=004B4610,name=fun_4B4610,size=30,member_of=vtbl_0066D454
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D454
-global: va=004B4630,name=sub_4B4630,size=224
+global: va=004B4630,name=sub_4B4630,size=224,member_of=vtbl_0066D454
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vtbl_0066D454
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
 global: va=004B4710,name=fun_4B4710,size=169,member_of=vtbl_0066D454
@@ -36758,10 +36842,11 @@ global: va=004B7B50,name=createDoor,size=124,member_of=constructor_004B59D0
     arg: kind=ptr
       type: kind=ptr
         type: kind=struct,id=vtbl_0066D6EC
-global: va=004B7BD0,name=sub_4B7BD0,size=63
+global: va=004B7BD0,name=sub_4B7BD0,size=63,member_of=constructor_004B59D0
   type: kind=function,declspec=thiscall
     ret: kind=int,size=2
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_004B59D0
     arg: kind=int,size=2
 global: va=004B7C10,name=createTrap,size=119,member_of=constructor_004B59D0
   type: kind=function,declspec=thiscall
@@ -36775,12 +36860,13 @@ global: va=004B7C10,name=createTrap,size=119,member_of=constructor_004B59D0
       type: kind=struct,id=vec_xyz
     arg: kind=ptr
       type: kind=int,size=4,signed=True
-global: va=004B7C90,name=sub_4B7C90,size=63
+global: va=004B7C90,name=sub_4B7C90,size=63,member_of=constructor_004B59D0
   type: kind=function,declspec=thiscall
     ret: kind=int,size=2
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_004B59D0
     arg: kind=int,size=2
-global: va=004B7CD0,name=fun_4B7CD0,size=129,member_of=constructor_004B59D0
+global: va=004B7CD0,name=createCShot,size=129,member_of=constructor_004B59D0
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -36825,10 +36911,11 @@ global: va=004B7E80,name=destructor,size=83,member_of=vtbl_0066D86C
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D86C
-global: va=004B7EE0,name=sub_4B7EE0,size=63
+global: va=004B7EE0,name=sub_4B7EE0,size=63,member_of=constructor_004B59D0
   type: kind=function,declspec=thiscall
     ret: kind=int,size=2
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_004B59D0
     arg: kind=int,size=2
 global: va=004B7F20,name=createActionPoint,size=94,member_of=constructor_004B59D0
   type: kind=function,declspec=thiscall
@@ -36896,10 +36983,11 @@ global: va=004B8140,name=destructor,size=83,member_of=vtbl_0066D904
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D904
-global: va=004B81A0,name=sub_4B81A0,size=63
+global: va=004B81A0,name=sub_4B81A0,size=63,member_of=constructor_004B59D0
   type: kind=function,declspec=thiscall
     ret: kind=int,size=2
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_004B59D0
     arg: kind=int,size=2
 global: va=004B81E0,name=createEffectGenerator,size=99,member_of=constructor_004B59D0
   type: kind=function,declspec=thiscall
@@ -37229,7 +37317,7 @@ global: va=004BBA40,name=sub_4BBA40,size=369,member_of=vtbl_0066D99C
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=2
     arg: kind=int,size=4,signed=True
-global: va=004BBBC0,name=sub_4BBBC0,size=368
+global: va=004BBBC0,name=sub_4BBBC0,size=368,member_of=vtbl_0066D99C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -37255,7 +37343,7 @@ global: va=004BBF90,name=sub_4BBF90,size=763,member_of=vtbl_0066D99C
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=2
     arg: kind=int,size=4,signed=True
-global: va=004BC290,name=sub_4BC290,size=615
+global: va=004BC290,name=sub_4BC290,size=615,member_of=vtbl_0066D99C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -37492,10 +37580,11 @@ global: va=004C00D0,name=sub_4C00D0,size=71
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True,winapi=BOOL,fname=BOOL
     arg: kind=int,size=4,signed=True
-global: va=004C0120,name=sub_4C0120,size=341
+global: va=004C0120,name=sub_4C0120,size=341,member_of=vtbl_0066D99C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=2
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D99C
 global: va=004C0280,name=sub_4C0280,size=491,member_of=vtbl_0066D99C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
@@ -37636,10 +37725,11 @@ global: va=004C19C0,name=addMana,size=70,member_of=vtbl_0066D99C
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D99C
     arg: kind=int,size=4,signed=True
-global: va=004C1A10,name=sub_4C1A10,size=21
+global: va=004C1A10,name=sub_4C1A10,size=21,member_of=vtbl_0066D99C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D99C
     arg: kind=int,size=4,signed=True
 global: va=004C1A30,name=sub_4C1A30,size=85,member_of=vtbl_0066D99C
   type: kind=function,declspec=thiscall
@@ -37666,11 +37756,13 @@ global: va=004C1B60,name=sub_4C1B60,size=48,member_of=vtbl_0066D99C
       type: kind=struct,id=vtbl_0066D99C
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D754
-global: va=004C1B90,name=sub_4C1B90,size=48
+global: va=004C1B90,name=sub_4C1B90,size=48,member_of=vtbl_0066D99C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D99C
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D754
 global: va=004C1BC0,name=sub_4C1BC0,size=561
   type: kind=function,declspec=thiscall
     ret: kind=int,size=2,signed=True
@@ -37872,10 +37964,16 @@ global: va=004C33B0,name=sub_4C33B0,size=704,member_of=vtbl_0066D99C
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=004C3670,name=sub_4C3670,size=489
-  type: kind=function,declspec=assembly
-    ret: kind=ptr
-      type: kind=void
+global: va=004C3670,name=sub_4C3670,size=489,member_of=vtbl_0066D99C
+  type: kind=function,declspec=thiscall
+    ret: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D99C
+    arg: kind=int,size=4,signed=True
+    arg: kind=int,size=4,signed=True
+    arg: kind=int,size=4,signed=True
+    arg: kind=int,size=4,signed=True
+    arg: kind=int,size=4,signed=True
 global: va=004C3860,name=sub_4C3860,size=434,member_of=vtbl_0066D99C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
@@ -37884,10 +37982,17 @@ global: va=004C3860,name=sub_4C3860,size=434,member_of=vtbl_0066D99C
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=004C3A20,name=sub_4C3A20,size=290
-  type: kind=function,declspec=assembly
-    ret: kind=ptr
-      type: kind=void
+global: va=004C3A20,name=sub_4C3A20,size=290,member_of=vtbl_0066D99C
+  type: kind=function,declspec=thiscall
+    ret: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D99C
+    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D754
+    arg: kind=int,size=4,signed=True
+    arg: kind=int,size=4,signed=True
+    arg: kind=int,size=4,signed=True
 global: va=004C3B50,name=sub_4C3B50,size=360,member_of=vtbl_0066D99C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True,winapi=BOOL,fname=BOOL
@@ -38059,17 +38164,15 @@ global: va=004C55F0,name=jpt_4C5567,size=28
 global: va=004C560C,name=idt_4C5561,size=59
   type: kind=array,count=59
     type: kind=int,size=1
-global: va=004C5650,name=sub_4C5650,size=211
+global: va=004C5650,name=sub_4C5650,size=211,member_of=construct_00508AAC
   type: kind=function,declspec=thiscall
     ret: kind=ptr
       type: kind=struct,id=vtbl_0066E3EC
     arg: kind=ptr
-      type: kind=ptr
-        type: kind=int,size=4
+      type: kind=struct,id=construct_00508AAC
     arg: kind=int,size=2
     arg: kind=int,size=4,signed=True
-    arg: kind=ptr
-      type: kind=struct,id=vtbl_0066E3EC
+    arg: kind=int,size=4,signed=True
 global: va=004C5724,name=jpt_4C5681,size=28
   type: kind=array,count=7
     type: kind=ptr
@@ -38148,10 +38251,11 @@ global: va=004C5F50,name=getDungeonHeartPosition,size=7,member_of=vtbl_0066D99C
       type: kind=struct,id=pos2us
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D99C
-global: va=004C5F60,name=sub_4C5F60,size=105
+global: va=004C5F60,name=sub_4C5F60,size=105,member_of=vtbl_0066D99C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D99C
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
 global: va=004C5FD0,name=fun_4C5FD0,size=51,member_of=vtbl_0066D99C
@@ -38332,12 +38436,12 @@ global: va=004C6EF0,name=sub_4C6EF0,size=418
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=004C70A0,name=sub_4C70A0,size=175
+global: va=004C70A0,name=sub_4C70A0,size=175,member_of=vtbl_0066D99C
   type: kind=function,declspec=thiscall
-    ret: kind=int,size=1,signed=True,winapi=char
+    ret: kind=int,size=1
     arg: kind=ptr
-      type: kind=int,size=1
-    arg: kind=int,size=1,signed=True,winapi=char
+      type: kind=struct,id=vtbl_0066D99C
+    arg: kind=int,size=1
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
@@ -40044,10 +40148,11 @@ global: va=004DE0A0,name=tickHatchery,size=54,member_of=vtbl_0066DB7C
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066DB7C
-global: va=004DE0E0,name=sub_4DE0E0,size=237
+global: va=004DE0E0,name=sub_4DE0E0,size=237,member_of=vtbl_0066DB7C
   type: kind=function,declspec=thiscall
     ret: kind=void
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066DB7C
     arg: kind=int,size=4,signed=True
 global: va=004DE1CD,name=def_4DE112,size=3
   type: kind=function,declspec=stdcall
@@ -40162,11 +40267,11 @@ global: va=004DFCE0,name=jpt_4DFAD8,size=32
 global: va=004DFD00,name=idt_4DFAD2,size=14
   type: kind=array,count=14
     type: kind=int,size=1
-global: va=004DFD10,name=sub_4DFD10,size=358
+global: va=004DFD10,name=sub_4DFD10,size=358,member_of=vtbl_0066E3EC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=2,signed=True
     arg: kind=ptr
-      type: kind=int,size=2
+      type: kind=struct,id=vtbl_0066E3EC
 global: va=004DFE78,name=jpt_4DFDC2,size=24
   type: kind=array,count=6
     type: kind=ptr
@@ -40762,7 +40867,8 @@ global: va=004E6490,name=sub_4E6490,size=516,member_of=vtbl_0066DB7C
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066DB7C
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D904
 global: va=004E66A0,name=sub_4E66A0,size=86
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
@@ -42307,12 +42413,12 @@ global: va=005027D0,name=fun_5027D0,size=1713,member_of=vtbl_0066E3EC
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=1,signed=True,winapi=char
     arg: kind=int,size=2,signed=True
-global: va=00502E90,name=sub_502E90,size=90
+global: va=00502E90,name=sub_502E90,size=90,member_of=constructor_004F82E0
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=constructor_004F82E0
-global: va=00502EF0,name=sub_502EF0,size=11
+global: va=00502EF0,name=sub_502EF0,size=11,member_of=constructor_004F82E0
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True,winapi=BOOL,fname=BOOL
     arg: kind=ptr
@@ -42466,103 +42572,123 @@ global: va=00505830,name=GameActionHandler_N42,size=473
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066E3EC
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=00505A10,name=GameActionHandler_N43,size=130
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=00505AA0,name=GameActionHandler_N44,size=33
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-global: va=00505AD0,name=N45,size=93,member_of=copy_005139D2
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
+global: va=00505AD0,name=GameActionHandler_N45,size=93
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=void
-    arg: kind=int,size=4,signed=True
-global: va=00505B30,name=N46,size=117,member_of=copy_005139D2
+      type: kind=struct,id=vtbl_0066E3EC
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
+global: va=00505B30,name=GameActionHandler_N46,size=117
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=void
-    arg: kind=int,size=4,signed=True
-global: va=00505BB0,name=N47,size=115,member_of=copy_005139D2
+      type: kind=struct,id=vtbl_0066E3EC
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
+global: va=00505BB0,name=GameActionHandler_N47,size=115
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=void
-    arg: kind=int,size=4,signed=True
-global: va=00505C30,name=N48,size=93,member_of=copy_005139D2
+      type: kind=struct,id=vtbl_0066E3EC
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
+global: va=00505C30,name=GameActionHandler_N48,size=93
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=void
-    arg: kind=int,size=4,signed=True
+      type: kind=struct,id=vtbl_0066E3EC
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=00505C90,name=GameActionHandler_N49,size=99
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=00505D00,name=GameActionHandler_N4A,size=99
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-global: va=00505D70,name=N4B,size=46,member_of=copy_005139D2
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
+global: va=00505D70,name=GameActionHandler_N4B,size=46
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=1,signed=True,winapi=char
-    arg: kind=int,size=4,signed=True
+      type: kind=struct,id=vtbl_0066E3EC
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=00505DA0,name=GameActionHandler_N4C,size=34
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=00505DD0,name=GameActionHandler_N4D,size=68
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=00505E20,name=GameActionHandler_N4E,size=83
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-global: va=00505E80,name=N4F,size=57,member_of=copy_005139D2
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
+global: va=00505E80,name=GameActionHandler_N4F,size=57
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
-    arg: kind=int,size=4,signed=True
-global: va=00505EC0,name=N50,size=60,member_of=copy_005139D2
+      type: kind=struct,id=vtbl_0066E3EC
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
+global: va=00505EC0,name=GameActionHandler_N50,size=60
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
-    arg: kind=int,size=4,signed=True
-global: va=00505F00,name=N51,size=124,member_of=copy_005139D2
+      type: kind=struct,id=vtbl_0066E3EC
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
+global: va=00505F00,name=GameActionHandler_N51,size=124
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=2
-    arg: kind=int,size=4,signed=True
+      type: kind=struct,id=vtbl_0066E3EC
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=00505F80,name=GameActionHandler_N52,size=195
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066E3EC
-    arg: kind=int,size=4,signed=True
-global: va=00506050,name=N53,size=134,member_of=copy_005139D2
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
+global: va=00506050,name=GameActionHandler_N53,size=134
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=2
-    arg: kind=int,size=4,signed=True
+      type: kind=struct,id=vtbl_0066E3EC
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=005060E0,name=GameActionHandler_N54,size=32
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=00506100,name=GameActionHandler_N55,size=32
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=00506120,name=constructor,size=23,member_of=vtbl_0066E3AC
   type: kind=function,declspec=thiscall
     ret: kind=ptr
@@ -42686,11 +42812,11 @@ global: va=00506970,name=popItem,size=105,member_of=constructor_00506660
       type: kind=struct,id=constructor_00506660
     arg: kind=ptr
       type: kind=struct,id=fill_005068BA
-global: va=005069E0,name=sub_5069E0,size=356
+global: va=005069E0,name=sub_5069E0,size=356,member_of=constructor_00506660
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=1
+      type: kind=struct,id=constructor_00506660
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=1,signed=True,winapi=char
 global: va=00506B50,name=testManufactureCompleted,size=29,member_of=constructor_00506660
@@ -43927,7 +44053,7 @@ global: va=0050AA60,name=saveAllToTbDiscFile,size=885,member_of=vtbl_0066E3EC
     arg: kind=ptr
       type: kind=ptr
         type: kind=struct,id=vtbl_0066F24C
-global: va=0050ADE0,name=probably_start_editor,size=1315
+global: va=0050ADE0,name=_loadSaveFile2,size=1315,member_of=vtbl_0066E3EC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -44227,7 +44353,7 @@ global: va=0050DD60,name=fun_50DD60,size=98,member_of=vtbl_0066E3EC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vtbl_0066E3EC
     arg: kind=int,size=1
 global: va=0050DDD0,name=fun_50DDD0,size=41,member_of=vtbl_0066E3EC
   type: kind=function,declspec=thiscall
@@ -44404,7 +44530,7 @@ global: va=0050E590,name=CWorld::fun_50E590,size=39
     arg: kind=int,size=2
     arg: kind=int,size=2
     arg: kind=int,size=4,signed=True
-global: va=0050E5C0,name=fun_50E5C0,size=95,member_of=vtbl_0066E3EC
+global: va=0050E5C0,name=callActionHandler,size=95,member_of=vtbl_0066E3EC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -44418,7 +44544,7 @@ global: va=0050E620,name=loadLevel,size=768,member_of=vtbl_0066E3EC
       type: kind=struct,id=vtbl_0066E3EC
     arg: kind=ptr,is_const=True
       type: kind=int,size=1,signed=True,winapi=char
-global: va=0050E920,name=fun_50E920,size=252,member_of=vtbl_0066E3EC
+global: va=0050E920,name=_loadSaveFile,size=252,member_of=vtbl_0066E3EC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -44619,7 +44745,8 @@ global: va=00510700,name=fun_510700,size=34,member_of=vtbl_0066E3EC
 global: va=00510730,name=fun_510730,size=43,member_of=vtbl_0066E3EC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066E3EC
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
 global: va=00510760,name=fun_510760,size=35,member_of=vtbl_0066E3EC
@@ -44652,7 +44779,8 @@ global: va=00510950,name=sub_510950,size=647
     ret: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066E3EC
 global: va=00510BE0,name=fun_510BE0,size=562,member_of=vtbl_0066E3EC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
@@ -44669,12 +44797,12 @@ global: va=00510E60,name=nullsub_23,size=3
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=00510E70,name=sub_510E70,size=23
+global: va=00510E70,name=sub_510E70,size=23,member_of=vtbl_0066E3EC
   type: kind=function,declspec=thiscall
     ret: kind=ptr
       type: kind=int,size=2,winapi=wchar_t,fname=wchar_t
     arg: kind=ptr
-      type: kind=int,size=2,winapi=wchar_t,fname=wchar_t
+      type: kind=struct,id=vtbl_0066E3EC
     arg: kind=ptr
       type: kind=int,size=2,winapi=wchar_t,fname=wchar_t
 global: va=00510E90,name=fun_510E90,size=165,member_of=vtbl_0066E3EC
@@ -44685,23 +44813,25 @@ global: va=00510E90,name=fun_510E90,size=165,member_of=vtbl_0066E3EC
     arg: kind=ptr
       type: kind=struct,id=constructor_00521F40
     arg: kind=int,size=4,signed=True
-global: va=00510F40,name=sub_510F40,size=80
-  type: kind=function,declspec=thiscall
-    ret: kind=int,size=4,signed=True
-    arg: kind=ptr
-      type: kind=int,size=4
-    arg: kind=int,size=4,signed=True
-global: va=00510F90,name=handleAction,size=80,member_of=vtbl_0066E3EC
+global: va=00510F40,name=handleAction0,size=80,member_of=vtbl_0066E3EC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066E3EC
     arg: kind=ptr
       type: kind=struct,id=constructor_00521F40
-global: va=00510FE0,name=sub_510FE0,size=63
+global: va=00510F90,name=handleAction1,size=80,member_of=vtbl_0066E3EC
+  type: kind=function,declspec=thiscall
+    ret: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066E3EC
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
+global: va=00510FE0,name=sub_510FE0,size=63,member_of=vtbl_0066E3EC
   type: kind=function,declspec=thiscall
     ret: kind=void
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066E3EC
 global: va=00511020,name=showLoadingScreen,size=298,member_of=vtbl_0066E3EC
   type: kind=function,declspec=thiscall
     ret: kind=ptr
@@ -44801,47 +44931,50 @@ global: va=00511A70,name=GameActionRecord_arr_static_init,size=5
 global: va=00511A80,name=GameActionRecord_arr_init,size=3301
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-global: va=00512770,name=N2B,size=52,member_of=copy_005139D2
+global: va=00512770,name=GameActionHandler_N2B,size=52
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=1,signed=True,winapi=char
-    arg: kind=int,size=4,signed=True
-global: va=005127B0,name=N2D,size=78,member_of=copy_005139D2
+      type: kind=struct,id=vtbl_0066E3EC
+    arg: kind=int,size=4
+global: va=005127B0,name=GameActionHandler_N2D,size=78
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vtbl_0066E3EC
     arg: kind=ptr
-      type: kind=int,size=4
-global: va=00512800,name=N2E,size=73,member_of=copy_005139D2
+      type: kind=struct,id=constructor_00521F40
+global: va=00512800,name=GameActionHandler_N2E,size=73
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vtbl_0066E3EC
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=constructor_00521F40
 global: va=00512850,name=GameActionHandler_N2F,size=63
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-global: va=00512890,name=N30,size=85,member_of=copy_005139D2
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
+global: va=00512890,name=GameActionHandler_N30,size=85
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=2
-    arg: kind=int,size=4,signed=True
+      type: kind=struct,id=vtbl_0066E3EC
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=005128F0,name=GameActionHandler_N31,size=60
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=2,signed=True
-global: va=00512930,name=N01,size=13,member_of=copy_005139D2
+      type: kind=struct,id=constructor_00521F40
+global: va=00512930,name=GameActionHandler_N01,size=13
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
-    arg: kind=int,size=4,signed=True
+      type: kind=struct,id=vtbl_0066E3EC
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=00512940,name=GameActionHandler_N7D,size=13
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
@@ -44849,27 +44982,28 @@ global: va=00512940,name=GameActionHandler_N7D,size=13
       type: kind=struct,id=vtbl_0066E3EC
     arg: kind=ptr
       type: kind=struct,id=constructor_00521F40
-global: va=00512950,name=N86,size=72,member_of=copy_005139D2
+global: va=00512950,name=GameActionHandler_N86,size=72
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
-    arg: kind=int,size=4,signed=True
+      type: kind=struct,id=vtbl_0066E3EC
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=005129A0,name=GameActionHandler_N28,size=61
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066E3EC
     arg: kind=ptr
-      type: kind=int,size=2,signed=True
+      type: kind=struct,id=constructor_00521F40
 global: va=005129E0,name=GameActionHandler_N29,size=61
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066E3EC
     arg: kind=ptr
-      type: kind=int,size=2,signed=True
-global: va=00512A20,name=sub_512A20,size=766
+      type: kind=struct,id=constructor_00521F40
+global: va=00512A20,name=sub_512A20,size=766,member_of=vtbl_0066E3EC
   type: kind=function,declspec=thiscall
     ret: kind=ptr
       type: kind=struct,id=constructor_00452B30
@@ -44890,17 +45024,18 @@ global: va=00512D20,name=sub_512D20,size=437
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=00512EE0,name=N2A,size=48,member_of=copy_005139D2
+global: va=00512EE0,name=GameActionHandler_N2A,size=48
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=void
-    arg: kind=int,size=4,signed=True
-global: va=00512F10,name=sub_512F10,size=754
+      type: kind=struct,id=vtbl_0066E3EC
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
+global: va=00512F10,name=sub_512F10,size=754,member_of=vtbl_0066E3EC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=1,signed=True,winapi=char
     arg: kind=ptr
-      type: kind=void
+      type: kind=struct,id=vtbl_0066E3EC
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=2,signed=True
     arg: kind=int,size=4
@@ -44908,7 +45043,8 @@ global: va=00512F10,name=sub_512F10,size=754
 global: va=00513210,name=GameActionHandler_N32,size=43
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=00513240,name=GameActionHandler_N33,size=39
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
@@ -44921,45 +45057,50 @@ global: va=005132A0,name=GameActionHandler_N35,size=39
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=005132D0,name=N36,size=99,member_of=copy_005139D2
+global: va=005132D0,name=GameActionHandler_N36,size=99
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=void
-    arg: kind=int,size=4,signed=True
+      type: kind=struct,id=vtbl_0066E3EC
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=00513340,name=GameActionHandler_N37,size=44
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=00513370,name=GameActionHandler_N38,size=44
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-global: va=005133A0,name=N87,size=224,member_of=copy_005139D2
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
+global: va=005133A0,name=GameActionHandler_N87,size=224
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=1
-    arg: kind=int,size=4,signed=True
+      type: kind=struct,id=vtbl_0066E3EC
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=00513480,name=GameActionHandler_N39,size=90
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=2
+      type: kind=struct,id=constructor_00521F40
 global: va=005134E0,name=GameActionHandler_N3A,size=197
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=005135B0,name=GameActionHandler_N3B,size=68
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=2
+      type: kind=struct,id=constructor_00521F40
 global: va=00513600,name=GameActionHandler_N3C,size=68
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=2
+      type: kind=struct,id=constructor_00521F40
 global: va=00513650,name=GameActionHandler_N3D_dropThingFromHand,size=53
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
@@ -44969,150 +45110,155 @@ global: va=00513690,name=GameActionHandler_N3E,size=75
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=2
+      type: kind=struct,id=constructor_00521F40
 global: va=005136E0,name=GameActionHandler_N3F,size=74
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=2
+      type: kind=struct,id=constructor_00521F40
 global: va=00513730,name=GameActionHandler_N40,size=33
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=2
-global: va=00513760,name=N58,size=113,member_of=copy_005139D2
+      type: kind=struct,id=constructor_00521F40
+global: va=00513760,name=GameActionHandler_N58,size=113
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=1
+      type: kind=struct,id=vtbl_0066E3EC
     arg: kind=ptr
-      type: kind=int,size=2
-global: va=005137E0,name=N5C,size=32,member_of=copy_005139D2
+      type: kind=struct,id=constructor_00521F40
+global: va=005137E0,name=GameActionHandler_N5C,size=32
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=ptr
-        type: kind=int,size=4
+      type: kind=struct,id=vtbl_0066E3EC
     arg: kind=ptr
-      type: kind=int,size=4,signed=True
+      type: kind=struct,id=constructor_00521F40
 global: va=00513800,name=GameActionHandler_N5D,size=74
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=2
-global: va=00513850,name=N64,size=8,member_of=copy_005139D2
+      type: kind=struct,id=constructor_00521F40
+global: va=00513850,name=GameActionHandler_N64,size=8
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=void
-    arg: kind=int,size=4,signed=True
-global: va=00513860,name=N65,size=8,member_of=copy_005139D2
+      type: kind=struct,id=vtbl_0066E3EC
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
+global: va=00513860,name=GameActionHandler_N65,size=8
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=void
-    arg: kind=int,size=4,signed=True
+      type: kind=struct,id=vtbl_0066E3EC
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=00513870,name=GameActionHandler_N66__editor::load_level,size=1133
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066E3EC
-    arg: kind=int,size=4,signed=True
-global: va=00513CE0,name=N69,size=214,member_of=copy_005139D2
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
+global: va=00513CE0,name=GameActionHandler_N69,size=214
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=1,signed=True,winapi=char
+      type: kind=struct,id=vtbl_0066E3EC
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D654
 global: va=00513DC0,name=GameActionHandler_N6A,size=144
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=2
+      type: kind=struct,id=constructor_00521F40
 global: va=00513E50,name=GameActionHandler_N71,size=84
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=2
+      type: kind=struct,id=constructor_00521F40
 global: va=00513EB0,name=GameActionHandler_N72,size=39
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-global: va=00513EE0,name=N76,size=120,member_of=copy_005139D2
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
+global: va=00513EE0,name=GameActionHandler_N76,size=120
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vtbl_0066E3EC
     arg: kind=ptr
-      type: kind=int,size=2
-global: va=00513F60,name=N7A,size=141,member_of=copy_005139D2
+      type: kind=struct,id=constructor_00521F40
+global: va=00513F60,name=GameActionHandler_N7A,size=141
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vtbl_0066E3EC
     arg: kind=ptr
-      type: kind=int,size=2
-global: va=00513FF0,name=N7B,size=270,member_of=copy_005139D2
-  type: kind=function,declspec=thiscall
-    ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-    arg: kind=ptr
-      type: kind=int,size=2
-global: va=00514100,name=N77,size=163,member_of=copy_005139D2
+      type: kind=struct,id=constructor_00521F40
+global: va=00513FF0,name=GameActionHandler_N7B,size=270
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vtbl_0066E3EC
     arg: kind=ptr
-      type: kind=int,size=2
-global: va=005141B0,name=N78,size=131,member_of=copy_005139D2
+      type: kind=struct,id=constructor_00521F40
+global: va=00514100,name=GameActionHandler_N77,size=163
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vtbl_0066E3EC
     arg: kind=ptr
-      type: kind=int,size=2
-global: va=00514240,name=N79,size=59,member_of=copy_005139D2
+      type: kind=struct,id=constructor_00521F40
+global: va=005141B0,name=GameActionHandler_N78,size=131
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=void
+      type: kind=struct,id=vtbl_0066E3EC
     arg: kind=ptr
-      type: kind=int,size=2
+      type: kind=struct,id=constructor_00521F40
+global: va=00514240,name=GameActionHandler_N79,size=59
+  type: kind=function,declspec=thiscall
+    ret: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066E3EC
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=00514280,name=GameActionHandler_N7C,size=82
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=2
+      type: kind=struct,id=constructor_00521F40
 global: va=005142E0,name=GameActionHandler_N81,size=57
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=2
-global: va=00514320,name=N82,size=242,member_of=copy_005139D2
+      type: kind=struct,id=constructor_00521F40
+global: va=00514320,name=GameActionHandler_N82,size=242
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=2
+      type: kind=struct,id=vtbl_0066E3EC
     arg: kind=ptr
-      type: kind=int,size=2
+      type: kind=struct,id=constructor_00521F40
 global: va=00514420,name=GameActionHandler_N88,size=80
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=2
-global: va=00514470,name=N89,size=232,member_of=copy_005139D2
+      type: kind=struct,id=constructor_00521F40
+global: va=00514470,name=GameActionHandler_N89,size=232
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4,signed=True
+      type: kind=struct,id=vtbl_0066E3EC
     arg: kind=ptr
-      type: kind=int,size=2
+      type: kind=struct,id=constructor_00521F40
 global: va=00514560,name=GameActionHandler_N14,size=44
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=00514590,name=GameActionHandler_N15,size=283
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
@@ -45121,13 +45267,15 @@ global: va=00514590,name=GameActionHandler_N15,size=283
 global: va=005146B0,name=GameActionHandler_N19,size=378
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=00514830,name=GameActionHandler_N1A,size=2975
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066E3EC
-    arg: kind=int,size=4
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=005153D0,name=jpt_5149B4,size=24
   type: kind=array,count=6
     type: kind=ptr
@@ -45191,11 +45339,13 @@ global: va=005162E0,name=sub_5162E0,size=218
     ret: kind=int,size=4,signed=True,winapi=BOOL,fname=BOOL
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=005163C0,name=N1B,size=684,member_of=copy_005139D2
+global: va=005163C0,name=GameActionHandler_N1B,size=684
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066E3EC
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=00516670,name=sub_516670,size=731
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True,winapi=BOOL,fname=BOOL
@@ -45218,40 +45368,47 @@ global: va=00516950,name=sub_516950,size=132
 global: va=005169E0,name=GameActionHandler_N24,size=55
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-global: va=00516A20,name=N25,size=1045,member_of=copy_005139D2
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
+global: va=00516A20,name=GameActionHandler_N25,size=1045
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4,signed=True
+      type: kind=struct,id=vtbl_0066E3EC
     arg: kind=ptr
-      type: kind=int,size=2
+      type: kind=struct,id=constructor_00521F40
 global: va=00516E40,name=GameActionHandler_N26,size=116
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=00516EC0,name=GameActionHandler_N1C,size=718
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066E3EC
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=00517190,name=GameActionHandler_N1E,size=54
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=005171D0,name=GameActionHandler_N27,size=74
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=00517220,name=GameActionHandler_N1F,size=79
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=00517270,name=GameActionHandler_N1D,size=61
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=005172B0,name=GameActionHandler_N20_N2C__TbTQILoader::fun_5172B0,size=8
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
@@ -45259,11 +45416,13 @@ global: va=005172B0,name=GameActionHandler_N20_N2C__TbTQILoader::fun_5172B0,size
 global: va=005172C0,name=GameActionHandler_N21,size=79
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=00517310,name=GameActionHandler_N22,size=74
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
 global: va=00517360,name=CWorldInterface_constructor,size=16
   type: kind=function,declspec=thiscall
     ret: kind=ptr
@@ -45507,11 +45666,11 @@ global: va=00517FB0,name=dump,size=195,member_of=World_WorldSacrifice
     ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=World_WorldSacrifice
-global: va=00518080,name=sub_518080,size=15
+global: va=00518080,name=setTriggerRoot,size=15,member_of=vtbl_0066E3EC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=2,signed=True
     arg: kind=ptr
-      type: kind=int,size=2
+      type: kind=struct,id=vtbl_0066E3EC
     arg: kind=int,size=2,signed=True
 global: va=00518090,name=getTriggerWhen,size=93,member_of=vtbl_0066E3EC
   type: kind=function,declspec=thiscall
@@ -45768,31 +45927,34 @@ global: va=0051DD10,name=sub_51DD10,size=45,member_of=vtbl_0066E3EC
       type: kind=struct,id=vtbl_0066E3EC
     arg: kind=ptr
       type: kind=int,size=4
-global: va=0051DD40,name=fun_51DD40,size=61,member_of=vtbl_0066E3EC
+global: va=0051DD40,name=_loadResourceHeaders,size=61,member_of=vtbl_0066E3EC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066E3EC
     arg: kind=ptr
       type: kind=int,size=1,signed=True,winapi=char
-global: va=0051DD80,name=sub_51DD80,size=59
+global: va=0051DD80,name=_loadResourceTypes,size=59,member_of=vtbl_0066E3EC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066E3EC
     arg: kind=ptr
       type: kind=int,size=1,signed=True,winapi=char
-global: va=0051DDC0,name=tryLoadLevel,size=72,member_of=vtbl_0066E3EC
+global: va=0051DDC0,name=_loadResourceLevel,size=72,member_of=vtbl_0066E3EC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066E3EC
     arg: kind=ptr
       type: kind=int,size=1,signed=True,winapi=char
-global: va=0051DE10,name=sub_51DE10,size=57
-  type: kind=function,declspec=assembly
-    ret: kind=ptr
-      type: kind=void
+global: va=0051DE10,name=_validateResourceData,size=57,member_of=vtbl_0066E3EC
+  type: kind=function,declspec=thiscall
+    ret: kind=int,size=4
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066E3EC
+    arg: kind=ptr
+      type: kind=int,size=1,signed=True,winapi=char
 global: va=0051DE50,name=loadLevelData,size=305,member_of=vtbl_0066E3EC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
@@ -46195,7 +46357,7 @@ global: va=00521F50,name=destructor,size=19,member_of=construct_005227B5
     ret: kind=void
     arg: kind=ptr
       type: kind=int,size=1,signed=True,winapi=char
-global: va=00521F70,name=_peekOrPop,size=132,member_of=init_00521D30
+global: va=00521F70,name=tryPopCtx,size=132,member_of=init_00521D30
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -46255,7 +46417,7 @@ global: va=005224E0,name=sub_5224E0,size=175,member_of=constructor_00522000
       type: kind=struct,id=constructor_00522000
     arg: kind=int,size=4
     arg: kind=ptr
-      type: kind=int,size=1,signed=True,winapi=char
+      type: kind=struct,id=construct_005227B5
 global: va=00522590,name=sub_522590,size=191,member_of=constructor_00522000
   type: kind=function,declspec=thiscall
     ret: kind=void
@@ -46374,7 +46536,8 @@ global: va=00522DC0,name=fun_522DC0,size=159,member_of=vtbl_0066EBDC
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066EBDC
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00521F40
     arg: kind=int,size=4,signed=True
 global: va=00522E60,name=fun_522E60,size=188,member_of=vtbl_0066EBDC
   type: kind=function,declspec=thiscall
@@ -46404,13 +46567,13 @@ global: va=005239A0,name=calcSize,size=30,member_of=init_00559920
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=init_00559920
-global: va=005239E0,name=fun_5239E0,size=334,member_of=vtbl_0066EBDC
+global: va=005239E0,name=uploadMapInit,size=334,member_of=vtbl_0066EBDC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066EBDC
     arg: kind=int,size=4,signed=True
-global: va=00523B30,name=fun_523B30,size=643,member_of=vtbl_0066EBDC
+global: va=00523B30,name=uploadMapTrack,size=643,member_of=vtbl_0066EBDC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -46419,7 +46582,7 @@ global: va=00523B30,name=fun_523B30,size=643,member_of=vtbl_0066EBDC
     arg: kind=ptr
       type: kind=int,size=4
     arg: kind=int,size=4,signed=True
-global: va=00523DC0,name=fun_523DC0,size=157,member_of=vtbl_0066EBDC
+global: va=00523DC0,name=uploadMapFinish,size=157,member_of=vtbl_0066EBDC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,fname=DWORD
     arg: kind=ptr
@@ -46528,7 +46691,7 @@ global: va=00524850,name=sub_524850,size=288,member_of=vtbl_0066EBDC
       type: kind=struct,id=vtbl_0066EBDC
     arg: kind=ptr
       type: kind=struct,id=construct_005227B5
-global: va=00524970,name=handleDm_3,size=812,member_of=vtbl_0066EBDC
+global: va=00524970,name=resendMissingActions,size=812,member_of=vtbl_0066EBDC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -46553,7 +46716,7 @@ global: va=00524DAC,name=jpt_524CF2,size=28
   type: kind=array,count=7
     type: kind=ptr
       type: kind=void
-global: va=00524DD0,name=fun_524DD0,size=353,member_of=vtbl_0066EBDC
+global: va=00524DD0,name=printfInfo,size=353,member_of=vtbl_0066EBDC
   type: kind=function,declspec=thiscall
     ret: kind=ptr
       type: kind=int,size=1,signed=True,winapi=char
@@ -46564,39 +46727,39 @@ global: va=00524F34,name=jpt_524DE1,size=24
   type: kind=array,count=6
     type: kind=ptr
       type: kind=void
-global: va=00524F50,name=fun_524F50,size=59,member_of=vtbl_0066EBDC
+global: va=00524F50,name=syncGameTickInit,size=59,member_of=vtbl_0066EBDC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066EBDC
     arg: kind=int,size=4
-global: va=00524F90,name=fun_524F90,size=71,member_of=vtbl_0066EBDC
+global: va=00524F90,name=sendData_20,size=71,member_of=vtbl_0066EBDC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066EBDC
-global: va=00524FE0,name=fun_524FE0,size=83,member_of=vtbl_0066EBDC
-  type: kind=function,declspec=thiscall
-    ret: kind=int,size=4,signed=True
-    arg: kind=ptr
-      type: kind=struct,id=vtbl_0066EBDC
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-global: va=00525040,name=fun_525040,size=89,member_of=vtbl_0066EBDC
+global: va=00524FE0,name=sendData_15_WorldChecksum,size=83,member_of=vtbl_0066EBDC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066EBDC
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=005250A0,name=fun_5250A0,size=89,member_of=vtbl_0066EBDC
+global: va=00525040,name=sendData_1F,size=89,member_of=vtbl_0066EBDC
   type: kind=function,declspec=thiscall
-    ret: kind=int,size=4,fname=DWORD
+    ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066EBDC
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=00525100,name=fun_525100,size=105,member_of=vtbl_0066EBDC
+global: va=005250A0,name=sendData_C_MapUploadStatus,size=89,member_of=vtbl_0066EBDC
+  type: kind=function,declspec=thiscall
+    ret: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066EBDC
+    arg: kind=int,size=4,signed=True
+    arg: kind=int,size=4,signed=True
+global: va=00525100,name=sendData_B_MapUploadStart,size=105,member_of=vtbl_0066EBDC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -47098,7 +47261,7 @@ global: va=00529000,name=CSlider::fun_529000,size=70
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vtbl_0066EE0C
     arg: kind=int,size=4,signed=True
 global: va=00529050,name=CVerticalSlider::fun_529050,size=154
   type: kind=function,declspec=thiscall
@@ -47277,16 +47440,18 @@ global: va=0052A320,name=destructor,size=11,member_of=vtbl_0066ECBC
     ret: kind=void
     arg: kind=ptr
       type: kind=int,size=4
-global: va=0052A330,name=sub_52A330,size=553
+global: va=0052A330,name=sub_52A330,size=553,member_of=vtbl_0066ECA4
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066ECA4
     arg: kind=ptr
       type: kind=int,size=1,signed=True,winapi=char
-global: va=0052A560,name=sub_52A560,size=329
+global: va=0052A560,name=sub_52A560,size=329,member_of=vtbl_0066ECA4
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066ECA4
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
 global: va=0052A6B0,name=fun_52A6B0,size=560,member_of=vtbl_0066ED8C
@@ -47355,10 +47520,11 @@ global: va=0052B390,name=CListBox::add_CVerticalSlider,size=318
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066ECA4
     arg: kind=int,size=4,signed=True
-global: va=0052B4D0,name=sub_52B4D0,size=455
+global: va=0052B4D0,name=sub_52B4D0,size=455,member_of=vtbl_0066ECA4
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066ECA4
     arg: kind=int,size=4,signed=True
 global: va=0052B6A0,name=CProgressBar::fun_52B6A0,size=94
   type: kind=function,declspec=thiscall
@@ -48625,12 +48791,13 @@ global: va=0053AD20,name=sub_53AD20,size=596
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=int,size=4
-global: va=0053AF80,name=sub_53AF80,size=1103
+global: va=0053AF80,name=CButton_sub_53AF80,size=1103
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066ECA4
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066EF3C
 global: va=0053B3D0,name=sub_53B3D0,size=25,member_of=vtbl_0066EF3C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
@@ -48965,7 +49132,8 @@ global: va=0053F600,name=CFrontEndComponent_loadVariable,size=464
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066EF3C
 global: va=0053F7D0,name=jpt_53F649,size=20
   type: kind=array,count=5
     type: kind=ptr
@@ -49099,12 +49267,12 @@ global: va=00541980,name=sub_541980,size=56
       type: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=005419C0,name=sub_5419C0,size=23
+global: va=005419C0,name=setMapName,size=23,member_of=vtbl_0066EF3C
   type: kind=function,declspec=thiscall
     ret: kind=ptr
       type: kind=int,size=2,winapi=wchar_t,fname=wchar_t
     arg: kind=ptr
-      type: kind=int,size=2,winapi=wchar_t,fname=wchar_t
+      type: kind=struct,id=vtbl_0066EF3C
     arg: kind=ptr
       type: kind=int,size=2,winapi=wchar_t,fname=wchar_t
 global: va=005419F0,name=sub_5419F0,size=57
@@ -49456,7 +49624,7 @@ global: va=00546680,name=sub_546680,size=90,member_of=vtbl_0066EF3C
     arg: kind=int,size=4,signed=True
 global: va=005466E0,name=sub_5466E0,size=321,member_of=vtbl_0066EF3C
   type: kind=function,declspec=thiscall
-    ret: kind=int,size=4
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066EF3C
     arg: kind=int,size=4,signed=True
@@ -49579,7 +49747,7 @@ global: va=00548610,name=fun_548610,size=651,member_of=vtbl_0066EF3C
     ret: kind=int,size=1,signed=True,winapi=char
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066EF3C
-global: va=005488A0,name=sub_5488A0,size=152,member_of=vtbl_0066EF3C
+global: va=005488A0,name=resetLevelVariableValues,size=152,member_of=vtbl_0066EF3C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -49625,12 +49793,14 @@ global: va=00548B70,name=CFrontEndComponent_loadCreature,size=97
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066EF3C
 global: va=00548BE0,name=CFrontEndComponent_loadRoom,size=90
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066EF3C
 global: va=00548C40,name=CFrontEndComponent_loadDoor,size=90
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
@@ -49646,10 +49816,11 @@ global: va=00548D00,name=CFrontEndComponent_loadKeeperSpell,size=86
     ret: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=00548D60,name=sub_548D60,size=112
+global: va=00548D60,name=setAvailabilityValue,size=112,member_of=vtbl_0066EF3C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066EF3C
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
@@ -49668,10 +49839,11 @@ global: va=00548E58,name=jpt_548DF9,size=20
   type: kind=array,count=5
     type: kind=ptr
       type: kind=void
-global: va=00548E70,name=sub_548E70,size=32
+global: va=00548E70,name=setCreaturePoolValue,size=32,member_of=vtbl_0066EF3C
   type: kind=function,declspec=thiscall
-    ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    ret: kind=void
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066EF3C
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=1,signed=True,winapi=char
@@ -49758,7 +49930,8 @@ global: va=00549620,name=sub_549620,size=113
       type: kind=int,size=4
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066ECA4
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066EF3C
 global: va=00549694,name=jpt_549634,size=20
   type: kind=array,count=5
     type: kind=ptr
@@ -49820,14 +49993,14 @@ global: va=00549C40,name=sub_549C40,size=193
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066ECA4
     arg: kind=int,size=4,signed=True
-global: va=00549D10,name=fun_549D10,size=581,member_of=vtbl_0066EF3C
+global: va=00549D10,name=buildLevelConfig,size=581,member_of=vtbl_0066EF3C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066EF3C
-global: va=00549F60,name=sub_549F60,size=859,member_of=vtbl_0066EF3C
+global: va=00549F60,name=applyLevelVariables,size=859,member_of=vtbl_0066EF3C
   type: kind=function,declspec=thiscall
-    ret: kind=int,size=4,signed=True
+    ret: kind=int,size=4
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066EF3C
 global: va=0054A2C0,name=sub_54A2C0,size=366,member_of=vtbl_0066EF3C
@@ -49924,7 +50097,7 @@ global: va=0054ADD0,name=sub_54ADD0,size=127
       type: kind=struct,id=vtbl_0066ECA4
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066EF3C
-global: va=0054AE50,name=sub_54AE50,size=141
+global: va=0054AE50,name=Button_updateGoldDensity,size=141
   type: kind=function,declspec=cdecl
     ret: kind=ptr
       type: kind=int,size=4
@@ -49932,7 +50105,7 @@ global: va=0054AE50,name=sub_54AE50,size=141
       type: kind=struct,id=vtbl_0066ECA4
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066EF3C
-global: va=0054AEE0,name=sub_54AEE0,size=140
+global: va=0054AEE0,name=Button_updateManaRegeneration,size=140
   type: kind=function,declspec=cdecl
     ret: kind=ptr
       type: kind=int,size=4
@@ -49950,7 +50123,7 @@ global: va=0054AFA0,name=sub_54AFA0,size=44
     ret: kind=int,size=1,signed=True,winapi=char
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=0054AFD0,name=sub_54AFD0,size=141
+global: va=0054AFD0,name=Button_updateGameDuration,size=141
   type: kind=function,declspec=assembly
     ret: kind=ptr
       type: kind=void
@@ -50321,7 +50494,7 @@ global: va=0054E640,name=findAndSetButtonVisible,size=48,member_of=vtbl_0066EF3C
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=1,signed=True,winapi=char
-global: va=0054E670,name=sub_54E670,size=39
+global: va=0054E670,name=my_wcssize,size=39
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -51991,7 +52164,7 @@ global: va=0055A6F0,name=getCurrentPlayersCount,size=76,member_of=init_00559BE0
     arg: kind=ptr
       type: kind=struct,id=init_00559BE0
     arg: kind=ptr
-      type: kind=int,size=4,signed=True
+      type: kind=int,size=4
 global: va=0055A740,name=isPlayerJoined,size=38,member_of=init_00559BE0
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True,winapi=BOOL,fname=BOOL
@@ -52270,11 +52443,11 @@ global: va=0055D590,name=saveGameSpeed,size=127,member_of=constructor_0055CCA0
     arg: kind=ptr
       type: kind=struct,id=constructor_0055CCA0
     arg: kind=int,size=4,signed=True
-global: va=0055D610,name=sub_55D610,size=13
+global: va=0055D610,name=setGameSpeed,size=13,member_of=constructor_0055CCA0
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=constructor_0055CCA0
     arg: kind=int,size=4,signed=True
 global: va=0055D620,name=saveFogOfWar,size=127,member_of=constructor_0055CCA0
   type: kind=function,declspec=thiscall
@@ -52290,7 +52463,7 @@ global: va=0055D6A0,name=setFogOfWar,size=13,member_of=constructor_0055CCA0
     arg: kind=ptr
       type: kind=struct,id=constructor_0055CCA0
     arg: kind=int,size=4,signed=True
-global: va=0055D6B0,name=sub_55D6B0,size=127
+global: va=0055D6B0,name=saveImpenetrableWalls,size=127,member_of=constructor_0055CCA0
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
@@ -52374,7 +52547,7 @@ global: va=0055DA40,name=setManaRegeneration,size=15,member_of=constructor_0055C
     arg: kind=ptr
       type: kind=struct,id=constructor_0055CCA0
     arg: kind=int,size=2,signed=True
-global: va=0055DA50,name=sub_55DA50,size=139,member_of=constructor_0055CCA0
+global: va=0055DA50,name=mallocCfgCreatures,size=139,member_of=constructor_0055CCA0
   type: kind=function,declspec=thiscall
     ret: kind=void
     arg: kind=ptr
@@ -52382,7 +52555,7 @@ global: va=0055DA50,name=sub_55DA50,size=139,member_of=constructor_0055CCA0
     arg: kind=ptr
       type: kind=int,size=4
     arg: kind=int,size=4,signed=True
-global: va=0055DAE0,name=sub_55DAE0,size=139,member_of=constructor_0055CCA0
+global: va=0055DAE0,name=mallocCfgTraps,size=139,member_of=constructor_0055CCA0
   type: kind=function,declspec=thiscall
     ret: kind=void
     arg: kind=ptr
@@ -52390,7 +52563,16 @@ global: va=0055DAE0,name=sub_55DAE0,size=139,member_of=constructor_0055CCA0
     arg: kind=ptr
       type: kind=int,size=4
     arg: kind=int,size=4,signed=True
-global: va=0055DB70,name=sub_55DB70,size=139,member_of=constructor_0055CCA0
+global: va=0055DB70,name=mallocCfgRooms,size=139,member_of=constructor_0055CCA0
+  type: kind=function,declspec=thiscall
+    ret: kind=void
+    arg: kind=ptr
+      type: kind=struct,id=constructor_0055CCA0
+    arg: kind=ptr
+      type: kind=ptr
+        type: kind=int,size=1
+    arg: kind=int,size=4,signed=True
+global: va=0055DC00,name=mallocCfgSpells,size=139,member_of=constructor_0055CCA0
   type: kind=function,declspec=thiscall
     ret: kind=void
     arg: kind=ptr
@@ -52398,15 +52580,7 @@ global: va=0055DB70,name=sub_55DB70,size=139,member_of=constructor_0055CCA0
     arg: kind=ptr
       type: kind=int,size=4
     arg: kind=int,size=4,signed=True
-global: va=0055DC00,name=sub_55DC00,size=139,member_of=constructor_0055CCA0
-  type: kind=function,declspec=thiscall
-    ret: kind=void
-    arg: kind=ptr
-      type: kind=struct,id=constructor_0055CCA0
-    arg: kind=ptr
-      type: kind=int,size=4
-    arg: kind=int,size=4,signed=True
-global: va=0055DC90,name=sub_55DC90,size=139,member_of=constructor_0055CCA0
+global: va=0055DC90,name=mallocCfgDoors,size=139,member_of=constructor_0055CCA0
   type: kind=function,declspec=thiscall
     ret: kind=void
     arg: kind=ptr
@@ -52720,16 +52894,17 @@ global: va=00560FE0,name=sub_560FE0,size=14
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=00560FF0,name=sub_560FF0,size=90
+global: va=00560FF0,name=sub_560FF0,size=90,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=1,signed=True,winapi=char
+      type: kind=struct,id=constructor_0055EC20
     arg: kind=int,size=4,signed=True
-global: va=00561050,name=sub_561050,size=430
+global: va=00561050,name=sub_561050,size=430,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_0055EC20
     arg: kind=int,size=4,signed=True
 global: va=00561200,name=sub_561200,size=490,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
@@ -52780,11 +52955,11 @@ global: va=005615F0,name=setSecretLevelCompleted,size=137,member_of=constructor_
       type: kind=struct,id=constructor_0055EC20
     arg: kind=int,size=4
     arg: kind=int,size=4,signed=True
-global: va=00561680,name=sub_561680,size=24
+global: va=00561680,name=sub_561680,size=24,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=1,signed=True,winapi=char
+      type: kind=struct,id=constructor_0055EC20
 global: va=005616A0,name=sub_5616A0,size=140,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
@@ -54706,10 +54881,12 @@ global: va=00571AD0,name=sub_571AD0,size=16
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
     arg: kind=float,size=4
-global: va=00571AE0,name=sub_571AE0,size=25
+global: va=00571AE0,name=CEnginePrimitiveBase_sub_571AE0,size=25
   type: kind=function,declspec=cdecl
-    ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    ret: kind=ptr
+      type: kind=struct,id=vtbl_0066FA9C
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066FA9C
 global: va=00571B00,name=NewObj571B3B_add,size=330
   type: kind=function,declspec=cdecl
     ret: kind=ptr
@@ -58241,7 +58418,7 @@ global: va=0059B880,name=sub_59B880,size=758,member_of=vtbl_00670574
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066FCCC
     arg: kind=ptr
-      type: kind=struct,id=vtbl_0066FD1C
+      type: kind=struct,id=vec_xyz
     arg: kind=ptr
       type: kind=int,size=2
     arg: kind=int,size=4,signed=True
@@ -58317,11 +58494,12 @@ global: va=0059C1D0,name=fun_59C1D0,size=201,member_of=vtbl_00670574
       type: kind=int,size=4
     arg: kind=ptr
       type: kind=int,size=4
-global: va=0059C2A0,name=sub_59C2A0,size=183
+global: va=0059C2A0,name=static_CRenderInfo_sub_59C2A0,size=183
   type: kind=function,declspec=cdecl
     ret: kind=ptr
       type: kind=float,size=4
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D454
     arg: kind=ptr
       type: kind=int,size=4
     arg: kind=ptr
@@ -58330,23 +58508,25 @@ global: va=0059C2A0,name=sub_59C2A0,size=183
       type: kind=float,size=4
     arg: kind=ptr
       type: kind=float,size=4
-global: va=0059C360,name=sub_59C360,size=956
+global: va=0059C360,name=CRenderInfo_sub_59C360,size=956
   type: kind=function,declspec=stdcall
     ret: kind=ptr
       type: kind=struct,id=vtbl_0066FCCC
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D454
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066FCCC
     arg: kind=float,size=4
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=0059C720,name=sub_59C720,size=341
+global: va=0059C720,name=CRenderInfo_sub_59C720,size=341
   type: kind=function,declspec=stdcall
     ret: kind=ptr
       type: kind=struct,id=vtbl_0066FCF4
-    arg: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=float,size=4
+      type: kind=struct,id=vtbl_0066D454
+    arg: kind=ptr
+      type: kind=struct,id=vec_xyz
     arg: kind=float,size=4
 global: va=0059C880,name=sub_59C880,size=1125,member_of=vtbl_00670574
   type: kind=function,declspec=thiscall
@@ -58369,15 +58549,17 @@ global: va=0059CCF0,name=sub_59CCF0,size=792,member_of=vtbl_00670574
       type: kind=struct,id=vtbl_0066FD1C
     arg: kind=ptr
       type: kind=struct,id=vtbl_00670574
-    arg: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vtbl_0066D454
+    arg: kind=ptr
+      type: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vec_xyz
-    arg: kind=int,size=4
+    arg: kind=ptr
+      type: kind=int,size=2
     arg: kind=float,size=4
     arg: kind=int,size=4,signed=True
-global: va=0059D010,name=sub_59D010,size=583
+global: va=0059D010,name=CRenderInfo_sub_59D010,size=583
   type: kind=function,declspec=stdcall
     ret: kind=ptr
       type: kind=struct,id=vtbl_0066FD1C
@@ -58563,7 +58745,7 @@ global: va=0059DCA0,name=sub_59DCA0,size=141
       type: kind=float,size=4
     arg: kind=struct,id=vecf_xyz
     arg: kind=float,size=4
-global: va=0059DD30,name=sub_59DD30,size=1242
+global: va=0059DD30,name=Vec3f_sub_59DD30,size=1242
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
     arg: kind=struct,id=vecf_xyz
@@ -58711,11 +58893,11 @@ global: va=005A0030,name=sub_5A0030,size=368
     arg: kind=float,size=4
     arg: kind=float,size=4
     arg: kind=float,size=4
-global: va=005A01A0,name=sub_5A01A0,size=3785
+global: va=005A01A0,name=sub_5A01A0,size=3785,member_of=vtbl_00670574
   type: kind=function,declspec=thiscall
     ret: kind=void
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vtbl_00670574
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D454
     arg: kind=ptr
@@ -60163,7 +60345,7 @@ global: va=005B30C0,name=sub_5B30C0,size=43
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=1
-global: va=005B30F0,name=sub_5B30F0,size=54
+global: va=005B30F0,name=static_MyNBitTexture_sub_5B30F0,size=54
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -61179,7 +61361,8 @@ global: va=005B7640,name=set,size=27,member_of=constructor_005B7610
     arg: kind=ptr
       type: kind=struct,id=constructor_005B7610
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=ptr
+        type: kind=void
     arg: kind=int,size=4,signed=True
 global: va=005B7660,name=j_MySemaphore_releaseSemaphore,size=5
   type: kind=function,declspec=thiscall
@@ -61505,7 +61688,7 @@ global: va=005B8F90,name=sub_5B8F90,size=66
     arg: kind=ptr
       type: kind=void
     arg: kind=int,size=4
-global: va=005B8FE0,name=sub_5B8FE0,size=152
+global: va=005B8FE0,name=Obj672308_constructor,size=152
   type: kind=function,declspec=thiscall
     ret: kind=ptr
       type: kind=void
@@ -61513,7 +61696,7 @@ global: va=005B8FE0,name=sub_5B8FE0,size=152
       type: kind=void
     arg: kind=ptr
       type: kind=int,size=2,winapi=wchar_t,fname=wchar_t
-global: va=005B9080,name=sub_5B9080,size=19
+global: va=005B9080,name=Obj672308_destructor,size=19
   type: kind=function,declspec=thiscall
     ret: kind=void
     arg: kind=ptr
@@ -76875,7 +77058,7 @@ global: va=00635DA0,name=___for_each_destruct,size=144
   type: kind=function,declspec=stdcall
     ret: kind=void
     arg: kind=ptr
-      type: kind=int,size=1,signed=True,winapi=char
+      type: kind=void
     arg: kind=int,size=4
     arg: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -81058,6 +81241,9 @@ global: va=006FCEC0,name=CLocalCommunication_instance,size=608
   type: kind=struct,id=vtbl_0066EB8C
 global: va=006FD120,name=CNetworkCommunication_instance,size=65034
   type: kind=struct,id=vtbl_0066EBDC
+global: va=0070CF30,name=g_sprintfBuf,size=512
+  type: kind=array,count=512
+    type: kind=int,size=1,signed=True,winapi=char
 global: va=0070D138,name=CGameComponent_instance,size=734
   type: kind=struct,id=vtbl_0066EC4C
 global: va=0070D418,name=worldHighestTickTime,size=4
@@ -81157,7 +81343,7 @@ global: va=0073F858,name=g_playerDescs_73F858,size=816
     type: kind=struct,id=get_item_005445DE
 global: va=0073FB88,name=g_endTimeMs_73FB88,size=4
   type: kind=int,size=4,signed=True
-global: va=0073FB90,name=g_networkData_0073FB90,size=128
+global: va=0073FB90,name=g_selectedMapName_0073FB90,size=128
   type: kind=array,count=64
     type: kind=int,size=2,winapi=wchar_t,fname=wchar_t
 global: va=0073FC10,name=g__aiPlayersCount,size=4

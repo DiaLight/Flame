@@ -54,12 +54,12 @@ char dk2::CFrontEndComponent::sub_5435E0(int a2, CFrontEndComponent *a3_comp) {
     if (!g_networkIsHost_740360) return 1;
     if (!WeaNetR_instance.updatePlayers_isHost()) return 1;
 
-    size_t v5_netDataLen = 2 * wcslen(g_networkData_0073FB90) + 2;
-    unsigned int v22_p2_sz = 5 * a3_comp->msg6F_p2_sz;
-    unsigned int v24_p3_sz = 5 * a3_comp->msg6F_p3_sz;
-    unsigned int v23_p4_sz = 5 * a3_comp->msg6F_p4_sz;
-    unsigned int v21_p5_sz = 5 * a3_comp->msg6F_p5_sz;
-    unsigned int v25_p6_sz = 5 * a3_comp->msg6F_p6_sz;
+    size_t v5_netDataLen = 2 * wcslen(g_selectedMapName_0073FB90) + 2;
+    unsigned int v22_p2_sz = 5 * a3_comp->variable_creatures_count;
+    unsigned int v24_p3_sz = 5 * a3_comp->variable_p3_traps_sz;
+    unsigned int v23_p4_sz = 5 * a3_comp->variable_p4_rooms_sz;
+    unsigned int v21_p5_sz = 5 * a3_comp->variable_p5_spells_sz;
+    unsigned int v25_p6_sz = 5 * a3_comp->variable_p6_doors_sz;
     size_t v6_bufSize = v22_p2_sz + v24_p3_sz + v23_p4_sz + v21_p5_sz + v25_p6_sz + v5_netDataLen + 22;
     unsigned int v26_bufSize = v6_bufSize;
     BYTE *v7_buf = (BYTE *) malloc_2(v6_bufSize);
@@ -67,24 +67,24 @@ char dk2::CFrontEndComponent::sub_5435E0(int a2, CFrontEndComponent *a3_comp) {
 
     memset(v7_buf, 0, v6_bufSize);
     *v7_buf = 0xC7;
-    wcscpy((wchar_t *) (v7_buf + 1), g_networkData_0073FB90);
+    wcscpy((wchar_t *) (v7_buf + 1), g_selectedMapName_0073FB90);
     BYTE *v8_header = &v7_buf[v5_netDataLen + 1];
-    *(DWORD *) v8_header = *(DWORD *) &this->msg6F_start;
-    v8_header[4] = this->msg6F_p1;
+    *(DWORD *) v8_header = *(DWORD *) &this->b1_msg6F_start__levelCfg;
+    v8_header[4] = this->b5_kickedPlayerMask;
 
-    memcpy(&v7_buf[v5_netDataLen + 6], this->msg6F_p2, v22_p2_sz);
+    memcpy(&v7_buf[v5_netDataLen + 6], this->poolValue_p2_creatures, v22_p2_sz);
 
     unsigned int v9_p3_offs = v22_p2_sz + v5_netDataLen + 6;
-    memcpy(&v7_buf[v9_p3_offs], this->msg6F_p3, v24_p3_sz);
+    memcpy(&v7_buf[v9_p3_offs], this->availability_p3_traps, v24_p3_sz);
 
     unsigned int v10_p4_offs = v24_p3_sz + v9_p3_offs;
-    memcpy(&v7_buf[v10_p4_offs], this->msg6F_p4, v23_p4_sz);
+    memcpy(&v7_buf[v10_p4_offs], this->availability_p4_rooms, v23_p4_sz);
 
     unsigned int v11_p5_offs = v23_p4_sz + v10_p4_offs;
-    memcpy(&v7_buf[v11_p5_offs], this->msg6F_p5, v21_p5_sz);
+    memcpy(&v7_buf[v11_p5_offs], this->availability_p5_spells, v21_p5_sz);
 
     unsigned int v12_p6_offs = v21_p5_sz + v11_p5_offs;
-    memcpy(&v7_buf[v12_p6_offs], this->msg6F_p6, v25_p6_sz);
+    memcpy(&v7_buf[v12_p6_offs], this->availability_p6_doors, v25_p6_sz);
 
     BYTE *v13_pRelationsMask1 = &v7_buf[v25_p6_sz + v12_p6_offs];
     MyPlayerConfig *f32_plCfg = &g_MyPlayerConfig_instance_arr[0];
@@ -208,11 +208,11 @@ char dk2::CFrontEndComponent::sub_54DD10(int a2_isHost) {
         net::MLDPLAY_PLAYERINFO *v14_playerInfo = &playerInfoArr[0];
         net::MLDPLAY_PLAYERINFO *p_f26_playerId = (net::MLDPLAY_PLAYERINFO *) &this->playerInfoArr[0];
         do {
-            if ((((unsigned __int8) this->msg6F_p1 >> v13_n) & 1) == 1) {
+            if ((((unsigned __int8) this->b5_kickedPlayerMask >> v13_n) & 1) == 1) {
                 if (p_f26_playerId->f26_playerId_slot == v14_playerInfo->f26_playerId_slot)
                     this->sub_5455A0(v13_n);
                 else
-                    this->msg6F_p1 &= ~(1 << v13_n);
+                    this->b5_kickedPlayerMask &= ~(1 << v13_n);
             }
             ++v13_n;
             ++p_f26_playerId;
@@ -297,8 +297,8 @@ char dk2::CFrontEndComponent::createMultiplayerGame() {
     this->sub_548520();
     this->f15 = 0;
     if (!g_mpGameName || !g_mpPlayerName) return 0;
-    *(DWORD *) &this->msg6F_start = 0;
-    this->msg6F_p1 = 0;
+    *(DWORD *) &this->b1_msg6F_start__levelCfg = 0;
+    this->b5_kickedPlayerMask = 0;
     uint8_t *MbString = MyMbStringList_idx1091_getMbString(0x1Bu);
     strcpy((char *) this->mbStr, (const char *) MbString);
     memset(g_MyPlayerConfig_instance_arr, 0, sizeof(g_MyPlayerConfig_instance_arr));
@@ -342,8 +342,8 @@ char dk2::CFrontEndComponent::joinMultiplayerGame(int a2_playerSlot) {
     v15_foundDesc.desc = NULL;
     this->sub_548520();
     this->f15 = 0;
-    *(DWORD * ) &this->msg6F_start = 0;
-    this->msg6F_p1 = 0;
+    *(DWORD * ) &this->b1_msg6F_start__levelCfg = 0;
+    this->b5_kickedPlayerMask = 0;
     uint8_t *MbString = MyMbStringList_idx1091_getMbString(0x1Bu);
     strcpy((char *) this->mbStr, (const char *) MbString);
     memset(g_MyPlayerConfig_instance_arr, 0, sizeof(g_MyPlayerConfig_instance_arr));

@@ -33,7 +33,7 @@ int __stdcall net::MySocket_recv(void *buf, int len, MySocket *dst, MySocket *sr
 
 void __cdecl net::MySocket_toSockAddr(MySocket *sock, struct sockaddr_in *outAddr) {
     ZeroMemory(outAddr, sizeof(*outAddr));
-    outAddr->sin_family = 2;
+    outAddr->sin_family = AF_INET;
     outAddr->sin_port = sock->portBe;
     outAddr->sin_addr.S_un.S_addr = sock->ipv4;
 }

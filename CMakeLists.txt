@@ -13,15 +13,15 @@ message(STATUS "CMAKE_RC_COMPILER: ${CMAKE_RC_COMPILER}")
 message(STATUS "CMAKE_CXX_COMPILER: ${CMAKE_CXX_COMPILER}")
 
 # force using python through venv
-if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/venv/Scripts/python.exe)
-  set(Python3_EXECUTABLE "${CMAKE_CURRENT_LIST_DIR}/venv/Scripts/python.exe")
-  # test for GitPython package installed
+if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/.venv/Scripts/python.exe)
+  set(Python3_EXECUTABLE "${CMAKE_CURRENT_LIST_DIR}/.venv/Scripts/python.exe")
+  # test for capstone package installed
   execute_process(COMMAND ${Python3_EXECUTABLE} -c "import capstone" RESULT_VARIABLE EXIT_CODE OUTPUT_QUIET)
 else ()
   # create venv
   find_package(Python3 COMPONENTS Interpreter REQUIRED)
-  execute_process(COMMAND_ECHO STDOUT COMMAND ${Python3_EXECUTABLE} -m venv ${CMAKE_CURRENT_LIST_DIR}/venv )
-  set(Python3_EXECUTABLE "${CMAKE_CURRENT_LIST_DIR}/venv/Scripts/python.exe")
+  execute_process(COMMAND_ECHO STDOUT COMMAND ${Python3_EXECUTABLE} -m venv ${CMAKE_CURRENT_LIST_DIR}/.venv )
+  set(Python3_EXECUTABLE "${CMAKE_CURRENT_LIST_DIR}/.venv/Scripts/python.exe")
   set(EXIT_CODE 1)
 endif ()
 if(${EXIT_CODE} EQUAL 1)  # not installed

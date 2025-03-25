@@ -211,6 +211,10 @@ void patch::multi_interface_fix::replaceLocalIp(struct hostent *hostent, ULONG &
     if(!patch::multi_interface_fix::enabled) return;
     localAddresses.clear();
     if(userProvidedIpv4 != 0) {
+        if(patch::inspect_tools::enable) {
+            printf("[multi_interface_fix]  replace local %s", ::inet_ntoa(*(struct in_addr *) &ipv4));
+            printf(" -> %s\n", ::inet_ntoa(*(struct in_addr *) &userProvidedIpv4));
+        }
         ipv4 = userProvidedIpv4;
         return;
     }

@@ -14,6 +14,7 @@
 #include "dk2_functions.h"
 #include "patches/micro_patches.h"
 #include "patches/replace_mouse_dinput_to_user32.h"
+#include "patches/protocol_dump.h"
 
 
 dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
@@ -78,7 +79,7 @@ dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
         CWorld_instance.showLoadingScreen();
         CWorld_instance.releaseSurface();
         CWorld_instance.fun_511180();
-        int v4 = CWorld_instance.fun_50E920((int)v41);
+        int v4 = CWorld_instance._loadSaveFile((int)v41);
         CWorld_instance.fun_5111E0();
         if ( !v4 ) return 0;
     } else if(!MyResources_instance.gameCfg.useFe2d_unk1) {
@@ -154,6 +155,7 @@ dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
     // hook::BEFORE_GAME_LOOP
     while ( !this->exit_flag ) {
         // hook::TICK_GAME_LOOP
+        patch::protocol_dump::tick();
         if(patch::control_windowed_mode::enabled) patch::limit_fps::call();
         patch::replace_mouse_dinput_to_user32::release_handled_dinput_actions();
         if ( !MyGame_instance.isNeedBlt() ) {

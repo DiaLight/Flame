@@ -25,7 +25,7 @@ void patch::inspect_tools::init() {
 }
 
 void patch::inspect_tools::onMouseAction(dk2::CDefaultPlayerInterface *dplif) {
-    if(!inspect_tools::enable) return;
+    if(!inspect_tools::enable || true) return;
     int x = 0;
     int y = 0;
     uint16_t whoGets = 0;
@@ -63,7 +63,7 @@ void patch::inspect_tools::onMouseAction(dk2::CDefaultPlayerInterface *dplif) {
 }
 
 void patch::inspect_tools::windowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
-    if(!inspect_tools::enable) return;
+    if(!inspect_tools::enable || true) return;
     switch(Msg) {
         case WM_KEYDOWN: {
             switch (wParam) {
@@ -84,24 +84,40 @@ void patch::inspect_tools::windowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM
     }
 }
 
+void patch::inspect_tools::sockBind(SOCKET hSock, ULONG ipv4) {
+    if (!patch::inspect_tools::enable) return;
+    patch::log::sock("sock bind %X-%d.%d.%d.%d",
+                     hSock,
+                     ipv4 & 0xFF, (ipv4 >> 8) & 0xFF, (ipv4 >> 16) & 0xFF,
+                     (ipv4 >> 24) & 0xFF
+    );
+}
 void patch::inspect_tools::sockSend(void *buf, int len, net::MySocket *dst, net::MySocket *src) {
     if (!patch::inspect_tools::enable) return;
     auto pkt = (net::PacketHeader *) buf;
-    if (pkt->packetTy != 0xD && pkt->packetTy != 0x10) return;
+    if (
+            pkt->packetTy != net::MyPacket_D_Guaranteed::ID
+            && pkt->packetTy != net::MyPacket_10_GuaranteedProgress::ID
+//            && pkt->packetTy != net::MyPacket_3_Data::ID
+    ) return;
     if(pkt->packetTy == net::MyPacket_3_Data::ID) {
         auto data = (net::MyPacket_3_Data *) pkt;
-        patch::log::sock("send data dty=%X sz=%X %d.%d.%d.%d -> %d.%d.%d.%d",
+        patch::log::sock("send data dty=%X sz=%X %X-%d.%d.%d.%d -> %X-%d.%d.%d.%d",
                          (uint32_t) data->fC_data[0], len,
+                         src->socket,
                          src->ipv4 & 0xFF, (src->ipv4 >> 8) & 0xFF, (src->ipv4 >> 16) & 0xFF,
                          (src->ipv4 >> 24) & 0xFF,
+                         dst->socket,
                          dst->ipv4 & 0xFF, (dst->ipv4 >> 8) & 0xFF, (dst->ipv4 >> 16) & 0xFF,
                          (dst->ipv4 >> 24) & 0xFF
         );
     } else {
-        patch::log::sock("send ty=%X sz=%X %d.%d.%d.%d -> %d.%d.%d.%d",
+        patch::log::sock("send ty=%X sz=%X %X-%d.%d.%d.%d -> %X-%d.%d.%d.%d",
                          (uint32_t) pkt->packetTy, len,
+                         src->socket,
                          src->ipv4 & 0xFF, (src->ipv4 >> 8) & 0xFF, (src->ipv4 >> 16) & 0xFF,
                          (src->ipv4 >> 24) & 0xFF,
+                         dst->socket,
                          dst->ipv4 & 0xFF, (dst->ipv4 >> 8) & 0xFF, (dst->ipv4 >> 16) & 0xFF,
                          (dst->ipv4 >> 24) & 0xFF
         );
@@ -111,21 +127,29 @@ void patch::inspect_tools::sockSend(void *buf, int len, net::MySocket *dst, net:
 void patch::inspect_tools::sockRecv(void *buf, int len, net::MySocket *dst, net::MySocket *src) {
     if (!patch::inspect_tools::enable) return;
     auto pkt = (net::PacketHeader *) buf;
-    if (pkt->packetTy != 0xD && pkt->packetTy != 0x10) return;
+    if (
+            pkt->packetTy != net::MyPacket_D_Guaranteed::ID
+            && pkt->packetTy != net::MyPacket_10_GuaranteedProgress::ID
+//            && pkt->packetTy != net::MyPacket_3_Data::ID
+    ) return;
     if(pkt->packetTy == net::MyPacket_3_Data::ID) {
         auto data = (net::MyPacket_3_Data *) pkt;
-        patch::log::sock("recv data dty=%X sz=%X %d.%d.%d.%d <- %d.%d.%d.%d",
+        patch::log::sock("recv data dty=%X sz=%X %X-%d.%d.%d.%d <- %X-%d.%d.%d.%d",
                          (uint32_t) data->fC_data[0], len,
+                         dst->socket,
                          dst->ipv4 & 0xFF, (dst->ipv4 >> 8) & 0xFF, (dst->ipv4 >> 16) & 0xFF,
                          (dst->ipv4 >> 24) & 0xFF,
+                         src->socket,
                          src->ipv4 & 0xFF, (src->ipv4 >> 8) & 0xFF, (src->ipv4 >> 16) & 0xFF,
                          (src->ipv4 >> 24) & 0xFF
         );
     } else {
-        patch::log::sock("recv ty=%X sz=%X %d.%d.%d.%d <- %d.%d.%d.%d",
+        patch::log::sock("recv ty=%X sz=%X %X-%d.%d.%d.%d <- %X-%d.%d.%d.%d",
                          (uint32_t) pkt->packetTy, len,
+                         dst->socket,
                          dst->ipv4 & 0xFF, (dst->ipv4 >> 8) & 0xFF, (dst->ipv4 >> 16) & 0xFF,
                          (dst->ipv4 >> 24) & 0xFF,
+                         src->socket,
                          src->ipv4 & 0xFF, (src->ipv4 >> 8) & 0xFF, (src->ipv4 >> 16) & 0xFF,
                          (src->ipv4 >> 24) & 0xFF
         );

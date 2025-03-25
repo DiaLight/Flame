@@ -19,6 +19,7 @@
 #include "dk2/network/MySessionCredentials.h"
 #include "dk2/network/MLDPLAY_SESSIONDESC.h"
 #include "dk2/network/FoundSessionDesc.h"
+#include "patches/protocol_dump.h"
 
 
 int dk2::WeaNetR::filterService(void *a2_service) {
@@ -66,13 +67,16 @@ void dk2_MLDPlay_HandleMessage_callback(int playersSlot, void *msg, int msgSz, i
         case 0xA:
         case 0xC: {
             auto f78_pSystemCallback = a5_weanetr->pSystemCallback;
-            if (f78_pSystemCallback)
+            if (f78_pSystemCallback) {
+                patch::protocol_dump::onRecv(playersSlot, a5_weanetr->playersSlot, msg, msgSz, "sys");
                 f78_pSystemCallback(playersSlot, msg, msgSz, msgTy, a5_weanetr->f7c_pSystemCallback_owner);
+            }
         }
             break;
         case 4: {  // packetTy == 3: DK2Data
             auto f68_pDataCallback = a5_weanetr->pDataCallback;
             if (f68_pDataCallback) {
+                patch::protocol_dump::onRecv(playersSlot, a5_weanetr->playersSlot, msg, msgSz, NULL);
                 f68_pDataCallback(msg, msgSz, playersSlot, a5_weanetr->f6c_pDataCallback_owner);
             }
         }
@@ -80,14 +84,17 @@ void dk2_MLDPlay_HandleMessage_callback(int playersSlot, void *msg, int msgSz, i
         case 5: {
             auto f68_pDataCallback = a5_weanetr->pGuaranteedDataCallback;
             if (f68_pDataCallback) {
+                patch::protocol_dump::onRecvGuaranteed(playersSlot, a5_weanetr->playersSlot, msg, msgSz);
                 f68_pDataCallback(msg, msgSz, playersSlot, a5_weanetr->pGuaranteedDataCallback_owner);
             }
         }
             break;
         case 6: {
             auto f60_pChatCallback = a5_weanetr->pChatCallback;
-            if (f60_pChatCallback)
+            if (f60_pChatCallback) {
+                patch::protocol_dump::onRecv(playersSlot, a5_weanetr->playersSlot, msg, msgSz, "chat");
                 f60_pChatCallback(playersSlot, msg, a5_weanetr->pChatCallback_owner);  // at least 262 bytes
+            }
         }
             break;
         default:
@@ -157,6 +164,7 @@ int dk2::WeaNetR::reinitializeNetworkSystem() {
 
 int dk2::WeaNetR::sendDataMessage(void *a2_data, unsigned int a3_size, unsigned int a4_playerListIdx_m1_m2) {
     patch::log::data("send ty=%X sz=%X pl=%X", (int) (*(uint8_t *) a2_data), a3_size, a4_playerListIdx_m1_m2);
+    patch::protocol_dump::onSend(this->playersSlot, a4_playerListIdx_m1_m2, a2_data, a3_size, false);
 
     unsigned int v7;
     unsigned int status = this->mldplay->SendData(a4_playerListIdx_m1_m2, a2_data, a3_size, 0, &v7);
@@ -174,6 +182,7 @@ int dk2::WeaNetR::sendDataMessage(void *a2_data, unsigned int a3_size, unsigned 
 
 int dk2::WeaNetR::sendGuaranteedData(void *a2_data, unsigned int a3_size, unsigned int a4_playerListIdx_m1_m2) {
     patch::log::gdata("send ty=%X sz=%X pl=%X", (int) (*(uint8_t *) a2_data), a3_size, a4_playerListIdx_m1_m2);
+    patch::protocol_dump::onSend(this->playersSlot, a4_playerListIdx_m1_m2, a2_data, a3_size, true);
 
     unsigned int v7;
     unsigned int v4_status = this->mldplay->SendData(a4_playerListIdx_m1_m2, a2_data, a3_size, 2u, &v7);
@@ -303,7 +312,7 @@ int dk2::NetworkCfg::appendIpWithHostname() {
     return ::WSACleanup();
 }
 
-int dk2::WeaNetR::getCurrentPlayersCount(int *a2_pPlayersCount) {
+int dk2::WeaNetR::getCurrentPlayersCount(uint32_t *a2_pPlayersCount) {
     net::MLDPLAY_SESSIONDESC desc;
     DWORD size = sizeof(net::MLDPLAY_SESSIONDESC);
     if (this->mldplay->GetSessionDesc(&desc, &size) != 2) return 0;

@@ -18,6 +18,7 @@ std::string FormatLastError(uint32_t lastError) {
             (LPSTR)&messageBuffer, 0,
             NULL
     );
+    while(messageBuffer[size - 1] == '\n') size--;
     std::string message(messageBuffer, size);
     LocalFree(messageBuffer);
     return message;

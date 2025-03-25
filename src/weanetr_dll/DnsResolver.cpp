@@ -5,6 +5,7 @@
 #include "DnsResolver.h"
 #include "logging.h"
 #include "patches/micro_patches.h"
+#include "patches/inspect_tools.h"
 
 using namespace net;
 
@@ -30,10 +31,11 @@ int DnsResolver::_connect(MySocket *a2_sock, int ipv4) {
     DWORD optval = 1;
     if (setsockopt(a2_sock->socket, SOL_SOCKET, SO_BROADCAST, (char *) &optval, 4) == -1) return false;
     struct sockaddr_in _sockaddr;
-    memset(&_sockaddr.sin_port, 0, 14);
-    _sockaddr.sin_family = 2;
+    memset(&_sockaddr, 0, sizeof(_sockaddr));
+    _sockaddr.sin_family = AF_INET;
     _sockaddr.sin_port = htons(a2_sock->portBe);
-    _sockaddr.sin_addr.S_un.S_addr = ipv4 ? ipv4 : htonl(0);
+    _sockaddr.sin_addr.S_un.S_addr = ipv4 ? ipv4 : htonl(INADDR_ANY);
+    patch::inspect_tools::sockBind(a2_sock->socket, _sockaddr.sin_addr.S_un.S_addr);
     if (bind(a2_sock->socket, (const struct sockaddr *) &_sockaddr, 16) != 0) return false;
     optval = 16;
     if (getsockname(a2_sock->socket, (struct sockaddr *) &_sockaddr, (int *) &optval)) return false;
