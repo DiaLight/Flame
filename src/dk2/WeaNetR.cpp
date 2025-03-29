@@ -58,7 +58,9 @@ void __stdcall dk2_MLDPlay_EnumerateServices_callbaack(net::MyLocalService *serv
 
 void dk2_MLDPlay_HandleMessage_callback(int playersSlot, void *msg, int msgSz, int msgTy, void *arg) {
     dk2::WeaNetR *a5_weanetr = (dk2::WeaNetR *) arg;
-    patch::log::data("recv ty=%X sz=%X pl=%X  hty=%X", (int) (*(uint8_t *) msg), msgSz, playersSlot, msgTy);
+    if (msg != NULL) {
+        patch::log::data("recv ty=%X sz=%X pl=%X  hty=%X", (int) (*(uint8_t *) msg), msgSz, playersSlot, msgTy);
+    }
     ++a5_weanetr->receivedData;
     switch (msgTy) {
         case 1:

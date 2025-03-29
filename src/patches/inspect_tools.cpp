@@ -5,6 +5,8 @@
 #include "inspect_tools.h"
 #include "dk2_globals.h"
 #include <sstream>
+#include <dk2/gui/visual_debug.h>
+
 #include "dk2/entities/entities_type.h"
 #include "dk2/entities/CObject.h"
 #include "dk2/entities/CPlayer.h"
@@ -67,17 +69,35 @@ void patch::inspect_tools::windowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM
     switch(Msg) {
         case WM_KEYDOWN: {
             switch (wParam) {
-                case VK_UP:
-                {
-                    int textId = 218;
-                    uint8_t *MbString = (uint8_t *) dk2::MyMbStringList_idx1091_getMbString(textId);
-//                        uint8_t *MbString = (uint8_t *) dk2::MyMbStringList_idx1090_getMbString(textId);
-//                        uint8_t *MbString = (uint8_t *) dk2::MyMbStringList_getMbString_idx1000_1023(textId);
-                    wchar_t text[256] = {0};
-                    dk2::MBToUni_convert(MbString, text, 256);
-                    printf("%d: %S\n", textId, text);
-                }
-                    break;
+                case VK_UP: {
+                    // int textId = 218;
+                    // uint8_t *MbString = (uint8_t *) dk2::MyMbStringList_idx1091_getMbString(textId);
+                    // uint8_t *MbString = (uint8_t *) dk2::MyMbStringList_idx1090_getMbString(textId);
+                    // uint8_t *MbString = (uint8_t *) dk2::MyMbStringList_getMbString_idx1000_1023(textId);
+                    // wchar_t text[256] = {0};
+                    // dk2::MBToUni_convert(MbString, text, 256);
+                    // printf("%d: %S\n", textId, text);
+                    auto &gui = dk2::CFrontEndComponent_instance.cgui_manager;
+                    for (auto w = gui.windowListEnd.f5E_next; w; w = w->f5E_next) {
+                        if (w->f44_isCurrent) {
+                            printf("cur: id=0x%X\n", w->f40_idx);
+                        }
+                    }
+                } break;
+                case VK_RIGHT: {
+                    auto *surf = dk2::MyResources_loadPng("unk");
+                    dump(*surf);
+                } break;
+                case VK_DOWN: {
+                    auto &gui = dk2::CFrontEndComponent_instance.cgui_manager;
+
+                    dk2::CFrontEndComponent_instance.fillGuiDisplayStrings();
+
+                    for (auto w = gui.windowListEnd.f5E_next; w; w = w->f5E_next) {
+                        w->f44_isCurrent = false;
+                    }
+                    gui.findGameWindowById(0x2E)->f44_isCurrent = 1;
+                } break;
             }
             break;
         }

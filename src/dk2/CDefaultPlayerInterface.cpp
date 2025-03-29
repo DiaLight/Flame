@@ -117,8 +117,8 @@ void dk2::CDefaultPlayerInterface::createSurfacesForView_42CDF0(RtGuiView *view)
             v15_surf.constructor(&v14_size, &view->surf.desc, linePos, lPitch);
             int _idx = x + view->width_128blocks * y;
             if (gog::RtGuiView_fix::isEnabled()) {
-                if (idx >= 93 && view == &dk2::CDefaultPlayerInterface_instance._allyWindowText) {
-                    idx = 0;
+                if (_idx >= 93 && view == &dk2::CDefaultPlayerInterface_instance._allyWindowText) {
+                    _idx = 0;
                 }
             }
             int _id = view->Arrp31x400_ids[_idx];
@@ -240,7 +240,7 @@ void dk2::CDefaultPlayerInterface::handleRightClick(unsigned int a2_isPressed, O
             v43_try = 0;
             this->pushAction(&v38_act);
             v43_try = -1;
-            this->cgui_manager.unkObj = 0;
+            this->cgui_manager.pbtn_A0 = NULL;
         }
         this->pCWorld->v_loc_508D00(0);
         CWorld *f53_pCWorld = this->pCWorld;

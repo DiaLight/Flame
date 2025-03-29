@@ -18,9 +18,9 @@
 
 namespace dk2 {
     bool handle85(CFrontEndComponent *comp) {
-        if (comp->pStrings) {
-            dk2::operator_delete(comp->pStrings);
-            comp->pStrings = 0;
+        if (comp->guiDisplayStrings) {
+            dk2::operator_delete(comp->guiDisplayStrings);
+            comp->guiDisplayStrings = NULL;
         }
         if (MyResources_instance.gameCfg.useFe_unk3 != 1) return false;
         uint8_t fC_levelNumber;
@@ -147,9 +147,9 @@ int __cdecl dk2::CButton_leftClick_changeMenu(uint32_t idx, int command, CFrontE
                     wchar_t *v3_wstr19 = __get_wstr19(0);
                     if (v3_wstr19)
                         wcscpy(comp->wstr19, v3_wstr19);
-                    __unk_before_action(1, 48, comp);
+                    changeGui(1, 48, comp);
                 } else {
-                    __unk_before_action(1, 38, comp);
+                    changeGui(1, 38, comp);
                 }
             }
             int *v4_pIsLoaded = comp->Shots_ddSurfArr_isLoaded;
@@ -284,8 +284,8 @@ int __cdecl dk2::CButton_leftClick_changeMenu(uint32_t idx, int command, CFrontE
                 v18_foundBtn_578 = curBtn;
                 break;
             }
-            v17_foundBtn_223->field_63 = 0;
-            v18_foundBtn_578->field_63 = 0;  // devs has no NULL checks here
+            v17_foundBtn_223->f63_clickHandler_arg1 = 0;
+            v18_foundBtn_578->f63_clickHandler_arg1 = 0;  // devs has no NULL checks here
             CFrontEndComponent_static_sub_5457A0(0, 0, comp);
             fillNetworkStringList();
             comp->f30344 = 9;
@@ -453,8 +453,8 @@ int __cdecl dk2::CButton_leftClick_changeMenu(uint32_t idx, int command, CFrontE
                 v54_foundBtn_578 = cur;
                 break;
             }
-            v53_foundBtn_223->field_63 = 0;
-            v54_foundBtn_578->field_63 = 0;
+            v53_foundBtn_223->f63_clickHandler_arg1 = 0;
+            v54_foundBtn_578->f63_clickHandler_arg1 = 0;
             CFrontEndComponent_static_sub_5457A0(0, 0, comp);
         } break;
         case 72:
@@ -621,8 +621,8 @@ int __cdecl dk2::CButton_leftClick_changeMenu(uint32_t idx, int command, CFrontE
                     v41_foundBtn_578 = cur;
                     break;
                 }
-                v40_foundBtn_223->field_63 = 0;
-                v41_foundBtn_578->field_63 = 0;
+                v40_foundBtn_223->f63_clickHandler_arg1 = 0;
+                v41_foundBtn_578->f63_clickHandler_arg1 = 0;
                 CFrontEndComponent_static_sub_5457A0(0, 0, comp);
                 comp->findAndSetButtonVisible(577, 39, 0);
                 comp->findAndSetButtonVisible(224, 11, 0);

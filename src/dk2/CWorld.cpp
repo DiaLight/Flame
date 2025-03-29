@@ -131,7 +131,7 @@ namespace dk2 {
 
         __int16 v21_triggerId = self->_heroPartyArr[a2_heroPartyIdx].triggerId;
         if (v21_triggerId) self->_set_trigger_flag_sub_519A20(v21_triggerId, 1);
-        int v22_creatureDataArrCount = self->v_loc_508E50();
+        int v22_creatureDataArrCount = self->v_getAvailableCreaturesCount();
         unsigned int v23_goodIdx = 0;
         CPlayer *v57_player = self->playerList.players_7;
         while (true) {

@@ -8,6 +8,8 @@
 #include <Windows.h>
 #include <cstdint>
 #include <vector>
+#include <dk2/MySurface.h>
+
 #include "weanetr_dll/MySocket.h"
 
 namespace patch {
@@ -82,6 +84,12 @@ namespace drop_thing_from_hand_fix {
 
 namespace sleeping_possession_fix {
     extern bool enabled;
+}
+
+namespace null_surf_fix {
+    extern bool enabled;
+    extern dk2::MySurface emptySurf;
+    void init();;
 }
 
 namespace override_max_room_count {

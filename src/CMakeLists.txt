@@ -29,6 +29,7 @@ add_executable(${TARGET}
         dk2/button/button_types.cpp
         dk2/button/CTextInput.cpp
         dk2/button/button_functions.cpp
+        dk2/button/CClickButton.cpp
 
         dk2/entities/entities_type.cpp
         dk2/entities/CCreature.cpp
@@ -38,7 +39,13 @@ add_executable(${TARGET}
         dk2/engine/window_proc_functions.cpp
         dk2/engine/ddraw_functions.cpp
 
+        dk2/surface/surface_functions.cpp
+
         dk2/network/protocol.cpp
+
+        dk2/gui/main_gui.cpp
+        dk2/gui/CGuiManager.cpp
+        dk2/gui/visual_debug.cpp
 
         tools/bug_hunter.cpp
         tools/StackLimits.cpp
@@ -110,6 +117,9 @@ target_link_libraries(${TARGET} PRIVATE
         dinput_genlib  # generated in dinput_dll/genlib
         ddraw  # patch - dont link against gog's PATCH.dll because patch addresses are change after recompilation
         dxguid
+
+        # visual debug
+        cimg
 
         imm32
         # wsock32 is old link target

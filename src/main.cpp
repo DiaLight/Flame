@@ -175,6 +175,9 @@ bool dk2::dk2_main1(int argc, LPCSTR *argv) {
         }
         return false;
     }
+
+    patch::null_surf_fix::init();
+
     bool useDefaultWindowName = true;
     unsigned __int8 *MbString = MyMbStringList_idx1091_getMbString(42u);  // "Dungeon Keeper II"
     if ( MBToUni_convert(MbString, g_wchar_buf, 512) && unicodeToUtf8(g_wchar_buf, temp_string, 512) ) {

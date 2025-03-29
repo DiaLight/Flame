@@ -2,7 +2,7 @@
 // Created by DiaLight on 24.07.2024.
 //
 #include "dk2/CGameComponent.h"
-#include "dk2/CWindow.h"
+#include "dk2/gui/CWindow.h"
 #include "dk2/CCamera.h"
 #include "dk2/MyDdSurfaceEx.h"
 #include "dk2/Bgra.h"
@@ -180,12 +180,10 @@ dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
                     0);
             CFrontEndComponent_instance.cgui_manager.sub_52BC50(
                     (CDefaultPlayerInterface *)&CFrontEndComponent_instance);
-            CWindow *CurrentWindow = CFrontEndComponent_instance.getCurrentWindow();
-            if ( CurrentWindow ) {
-                void (__cdecl *f24_fun)(CWindow *, uint32_t, CFrontEndComponent *); // ecx
-                f24_fun = CurrentWindow->f24_fun;
-                if ( f24_fun )
-                    f24_fun(CurrentWindow, 0, &CFrontEndComponent_instance);
+            CWindow *curWindow = CFrontEndComponent_instance.getCurrentWindow();
+            if ( curWindow ) {
+                if ( curWindow->f24_getPanelItemsCount )
+                    curWindow->f24_getPanelItemsCount(curWindow, 0, &CFrontEndComponent_instance);
             }
             CFrontEndComponent_do_special_gui(&CFrontEndComponent_instance);
             if ( CFrontEndComponent_instance.is_component_destroy )

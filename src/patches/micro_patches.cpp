@@ -36,6 +36,39 @@ bool patch::hero_party_spawn_limit_fix::enabled = true;
 bool patch::drop_thing_from_hand_fix::enabled = true;  // incompatible with 1.7
 bool patch::sleeping_possession_fix::enabled = true;
 
+
+void draw_missing_argb32(dk2::MySurface &surf, int scale) {
+    uint8_t *line = (uint8_t *) surf.lpSurface;
+    for (int y = 0; y < surf.dwHeight; ++y) {
+        uint8_t *pos = line;
+        for (int x = 0; x < surf.dwWidth; ++x) {
+            uint32_t *pix = (uint32_t *) pos;
+            if ((((x/ scale) ^ (y / scale)) & 1) == 0) {
+                *pix = 0xFF202020;
+            } else {
+                *pix = 0xFF800080;
+            }
+            pos += (surf.desc.dwRGBBitCount + 7) / 8;
+        }
+        line += surf.lPitch;
+    }
+}
+bool patch::null_surf_fix::enabled = true;
+dk2::MySurface patch::null_surf_fix::emptySurf;
+void patch::null_surf_fix::init() {
+    emptySurf.constructor_empty();
+    dk2::Pos2i size = {64, 64};
+    dk2::MySurfDesc desc = {
+        0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000,
+        32, 0
+    };
+    emptySurf.constructor(&size, &desc, NULL, 0);
+    int status;
+    emptySurf.allocSurfaceIfNot(&status);
+    draw_missing_argb32(emptySurf, 8);
+}
+
+
 bool patch::override_max_room_count::enabled = true;
 uint8_t patch::override_max_room_count::limit = 255;  // default is 96  incompatible with 1.7
 

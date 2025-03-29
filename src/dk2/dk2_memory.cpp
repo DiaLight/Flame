@@ -5,7 +5,7 @@
 #include "dk2_functions.h"
 
 void *dk2::call_malloc(size_t size) {
-    return dk2::_malloc(size);
+    return dk2::malloc_2(size);
 }
 
 void dk2::call_free(void *buf) {

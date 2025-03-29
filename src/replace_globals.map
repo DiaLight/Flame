@@ -30,6 +30,7 @@
 0054D760 char createMultiplayerGame();  // -----------  /* auto */
 0054D920 char joinMultiplayerGame(int);  // ----------  /* auto */
 00542980 void sub_542980(FoundPlayService *);  // ----  /* auto */
+00534210 int load();  // -----------------------------  /* auto */
 
 # CGameComponent.h
 00525370 CGameComponent *mainGuiLoop();  // ----------  /* auto */
@@ -67,6 +68,7 @@
 
 # MyResources.h
 0055C020 MyResources *init_resources();  // ----------  /* auto */
+0059A4B0 MySurface *__cdecl MyResources_loadPng(char *);  /* auto */
 
 # MyInputManagerCb.h
 # 005BB1C0 int *initMouse(int *);  // ------------------  /* auto */
@@ -83,6 +85,9 @@
 
 # CTextInput.h
 0052AA10 int fun_52AA10_configure(ButtonCfg *);  // --  /* auto */
+
+# CClickButton.h
+00528610 CClickButton *handleClick(CDefaultPlayerInterface *);  /* auto */
 
 # CPlayer.h
 00506B50 BOOL testManufactureCompleted(uint16_t);       /* auto */
@@ -156,4 +161,11 @@
 00524970 int handleDm_3(DataMessage_3 *, uint32_t);     /* auto */
 00524240 void __cdecl CNetworkCommunication_dataCallback(void *, int, uint32_t, CNetworkCommunication *);  /* auto */
 
+# GUI
+00532670 char __cdecl CButton_render(CButton *, CFrontEndComponent *);  /* auto */
+00541F50 char __cdecl CButton_render_541F50(CButton *, CFrontEndComponent *);  /* auto */
+005391F0 void __cdecl changeGui(int, int, CFrontEndComponent *);  /* auto */
+
+# CGuiManager.h
+0052B8F0 int createElements(WindowCfg **, CDefaultPlayerInterface *);  /* auto */
 
