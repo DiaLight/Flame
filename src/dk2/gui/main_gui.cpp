@@ -7,217 +7,145 @@
 #include <dk2/NameAndSurfEx.h>
 #include <dk2_functions.h>
 #include <dk2_globals.h>
+#include <dk2/button/button_types.h>
+#include <dk2/gui/main/main_layout.h>
 
+
+bool eq(void *cur, void *fun) {
+    if (cur == fun) return true;
+    uint8_t *p = (uint8_t*) fun;
+    if (*p++ == 0xFF && *p++ == 0x25) { // follow jmp
+        fun = **(void***) p;
+        if (cur == fun) return true;
+    }
+    return false;
+}
 
 void dumpButtons(dk2::ButtonCfg *cur) {
     if (cur == nullptr) return;
+    printf("    dk2::ButtonCfg N_BtnArr[] {\n");
     for (; cur->idx != 0xFFFFFFFF; ++cur) {
-        printf("{");
-        printf("%d", cur->kind);
-        printf(", %d", cur->idx);
-        printf(", %d", cur->f5);
-        printf(", 0x%p", cur->leftClickHandler);
-        printf(", 0x%p", cur->rightClickHandler);
-        printf(", %d", cur->_nextWindowIdOnClick);
-        printf(", %d", cur->f12);
-        printf(", 0x%08X", cur->clickHandler_arg1);
-        printf(", 0x%08X", cur->clickHandler_arg2);
-        printf(", %d", cur->posFlags);
-        printf(",\n%d", cur->x);
-        printf(", %d", cur->y);
-        printf(", %d", cur->w);
-        printf(", %d", cur->h);
-        printf(", %d", cur->x_offs);
-        printf(", %d", cur->y_offs);
-        printf(", %d", cur->width);
-        printf(", %d", cur->height);
-        printf(", %d", cur->f30);
-        printf(", 0x%p", cur->f34);
-        printf(", 0x%p", cur->renderFun);
-        printf(", 0x%08X", cur->btn_arg1);
-        printf(", %d", cur->textId);
-        printf(", 0x%08X", cur->p_idxLow);
-        printf(", 0x%08X", cur->idxHigh);
-        printf(", %d", cur->nameIdx);
+        printf("        {\n            ");
+        switch ((CButtonType) cur->kind) {
+        case BT_CClickButton: printf("BT_CClickButton, ");
+            break;
+        case BT_CRadioButton: printf("BT_CRadioButton, ");
+            break;
+        case BT_CVerticalSlider: printf("BT_CVerticalSlider, ");
+            break;
+        case BT_CHorizontalSlider: printf("BT_CHorizontalSlider, ");
+            break;
+        case BT_CDragButton: printf("BT_CDragButton, ");
+            break;
+        case BT_CHoldButton: printf("BT_CHoldButton, ");
+            break;
+        case BT_CCheckBoxButton: printf("BT_CCheckBoxButton, ");
+            break;
+        case BT_CTextBox: printf("BT_CTextBox, ");
+            break;
+        case BT_CTextInput: printf("BT_CTextInput, ");
+            break;
+        case BT_CSpinButton: printf("BT_CSpinButton, ");
+            break;
+        case BT_CListBox: printf("BT_CListBox, ");
+            break;
+        case BT_CProgressBar: printf("BT_CProgressBar, ");
+            break;
+        case BT_CClickTextButton: printf("BT_CClickTextButton, ");
+            break;
+        default: printf("%d, ", cur->kind);
+            break;
+        }
+        printf("%d, ", cur->idx);
+        printf("%d, ", cur->f5);
+        if (cur->leftClickHandler) {
+            if (eq(cur->leftClickHandler, &dk2::CButton_handleLeftClick_changeMenu)) {
+                printf("dk2::CButton_handleLeftClick_changeMenu, ");
+            } else printf("dk2::CButton_handleLeftClick_%X, ", cur->leftClickHandler);
+        } else printf("NULL, ");
+        if (cur->rightClickHandler) printf("dk2::CButton_handleRightClick_%X, ", cur->rightClickHandler);
+        else printf("NULL, ");
+        printf("%d, ", cur->_nextWindowIdOnClick);
+        printf("%d, ", cur->f12);
+        printf("0x%08X, ", cur->clickHandler_arg1);
+        printf("0x%08X, ", cur->clickHandler_arg2);
+        printf("%d,\n            ", cur->posFlags);
+        printf("%d, ", cur->x);
+        printf("%d, ", cur->y);
+        printf("%d, ", cur->w);
+        printf("%d, ", cur->h);
+        printf("%d, ", cur->x_offs);
+        printf("%d, ", cur->y_offs);
+        printf("%d, ", cur->width);
+        printf("%d, ", cur->height);
+        printf("%d, ", cur->f30);
+        if (cur->f34) printf("0x%p, ", cur->f34);
+        else printf("NULL, ");
+        if (cur->renderFun) {
+            if (eq(cur->renderFun, &dk2::CButton_render_532670)) {
+                printf("dk2::CButton_render_532670, ");
+            } else if (eq(cur->renderFun, &dk2::CClickButton_renderExitBtn)) {
+                printf("dk2::CClickButton_renderExitBtn, ");
+            } else if (eq(cur->renderFun, &dk2::CClickButton_renderApplyBtn)) {
+                printf("dk2::CClickButton_renderApplyBtn, ");
+            } else if (eq(cur->renderFun, &dk2::CButton_render_541F50)) {
+                printf("dk2::CButton_render_541F50, ");
+            } else if (eq(cur->renderFun, &dk2::CButton_render_532670)) {
+                printf("dk2::CButton_render_532670, ");
+            } else {
+                printf("dk2::CButton_render_%X, ", cur->renderFun);
+            }
+        } else printf("NULL, ");
+        printf("0x%08X, ", cur->btn_arg1);
+        printf("%d, ", cur->textId);
+        printf("0x%08X, ", cur->p_idxLow);
+        printf("0x%08X, ", cur->idxHigh);
+        printf("%d\n        ", cur->nameIdx);
         printf("},\n");
     }
+    printf(R"(
+        {
+            0, 0xFFFFFFFF, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL, 0, 0x00000000, 0x00000000, 0
+        },
+    };
+
+)");
 }
 
-enum ButtonType {
-    BT_CClickButton = 0,
-    BT_CRadioButton = 1,
-    BT_CVerticalSlider = 2,
-    BT_CHorizontalSlider = 3,
-    BT_CDragButton = 4,
-    BT_CHoldButton = 5,
-    BT_CCheckBoxButton = 6,
-    BT_CTextBox = 7,
-    BT_CTextInput = 8,
-    BT_CSpinButton = 9,
-    BT_CListBox = 0xA,
-    BT_CProgressBar = 0xB,
-    BT_CClickTextButton = 0xC,
-};
-
-enum WindowId {
-    WID_Main = 1,
-    WID_SinglePlayer = 2,
-    WID_Multiplayer = 3,
-};
+void dumpWindow(dk2::WindowCfg *cur) {
+    if (cur == nullptr) return;
+    dumpButtons(cur->pButtonCfg_list);
+    printf("    dk2::WindowCfg N_WinCfg {\n        ");
+    printf("%d, ", cur->idx);
+    printf("%d, ", cur->isCurrent);
+    printf("%d, ", cur->flags);
+    printf("%d, ", cur->x);
+    printf("%d, ", cur->y);
+    printf("%d, ", cur->w);
+    printf("%d, ", cur->h);
+    printf("%d, ", cur->x_offs);
+    printf("%d, ", cur->y_offs);
+    printf("%d, ", cur->width);
+    printf("%d, ", cur->height);
+    printf("%d, ", cur->f1A);
+    if (cur->f1E) printf("0x%p, ", cur->f1E);
+    else printf("NULL, ");
+    if (cur->fun) printf("0x%p, ", cur->fun);
+    else printf("NULL, ");
+    printf("%d,\n        ", cur->f26);
+    printf("%d, ", cur->f2A);
+    printf("%d, ", cur->f2E);
+    printf("%d, ", cur->f32);
+    printf("%d, ", cur->f36);
+    printf("%d, ", cur->f3A);
+    printf("%p, ", cur->pButtonCfg_list);
+    printf("%d\n    ", cur->f42);
+    printf("};\n");
+}
 
 namespace {
-    dk2::ButtonCfg Main_Main_BtnArr[] {
-        { // dungeon Keeper 2 title
-            BT_CTextBox, 590, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            628, 0, 1304, 472, 0, 0, 0, 0, 0, NULL, dk2::CButton_render_5367D0, NULL, 0, 0x00000000, 0x00000000, 0
-        },
-        { // Warning: you are very low on a hard drive space
-            BT_CTextBox, 688, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            0, 1740, 2560, 160, 0, 0, 0, 0, 0, NULL, dk2::CButton_render_537CA0, NULL, 0, 0x00000000, 0x00000000, 0
-        },
-        { // version string
-            BT_CTextBox, 689, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            0, 1740, 2560, 160, 0, 0, 0, 0, 0, NULL, dk2::CTextBox_renderVersion, NULL, 0, 0x00000000, 0x00000000, 0
-        },
 
-        { // Single Player game
-            BT_CClickButton, 1, 0, dk2::CButton_handleLeftClick2, NULL, 0, 0, MAKELONG(0x0001, WID_SinglePlayer), 0x00000000, 0,
-            628, 492, 1304, 172, 0, 0, 1304, 172, 0, NULL, dk2::CButton_render_532670, NULL, 71, 0x00000000, 0x00040002, 32
-        },
-        { // Multiplayer game
-            BT_CClickButton, 2, 0, dk2::CButton_handleLeftClick_00538000, NULL, 0, 0, 0x00000001, 0x00010002, 0,
-            628, 672, 1304, 172, 0, 0, 1304, 172, 0, NULL, dk2::CButton_render_532670, NULL, 72, 00000001, 0x00040002, 32
-        },
-        { // My Pet Dungeon
-            BT_CClickButton, 10, 0, dk2::CButton_handleLeftClick_00538000, NULL, 0, 0, 0x00000001, 0x0002000B, 0,
-            628, 852, 1304, 172, 0, 0, 1304, 172, 0, NULL, dk2::CButton_render_532670, NULL, 1675, 00000002, 0x00040002, 32
-        },
-        { // Options
-            BT_CClickButton, 3, 0, dk2::CButton_handleLeftClick_00538000, NULL, 0, 0, 0x00000001, 0x00030005, 0,
-            628, 1112, 1304, 172, 0, 0, 1304, 172, 0, NULL, dk2::CButton_render_532670, NULL, 94, 00000003, 0x00040002, 32
-        },
-        { // Extras
-            BT_CClickButton, 4, 0, dk2::CButton_handleLeftClick_00538000, NULL, 0, 0, 0x00000001, 0x00040006, 0,
-            628, 1292, 1304, 172, 0, 0, 1304, 172, 0, NULL, dk2::CButton_render_532670, NULL, 73, 00000004, 0x00040002, 32
-        },
-        { // Quit
-            BT_CClickButton, 5, 0, dk2::CButton_handleLeftClick_00538000, NULL, 0, 0, 0x00000001, 0x00050008, 0,
-            628, 1568, 1304, 172, 0, 0, 1304, 172, 0, NULL, dk2::CButton_render_532670, NULL, 28, 00000005, 0x00040002, 32
-        },
-
-        {
-            0, 0xFFFFFFFF, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL, 0, 0x00000000, 0x00000000, 0
-        },
-    };
-
-    dk2::WindowCfg Main_Main_WinCfg {
-        WID_Main, 0, 0, 0, 0, 0xA00, 0x780, 0, 0, 0xA00, 0x780, 0, NULL, NULL, 0,
-        0, 0, 0, 0, 0, Main_Main_BtnArr, 1
-    };
-
-    dk2::ButtonCfg Main_SinglePlayer_BtnArr[] {
-        { // Single Player Game title
-            BT_CTextBox, 591, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            464, 24, 1600, 232, 0, 0, 0, 0, 0, NULL, dk2::CButton_render_536700, NULL, 0, 0x00000000, 0x00000000, 0
-        },
-
-        { // New Campaign
-            BT_CClickButton, 6, 0, dk2::CButton_handleLeftClick_00538000, NULL, 0, 0, 0x00000002, 0x00000001, 0,
-            616, 408, 1304, 172, 0, 0, 1304, 172, 0, NULL, dk2::CButton_render_532670, NULL, 140, 0x00000000, 0x00050002, 32
-        },
-        { // Continue Campaign
-            BT_CClickButton, 567, 0, dk2::CButton_handleLeftClick_00538000, NULL, 0, 0, 0x00000002, 0x0001000D, 0,
-            616, 588, 1304, 172, 0, 0, 1304, 172, 0, NULL, dk2::CButton_render_532670, NULL, 2059, 0x00000001, 0x00050002, 32
-        },
-        { // Skirmish
-            BT_CClickButton, 8, 0, dk2::CButton_handleLeftClick_00538000, NULL, 0, 0, 0x00000002, 0x0002000A, 0,
-            616, 852, 1304, 172, 0, 0, 1304, 172, 0, NULL, dk2::CButton_render_532670, NULL, 141, 0x00000002, 0x00050002, 32
-        },
-        { // Load Game
-            BT_CClickButton, 7, 0, dk2::CButton_handleLeftClick_00538000, NULL, 0, 0, 0x00000002, 0x00030007, 0,
-            616, 1032, 1304, 172, 0, 0, 1304, 172, 0, NULL, dk2::CButton_render_532670, NULL, 145, 0x00000003, 0x00050002, 32
-        },
-        { // X (Back)
-            BT_CClickButton, 9, 0, dk2::CButton_leftClick_changeMenu, NULL, 1, 1, 0x00010002, 0x00040000, 0,
-            2120, 1688, 192, 192, 0, 0, 192, 192, 0, NULL, dk2::CClickButton_renderExitBtn, NULL, 0, 0x00000004, 0x00000000, 36
-        },
-
-        {
-            0, 0xFFFFFFFF, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL, 0, 0x00000000, 0x00000000, 0
-        },
-    };
-
-    dk2::WindowCfg Main_SinglePlayer_WinCfg {
-        WID_SinglePlayer, 0, 0, 0, 0, 0xA00, 0x780, 0, 0, 0xA00, 0x780, 0, NULL, NULL, 0,
-        0, 0, 0, 0, 0, Main_SinglePlayer_BtnArr, 1
-    };
-
-    dk2::ButtonCfg Main_Multiplayer_BtnArr[] {
-        {
-            BT_CTextBox, 13, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            0, 52, 2560, 160, 0, 0, 0, 0, 0, NULL, dk2::CButton_render_536700, NULL, 16, 0x00000000, 0x00010000, 0
-        },
-        {
-            BT_CListBox, 12, 0, NULL, NULL, 0, 0, (uint32_t) dk2::getListElementCount, (uint32_t) dk2::CListBox_listfun, 0,
-            0, 400, 2560, 460, 0, 0, 2560, 460, 0, dk2::CListBox_sub_530440, dk2::CListBox_sub_54EA90, (uint32_t) dk2::CVerticalSlider_render_54FF00, 0, (uint32_t) &dk2::g_listItemNum, 0x00000000, 0
-        },
-        {
-            BT_CClickButton, 18, 0, dk2::CButton_leftClick_changeMenu, NULL, 0, 1, 0x00000000, 0x00000016, 0,
-            2120, 1688, 192, 192, 0, 0, 192, 192, 0, NULL, dk2::CClickButton_renderExitBtn, NULL, 0, 0x00000000, 0x00000000, 36
-        },
-        {
-            BT_CClickButton, 11, 0, dk2::CButton_leftClick_changeMenu, NULL, 0, 0, 0x00000000, 0x0000000D, 0,
-            2336, 1688, 192, 192, 0, 0, 192, 192, 0, NULL, dk2::CClickButton_renderApplyBtn, NULL, 0, 0x00000000, 0x00000000, 35
-        },
-
-        {
-            0, 0xFFFFFFFF, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL, 0, 0x00000000, 0x00000000, 0
-        },
-    };
-
-    dk2::WindowCfg Main_Multiplayer_WinCfg {
-        WID_Multiplayer, 0, 0, 0, 0, 0xA00, 0x780, 0, 0, 0xA00, 0x780, 0, NULL, NULL, 0,
-        0, 0, 0, 0, 0, Main_Multiplayer_BtnArr, 2
-    };
-
-    dk2::WindowCfg *mainView_replaced[33] = {
-        &Main_Main_WinCfg, // 1
-        &Main_SinglePlayer_WinCfg, // 2
-        &Main_Multiplayer_WinCfg, // 3
-        // &Main_Options_WinCfg,
-        // &Extras_ViewMovies_WinCfg,
-        // &Main_Extras_WinCfg,
-        // &Map3d_MissionBriefing,
-        // &Main_LoadGame_WinCfg,
-        // &Main_Scrimish_WinCfg,
-        // &Multiplayer_IpxLocalNetwork,
-        // &Multiplayer_TcpIpInternet_WinCfg,
-        // &Options_Graphics_WinCfg,
-        // &Options_Sound_WinCfg,
-        // &Options_Control_WinCfg,
-        // &Extras_TodaysTopKeepers_WinCfg,
-        // &MissionDebriefing_Stats1_WinCfg,
-        // &Net_AddressBook_WinCfg,
-        // &Net_CreateLobby_WinCfg,
-        // &Skirmish_MapSelect_WinCfg,
-        // &Multiplayer_MapSelect_WinCfg,
-        // &GameSettings_WinCfg,
-        // &Map3d_WinCfg,
-        // &Main_MyPetDungeon_WinCfg,
-        // &Net_InternetDungeonWatch_WinCfg,
-        // &Extras_Credits_WinCfg,
-        // &MissionDebriefing_WinCfg,
-        // &MissionDebriefing_Stats2_WinCfg,
-        // &MissionDebriefing_Stats3_WinCfg,
-        // &Main_Quit_WinCfg,
-        // &Empty_WinCfg,
-        // &CreateLobby_Nick_WinCfg,
-        // &MyPetDungeon_Other_WinCfg,
-        // &Main_endOfList,
-    };
 
 
     dk2::ButtonCfg Game_win0_BtnArr[] {
@@ -265,27 +193,6 @@ char __cdecl dk2::CButton_render_541F50(dk2::CButton *btn, dk2::CFrontEndCompone
 
 
 int dk2::CFrontEndComponent::load() {
-    { // patch
-        mainView[0] = &::Main_Main_WinCfg;
-        mainView[1] = &::Main_SinglePlayer_WinCfg;
-        mainView[2] = &::Main_Multiplayer_WinCfg;
-
-
-        // dumpButtons(dk2::mainView[2]->pButtonCfg_list);
-        // dumpButtons(dk2::gameView[0]->pButtonCfg_list);
-        // printf("var16: %d\n", gameView[0]->pButtonCfg_list[2].var16);
-        // for (int i = 0; i < 16; ++i) {
-        //     unsigned int v2_strId = dk2::gameView[0]->pButtonCfg_list[2].var16 + i;
-        //     uint8_t *MbString = MyMbStringList_idx1091_getMbString(v2_strId);
-        //     wchar_t buf[128];
-        //     buf[0] = 0;
-        //     MBToUni_convert(MbString, buf, 128);
-        //     printf("%d: \"%S\"\n", i, buf);
-        // }
-        // gameView[0] = &::Game_win0;
-    }
-
-
     MyResources_instance.gameCfg.useFe_playMode = 5;
     CFrontEndComponent3D_instance.CFrontEndComponent_p = this;
     MyResources_instance.gameCfg.unk_f16C = 0;
@@ -485,7 +392,9 @@ int dk2::CFrontEndComponent::load() {
         }
     }
 
-    this->cgui_manager.createElements(mainView, (CDefaultPlayerInterface*) this);
+    // this->cgui_manager.createElements(mainView, (CDefaultPlayerInterface*) this);  // original
+    this->cgui_manager.createElements(main_layout(), (CDefaultPlayerInterface*) this);  // dynamic layout build
+
     g_FontObj3_instance.setFontMask(&status, (PixelMask*) &this->fontMask_3031E);
     this->sub_54CC70();
     this->sub_54CB50();

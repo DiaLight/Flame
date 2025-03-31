@@ -22,10 +22,10 @@
     cb(0xC, ClickTextButton)
 
 
-enum CButton_typeId {
-#define _CButton_typeId(id, pascalName) CButton_typeId_##pascalName = id,
+enum CButtonType {
+#define _CButton_typeId(id, pascalName) BT_C##pascalName = id,
     CButton_types(_CButton_typeId)
 };
-const char *CButton_typeId_toString(int ty);
+const char *CButtonType_toString(int ty);
 
 #endif //FLAME_BUTTON_TYPES_H

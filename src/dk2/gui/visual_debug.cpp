@@ -8,6 +8,8 @@
 #include <dk2/utils/AABB.h>
 
 #include <CImg.h>
+#include <string>
+#include <vector>
 using namespace cimg_library;
 
 
@@ -184,8 +186,89 @@ void show(CImg<unsigned char> &img) {
     }
 }
 
+void show(CImgList<unsigned char> &imgs) {
+    int scale = 4;
+    CImgList<unsigned char> scaleds(imgs.size());
+    for (int i = 0; i < imgs.size(); ++i) {
+        CImg<unsigned char> &img = imgs[i];
+        scaleds[i] = img.get_resize(img.width() * scale, img.height() * scale, img.depth(), img.spectrum());
+    }
+    CImgList<unsigned char> fgs_rgb(imgs.size());
+    for (int i = 0; i < imgs.size(); ++i) {
+        CImg<unsigned char> &scaled = scaleds[i];
+        fgs_rgb[i] = scaled.get_shared_channels(0, 2);  // Only RGB part of the foreground.
+    }
+    CImgList<unsigned char> fgs_a(imgs.size());
+    for (int i = 0; i < imgs.size(); ++i) {
+        CImg<unsigned char> &scaled = scaleds[i];
+        fgs_a[i] = scaled.get_shared_channel(3);  // Only Alpha part of the foreground.
+    }
+
+    CImgList<unsigned char> draws(imgs.size());
+    for (int i = 0; i < imgs.size(); ++i) {
+        draws[i] = fgs_rgb[i];
+    }
+    CImgDisplay disp(draws, "Imgs", 0);
+    disp.move(50, 50);
+    // int x = 50;
+    // for (int i = 0; i < imgs.size(); ++i) {
+    //     std::string title = "Img" + std::to_string(i);
+    //     auto &disp = displays.emplace_back(draws[i], title.c_str(), 0);
+    //     // disp.move(50, 50);
+    //     // disp.move(x, 50);
+    //     // x += draws[i].width() + 12;
+    // }
+    int tick = 0;
+    while (!disp.is_closed() && !disp.is_keyESC() && !disp.is_keyQ()) {
+        if (disp.is_resized()) {
+            disp.resize().display(draws);
+        }
+
+        for (int i = 0; i < imgs.size(); ++i) {
+            auto &draw = draws[i];
+            draw_alpha(draw, 8 * scale, tick * scale / 10);
+            draw.draw_image(0, 0, fgs_rgb[i], fgs_a[i], 1, 255);
+        }
+        disp.display(draws);
+
+        // Temporize event loop
+        cimg::wait(20);
+        tick++;
+    }
+}
+
 void dump(dk2::MySurface &surf) {
     println(surf);
     CImg<unsigned char> img = toimg(surf);
     show(img);
+}
+void dump(dk2::MySurface &surf1, dk2::MySurface &surf2) {
+    println(surf1);
+    println(surf2);
+    CImgList<unsigned char> imgs = {
+        toimg(surf1),
+        toimg(surf2),
+    };
+    show(imgs);
+}
+void dump(dk2::MySurface &surf1, dk2::MySurface &surf2, dk2::MySurface &surf3) {
+    println(surf1);
+    println(surf2);
+    println(surf3);
+    CImgList<unsigned char> imgs = {
+        toimg(surf1),
+        toimg(surf2),
+        toimg(surf3),
+    };
+    show(imgs);
+}
+void dump(std::vector<dk2::MySurface *> surfaces) {
+    for (auto *surf : surfaces) {
+        println(*surf);
+    }
+    CImgList<unsigned char> imgs(surfaces.size());
+    for (int i = 0; i < surfaces.size(); ++i) {
+        imgs[i] = toimg(*surfaces[i]);
+    }
+    show(imgs);
 }

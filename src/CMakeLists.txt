@@ -5,6 +5,16 @@ if(DEV_CONSOLE)
     set_source_files_properties(main.cpp PROPERTIES COMPILE_DEFINITIONS DEV_FORCE_CONSOLE=1)
 endif()
 
+function(collect_sources OUT PREFIX)
+    include(${PREFIX}/sources.cmake)
+    list(TRANSFORM SOURCES PREPEND ${PREFIX}/)
+    set(${OUT} ${SOURCES} PARENT_SCOPE)
+endfunction()
+
+collect_sources(MAIN_LAYOUT_SOURCES dk2/gui/main)
+collect_sources(GOG_PATCH_SOURCES gog_patch_dll)
+collect_sources(WEANETR_SOURCES weanetr_dll)
+
 add_executable(${TARGET}
         main.cpp
         dkii_exe_functions.cpp
@@ -43,6 +53,8 @@ add_executable(${TARGET}
 
         dk2/network/protocol.cpp
 
+        ${MAIN_LAYOUT_SOURCES}
+
         dk2/gui/main_gui.cpp
         dk2/gui/CGuiManager.cpp
         dk2/gui/visual_debug.cpp
@@ -65,36 +77,8 @@ add_executable(${TARGET}
         patches/original_compatible.cpp
         patches/protocol_dump.cpp
 
-        gog_patch_dll/gog_patch_dll.cpp
-        gog_patch_dll/gog_cfg.cpp
-        gog_patch_dll/gog_globals.cpp
-        gog_patch_dll/gog_fake.cpp
-        gog_patch_dll/gog_exports.cpp
-        gog_patch_dll/gog_patch.cpp
-        gog_patch_dll/fake/FakeD3D.cpp
-        gog_patch_dll/fake/FakeD3D2.cpp
-        gog_patch_dll/fake/FakeD3D3.cpp
-        gog_patch_dll/fake/FakeDevice3.cpp
-        gog_patch_dll/fake/FakeDirectDraw1.cpp
-        gog_patch_dll/fake/FakeDirectDraw2.cpp
-        gog_patch_dll/fake/FakeDirectDraw4.cpp
-        gog_patch_dll/fake/FakeGammaControl.cpp
-        gog_patch_dll/fake/FakeSurface.cpp
-        gog_patch_dll/fake/FakeSurface4.cpp
-        gog_patch_dll/fake/FakeTexture.cpp
-        gog_patch_dll/fake/FakeViewport3.cpp
-        gog_patch_dll/fake/FakeZBuffer.cpp
-        gog_patch_dll/fake/FakeUnknown.cpp
-
-        weanetr_dll/NetworkServiceProvider.cpp
-        weanetr_dll/BullfrogNET.cpp
-        weanetr_dll/DPlay.cpp
-        weanetr_dll/DnsResolver.cpp
-        weanetr_dll/MLDPlay.cpp
-        weanetr_dll/MySocket.cpp
-        weanetr_dll/logging.cpp
-        weanetr_dll/globals.cpp
-        weanetr_dll/weanetr_memory.cpp
+        ${GOG_PATCH_SOURCES}
+        ${WEANETR_SOURCES}
 
 #        ${DKII_RESOURCES_FILE}
         )

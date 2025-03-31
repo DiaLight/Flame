@@ -114,7 +114,7 @@ namespace dk2 {
 }
 
 
-int __cdecl dk2::CButton_leftClick_changeMenu(uint32_t idx, int command, CFrontEndComponent *comp) {
+int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, CFrontEndComponent *comp) {
     g_mouseAct_bool73EDA0 = 0;
     g_button73ED9C = 0;
     switch (command) {
@@ -144,7 +144,7 @@ int __cdecl dk2::CButton_leftClick_changeMenu(uint32_t idx, int command, CFrontE
                 CFrontEndComponent_static_539490(0xFEu, 2, comp);
             } else if (MyResources_instance.gameCfg.useFe_playMode == 4) {
                 if (comp->wstr19[0]) {
-                    wchar_t *v3_wstr19 = __get_wstr19(0);
+                    wchar_t *v3_wstr19 = CListBox__get_wstr19(0);
                     if (v3_wstr19)
                         wcscpy(comp->wstr19, v3_wstr19);
                     changeGui(1, 48, comp);
@@ -496,7 +496,7 @@ int __cdecl dk2::CButton_leftClick_changeMenu(uint32_t idx, int command, CFrontE
                 }
             }
             if (foundBtn) ((CVerticalSlider *) foundBtn->f78_next)->v_fun_529000(0);
-            CFrontEndComponent_sub_5415D0(0, 0, comp);
+            CButton_handleLeftClick_5415D0(0, 0, comp);
         } break;
         case 78:
             if (comp->wndId_6016 == 32) {
@@ -903,7 +903,7 @@ int __cdecl dk2::__onMapSelected(CButton *a1_btn, int a2, CFrontEndComponent *a3
     if (a3_comp->f325 != 1) {
         if (a3_comp->f15 == 1) {
             a3_comp->f15 = 0;
-            CButton_leftClick_changeMenu(0, 82, a3_comp);
+            CButton_handleLeftClick_changeMenu(0, 82, a3_comp);
             return 1;
         }
         a3_comp->broadcastMsg_0x65();
@@ -966,7 +966,7 @@ int __cdecl dk2::__onMapSelected(CButton *a1_btn, int a2, CFrontEndComponent *a3
                         f402_Obj54401A_arr->timeMs = 0;
                     } else if (f402_Obj54401A_arr->timeMs + 30000 < getTimeMs() && !a3_comp->_aBool_221) {
                         a3_comp->_aBool_221 = 1;
-                        CButton_leftClick_changeMenu(v25_i, 116, a3_comp);
+                        CButton_handleLeftClick_changeMenu(v25_i, 116, a3_comp);
                         return 1;
                     }
                 }
@@ -1003,17 +1003,17 @@ int __cdecl dk2::__onMapSelected(CButton *a1_btn, int a2, CFrontEndComponent *a3
             if (a3_comp->sub_545380()) {
                 if (g__humanPlayersCount == 1 && g__aiPlayersCount) {
                     WeaNetR_instance.mldplay->DestroySession();
-                    CButton_leftClick_changeMenu(0, 90, a3_comp);
+                    CButton_handleLeftClick_changeMenu(0, 90, a3_comp);
                     return 1;
                 }
                 a3_comp->mp_hideButtons();
                 WeaNetR_instance.mldplay->EnableNewPlayers(0);
-                CButton_leftClick_changeMenu(0, 42, a3_comp);
+                CButton_handleLeftClick_changeMenu(0, 42, a3_comp);
             }
         } else if (a3_comp->wasKicked == 1 && !a3_comp->_aBool_221) {
             a3_comp->_aBool_221 = 1;
             a3_comp->wasKicked = 0;
-            CButton_leftClick_changeMenu(1u, 82, a3_comp);
+            CButton_handleLeftClick_changeMenu(1u, 82, a3_comp);
             a3_comp->fun_536BA0(0, 0, 2115, 108, 0, 1, 0, 0, 0);
         }
         g_endTime_73F7C0 = getTimeMs() + 1000;
