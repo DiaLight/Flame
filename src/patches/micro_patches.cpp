@@ -245,7 +245,7 @@ bool patch::multi_interface_fix::enabled = true;
 std::vector<ULONG> patch::multi_interface_fix::localAddresses;
 ULONG patch::multi_interface_fix::userProvidedIpv4 = 0;
 void patch::multi_interface_fix::init() {
-    std::string ipv4Str = o_myip.get();
+    std::string ipv4Str = *o_myip;
     if (ipv4Str.empty()) return;
     // if user specified address by flags, use it
     struct sockaddr_in sa;

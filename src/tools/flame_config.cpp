@@ -451,10 +451,7 @@ void flame_config::load(std::string &file) {
     toml_config_file = file;
     try {
         toml_config_state = toml::parse<toml_type_config>(file);
-        if (toml_config_state.contains("version")) {
-            config_version = toml_config_state.at("version").as_integer();
-            toml_config_state.as_table().erase("version");
-        } else {
+        if (!toml_config_state.contains("version")) {
             toml_config_state["version"] = LatestConfigVersion;
             toml_config_state.at("version").comments().push_back(" Config version");
         }
@@ -463,6 +460,9 @@ void flame_config::load(std::string &file) {
         toml_config_state = toml_table{};
         toml_config_state["version"] = LatestConfigVersion;
         toml_config_state.at("version").comments().push_back(" Config version");
+    }
+    if (toml_config_state.contains("version")) {
+        config_version = toml_config_state.at("version").as_integer();
     }
     applyDefaultsIfAbsent();
     cmdl_state = toml_table{};
@@ -488,12 +488,12 @@ void flame_config::save() {
     toml_value copy = toml_config_state;
     removeUnusedEntries(copy);
     removeEmptyNodes(copy);
-    if (o_hide_docs.get()) {
+    if (*o_hide_docs) {
         removeComments(copy);
     } else {
         updateDefinedComments(copy);
     }
-    if (o_hide_defaults.get()) {
+    if (*o_hide_defaults) {
         removeUnusedAndDefaultEntries(copy);
         removeEmptyNodes(copy);
     }

@@ -82,12 +82,12 @@ void parseRes(const std::string &s, uint32_t &width, uint32_t &height) {
 
 void patch::screen_resolution::init() {
     if (!enabled) return;
-    auto menuRes = o_menuRes.get();
+    auto menuRes = *o_menuRes;
     if (!menuRes.empty()) {
         parseRes(menuRes, menuWidth, menuHeight);
     }
 
-    auto gameRes = o_gameRes.get();
+    auto gameRes = *o_gameRes;
     if (!gameRes.empty()) {
         parseRes(gameRes, gameWidth, gameHeight);
     }

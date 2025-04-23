@@ -127,7 +127,7 @@ namespace registry {
 
         size_t size() override { return sz; }
         bool read(void *data, size_t size) override {
-            std::string value = opt.get();
+            std::string value = *opt;
             if (value.empty()) return false;
             auto *bytes = (uint8_t *) data;
             size_t valueSz = value.size() / 2;
@@ -164,9 +164,9 @@ namespace registry {
 
         define_reg_string_option(const char *name, const char *path, const char *help, std::string defaultValue) : define_reg_option(name), opt(path, help, defaultValue) {}
 
-        size_t size() override { return opt.get().size(); }
+        size_t size() override { return opt->size(); }
         bool read(void *data, size_t size) override {
-            std::string value = opt.get();
+            std::string value = *opt;
             if (value.empty()) return false;
             strncpy((char *) data, value.c_str(), size);
             return true;
@@ -186,7 +186,7 @@ namespace registry {
         size_t size() override { return sizeof(GUID); }
         bool read(void *data, size_t size) override {
             if (size != sizeof(GUID)) return false;
-            std::string value = opt.get();
+            std::string value = *opt;
             if (value.empty()) return false;
             scanfGuid(value.c_str(), (GUID *) data);
             return true;
