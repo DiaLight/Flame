@@ -266,9 +266,9 @@ int __stdcall dk2::dk2_start() {
     g_os_dwMajorVersion = Version;
     g_os_dwVersion = (Version >> 8) + (Version << 8);
     g_os_dwBuild = Version >> 16;
-    if ( !__heap_init() )
+    if ( !dk2::__heap_init() )
         dk2::__amsg_exit_0(28);
-    if ( !__mtinit() )
+    if ( !dk2::__mtinit() )
         dk2::__amsg_exit_0(16);
     // CPPEH_RECORD ms_exc;
     // ms_exc.registration.TryLevel = 0;
@@ -277,7 +277,7 @@ int __stdcall dk2::dk2_start() {
     g_commandLineA = GetCommandLineA();
     g_environmentStrings = dk2::___crtGetEnvironmentStringsA();
     if ( !g_environmentStrings || !g_commandLineA )
-        exit(-1);
+        dk2::_exit(-1);
     dk2::__setargv();
     dk2::__setenvp();
     dk2::__cinit();
