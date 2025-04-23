@@ -1,6 +1,8 @@
 //
 // Created by DiaLight on 19.06.2024.
 //
+#include <algorithm>
+
 #include "dk2_functions.h"
 #include "dk2_globals.h"
 #include "dk2/MyMutex.h"
@@ -14,6 +16,10 @@
 #include <thread>
 #include <stdexcept>
 #include <iostream>
+#include <patches/game_version_patch.h>
+#include <patches/screen_resolution.h>
+#include <tools/flame_config.h>
+
 #include "patches/protocol_dump.h"
 
 namespace dk2 {
@@ -69,8 +75,8 @@ bool dk2::dk2_main2() {
             MyResources_instance.gameCfg.useFe_playMode = 4;
             MyResources_instance.gameCfg.useFe_unkTy = 3;
         } else if ( !cmd_flag_FrontEnd3D_unk8 ) {
-            if ( MyGame_instance.sub_559790() < 240.0 && getDevIdxSupportsLinearPerspective() != -1
-                 || MyGame_instance.sub_559790() < 290.0 && getDevIdxSupportsLinearPerspective() == -1 )
+            if ( MyGame_instance.getCpuSpeed() < 240.0 && getDevIdxSupportsLinearPerspective() != -1
+                 || MyGame_instance.getCpuSpeed() < 290.0 && getDevIdxSupportsLinearPerspective() == -1 )
             {
                 MyResources_instance.gameCfg.useFe2d_unk2 = 1;
             }
@@ -83,6 +89,7 @@ bool dk2::dk2_main2() {
             cmd_flag_FrontEnd3D_unk7 = 1;
         }
         // hook::ALL_READY_TO_START
+        patch::screen_resolution::patchGameWindowResolution();
         CGameComponent *cur = &CGameComponent_instance;
         while (cur != nullptr) {
             if (!cur->v_handle()) break;
@@ -162,7 +169,7 @@ bool dk2::dk2_main1(int argc, LPCSTR *argv) {
         patch::original_compatible::patch_hashsum();
         closeFindFile(&status_2, (int)&FindFileData);
     }
-    MyResources_instance.sub_55B120();
+    MyResources_instance.readOrCreate();
     if (!parse_command_line(argc, argv)) {
         if(patch::print_game_start_errors::enabled) {
             printf("failed to parse command line\n");
@@ -253,31 +260,135 @@ int dk2::WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *lpCmdLine, 
     return dk2_main(g_argc, g_argv);
 }
 
+int __stdcall dk2::dk2_start() {
+    DWORD Version = GetVersion();
+    g_os_dwMinorVersion = Version >> 8;
+    g_os_dwMajorVersion = Version;
+    g_os_dwVersion = (Version >> 8) + (Version << 8);
+    g_os_dwBuild = Version >> 16;
+    if ( !__heap_init() )
+        dk2::__amsg_exit_0(28);
+    if ( !__mtinit() )
+        dk2::__amsg_exit_0(16);
+    // CPPEH_RECORD ms_exc;
+    // ms_exc.registration.TryLevel = 0;
+    dk2::__ioinit();
+    dk2::___initmbctable();
+    g_commandLineA = GetCommandLineA();
+    g_environmentStrings = dk2::___crtGetEnvironmentStringsA();
+    if ( !g_environmentStrings || !g_commandLineA )
+        exit(-1);
+    dk2::__setargv();
+    dk2::__setenvp();
+    dk2::__cinit();
+    CHAR *lpCmdLine = g_commandLineA;
+    if ( *g_commandLineA == '"' ) {
+        while ( *++lpCmdLine != '"' && *lpCmdLine ) {
+            if ( dk2::__ismbblead(*lpCmdLine) ) ++lpCmdLine;
+        }
+        if ( *lpCmdLine == '"' ) ++lpCmdLine;
+    } else {
+        while ( *lpCmdLine > 0x20u ) ++lpCmdLine;
+    }
+    while ( *lpCmdLine && *lpCmdLine <= 0x20u ) ++lpCmdLine;
+    struct _STARTUPINFOA StartupInfo;
+    StartupInfo.dwFlags = 0;
+    GetStartupInfoA(&StartupInfo);
+    int wShowWindow;
+    if ( (StartupInfo.dwFlags & 1) != 0 )
+        wShowWindow = StartupInfo.wShowWindow;
+    else
+        wShowWindow = 10;
+    int nShowCmd = wShowWindow;
+    HMODULE ModuleHandleA = GetModuleHandleA(NULL);
+    int result = dk2::WinMain(ModuleHandleA, NULL, lpCmdLine, nShowCmd);
+    {  // flame patch
+        dk2::_doexit(result, 0, 1);
+        return result;
+    }
+    exit(result);
+}
+
+
+flame_config::define_flame_option<bool> o_console(
+    "flame:console",
+    "Show console window to see logs\n",
+    false
+);
+flame_config::define_flame_option<bool> o_windowed(
+    "flame:windowed",
+    "Open game in windowed mode\n",
+    false
+);
+flame_config::define_flame_option<bool> o_no_initial_size(
+    "flame:no-initial-size",
+    "Disable autoresize window\n"
+    "Used only in windowed mode\n",
+    false
+);
 
 int main(int argc, const char **argv) {
     command_line_init(argc, argv);
-    const char *roomsLimitStr = getCmdOption("-experimental_rooms_limit");
-    if (roomsLimitStr != nullptr) {
-        try {
-            uint32_t roomsLimit = std::stoul(roomsLimitStr, nullptr, 10);
-            patch::override_max_room_count::limit = roomsLimit;
-        } catch(std::invalid_argument &e) {
-            std::cout << "cant parse int \"" << roomsLimitStr << "\"" << std::endl;
-            exit(-1);
-        }
+    bug_hunter::init();
+
+    if (cmdl::hasFlag("h") || cmdl::hasFlag("help") || cmdl::hasFlag("-help")) {
+#if !DEV_FORCE_CONSOLE
+        initConsole();
+#endif
+        flame_config::help();
+#if !DEV_FORCE_CONSOLE
+        std::cout << '\n' << "Press a key to continue...";
+        std::cin.get();
+#endif
+        return 0;
+    }
+    if (cmdl::hasFlag("v") || cmdl::hasFlag("version") || cmdl::hasFlag("-version")) {
+#if !DEV_FORCE_CONSOLE
+        initConsole();
+#endif
+        std::string version = patch::game_version_patch::getFileVersion();
+        std::replace(version.begin(), version.end(), '\n', ' ');
+        std::cout << "DKII" << version << std::endl;
+#if !DEV_FORCE_CONSOLE
+        std::cout << '\n' << "Press a key to continue...";
+        std::cin.get();
+#endif
+        return 0;
     }
 
+    if (!CreateDirectory("flame", NULL) && GetLastError() != ERROR_ALREADY_EXISTS) {
+#if !DEV_FORCE_CONSOLE
+        initConsole();
+#endif
+        std::cerr << "unable to create flame directory" << std::endl;
+#if !DEV_FORCE_CONSOLE
+        std::cout << '\n' << "Press a key to continue...";
+        std::cin.get();
+#endif
+        return -1;
+    }
+    {
+        std::string config = "flame/config.toml";
+        auto it = cmdl::dict.find("c");
+        if (it == cmdl::dict.end()) it = cmdl::dict.find("-config");
+        if (it != cmdl::dict.end()) {
+            if (!it->second.empty()) config = it->second;
+        }
+        flame_config::load(config);
+    }
+
+    flame_config::save();
 #if !DEV_FORCE_CONSOLE
     // in windowed mode we can attach console with flag
-    if(hasCmdOption("-console")) {
+    if(o_console.get()) {
         initConsole();
     }
 #endif
 
-    if(hasCmdOption("-windowed")) {
+    if(o_windowed.get()) {
         gog::enable = false;  // gog is incompatible with windowed mode
         patch::control_windowed_mode::enabled = true;
-        if(!hasCmdOption("-no_initial_size")) {
+        if(!o_no_initial_size.get()) {
             // Finding the user's screen resolution
             int screenWidth = GetSystemMetrics(SM_CXSCREEN);
             int screenHeight = GetSystemMetrics(SM_CYSCREEN);
@@ -294,17 +405,25 @@ int main(int argc, const char **argv) {
         }
     }
 
+    patch::override_max_room_count::init();
     patch::inspect_tools::init();
-    bug_hunter::init();
     patch::multi_interface_fix::init();
     patch::original_compatible::init();
     patch::protocol_dump::init();
+    patch::screen_resolution::init();
 
-    std::thread keyWatcher([] { bug_hunter::keyWatcher(); });
+    HANDLE hThread = CreateThread(NULL, 0, [](void *) -> DWORD {
+        bug_hunter::keyWatcher();
+        return 0;
+    }, NULL, 0, NULL);
     // call entry point of DKII.EXE,
     if(gog::enable) gog::patch_init();
     // initialize its runtime and call dk2::WinMain
-    dk2::dk2_start();
+    int result = dk2::dk2_start();
+    bug_hunter::stopped = true;
+    if (WaitForSingleObject(hThread, 500) == WAIT_TIMEOUT) TerminateThread(hThread, 0);
+    if (flame_config::changed()) flame_config::save();
+    return result;
 }
 
 

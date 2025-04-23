@@ -1058,7 +1058,7 @@ struct: id=vtbl_0066ECA4,path=dk2/button,name=CButton,size=128,vtable=instance_0
     type: kind=int,size=4
   field: name=f6F_kind
     type: kind=int,size=1
-  field: name=f70_idx
+  field: name=f70_id
     type: kind=int,size=4
   field: name=f74_prev
     type: kind=int,size=4
@@ -2305,8 +2305,8 @@ struct: id=vtbl_0066C4A4,name=CDefaultPlayerInterface,size=20273,vtable=instance
     type: kind=int,size=4
   field: name=field_2732
     type: kind=int,size=4,signed=True
-  field: name=gap2736
-    type: kind=int,size=1
+  field: name=f2736_userCameraIdx
+    type: kind=int,size=1,signed=True,winapi=char
   field: name=f2737__options
     type: kind=struct,id=construct_00402752
   field: name=gap_29D2
@@ -5152,9 +5152,10 @@ struct: id=vtbl_0066EF3C,name=CFrontEndComponent,size=201210,vtable=instance_006
     type: kind=int,size=1
   field: name=field_6708
     type: kind=int,size=1
-  field: name=gap_6709
-    type: kind=array,count=2
-      type: kind=int,size=1
+  field: name=field_6709
+    type: kind=int,size=1,signed=True,winapi=char
+  field: name=field_670A
+    type: kind=int,size=1,signed=True,winapi=char
   field: name=field_670B
     type: kind=int,size=1
   field: name=field_670C
@@ -5414,7 +5415,7 @@ struct: id=vtbl_0066EF3C,name=CFrontEndComponent,size=201210,vtable=instance_006
     type: kind=int,size=4,signed=True
   field: name=f31138_translucentWater
     type: kind=int,size=4,signed=True
-  field: name=field_3113C
+  field: name=f3113C_hardware3d
     type: kind=int,size=4,signed=True
   field: name=field_31140
     type: kind=int,size=4,signed=True
@@ -5915,12 +5916,19 @@ struct: id=vtbl_0066ED54,path=dk2/button,name=CListBox,size=144,vtable=instance_
     type: kind=int,size=4,signed=True
   field: name=field_88
     type: kind=int,size=4,signed=True
-  field: name=field_8C
+  field: name=f8C_itemHeight
     type: kind=int,size=4,signed=True
   vtable_value: va=0052CAA0
   vtable_value: va=0052AFB0
   vtable_value: va=0052B160
   vtable_value: va=0052B390
+struct: id=instance_arr_0066EEB0,name=CListBox_ItemHeightCfg,size=12
+  field: name=f0_btnId
+    type: kind=int,size=4,signed=True
+  field: name=f4_winId
+    type: kind=int,size=4,signed=True
+  field: name=f8_itemHeight
+    type: kind=int,size=4,signed=True
 struct: id=instance_0066ED54,path=dk2/button,name=CListBox_vtbl,size=16,super=instance_0066ECA4
 struct: id=vtbl_0066EB8C,path=dk2,name=CLocalCommunication,size=608,vtable=instance_0066EB8C,super=vtbl_0066EB3C
   field: name=f14_gameActionArray
@@ -8738,7 +8746,7 @@ struct: id=vtbl_0066EE94,path=dk2/gui,name=CWindow,size=112,vtable=instance_0066
     type: kind=int,size=4
   field: name=field_3C
     type: kind=int,size=4
-  field: name=f40_idx
+  field: name=f40_id
     type: kind=int,size=4
   field: name=f44_isCurrent
     type: kind=int,size=4
@@ -18178,7 +18186,7 @@ struct: id=constructor_0055AF40,name=MyResources,size=12240
     type: kind=int,size=4,signed=True
   field: name=f2FC8_useChecksum
     type: kind=int,size=4,signed=True
-  field: name=field_2FCC
+  field: name=f2FCC_configVersion
     type: kind=int,size=4,signed=True
 struct: id=dump_at_00504C05,name=MyRespondToAttack,size=8
   field: name=f0__threatLevel
@@ -19859,7 +19867,7 @@ struct: id=constructor_00563C50,name=MyVideoSettings,size=180
     type: kind=int,size=4,signed=True
   field: name=translucent_water
     type: kind=int,size=4,signed=True
-  field: name=texture_details
+  field: name=torture_details
     type: kind=int,size=4,signed=True
   field: name=sine_wave_water
     type: kind=int,size=4,signed=True
@@ -25947,10 +25955,12 @@ global: va=0042B5D0,name=BtnHandler_sub_42B5D0,size=131
     arg: kind=int,size=4,signed=True
 global: va=0042B660,name=sub_42B660,size=79
   type: kind=function,declspec=cdecl
-    ret: kind=int,size=4,signed=True
+    ret: kind=ptr
+      type: kind=int,size=1,signed=True,winapi=char
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066C4A4
 global: va=0042B6B0,name=BtnHandler_sub_42B6B0,size=94
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True,winapi=BOOL,fname=BOOL
@@ -42281,7 +42291,8 @@ global: va=004F66E0,name=sub_4F66E0,size=4298,member_of=constructor_004F6570
     arg: kind=ptr
       type: kind=struct,id=constructor_004F6570
     arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066CC94
 global: va=004F77B0,name=sub_4F77B0,size=83
   type: kind=function,declspec=thiscall
     ret: kind=ptr
@@ -48618,7 +48629,7 @@ global: va=00534210,name=load,size=3424,member_of=vtbl_0066EF3C
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066EF3C
-global: va=00534F70,name=sub_534F70,size=762
+global: va=00534F70,name=sub_534F70,size=762,member_of=vtbl_0066EF3C
   type: kind=function,declspec=thiscall
     ret: kind=ptr
       type: kind=struct,id=vtbl_0066ECA4
@@ -49547,6 +49558,9 @@ global: va=005419C0,name=setMapName,size=23,member_of=vtbl_0066EF3C
       type: kind=struct,id=vtbl_0066EF3C
     arg: kind=ptr
       type: kind=int,size=2,winapi=wchar_t,fname=wchar_t
+global: va=005419E0,name=calcMapCount2,size=15
+  type: kind=function,declspec=stdcall
+    ret: kind=int,size=4,signed=True
 global: va=005419F0,name=sub_5419F0,size=57
   type: kind=function,declspec=stdcall
     ret: kind=ptr
@@ -51313,7 +51327,7 @@ global: va=00553B90,name=MBToUni_convert,size=109
     arg: kind=ptr
       type: kind=int,size=2,winapi=wchar_t,fname=wchar_t
     arg: kind=int,size=2,signed=True
-global: va=00553C00,name=sub_553C00,size=452
+global: va=00553C00,name=initStringLists,size=452
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True,winapi=BOOL,fname=BOOL
 global: va=00553DD0,name=MyMbStringList_getMbString_idx1024_1029,size=126
@@ -51680,7 +51694,7 @@ global: va=00555A40,name=sub_555A40,size=196
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=int,size=4,signed=True
-global: va=00555B10,name=sub_555B10,size=124
+global: va=00555B10,name=calcCpuSpeed,size=124
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,fname=DWORD
     arg: kind=ptr
@@ -52247,7 +52261,7 @@ global: va=00559770,name=MyGame_sub_559770,size=28
   type: kind=function,declspec=fastcall
     ret: kind=int,size=2,signed=True
     arg: kind=int,size=2,signed=True
-global: va=00559790,name=sub_559790,size=92,member_of=constructor_00557B70
+global: va=00559790,name=getCpuSpeed,size=92,member_of=constructor_00557B70
   type: kind=function,declspec=thiscall
     ret: kind=float,size=8
     arg: kind=ptr
@@ -52524,18 +52538,17 @@ global: va=0055AF40,name=constructor,size=212,member_of=constructor_0055AF40
       type: kind=struct,id=constructor_0055AF40
     arg: kind=ptr
       type: kind=struct,id=constructor_0055AF40
-global: va=0055B120,name=sub_55B120,size=589,member_of=constructor_0055AF40
+global: va=0055B120,name=readOrCreate,size=589,member_of=constructor_0055AF40
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
       type: kind=struct,id=constructor_0055AF40
-global: va=0055B370,name=RegKey_createDk2Path,size=268
+global: va=0055B370,name=RegKey_create_Dkii_open_Conf,size=268
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=ptr,winapi=HKEY
-        type: kind=winapi,name=HKEY__,size=4
+      type: kind=struct,id=constructor_00554A60
 global: va=0055B480,name=saveToTbDiscFile,size=1259,member_of=constructor_0055AF40
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
@@ -52618,22 +52631,20 @@ global: va=0055C7B0,name=destructor,size=291,member_of=constructor_0055AF40
     ret: kind=int,size=4,signed=True,fname=LONG
     arg: kind=ptr
       type: kind=struct,id=constructor_0055AF40
-global: va=0055C8E0,name=fun_55C8E0,size=96,member_of=constructor_0055AF40
+global: va=0055C8E0,name=init_Conf_Paths,size=96,member_of=constructor_0055AF40
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
-      type: kind=int,size=4
-global: va=0055C940,name=sub_55C940,size=372
+      type: kind=struct,id=constructor_0055AF40
+global: va=0055C940,name=RegKey_create_Dkii_open_Conf_Paths,size=372
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=ptr,winapi=HKEY
-        type: kind=winapi,name=HKEY__,size=4
-global: va=0055CAC0,name=sub_55CAC0,size=376,member_of=constructor_0055AF40
+      type: kind=struct,id=constructor_00554A60
+global: va=0055CAC0,name=writeDefaultValues,size=376,member_of=constructor_0055AF40
   type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_0055AF40
 global: va=0055CCA0,name=constructor,size=352,member_of=constructor_0055CCA0
@@ -52648,13 +52659,13 @@ global: va=0055CE00,name=destroy,size=8,member_of=constructor_0055CCA0
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
       type: kind=struct,id=constructor_0055CCA0
-global: va=0055CE10,name=loadValues_orInit,size=112,member_of=constructor_0055CCA0
+global: va=0055CE10,name=readOrCreate,size=112,member_of=constructor_0055CCA0
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
       type: kind=struct,id=constructor_0055CCA0
-global: va=0055CE80,name=RegKey_initKeys,size=372
+global: va=0055CE80,name=RegKey_create_Dkii_open_Conf_Game,size=372
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -52667,10 +52678,9 @@ global: va=0055D000,name=release,size=123,member_of=constructor_0055CCA0
     arg: kind=ptr
       type: kind=struct,id=constructor_0055CCA0
     arg: kind=int,size=4,signed=True
-global: va=0055D080,name=initValues,size=587,member_of=constructor_0055CCA0
+global: va=0055D080,name=writeDefaultValues,size=587,member_of=constructor_0055CCA0
   type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_0055CCA0
 global: va=0055D2D0,name=loadValues,size=103,member_of=constructor_0055CCA0
@@ -52686,8 +52696,7 @@ global: va=0055D340,name=readValues,size=486,member_of=constructor_0055CCA0
     arg: kind=ptr
       type: kind=struct,id=constructor_0055CCA0
     arg: kind=ptr
-      type: kind=ptr,winapi=HKEY
-        type: kind=winapi,name=HKEY__,size=4
+      type: kind=struct,id=constructor_00554A60
 global: va=0055D530,name=getResourceExtensionFlags,size=6
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
@@ -52725,8 +52734,7 @@ global: va=0055D610,name=setGameSpeed,size=13,member_of=constructor_0055CCA0
     arg: kind=int,size=4,signed=True
 global: va=0055D620,name=saveFogOfWar,size=127,member_of=constructor_0055CCA0
   type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_0055CCA0
     arg: kind=ptr,winapi=HKEY
@@ -52877,11 +52885,10 @@ global: va=0055DD40,name=sub_55DD40,size=33,member_of=constructor_0055CCA0
       type: kind=struct,id=constructor_0055CCA0
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=0055DD70,name=___sub_55DD70_newCampagin,size=119
+global: va=0055DD70,name=PlayerCfg_saveNewCampagin,size=119
   type: kind=function,declspec=stdcall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
-    arg: kind=int,size=1,fname=BYTE
+    ret: kind=void
+    arg: kind=int,size=4,fname=DWORD
 global: va=0055DDF0,name=RegKey_initNewCampagin,size=223
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
@@ -52913,10 +52920,9 @@ global: va=0055DF50,name=destructor,size=8,member_of=constructor_0055DF40
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
       type: kind=void
-global: va=0055DF60,name=sub_55DF60,size=340,member_of=constructor_0055DF40
+global: va=0055DF60,name=readOrCreate,size=340,member_of=constructor_0055DF40
   type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_0055DF40
 global: va=0055E0C0,name=appendIpWithHostname,size=240,member_of=constructor_0055DF40
@@ -52924,7 +52930,7 @@ global: va=0055E0C0,name=appendIpWithHostname,size=240,member_of=constructor_005
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=constructor_0055DF40
-global: va=0055E1B0,name=sub_55E1B0,size=372
+global: va=0055E1B0,name=RegKey_create_Dkii_open_Conf_Network,size=372
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -52937,10 +52943,9 @@ global: va=0055E330,name=release,size=127,member_of=constructor_0055DF40
     arg: kind=ptr
       type: kind=struct,id=constructor_0055DF40
     arg: kind=int,size=4,signed=True
-global: va=0055E3B0,name=sub_55E3B0,size=494,member_of=constructor_0055DF40
+global: va=0055E3B0,name=writeDefaultValues,size=494,member_of=constructor_0055DF40
   type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_0055DF40
 global: va=0055E5A0,name=constructor,size=86,member_of=constructor_0055E5A0
@@ -53010,23 +53015,22 @@ global: va=0055EC20,name=constructor,size=235,member_of=constructor_0055EC20
       type: kind=struct,id=constructor_0055EC20
     arg: kind=ptr
       type: kind=struct,id=constructor_0055EC20
-global: va=0055ED10,name=destructor,size=307,member_of=constructor_0055EC20
+global: va=0055ED10,name=saveConfig,size=307,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
     ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_0055EC20
-global: va=0055EE50,name=load,size=112,member_of=constructor_0055EC20
+global: va=0055EE50,name=readOrCreate,size=112,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
     ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_0055EC20
-global: va=0055EEC0,name=settings_openPlayerRegKey,size=372
+global: va=0055EEC0,name=RegKey_create_Dkii_open_Conf_Player,size=372
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=ptr,winapi=HKEY
-        type: kind=winapi,name=HKEY__,size=4
-global: va=0055F040,name=saveDefaultValues,size=1677,member_of=constructor_0055EC20
+      type: kind=struct,id=constructor_00554A60
+global: va=0055F040,name=writeDefaultValues,size=1677,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
@@ -53080,13 +53084,13 @@ global: va=00560A68,name=jpt_5609F1,size=44
 global: va=00560A94,name=idt_5609EB,size=24
   type: kind=array,count=24
     type: kind=int,size=1
-global: va=00560AB0,name=sub_560AB0,size=127,member_of=constructor_0055EC20
+global: va=00560AB0,name=saveAlternativeScroll,size=127,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
       type: kind=struct,id=constructor_0055EC20
-    arg: kind=int,size=4,signed=True
+    arg: kind=int,size=4,fname=DWORD
 global: va=00560B30,name=saveMouseSensitivity,size=130,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
@@ -53123,20 +53127,17 @@ global: va=00560D40,name=getPlayerLevelStatus,size=32,member_of=constructor_0055
     arg: kind=int,size=1
 global: va=00560D60,name=savePlayerLevelStatus,size=146,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_0055EC20
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=00560E00,name=sub_560E00,size=42,member_of=constructor_0055EC20
+global: va=00560E00,name=setPlayerLevelStatus_AndSave,size=42,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_0055EC20
-    arg: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
+    arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
 global: va=00560E30,name=saveLevelNumber,size=130,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
@@ -53156,8 +53157,7 @@ global: va=00560EC0,name=saveMpdLevelNumber,size=130,member_of=constructor_0055E
       type: kind=winapi,name=HKEY__,size=4
 global: va=00560F50,name=saveKeyTable,size=128,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_0055EC20
 global: va=00560FD0,name=sub_560FD0,size=14
@@ -53197,22 +53197,20 @@ global: va=005613F0,name=sub_5613F0,size=39,member_of=constructor_0055EC20
     arg: kind=int,size=4
 global: va=00561420,name=setSecretLevel,size=137,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_0055EC20
-    arg: kind=int,size=4
+    arg: kind=struct,id=constructor_00554A60
     arg: kind=int,size=4,signed=True
-global: va=005614B0,name=saveSecretLevels,size=137,member_of=constructor_0055EC20
+global: va=005614B0,name=resetSecretLevels,size=137,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
       type: kind=struct,id=constructor_0055EC20
-global: va=00561540,name=saveSecretLevelsCompleted,size=137,member_of=constructor_0055EC20
+global: va=00561540,name=resetSecretLevelsCompleted,size=137,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_0055EC20
 global: va=005615D0,name=sub_5615D0,size=21
@@ -53234,7 +53232,7 @@ global: va=00561680,name=sub_561680,size=24,member_of=constructor_0055EC20
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=constructor_0055EC20
-global: va=005616A0,name=sub_5616A0,size=140,member_of=constructor_0055EC20
+global: va=005616A0,name=resetSpecialLevelsCompleted,size=140,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
@@ -53248,13 +53246,12 @@ global: va=00561730,name=sub_561730,size=24
     arg: kind=int,size=4
 global: va=00561750,name=setSpecialLevelsCompleted,size=143,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_0055EC20
-    arg: kind=int,size=4
+    arg: kind=struct,id=constructor_00554A60
     arg: kind=int,size=4,signed=True
-global: va=005617E0,name=sub_5617E0,size=140,member_of=constructor_0055EC20
+global: va=005617E0,name=resetPetDungeonLevelsCompleted,size=140,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
@@ -53266,7 +53263,7 @@ global: va=00561870,name=getPetDungeonLevelsCompleted,size=24,member_of=construc
     arg: kind=ptr
       type: kind=struct,id=constructor_0055EC20
     arg: kind=int,size=4
-global: va=00561890,name=sub_561890,size=143,member_of=constructor_0055EC20
+global: va=00561890,name=savePetDungeonLevelsCompleted,size=143,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
@@ -53279,17 +53276,15 @@ global: va=00561920,name=fun_561920,size=27,member_of=constructor_0055EC20
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=constructor_0055EC20
-global: va=00561940,name=sub_561940,size=210,member_of=constructor_0055EC20
+global: va=00561940,name=incrementLevelAttempts,size=210,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_0055EC20
     arg: kind=int,size=4
-global: va=00561A20,name=sub_561A20_levelAttempts,size=206,member_of=constructor_0055EC20
+global: va=00561A20,name=resetLevelAttempts,size=206,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_0055EC20
     arg: kind=int,size=4
@@ -53301,8 +53296,7 @@ global: va=00561AF0,name=loadLevelAttempts,size=241,member_of=constructor_0055EC
     arg: kind=int,size=4
 global: va=00561BF0,name=saveTotalEvilRating,size=205,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_0055EC20
     arg: kind=int,size=4
@@ -53352,14 +53346,14 @@ global: va=00561EB0,name=sub_561EB0,size=24
     arg: kind=ptr
       type: kind=int,size=1,signed=True,winapi=char
     arg: kind=int,size=4
-global: va=00561ED0,name=setSecretLevelNumber,size=130,member_of=constructor_0055EC20
+global: va=00561ED0,name=saveSecretLevelNumber,size=130,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
       type: kind=struct,id=constructor_0055EC20
     arg: kind=int,size=4,signed=True
-global: va=00561F60,name=setMpName,size=177,member_of=constructor_0055EC20
+global: va=00561F60,name=saveMpName,size=177,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
     ret: kind=ptr
       type: kind=int,size=2,winapi=wchar_t,fname=wchar_t
@@ -53367,132 +53361,126 @@ global: va=00561F60,name=setMpName,size=177,member_of=constructor_0055EC20
       type: kind=struct,id=constructor_0055EC20
     arg: kind=ptr
       type: kind=int,size=2,winapi=wchar_t,fname=wchar_t
-global: va=00562020,name=setMpGameName,size=178,member_of=constructor_0055EC20
+global: va=00562020,name=saveMpGameName,size=178,member_of=constructor_0055EC20
   type: kind=function,declspec=thiscall
     ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_0055EC20
     arg: kind=ptr
       type: kind=int,size=2,winapi=wchar_t,fname=wchar_t
-global: va=005620E0,name=sub_5620E0,size=246,member_of=constructor_00554A60
+global: va=005620E0,name=create_BfProdLtd_key,size=246,member_of=constructor_00554A60
   type: kind=function,declspec=thiscall
     ret: kind=ptr
-      type: kind=int,size=4
+      type: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=constructor_00554A60
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=int,size=4,signed=True
     arg: kind=ptr,is_const=True,winapi=LPCSTR
       type: kind=int,size=1,signed=True,winapi=CHAR,fname=CHAR
-    arg: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
+    arg: kind=int,size=4,signed=True
 global: va=005621E0,name=close,size=28,member_of=constructor_00554A60
   type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_00554A60
-global: va=00562200,name=settings_writeBytes,size=84,member_of=constructor_00554A60
+global: va=00562200,name=write_bytes,size=84,member_of=constructor_00554A60
   type: kind=function,declspec=thiscall
     ret: kind=ptr
-      type: kind=int,size=4
+      type: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=constructor_00554A60
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=int,size=4,signed=True
     arg: kind=ptr,is_const=True,winapi=LPCSTR
       type: kind=int,size=1,signed=True,winapi=CHAR,fname=CHAR
     arg: kind=int,size=4,fname=DWORD
     arg: kind=ptr
       type: kind=int,size=1,fname=BYTE
     arg: kind=int,size=4,fname=DWORD
-global: va=00562260,name=settings_readBytes,size=77,member_of=constructor_00554A60
+global: va=00562260,name=read_Bytes,size=77,member_of=constructor_00554A60
   type: kind=function,declspec=thiscall
     ret: kind=ptr
-      type: kind=int,size=4
+      type: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=constructor_00554A60
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=int,size=4,signed=True
     arg: kind=ptr,is_const=True,winapi=LPCSTR
       type: kind=int,size=1,signed=True,winapi=CHAR,fname=CHAR
     arg: kind=ptr
       type: kind=int,size=1,fname=BYTE
     arg: kind=int,size=4,fname=DWORD
-global: va=005622B0,name=settings_readBytesCount,size=53,member_of=constructor_00554A60
+global: va=005622B0,name=read_Bytes_size,size=53,member_of=constructor_00554A60
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4
     arg: kind=ptr
       type: kind=struct,id=constructor_00554A60
     arg: kind=ptr,is_const=True,winapi=LPCSTR
       type: kind=int,size=1,signed=True,winapi=CHAR,fname=CHAR
-global: va=005622F0,name=sub_5622F0,size=171
+global: va=005622F0,name=write_GUID,size=171,member_of=constructor_00554A60
   type: kind=function,declspec=thiscall
     ret: kind=ptr
-      type: kind=int,size=4
+      type: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=ptr,winapi=HKEY
-        type: kind=winapi,name=HKEY__,size=4
+      type: kind=struct,id=constructor_00554A60
     arg: kind=ptr
-      type: kind=int,size=4
-    arg: kind=ptr,is_const=True,winapi=LPCSTR
-      type: kind=int,size=1,signed=True,winapi=CHAR,fname=CHAR
-    arg: kind=int,size=4,signed=True
-global: va=005623A0,name=sub_5623A0,size=301
-  type: kind=function,declspec=thiscall
-    ret: kind=ptr
-      type: kind=int,size=4
-    arg: kind=ptr
-      type: kind=ptr,winapi=HKEY
-        type: kind=winapi,name=HKEY__,size=4
-    arg: kind=ptr
-      type: kind=int,size=4
-    arg: kind=ptr,is_const=True,winapi=LPCSTR
-      type: kind=int,size=1,signed=True,winapi=CHAR,fname=CHAR
-    arg: kind=int,size=4,signed=True
-global: va=005624D0,name=sub_5624D0,size=80
-  type: kind=function,declspec=thiscall
-    ret: kind=ptr
-      type: kind=int,size=4
-    arg: kind=ptr
-      type: kind=ptr,winapi=HKEY
-        type: kind=winapi,name=HKEY__,size=4
-    arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=int,size=4,signed=True
     arg: kind=ptr,is_const=True,winapi=LPCSTR
       type: kind=int,size=1,signed=True,winapi=CHAR,fname=CHAR
     arg: kind=ptr
-      type: kind=int,size=1,fname=BYTE
-global: va=00562520,name=sub_562520,size=330
+      type: kind=winapi,name=_GUID,size=16
+global: va=005623A0,name=read_GUID,size=301,member_of=constructor_00554A60
   type: kind=function,declspec=thiscall
     ret: kind=ptr
-      type: kind=int,size=4
+      type: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=ptr,winapi=HKEY
-        type: kind=winapi,name=HKEY__,size=4
+      type: kind=struct,id=constructor_00554A60
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=int,size=4,signed=True
     arg: kind=ptr,is_const=True,winapi=LPCSTR
       type: kind=int,size=1,signed=True,winapi=CHAR,fname=CHAR
     arg: kind=ptr
-      type: kind=int,size=1,signed=True,winapi=char
+      type: kind=winapi,name=_GUID,size=16
+global: va=005624D0,name=write_String,size=80,member_of=constructor_00554A60
+  type: kind=function,declspec=thiscall
+    ret: kind=ptr
+      type: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00554A60
+    arg: kind=ptr
+      type: kind=int,size=4,signed=True
+    arg: kind=ptr,is_const=True,winapi=LPCSTR
+      type: kind=int,size=1,signed=True,winapi=CHAR,fname=CHAR
     arg: kind=ptr,is_const=True
+      type: kind=int,size=1,signed=True,winapi=char
+global: va=00562520,name=read_String,size=330,member_of=constructor_00554A60
+  type: kind=function,declspec=thiscall
+    ret: kind=ptr
+      type: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00554A60
+    arg: kind=ptr
+      type: kind=int,size=4,signed=True
+    arg: kind=ptr,is_const=True,winapi=LPCSTR
       type: kind=int,size=1,signed=True,winapi=CHAR,fname=CHAR
     arg: kind=ptr
       type: kind=int,size=1,signed=True,winapi=char
-global: va=00562670,name=setValue_562670,size=69,member_of=constructor_00554A60
+    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=int,size=1,signed=True,winapi=char
+global: va=00562670,name=write_DWORD,size=69,member_of=constructor_00554A60
   type: kind=function,declspec=thiscall
     ret: kind=ptr
-      type: kind=int,size=4
+      type: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=ptr,winapi=HKEY
-        type: kind=winapi,name=HKEY__,size=4
+      type: kind=struct,id=constructor_00554A60
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=int,size=4,signed=True
     arg: kind=ptr,is_const=True,winapi=LPCSTR
       type: kind=int,size=1,signed=True,winapi=CHAR,fname=CHAR
-    arg: kind=int,size=1,fname=BYTE
-global: va=005626C0,name=settings_readValue,size=249,member_of=constructor_00554A60
+    arg: kind=int,size=4,fname=DWORD
+global: va=005626C0,name=read_DWORD,size=249,member_of=constructor_00554A60
   type: kind=function,declspec=thiscall
     ret: kind=ptr
       type: kind=int,size=4,signed=True
@@ -53504,33 +53492,30 @@ global: va=005626C0,name=settings_readValue,size=249,member_of=constructor_00554
       type: kind=int,size=1,signed=True,winapi=CHAR,fname=CHAR
     arg: kind=ptr
       type: kind=int,size=4,fname=DWORD
-global: va=005627C0,name=sub_5627C0,size=148,member_of=constructor_00554A60
+global: va=005627C0,name=open_key,size=148,member_of=constructor_00554A60
   type: kind=function,declspec=thiscall
     ret: kind=ptr
-      type: kind=int,size=4
+      type: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=constructor_00554A60
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=int,size=4,signed=True
     arg: kind=ptr,is_const=True,winapi=LPCSTR
       type: kind=int,size=1,signed=True,winapi=CHAR,fname=CHAR
     arg: kind=ptr
-      type: kind=ptr,winapi=HKEY
-        type: kind=winapi,name=HKEY__,size=4
-global: va=00562860,name=sub_562860,size=156
+      type: kind=struct,id=constructor_00554A60
+global: va=00562860,name=create_key,size=156,member_of=constructor_00554A60
   type: kind=function,declspec=thiscall
     ret: kind=ptr
-      type: kind=int,size=4
+      type: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=ptr,winapi=HKEY
-        type: kind=winapi,name=HKEY__,size=4
+      type: kind=struct,id=constructor_00554A60
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=int,size=4,signed=True
     arg: kind=ptr,is_const=True,winapi=LPCSTR
       type: kind=int,size=1,signed=True,winapi=CHAR,fname=CHAR
     arg: kind=ptr
-      type: kind=ptr,winapi=HKEY
-        type: kind=winapi,name=HKEY__,size=4
+      type: kind=struct,id=constructor_00554A60
 global: va=00562900,name=sub_562900,size=93
   type: kind=function,declspec=thiscall
     ret: kind=ptr
@@ -53550,13 +53535,13 @@ global: va=005629B0,name=saveVersion2,size=8,member_of=constructor_00562960
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
       type: kind=struct,id=constructor_00562960
-global: va=005629C0,name=resolveValues,size=112,member_of=constructor_00562960
+global: va=005629C0,name=readOrCreate,size=112,member_of=constructor_00562960
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
       type: kind=struct,id=constructor_00562960
-global: va=00562A30,name=sub_562A30,size=372
+global: va=00562A30,name=RegKey_create_Dkii_open_Conf_Sound,size=372
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -53570,7 +53555,7 @@ global: va=00562BB0,name=saveVersionNumber,size=123,member_of=constructor_005629
       type: kind=struct,id=constructor_00562960
     arg: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
-global: va=00562C30,name=setDefaults,size=1336,member_of=constructor_00562960
+global: va=00562C30,name=writeDefaultValues,size=1336,member_of=constructor_00562960
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
@@ -53583,100 +53568,96 @@ global: va=00563170,name=loadFromSettings,size=793,member_of=constructor_0056296
     arg: kind=ptr
       type: kind=struct,id=constructor_00562960
     arg: kind=ptr
-      type: kind=ptr,winapi=HKEY
-        type: kind=winapi,name=HKEY__,size=4
-global: va=00563490,name=setSpeechVolume,size=138,member_of=constructor_00562960
+      type: kind=struct,id=constructor_00554A60
+global: va=00563490,name=saveSpeechVolume,size=138,member_of=constructor_00562960
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
       type: kind=struct,id=constructor_00562960
     arg: kind=int,size=4,signed=True
-global: va=00563520,name=setSoundEffectVolume,size=138,member_of=constructor_00562960
+global: va=00563520,name=saveSoundEffectVolume,size=138,member_of=constructor_00562960
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
       type: kind=struct,id=constructor_00562960
     arg: kind=int,size=4,signed=True
-global: va=005635B0,name=setMusicVolume,size=138,member_of=constructor_00562960
+global: va=005635B0,name=saveMusicVolume,size=138,member_of=constructor_00562960
+  type: kind=function,declspec=thiscall
+    ret: kind=ptr,winapi=HKEY
+      type: kind=winapi,name=HKEY__,size=4
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00562960
+    arg: kind=int,size=4,fname=DWORD
+global: va=00563640,name=saveMasterVolume,size=138,member_of=constructor_00562960
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
       type: kind=struct,id=constructor_00562960
     arg: kind=int,size=4,signed=True
-global: va=00563640,name=setMasterVolume,size=138,member_of=constructor_00562960
+global: va=005636D0,name=saveMasterBalance,size=124,member_of=constructor_00562960
+  type: kind=function,declspec=thiscall
+    ret: kind=void
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00562960
+    arg: kind=int,size=4,fname=DWORD
+global: va=00563750,name=saveEnvironmentalEffects,size=138,member_of=constructor_00562960
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
       type: kind=struct,id=constructor_00562960
     arg: kind=int,size=4,signed=True
-global: va=005636D0,name=setMasterBalance,size=124,member_of=constructor_00562960
+global: va=005637E0,name=saveSoundQuality,size=138,member_of=constructor_00562960
+  type: kind=function,declspec=thiscall
+    ret: kind=void
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00562960
+    arg: kind=int,size=4,signed=True
+global: va=00563870,name=saveHeadphones,size=138,member_of=constructor_00562960
+  type: kind=function,declspec=thiscall
+    ret: kind=void
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00562960
+    arg: kind=int,size=4,signed=True
+global: va=00563900,name=saveFlipSpeakers,size=138,member_of=constructor_00562960
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
       type: kind=struct,id=constructor_00562960
     arg: kind=int,size=4,signed=True
-global: va=00563750,name=setEnvironmentalEffects,size=138,member_of=constructor_00562960
+global: va=00563990,name=saveQSound,size=138,member_of=constructor_00562960
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
       type: kind=struct,id=constructor_00562960
     arg: kind=int,size=4,signed=True
-global: va=005637E0,name=setSoundQuality,size=138,member_of=constructor_00562960
+global: va=00563A20,name=saveMusicEnabled,size=136,member_of=constructor_00562960
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
       type: kind=struct,id=constructor_00562960
     arg: kind=int,size=4,signed=True
-global: va=00563870,name=setHeadphones,size=138,member_of=constructor_00562960
+global: va=00563AB0,name=saveSpeech,size=130,member_of=constructor_00562960
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
       type: kind=struct,id=constructor_00562960
     arg: kind=int,size=4,signed=True
-global: va=00563900,name=setFlipSpeakers,size=138,member_of=constructor_00562960
+global: va=00563B40,name=saveSfxEnabled,size=136,member_of=constructor_00562960
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
       type: kind=struct,id=constructor_00562960
     arg: kind=int,size=4,signed=True
-global: va=00563990,name=setQSound,size=138,member_of=constructor_00562960
-  type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
-    arg: kind=ptr
-      type: kind=struct,id=constructor_00562960
-    arg: kind=int,size=4,signed=True
-global: va=00563A20,name=setMusicEnabled,size=136,member_of=constructor_00562960
-  type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
-    arg: kind=ptr
-      type: kind=struct,id=constructor_00562960
-    arg: kind=int,size=4,signed=True
-global: va=00563AB0,name=setSpeech,size=130,member_of=constructor_00562960
-  type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
-    arg: kind=ptr
-      type: kind=struct,id=constructor_00562960
-    arg: kind=int,size=4,signed=True
-global: va=00563B40,name=setSfxEnabled,size=136,member_of=constructor_00562960
-  type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
-    arg: kind=ptr
-      type: kind=struct,id=constructor_00562960
-    arg: kind=int,size=4,signed=True
-global: va=00563BD0,name=setNumberOfVoices,size=124,member_of=constructor_00562960
+global: va=00563BD0,name=saveNumberOfVoices,size=124,member_of=constructor_00562960
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
@@ -53691,37 +53672,33 @@ global: va=00563C50,name=constructor,size=240,member_of=constructor_00563C50
       type: kind=struct,id=constructor_00563C50
 global: va=00563D40,name=destructor,size=128,member_of=constructor_00563C50
   type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_00563C50
-global: va=00563DC0,name=sub_563DC0,size=112,member_of=constructor_00563C50
+global: va=00563DC0,name=readOrCreate,size=112,member_of=constructor_00563C50
   type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_00563C50
-global: va=00563E30,name=RegKey_static_checkDk2Keys_563E30,size=372
+global: va=00563E30,name=RegKey_create_Dkii_open_Conf_Video,size=372
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=ptr,winapi=HKEY
-        type: kind=winapi,name=HKEY__,size=4
-global: va=00563FB0,name=sub_563FB0,size=2881,member_of=constructor_00563C50
+      type: kind=struct,id=constructor_00554A60
+global: va=00563FB0,name=writeDefaultValues,size=2881,member_of=constructor_00563C50
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
       type: kind=struct,id=constructor_00563C50
-global: va=00564B00,name=sub_564B00,size=4585,member_of=constructor_00563C50
+global: va=00564B00,name=readFromRegistry,size=4585,member_of=constructor_00563C50
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
       type: kind=struct,id=constructor_00563C50
     arg: kind=ptr
-      type: kind=ptr,winapi=HKEY
-        type: kind=winapi,name=HKEY__,size=4
+      type: kind=struct,id=constructor_00554A60
 global: va=00565CF0,name=setSpec,size=729,member_of=constructor_00563C50
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
@@ -53729,23 +53706,21 @@ global: va=00565CF0,name=setSpec,size=729,member_of=constructor_00563C50
     arg: kind=ptr
       type: kind=struct,id=constructor_00563C50
     arg: kind=int,size=4
-global: va=00565FD0,name=sub_565FD0,size=287,member_of=constructor_00563C50
+global: va=00565FD0,name=setScreenProps,size=287,member_of=constructor_00563C50
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
       type: kind=struct,id=constructor_00563C50
-    arg: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=int,size=4,fname=DWORD
+    arg: kind=int,size=4,fname=DWORD
+    arg: kind=int,size=4,fname=DWORD
 global: va=005660F0,name=selectDevice,size=169,member_of=constructor_00563C50
   type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_00563C50
     arg: kind=ptr
@@ -53773,12 +53748,12 @@ global: va=005662A0,name=sub_5662A0,size=127,member_of=constructor_00563C50
       type: kind=struct,id=constructor_00563C50
     arg: kind=ptr
       type: kind=int,size=4,signed=True
-global: va=00566320,name=sub_566320,size=124
+global: va=00566320,name=setViewDistance,size=124,member_of=constructor_00563C50
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=constructor_00563C50
     arg: kind=int,size=4,signed=True
 global: va=005663A0,name=setShadowsLevel,size=124,member_of=constructor_00563C50
   type: kind=function,declspec=thiscall
@@ -53789,8 +53764,7 @@ global: va=005663A0,name=setShadowsLevel,size=124,member_of=constructor_00563C50
     arg: kind=int,size=4,signed=True
 global: va=00566420,name=saveEnvironmentMapping,size=124,member_of=constructor_00563C50
   type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_00563C50
     arg: kind=int,size=4,signed=True
@@ -53801,17 +53775,16 @@ global: va=005664A0,name=saveTranslucentWater,size=124,member_of=constructor_005
     arg: kind=ptr
       type: kind=struct,id=constructor_00563C50
     arg: kind=int,size=4,signed=True
-global: va=00566520,name=sub_566520,size=124
+global: va=00566520,name=setMachineSpecLevel,size=124,member_of=constructor_00563C50
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=constructor_00563C50
     arg: kind=int,size=4,signed=True
 global: va=005665A0,name=setHighResolutionTexturesEnabled,size=124,member_of=constructor_00563C50
   type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_00563C50
     arg: kind=int,size=4,signed=True
@@ -53824,38 +53797,36 @@ global: va=00566620,name=setTextureReductionLevel,size=130,member_of=constructor
     arg: kind=int,size=4,signed=True
 global: va=005666B0,name=setCheapLightningEnabled,size=130,member_of=constructor_00563C50
   type: kind=function,declspec=thiscall
+    ret: kind=void
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00563C50
+    arg: kind=int,size=4,signed=True
+global: va=00566740,name=setSolidBlueprints,size=130,member_of=constructor_00563C50
+  type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
       type: kind=struct,id=constructor_00563C50
     arg: kind=int,size=4,signed=True
-global: va=00566740,name=sub_566740,size=130
+global: va=005667D0,name=setShouldDrawOptBackgroundAlpha,size=130,member_of=constructor_00563C50
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
-      type: kind=int,size=4
-    arg: kind=int,size=4,signed=True
-global: va=005667D0,name=sub_5667D0,size=130
-  type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
-    arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=constructor_00563C50
     arg: kind=int,size=4,signed=True
 global: va=00566860,name=setBumpMappingEnabled,size=130,member_of=constructor_00563C50
   type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_00563C50
     arg: kind=int,size=4,fname=DWORD
-global: va=005668F0,name=sub_5668F0,size=124
+global: va=005668F0,name=setSineWaveWater,size=124,member_of=constructor_00563C50
   type: kind=function,declspec=thiscall
     ret: kind=ptr,winapi=HKEY
       type: kind=winapi,name=HKEY__,size=4
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=constructor_00563C50
     arg: kind=int,size=4,signed=True
 global: va=00566970,name=saveScreenModeType_andMore,size=135,member_of=constructor_00563C50
   type: kind=function,declspec=thiscall
@@ -53904,27 +53875,24 @@ global: va=00566DB0,name=setPmeshReductionLevel,size=136,member_of=constructor_0
     arg: kind=ptr
       type: kind=struct,id=constructor_00563C50
     arg: kind=int,size=4,signed=True
-global: va=00566E40,name=sub_566E40,size=127,member_of=constructor_00563C50
+global: va=00566E40,name=writeGuidIndex,size=127,member_of=constructor_00563C50
   type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_00563C50
-    arg: kind=int,size=4,signed=True
-global: va=00566EC0,name=sub_566EC0,size=127,member_of=constructor_00563C50
+    arg: kind=int,size=4,fname=DWORD
+global: va=00566EC0,name=writeGuidIndexVerifiedWorking,size=127,member_of=constructor_00563C50
   type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_00563C50
-    arg: kind=int,size=4,signed=True
-global: va=00566F40,name=sub_566F40,size=127,member_of=constructor_00563C50
+    arg: kind=int,size=4,fname=DWORD
+global: va=00566F40,name=writeGuidIndexIsDefault,size=127,member_of=constructor_00563C50
   type: kind=function,declspec=thiscall
-    ret: kind=ptr,winapi=HKEY
-      type: kind=winapi,name=HKEY__,size=4
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_00563C50
-    arg: kind=int,size=4,signed=True
+    arg: kind=int,size=4,fname=DWORD
 global: va=00566FC0,name=sub_566FC0,size=179
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
@@ -58031,8 +57999,7 @@ global: va=00592DB0,name=constructor,size=226,member_of=constructor_00592DB0
       type: kind=struct,id=constructor_00592DB0
     arg: kind=ptr
       type: kind=struct,id=constructor_00590360
-    arg: kind=ptr
-      type: kind=struct,id=call_new_0059425F
+    arg: kind=int,size=4,signed=True
 global: va=00592EA0,name=mydd_devTexture_init,size=988
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
@@ -77820,8 +77787,12 @@ global: va=006383F0,name=__strdup,size=80
       type: kind=int,size=1,signed=True,winapi=char
 global: va=00638440,name=dk2_start,size=424
   type: kind=function,declspec=stdcall
-    ret: kind=void
+    ret: kind=int,size=4,signed=True
 global: va=006385F0,name=__amsg_exit,size=42
+  type: kind=function,declspec=cdecl
+    ret: kind=void
+    arg: kind=int,size=4,signed=True
+global: va=00638620,name=__amsg_exit_0,size=39
   type: kind=function,declspec=cdecl
     ret: kind=void
     arg: kind=int,size=4,signed=True
@@ -78630,7 +78601,8 @@ global: va=006403A0,name=__setargv,size=158
     ret: kind=int,size=4,signed=True
 global: va=00640650,name=___crtGetEnvironmentStringsA,size=342
   type: kind=function,declspec=stdcall
-    ret: kind=int,size=4,signed=True
+    ret: kind=ptr
+      type: kind=int,size=1,signed=True,winapi=CHAR,fname=CHAR
 global: va=006407B0,name=sub_6407B0,size=555
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
@@ -79860,6 +79832,9 @@ global: va=0066EE7C,name=CClickButton_vftable,size=16
   type: kind=struct,id=instance_0066EE7C
 global: va=0066EE94,name=CWindow_vftable,size=8
   type: kind=struct,id=instance_0066EE94
+global: va=0066EEB0,name=g_CListBox_itemHeights,size=132
+  type: kind=array,count=11
+    type: kind=struct,id=instance_arr_0066EEB0
 global: va=0066EF3C,name=CFrontEndComponent_vftable,size=24
   type: kind=struct,id=instance_0066EF3C
 global: va=0066EF5C,name=CFrontEndComponent3D_vftable,size=4
@@ -79884,12 +79859,9 @@ global: va=0066F24C,name=TbDiscFile_vftable,size=40
 global: va=0066F338,name=Drive,size=4
   type: kind=ptr,is_const=True
     type: kind=int,size=1,signed=True,winapi=char
-global: va=0066F34C,name=lpSubKey,size=4
-  type: kind=ptr,is_const=True,winapi=LPCSTR
-    type: kind=int,size=1,signed=True,winapi=CHAR,fname=CHAR
 global: va=0066F3AC,name=TbDiscFileStorage_vftable,size=48
   type: kind=struct,id=instance_0066F3AC
-global: va=0066F46C,name=g_pKeyTable,size=4
+global: va=0066F4BC,name=lpValueName,size=4
   type: kind=ptr,is_const=True,winapi=LPCSTR
     type: kind=int,size=1,signed=True,winapi=CHAR,fname=CHAR
 global: va=0066F7FC,name=CSoundSystem_vftable,size=128
@@ -81906,6 +81878,8 @@ global: va=00741588,name=g_pMyFontText8,size=4
 global: va=0074158C,name=g_pMyFontText9,size=4
   type: kind=ptr
     type: kind=struct,id=vtbl_0067BAF8
+global: va=00741590,name=g_stringListsInitialized,size=4
+  type: kind=int,size=4,signed=True
 global: va=00741594,name=g_pMyMbStringList_idx1024,size=4
   type: kind=ptr
     type: kind=int,size=4
@@ -81924,7 +81898,11 @@ global: va=007415A4,name=g_pMyMbStringList_idx1028,size=4
 global: va=007415A8,name=g_pMyMbStringList_idx1029,size=4
   type: kind=ptr
     type: kind=int,size=4
+global: va=007415B0,name=g_MyLangObj_lang_initialized,size=4
+  type: kind=int,size=4,signed=True
 global: va=007415B4,name=g_MyMbStringList_idx1056_1081_isLoaded,size=4
+  type: kind=int,size=4,signed=True
+global: va=007415B8,name=g_stringList_idx1000_1023_initialized,size=4
   type: kind=int,size=4,signed=True
 global: va=007415C0,name=g_Buffer,size=264
   type: kind=array,count=264
@@ -81966,8 +81944,12 @@ global: va=00758340,name=MyResources_instance,size=12240
 global: va=0075B310,name=formattedString,size=264
   type: kind=array,count=264
     type: kind=int,size=1,signed=True,winapi=char
-global: va=0075B418,name=Data,size=1
-  type: kind=int,size=1,fname=BYTE
+global: va=0075B418,name=g_tmpWriteGuidStr,size=40
+  type: kind=array,count=40
+    type: kind=int,size=1,signed=True,winapi=char
+global: va=0075B440,name=g_tmpReadGuidStr,size=40
+  type: kind=array,count=40
+    type: kind=int,size=1,signed=True,winapi=char
 global: va=0075B468,name=MySound_ptr,size=4
   type: kind=ptr
     type: kind=struct,id=vtbl_0066F7FC
@@ -82653,16 +82635,61 @@ global: va=007A5648,name=g_pTextType_UniToMB,size=4
           type: kind=struct,id=vtbl_0067BA30
 global: va=007A564C,name=g_pTextType_Font,size=4
   type: kind=ptr
-    type: kind=void
+    type: kind=ptr
+      type: kind=function,declspec=stdcall
+        ret: kind=int,size=4,signed=True
+        arg: kind=ptr
+          type: kind=int,size=4
+        arg: kind=ptr
+          type: kind=struct,id=vtbl_00671F80
+        arg: kind=ptr
+          type: kind=ptr
+            type: kind=struct,id=vtbl_0067B968
+        arg: kind=int,size=4,signed=True
+        arg: kind=ptr
+          type: kind=struct,id=vtbl_0067BA30
 global: va=007A5650,name=g_pTextType_Text,size=4
   type: kind=ptr
-    type: kind=void
+    type: kind=ptr
+      type: kind=function,declspec=stdcall
+        ret: kind=int,size=4,signed=True
+        arg: kind=ptr
+          type: kind=int,size=4
+        arg: kind=ptr
+          type: kind=struct,id=vtbl_00671F80
+        arg: kind=ptr
+          type: kind=ptr
+            type: kind=struct,id=vtbl_0067B968
+        arg: kind=int,size=4,signed=True
+        arg: kind=int,size=4,signed=True
 global: va=007A5654,name=g_pTextType_MBToUni,size=4
   type: kind=ptr
-    type: kind=void
+    type: kind=ptr
+      type: kind=function,declspec=stdcall
+        ret: kind=int,size=4,signed=True
+        arg: kind=int,size=4,signed=True
+        arg: kind=ptr
+          type: kind=struct,id=vtbl_00671F80
+        arg: kind=ptr
+          type: kind=ptr
+            type: kind=struct,id=vtbl_0067B968
+        arg: kind=int,size=4,signed=True
+        arg: kind=int,size=4,signed=True
 global: va=007A5658,name=g_pTextType_MB,size=4
   type: kind=ptr
-    type: kind=void
+    type: kind=ptr
+      type: kind=function,declspec=stdcall
+        ret: kind=int,size=4,signed=True
+        arg: kind=ptr
+          type: kind=int,size=4
+        arg: kind=ptr
+          type: kind=struct,id=vtbl_00671F80
+        arg: kind=ptr
+          type: kind=ptr
+            type: kind=struct,id=vtbl_0067B968
+        arg: kind=int,size=4,signed=True
+        arg: kind=ptr
+          type: kind=struct,id=vtbl_0067BA30
 global: va=007A5660,name=CriticalSection,size=24
   type: kind=winapi,name=_RTL_CRITICAL_SECTION,size=24
 global: va=007A5678,name=Target,size=4
@@ -82685,7 +82712,7 @@ global: va=007A56B4,name=g_modFileName,size=4
   type: kind=int,size=4,signed=True
 global: va=007A5708,name=g_environmentStrings,size=4
   type: kind=ptr
-    type: kind=struct,id=call_new_006367F8
+    type: kind=int,size=1,signed=True,winapi=char
 global: va=007A57C8,name=Filename,size=264
   type: kind=array,count=264
     type: kind=int,size=1,signed=True,winapi=CHAR,fname=CHAR
@@ -82743,7 +82770,8 @@ global: va=007A5DB0,name=Addend,size=4
 global: va=007A6DC0,name=Count,size=4
   type: kind=int,size=4,winapi=size_t,fname=size_t
 global: va=007A6DC4,name=g_commandLineA,size=4
-  type: kind=int,size=4,signed=True
+  type: kind=ptr
+    type: kind=int,size=1,signed=True,winapi=char
 global: va=007A6DC8,name=_onexit_list_end,size=4
   type: kind=int,size=4,signed=True
 global: va=007A6DCC,name=_onexit_list_start,size=4

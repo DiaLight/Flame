@@ -11,6 +11,7 @@
 #include "StackLimits.h"
 
 namespace bug_hunter {
+    extern bool stopped;
     void init();
     void keyWatcher();
 }

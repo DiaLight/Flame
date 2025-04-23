@@ -5,6 +5,7 @@
 #include <gog_globals.h>
 #include <ShlObj_core.h>
 #include <gog_debug.h>
+#include <tools/flame_config.h>
 
 using namespace gog;
 
@@ -23,7 +24,110 @@ bool cfg::iDisableFourCC;
 bool cfg::iSingleCore;
 DWORD cfg::iRestoreMode;
 
-void cfg::load() {
+
+namespace patch::replace_parse_command_line {
+    extern bool enabled;
+    bool parse();
+}
+
+extern flame_config::define_flame_option<bool> o_dk2_enableBumpMapping;
+extern flame_config::define_flame_option<bool> o_dk2_enableBumpLuminance;
+
+flame_config::define_flame_option<int> o_gog_Video_antialias(
+    "gog:video:antialias",
+    "",
+    11
+);
+
+flame_config::define_flame_option<bool> o_gog_Video_ExtraAntialias(
+     "gog:video:ExtraAntialias",
+     "",
+     false
+);
+flame_config::define_flame_option<bool> o_gog_Video_HighRes(
+     "gog:video:HighRes",
+     "",
+     false
+);
+flame_config::define_flame_option<bool> o_gog_Video_Anisotropy(
+     "gog:video:Anisotropy",
+     "",
+     false
+);
+flame_config::define_flame_option<int> o_gog_Video_Vwait(
+     "gog:video:Vwait",
+     "",
+     1
+);
+flame_config::define_flame_option<int> o_gog_Video_ScaleMode(
+     "gog:video:ScaleMode",
+     "",
+     1
+);
+flame_config::define_flame_option<bool> o_gog_Video_DisableFourCC(
+     "gog:video:DisableFourCC",
+     "",
+     false
+);
+flame_config::define_flame_option<bool> o_gog_Video_Bumpmap(
+     "gog:video:Bumpmap",
+     "",
+     false
+);
+flame_config::define_flame_option<bool> o_gog_Video_RealFullscreen(
+     "gog:video:RealFullscreen",
+     "",
+     false
+);
+flame_config::define_flame_option<int> o_gog_Misc_CpuIdle(
+     "gog:misc:CpuIdle",
+     "",
+     0
+);
+flame_config::define_flame_option<bool> o_gog_Misc_SingleCore(
+     "gog:misc:SingleCore",
+     "",
+     true
+);
+flame_config::define_flame_option<bool> o_gog_Misc_DisableDEP(
+     "gog:misc:DisableDEP",
+     "",
+     true
+);
+flame_config::define_flame_option<int> o_gog_Misc_RestoreMode(
+     "gog:misc:RestoreMode",
+     "",
+     0
+);
+flame_config::define_flame_option<bool> o_gog_Misc_NotOnTop(
+     "gog:misc:NotOnTop",
+     "",
+     false
+);
+
+
+namespace patch::replace_gog_config {
+    bool enabled = true;
+
+    void cfg_load_flame() {
+        cfg::iAntialias = *o_gog_Video_antialias;
+        cfg::iExtraAntialias = *o_gog_Video_ExtraAntialias;
+        cfg::iHighRes = *o_gog_Video_HighRes;
+        cfg::iAnisotropy = *o_gog_Video_Anisotropy;
+        cfg::iVwait = *o_gog_Video_Vwait;
+        cfg::iScaleMode = *o_gog_Video_ScaleMode;
+        cfg::iDisableFourCC = *o_gog_Video_DisableFourCC;
+        cfg::iBumpmap = *o_gog_Video_Bumpmap;
+        cfg::iRealFullscreen = *o_gog_Video_RealFullscreen;
+        cfg::iCpuIdle = *o_gog_Misc_CpuIdle;
+        cfg::iSingleCore = *o_gog_Misc_SingleCore;
+        cfg::iDisableDEP = *o_gog_Misc_DisableDEP;
+        cfg::iRestoreMode = *o_gog_Misc_RestoreMode;
+        cfg::iNotOnTop = *o_gog_Misc_NotOnTop;
+    }
+}
+
+void cfg_load_original() {
     WCHAR appdataDir[512];
     SHGetFolderPathW(NULL, CSIDL_APPDATA, NULL, 0, appdataDir);
     wcscat_s(appdataDir, ARRAYSIZE(appdataDir), L"\\GOG\\DungeonKeeper2\\Config.ini");
@@ -41,6 +145,14 @@ void cfg::load() {
     cfg::iDisableDEP = GetPrivateProfileIntW(L"Misc", L"DisableDEP", 1, appdataDir) != 0;
     cfg::iRestoreMode = GetPrivateProfileIntW(L"Misc", L"RestoreMode", 0, appdataDir);
     cfg::iNotOnTop = GetPrivateProfileIntW(L"Misc", L"NotOnTop", 0, appdataDir) != 0;
+}
+
+void cfg::load() {
+    if (patch::replace_gog_config::enabled) {
+        patch::replace_gog_config::cfg_load_flame();
+    } else {
+        cfg_load_original();
+    }
     if (cfg::iAntialias > 10) {
         cfg::iAntialias -= 10;
         gog::g_isAntialiasGt10 = true;
@@ -62,13 +174,19 @@ void cfg::load() {
         }
     }
     if (!cfg::iBumpmap) {
-        char Destination[512];
-        LPSTR CommandLineA = GetCommandLineA();
-        strcpy_s(Destination, ARRAYSIZE(Destination), CommandLineA);
-        _strlwr_s(Destination, ARRAYSIZE(Destination));
-        if (strstr(CommandLineA, "enablebumpluminance") != nullptr ||
-            strstr(CommandLineA, "enablebumpmapping") != nullptr) {
-            cfg::iBumpmap = true;
+        if (patch::replace_parse_command_line::enabled) {
+            if (*o_dk2_enableBumpLuminance || *o_dk2_enableBumpMapping) {
+                cfg::iBumpmap = true;
+            }
+        } else {
+            char Destination[512];
+            LPSTR CommandLineA = GetCommandLineA();
+            strcpy_s(Destination, ARRAYSIZE(Destination), CommandLineA);
+            _strlwr_s(Destination, ARRAYSIZE(Destination));
+            if (strstr(CommandLineA, "enablebumpluminance") != nullptr ||
+                strstr(CommandLineA, "enablebumpmapping") != nullptr) {
+                cfg::iBumpmap = true;
+            }
         }
     }
 }

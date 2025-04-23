@@ -25,9 +25,9 @@ int dk2::MyGame::prepareScreenEx(
     }
     int sel_dd_idx = this->selected_dd_idx;
     if (sel_dd_idx != this->last_selected_dd_idx) {
-        MyResources_instance.video_settings.sub_566E40(sel_dd_idx);
-        MyResources_instance.video_settings.sub_566F40(0);
-        MyResources_instance.video_settings.sub_566EC0(0);
+        MyResources_instance.video_settings.writeGuidIndex(sel_dd_idx);
+        MyResources_instance.video_settings.writeGuidIndexIsDefault(0);
+        MyResources_instance.video_settings.writeGuidIndexVerifiedWorking(0);
         if (isGameWindowCreated == 1) {
             setDebugStringFun(debugMsgBox);
             this->zbufferSurf = 0;
@@ -137,7 +137,7 @@ int dk2::MyGame::prepareScreenEx(
         else
             MySound_ptr->v_set_number_of_channels(
                     MyResources_instance.soundCfg.numberOfChannels);
-        MyResources_instance.soundCfg.resolveValues();
+        MyResources_instance.soundCfg.readOrCreate();
     }
     this->isWindowed = isWindowed;
     this->dwWidth = dwWidth;
@@ -179,8 +179,8 @@ int dk2::MyGame::prepareScreenEx(
         ++callbacks_;
         --left2;
     } while (left2);
-    MyResources_instance.video_settings.sub_566F40(0);
-    MyResources_instance.video_settings.sub_566EC0(1);
+    MyResources_instance.video_settings.writeGuidIndexIsDefault(0);
+    MyResources_instance.video_settings.writeGuidIndexVerifiedWorking(1);
     HWND HWindow = getHWindow();
     ij_ImmAssociateContext(HWindow, 0);
     return 1;

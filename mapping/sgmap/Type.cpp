@@ -75,8 +75,6 @@ bool PtrType::link(std::map<std::string, Struct *> &structsMap) {
 bool PtrType::lt(const Type *rhs) const {
     const PtrType *rhsty = (PtrType *) rhs;
     if(is_const != rhsty->is_const) return is_const < rhsty->is_const;
-    if(winapi < rhsty->winapi) return true;
-    if(rhsty->winapi < winapi) return false;
     return *type < *rhsty->type;
 }
 
@@ -100,8 +98,7 @@ size_t IntType::calcSize() {
 bool IntType::lt(const Type *rhs) const {
     const IntType *rhsty = (IntType *) rhs;
     if(size != rhsty->size) return size < rhsty->size;
-    if(is_signed != rhsty->is_signed) return is_signed < rhsty->is_signed;
-    return winapi < rhsty->winapi;
+    return is_signed < rhsty->is_signed;
 }
 
 

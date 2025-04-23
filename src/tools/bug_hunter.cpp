@@ -24,6 +24,9 @@
 #include <filesystem>
 #include <ShlObj_core.h>
 #include <codecvt>
+
+#include "console.h"
+#include "flame_config.h"
 #include "sha1.hpp"
 
 namespace fs = std::filesystem;
@@ -747,7 +750,7 @@ void formatModules(std::stringstream &ss, LoadedModules &modules) {
                 version = ver.queryValue("ProductVersion");
             }
             std::string prodictName = ver.queryValue("ProductName");
-            if(prodictName == "Microsoft® Windows® Operating System") {
+            if(prodictName == "MicrosoftÂ® WindowsÂ® Operating System") {
                 prodictName = "";
             }
             auto desc = ver.queryValue("FileDescription");
@@ -801,9 +804,29 @@ void formatModules(std::stringstream &ss, LoadedModules &modules) {
     }
 }
 
+void formatConfig(std::stringstream &ss) {
+    ss << "config:\n";
+    ss << flame_config::shortDump();
+}
+
 void buildFileName(FILETIME &timestamp, const char *namePart, char *reportFile, size_t bufCount) {
     char curDir[MAX_PATH];
     GetCurrentDirectoryA(MAX_PATH, curDir);
+    strcat(curDir, "\\flame\\");
+    strcat(curDir, namePart);
+
+    if (!CreateDirectory(curDir, NULL) && GetLastError() != ERROR_ALREADY_EXISTS) {
+#if !DEV_FORCE_CONSOLE
+        initConsole();
+#endif
+        std::cerr << "unable to create " << curDir << " directory" << std::endl;
+#if !DEV_FORCE_CONSOLE
+        std::cout << '\n' << "Press a key to continue...";
+        std::cin.get();
+#endif
+        exit(-1);
+        return;
+    }
 
     SYSTEMTIME stime;
     FileTimeToSystemTime(&timestamp, &stime);
@@ -914,6 +937,8 @@ LONG WINAPI TopLevelExceptionFilter(_In_ struct _EXCEPTION_POINTERS *ExceptionIn
 
     ss << std::endl;
     formatModules(ss, modules);
+    ss << std::endl;
+    formatConfig(ss);
 
     std::string text = ss.str();
 
@@ -1017,7 +1042,7 @@ void displayCrashMessage() {
     } else {
         crashFile[0] = '\0';
         ss << "CrashInfos location:" << std::endl;
-        ss << exeDir << "\\Flame-CrashInfo-*.txt" << std::endl;
+        ss << exeDir << "\\flame\\CrashInfo\\Flame-CrashInfo-*.txt" << std::endl;
     }
     ss << std::endl;
     ss << "ok - open directory and exit" << std::endl;
@@ -1038,6 +1063,7 @@ void displayCrashMessage() {
     }
 }
 
+bool bug_hunter::stopped = false;
 void bug_hunter::init() {
     if(wcsstr(GetCommandLineW(), L" -display_crash_message") != NULL) {
         displayCrashMessage();
@@ -1079,6 +1105,8 @@ void collectStackInfo() {
 
     ss << std::endl;
     formatModules(ss, modules);
+    ss << std::endl;
+    formatConfig(ss);
 
     std::string text = ss.str();
 
@@ -1092,7 +1120,7 @@ void collectStackInfo() {
 
 void bug_hunter::keyWatcher() {
     DWORD last = GetTickCount();
-    while(true) {
+    while(!bug_hunter::stopped) {
         if(GetAsyncKeyState(VK_F12) & 0x8000) {
             DWORD cur = GetTickCount();
             if((cur - last) > 1000) {

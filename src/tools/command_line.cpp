@@ -2,28 +2,90 @@
 // Created by DiaLight on 19.01.2025.
 //
 #include "command_line.h"
+
 #include <Windows.h>
+#include <iostream>
+#include <stdexcept>
+#include <algorithm>
+
+
+void toLowerCase(std::string &str) {
+    std::transform(str.begin(), str.end(), str.begin(),
+        [](unsigned char c){ return std::tolower(c); });
+}
+
+void parseCommandLine(int argc, const char **argv, std::map<std::string, std::string> &dict, std::vector<std::string> &flags, std::vector<std::string> &values) {
+    const char **begin = argv;
+    const char **end = argv + argc;
+    std::string key;
+    for (const char **it = begin; it < end; it++) {
+        const char *arg = *it;
+        const char *value = nullptr;
+        if (arg[0] == '-' || arg[0] == '/') {  // is key
+            if (!key.empty()) {
+                flags.push_back(key);
+                key.clear();
+            }
+            const char *eq = strchr(arg, '=');
+            if (eq) {  // arg contains value
+                key.assign(arg + 1, eq - arg);
+                value = eq + 1;
+            } else {
+                key.assign(arg + 1);
+            }
+            toLowerCase(key);
+            if (!value) continue;
+        } else {
+            if (key.empty()) {
+                values.emplace_back(arg);
+                continue;
+            }
+            value = arg;
+        }
+        // if (dict.contains(key)) {
+        //     // do we need support for multiple values?
+        // }
+        dict[key] = value;
+        key.clear();
+    }
+    if (!key.empty()) {
+        flags.push_back(key);
+        key.clear();
+    }
+}
 
 namespace cmdl {
-    int argc = 0;
-    const char **argv = NULL;
+    std::map<std::string, std::string> dict;
+    std::vector<std::string> flags;
+    std::vector<std::string> values;
 }
+
+bool cmdl::hasFlag(const std::string &flag) {
+    return std::find(flags.begin(), flags.end(), flag) != flags.end();
+}
+void cmdl::dump() {
+    if (!dict.empty()) {
+        std::cout << "options:" << std::endl;
+        for (const auto &it : dict) {
+            std::cout << " " << it.first << ": " << it.second << std::endl;
+        }
+    }
+    if (!flags.empty()) {
+        std::cout << "flags:" << std::endl;
+        for (const auto &it : flags) {
+            std::cout << " " << it << std::endl;
+        }
+    }
+    if (!values.empty()) {
+        std::cout << "values:" << std::endl;
+        for (const auto &it : values) {
+            std::cout << " " << it << std::endl;
+        }
+    }
+}
+
 
 void command_line_init(int argc, const char **argv) {
-    cmdl::argc = argc;
-    cmdl::argv = argv;
+    parseCommandLine(argc, argv, cmdl::dict, cmdl::flags, cmdl::values);
 }
 
-bool hasCmdOption(const std::string &option) {
-    const char **begin = cmdl::argv;
-    const char **end = cmdl::argv + cmdl::argc;
-    return std::find(begin, end, option) != end;
-}
-
-const char *getCmdOption(const std::string &option) {
-    const char **begin = cmdl::argv;
-    const char **end = cmdl::argv + cmdl::argc;
-    const char **it = std::find(begin, end, option);
-    if (it != end && ++it != end) return *it;
-    return nullptr;
-}

@@ -7,6 +7,8 @@
 #include <iostream>
 #include <iomanip>
 #include <chrono>
+#include <tools/flame_config.h>
+
 #include "dk2/network/protocol.h"
 #include "dk2/network/MyGuaranteedData.h"
 #include "tools/command_line.h"
@@ -553,8 +555,14 @@ namespace {
     DWORD dk2Proto_lastSave = 0;
 }
 
+flame_config::define_flame_option<bool> o_log_protocol(
+    "flame:logging:protocol",
+    "Try to parse DK2 packet content and dump\n",
+    false
+);
+
 void patch::protocol_dump::init() {
-    if(!hasCmdOption("-dk2-proto-dump")) return;
+    if(!o_log_protocol.get()) return;
     proto_os.open("dk2-proto.log");
     if(!proto_os.is_open()) {
         printf("[ERROR]: failed to open dk2 proto log\n");

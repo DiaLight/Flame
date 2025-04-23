@@ -2,10 +2,13 @@
 // Created by DiaLight on 21.07.2024.
 //
 #include <dk2/CFrontEndComponent.h>
+#include <dk2/MyMapInfo.h>
 #include <dk2/Obj543D99.h>
+#include <dk2/button/CListBox.h>
 #include <dk2/network/protocol/NetMessage_65.h>
 #include <dk2/network/FoundSessionDesc.h>
 #include <dk2/button/CTextInput.h>
+#include <patches/screen_resolution.h>
 #include <weanetr_dll/MLDPlay.h>
 #include "dk2_globals.h"
 #include "dk2_functions.h"
@@ -13,6 +16,7 @@
 #include "dk2_memory.h"
 #include "weanetr_dll/globals.h"
 #include "patches/logging.h"
+#include "dk2/CListBox_ItemHeightCfg.h"
 
 
 void dk2::CFrontEndComponent::showTitleScreen() {
@@ -314,8 +318,8 @@ char dk2::CFrontEndComponent::createMultiplayerGame() {
     unsigned int v12_playerSlot;
     if (!WeaNetR_instance.createSession(g_mpGameName, g_mpPlayerName, &v12_playerSlot, 4))
         return 0;
-    MyResources_instance.playerCfg.setMpName(g_mpPlayerName);
-    MyResources_instance.playerCfg.setMpGameName(g_mpGameName);
+    MyResources_instance.playerCfg.saveMpName(g_mpPlayerName);
+    MyResources_instance.playerCfg.saveMpGameName(g_mpGameName);
     WeaNetR_instance.mldplay->EnableNewPlayers(1);
     this->sub_54EE60(g_mpGameName);
     MyPlayerConfig &playerConfig = g_MyPlayerConfig_instance_arr[v12_playerSlot];
@@ -368,10 +372,10 @@ char dk2::CFrontEndComponent::joinMultiplayerGame(int a2_playerSlot) {
     unsigned int v14_mpcSlot;
     if (!WeaNetR_instance.joinNetworkSession(&v15_foundDesc, g_mpPlayerName, &v14_mpcSlot))
         return 0;
-    MyResources_instance.playerCfg.setMpName(g_mpPlayerName);
+    MyResources_instance.playerCfg.saveMpName(g_mpPlayerName);
     this->sub_54EE60(g_mpGameName);
     wcscpy(g_MyPlayerConfig_instance_arr[v14_mpcSlot].name_or_aiId, g_mpPlayerName);
-    
+
     net::MLDPLAY_PLAYERINFO playerinfo;
     memset(&playerinfo, 0, sizeof(playerinfo));
     WeaNetR_instance.mldplay->GetPlayerDesc(&playerinfo, v14_mpcSlot);
@@ -450,3 +454,116 @@ void dk2::CFrontEndComponent::sub_542980(FoundPlayService *a2_foundService) {
     }
 }
 
+
+int dk2::CFrontEndComponent::launchGame() {
+    MyInputManagerCb_static_setEnabled(1);
+    BYTE levelIdx;
+    for (levelIdx = 0; levelIdx < 24; ++levelIdx ) {
+        int playerLevelStatus = MyResources_instance.playerCfg.getPlayerLevelStatus(levelIdx + 1);
+        if (playerLevelStatus == 0) {
+            MyResources_instance.playerCfg.savePlayerLevelStatus(levelIdx + 1, 2);
+            break;
+        }
+        if (playerLevelStatus == 2) break;
+    }
+    this->key_DIK_SYSRQ = 0;
+    MyTextRenderer_instance.f75 = 0;
+    this->fun_552C70();
+    WeaNetR_instance.reinitializeNetworkSystem();
+    MyResources_instance.gameCfg.useFe2d_unk1 = MyResources_instance.gameCfg.useFe2d_unk2 == 1;
+    this->f6011 = MyResources_instance.gameCfg.useFe3d;
+    MyGame_instance.recreateOnPrepare = 0;
+    uint32_t screenWidth = 640u;
+    uint32_t screenHeight = 480u;
+    patch::screen_resolution::patchMenuWindowResolution(screenWidth, screenHeight);
+    if (!MyGame_instance.prepareScreenEx(
+               screenWidth, screenHeight,
+               MyResources_instance.video_settings.display_bitnes,
+               MyResources_instance.video_settings.isWindowed,
+               this->f6011 != 1,
+               this->f6011 == 1
+               )) return 0;
+    this->pMyDdSurfaceEx = MyGame_instance.getCurOffScreenSurf();
+    MyDdSurfaceEx *CurOffScreenSurf = MyGame_instance.getCurOffScreenSurf();
+    int status;
+    __surface_init_blt(&status, CurOffScreenSurf, NULL, 0xFF000000, 0, 0);
+    MyDdSurfaceEx *PrimarySurf = MyGame_instance.getPrimarySurf();
+    __surface_init_blt(&status, PrimarySurf, NULL, 0xFF000000, 0, 0);
+    Sleep(50u);
+    if (!is_welcome_shown) {
+        this->showTitleScreen();
+        MCI_OPEN_PARMS openParams;
+        openParams.dwCallback = 0;
+        openParams.wDeviceID = 0;
+        openParams.lpstrAlias = NULL;
+        openParams.lpstrDeviceType = "cdaudio";
+        openParams.lpstrElementName = "E:";
+        if (!mciSendCommandA(0, MCI_OPEN, 0x2302u, (DWORD_PTR) &openParams)) {
+            mciSendCommandA(0, MCI_OPEN, 0x2302u, (DWORD_PTR) &openParams);
+            MCI_GENERIC_PARMS genericParams;
+            genericParams.dwCallback = 0;
+            mciSendCommandA(openParams.wDeviceID, MCI_CLOSE, 2u, (DWORD_PTR) &genericParams);
+        }
+        this->showBullfrogIntro();
+        this->showIntro();
+        is_welcome_shown = 1;
+    }
+    CWorld_instance.showLoadingScreen();
+    CWorld_instance.releaseSurface();
+    tagRECT v16;
+    v16.left = 12;
+    v16.top = 435;
+    v16.right = 201;
+    v16.bottom = 473;
+    MyDdSurfaceEx *v6_screenSurf = MyGame_instance.getCurOffScreenSurf();
+    __surface_init_blt(&status, v6_screenSurf, &v16, 0xFF000000, 0, 0);
+    MyDdSurfaceEx *v7_promSurf = MyGame_instance.getPrimarySurf();
+    __surface_init_blt(&status, v7_promSurf, &v16, 0xFF000000, 0, 0);
+    g_flags_74034C = g_flags_74034C & ~0x80;
+    this->sub_533E90();
+    *(DWORD *)&this->f6701 = 0;
+    *(DWORD *)&this->f6705 = 0;
+    *(DWORD *)&this->f6709 = 0;
+    *(DWORD *)&this->f670D = 0;
+    this->poolValue_p2_creatures = NULL;
+    this->availability_p3_traps = NULL;
+    this->availability_p4_rooms = NULL;
+    this->availability_p5_spells = NULL;
+    this->availability_p6_doors = NULL;
+    g_CFrontEndComponent_ptr = this;
+    this->_levelCfgWasBuild = 0;
+    this->f30C1E = 0;
+    this->f30C1A = 0;
+    g_flags_74034C = 0;
+    this->f30D90 = 0;
+    this->load();
+    this->getHighscores();
+    this->sub_53E0B0();
+    this->sub_53DB30();
+    for (int i = 0; i < 11; ++i) {
+        CListBox_ItemHeightCfg *pItemHeightCfg = &g_CListBox_itemHeights[i];
+        int f0_btnId = pItemHeightCfg->btnId;
+        CWindow *window = this->cgui_manager.findGameWindowById(pItemHeightCfg->winId);
+        for (CButton *curBtn = window->f66_buttons; curBtn; curBtn = curBtn->f78_next) {
+            if (curBtn->f70_id != f0_btnId) continue;
+            ((CListBox *) curBtn)->itemHeight = pItemHeightCfg->itemHeight;
+            break;
+        }
+    }
+    this->sub_542570();
+    if ( this->mapName[0] ) {
+        int v13_mapCount = calcMapCount2();
+        for (this->mapIdx_6608 = 0; this->mapIdx_6608 < v13_mapCount; this->mapIdx_6608++) {
+            if (_wcsicmp(this->mapInfoArr[this->mapIdx_6608].name, this->mapName) == 0 ) break;
+        }
+    }
+    this->sub_534F70();
+    this->Shots_ddSurfArr_isLoaded[0] = 0;
+    this->Shots_ddSurfArr_isLoaded[1] = 0;
+    initStringLists();
+    CFrontEndComponent_sub_541DF0(this);
+    this->sub_53B3D0();
+    this->timestampMs = getTimeMs();
+    this->fC = 0;
+    return 1;
+}

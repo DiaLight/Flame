@@ -6,11 +6,21 @@
 #define FLAME_COMMAND_LINE_H
 
 #include <string>
+#include <map>
+#include <vector>
+
+void toLowerCase(std::string &str);
+
+namespace cmdl {
+    extern std::map<std::string, std::string> dict;
+    extern std::vector<std::string> flags;
+    extern std::vector<std::string> values;
+
+    bool hasFlag(const std::string &flag);
+    void dump();
+}
 
 void command_line_init(int argc, const char **argv);
-
-bool hasCmdOption(const std::string &option);
-const char *getCmdOption(const std::string &option);
 
 
 #endif //FLAME_COMMAND_LINE_H

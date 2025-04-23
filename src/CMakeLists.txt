@@ -34,6 +34,7 @@ add_executable(${TARGET}
         dk2/CWorld.cpp
         dk2/WeaNetR.cpp
         dk2/dk2_memory.cpp
+        dk2/dk2_command_line.cpp
         dk2/CNetworkCommunication.cpp
 
         dk2/button/button_types.cpp
@@ -67,6 +68,7 @@ add_executable(${TARGET}
         tools/command_line.cpp
         tools/console.cpp
         tools/last_error.cpp
+        tools/flame_config.cpp
 
         patches/replace_mouse_dinput_to_user32.cpp
         patches/use_wheel_to_zoom.cpp
@@ -76,6 +78,8 @@ add_executable(${TARGET}
         patches/inspect_tools.cpp
         patches/original_compatible.cpp
         patches/protocol_dump.cpp
+        patches/screen_resolution.cpp
+        patches/registry_to_config.cpp
 
         ${GOG_PATCH_SOURCES}
         ${WEANETR_SOURCES}
@@ -102,8 +106,9 @@ target_link_libraries(${TARGET} PRIVATE
         ddraw  # patch - dont link against gog's PATCH.dll because patch addresses are change after recompilation
         dxguid
 
-        # visual debug
-        cimg
+        # 3rdparty
+        cimg  # visual debug
+        toml  # flame config
 
         imm32
         # wsock32 is old link target
@@ -120,7 +125,8 @@ target_compile_options(${TARGET} PRIVATE
         /GS-  # Buffer Security Check
         /Gz  # use __stdcall by default
         /wd4624  # Suppress warning destructor was implicitly defined as deleted
-        )
+        /Zc:threadSafeInit-
+)
 target_link_options(${TARGET} PRIVATE /OPT:NOREF)
 target_link_options(${TARGET} PRIVATE /MAP)  # generate msvc mapping file for exe
 target_link_options(${TARGET} PRIVATE /DEF:${CMAKE_HOME_DIRECTORY}/libs/dkii_exe/genlib/dkii_exp.def)

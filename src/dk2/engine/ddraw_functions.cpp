@@ -180,11 +180,11 @@ namespace dk2 {
         if (selectedDdIdx < 0) {
             // software render engine
             MyResources_instance.video_settings.setSelected3dEngine(4);
-            MyResources_instance.video_settings.sub_566E40(0);
+            MyResources_instance.video_settings.writeGuidIndex(0);
             game->selected_dd_idx = 0;
         } else {
             MyResources_instance.video_settings.setSelected3dEngine(2);
-            MyResources_instance.video_settings.sub_566E40(selectedDdIdx);
+            MyResources_instance.video_settings.writeGuidIndex(selectedDdIdx);
             game->selected_dd_idx = selectedDdIdx;
         }
     }

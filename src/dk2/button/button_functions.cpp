@@ -94,7 +94,7 @@ namespace dk2 {
         comp->clear_MyPlayerConfig_instance_arr__setupMpGui();
         CTextInput *v42_foundBtn_530 = NULL;
         for(CButton *cur = comp->cgui_manager.findGameWindowById(11)->f66_buttons; cur; cur = cur->f78_next) {
-            if (cur->f70_idx != 530) continue;
+            if (cur->f70_id != 530) continue;
             v42_foundBtn_530 = (CTextInput *) cur;
             break;
         }
@@ -178,12 +178,12 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             unsigned int v10_num = 1;
             int v11_left = 40;
             do {
-                MyResources_instance.playerCfg.sub_561A20_levelAttempts(v10_num++);
+                MyResources_instance.playerCfg.resetLevelAttempts(v10_num++);
                 --v11_left;
             } while (v11_left);
             MyResources_instance.playerCfg.savePlayerLevelStatus(1, 2);
-            MyResources_instance.playerCfg.saveSecretLevels();
-            MyResources_instance.playerCfg.saveSecretLevelsCompleted();
+            MyResources_instance.playerCfg.resetSecretLevels();
+            MyResources_instance.playerCfg.resetSecretLevelsCompleted();
             MyResources_instance.playerCfg.saveLevelNumber((HKEY) 1);
             MyResources_instance.playerCfg.saveMpdLevelNumber((HKEY) 1);
             MyResources_instance.playerCfg.fB39 = 0;
@@ -241,7 +241,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             for (CButton *f66_buttons = comp->cgui_manager.findGameWindowById(8)->f66_buttons;
                     f66_buttons; f66_buttons = f66_buttons->f78_next
             ) {
-                if (f66_buttons->f70_idx != 73) continue;
+                if (f66_buttons->f70_id != 73) continue;
                 v15_button = f66_buttons;
                 break;
             }
@@ -274,13 +274,13 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             g_MLDPLAY_SESSIONDESC_arr_count = 0;
             CButton *v17_foundBtn_223 = NULL;
             for (CButton *f78_next = comp->cgui_manager.findGameWindowById(11)->f66_buttons; f78_next; f78_next = f78_next->f78_next) {
-                if (f78_next->f70_idx != 223) continue;
+                if (f78_next->f70_id != 223) continue;
                 v17_foundBtn_223 = f78_next;
                 break;
             }
             CButton *v18_foundBtn_578 = NULL;
             for (CButton *curBtn = comp->cgui_manager.findGameWindowById(39)->f66_buttons; curBtn; curBtn = curBtn->f78_next) {
-                if (curBtn->f70_idx != 578) continue;
+                if (curBtn->f70_id != 578) continue;
                 v18_foundBtn_578 = curBtn;
                 break;
             }
@@ -306,14 +306,14 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
         case 28: {
             int v19_masterVolume = comp->masterVolume;
             comp->f30C1E = 0;
-            MyResources_instance.soundCfg.setMasterVolume(v19_masterVolume);
-            MyResources_instance.soundCfg.setMusicVolume(comp->musicVolume);
-            MyResources_instance.soundCfg.setSoundEffectVolume(comp->soundEffectVolume);
-            MyResources_instance.soundCfg.setSpeechVolume(comp->speechVolume);
-            MyResources_instance.soundCfg.setHeadphones(comp->headphones);
-            MyResources_instance.soundCfg.setQSound(comp->qSound);
-            MyResources_instance.soundCfg.setEnvironmentalEffects(comp->environmentalEffects);
-            MyResources_instance.soundCfg.setSoundQuality(comp->soundQuality);
+            MyResources_instance.soundCfg.saveMasterVolume(v19_masterVolume);
+            MyResources_instance.soundCfg.saveMusicVolume(comp->musicVolume);
+            MyResources_instance.soundCfg.saveSoundEffectVolume(comp->soundEffectVolume);
+            MyResources_instance.soundCfg.saveSpeechVolume(comp->speechVolume);
+            MyResources_instance.soundCfg.saveHeadphones(comp->headphones);
+            MyResources_instance.soundCfg.saveQSound(comp->qSound);
+            MyResources_instance.soundCfg.saveEnvironmentalEffects(comp->environmentalEffects);
+            MyResources_instance.soundCfg.saveSoundQuality(comp->soundQuality);
         } break;
         case 29:
             comp->f30344 = 1;
@@ -428,7 +428,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             comp->f30C1E = 0;
             CButton *v20_foundBtn_47 = NULL;
             for(CButton *curBtn = comp->cgui_manager.findGameWindowById(18)->f66_buttons; curBtn; curBtn = curBtn->f78_next) {
-                if (curBtn->f70_idx != 47) continue;
+                if (curBtn->f70_id != 47) continue;
                 v20_foundBtn_47 = curBtn;
                 break;
             }
@@ -443,13 +443,13 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             comp->f30344 = 15;
             CButton *v53_foundBtn_223 = 0;
             for(CButton *cur = comp->cgui_manager.findGameWindowById(11)->f66_buttons; cur; cur = cur->f78_next) {
-                if (cur->f70_idx != 223) continue;
+                if (cur->f70_id != 223) continue;
                 v53_foundBtn_223 = cur;
                 break;
             }
             CButton *v54_foundBtn_578 = NULL;
             for(CButton *cur = comp->cgui_manager.findGameWindowById(39)->f66_buttons; cur; cur = cur->f78_next) {
-                if(cur->f70_idx != 578) continue;
+                if(cur->f70_id != 578) continue;
                 v54_foundBtn_578 = cur;
                 break;
             }
@@ -482,7 +482,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
                 comp->f30C1E = 3;
                 comp->wndId_6016 = 32;
                 for (CListBox *cur = (CListBox *) comp->cgui_manager.findGameWindowById(33)->f66_buttons; cur; cur = (CListBox *) cur->f78_next) {
-                    if (cur->f70_idx != 469) continue;
+                    if (cur->f70_id != 469) continue;
                     foundBtn = cur;
                     break;
                 }
@@ -490,7 +490,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
                 comp->f30C1E = 1;
                 comp->wndId_6016 = 9;
                 for (CListBox *cur = (CListBox *) comp->cgui_manager.findGameWindowById(34)->f66_buttons; cur; cur = (CListBox *) cur->f78_next) {
-                    if (cur->f70_idx != 477) continue;
+                    if (cur->f70_id != 477) continue;
                     foundBtn = cur;
                     break;
                 }
@@ -611,13 +611,13 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
                 g_MLDPLAY_SESSIONDESC_arr_count = 0;
                 CButton *v40_foundBtn_223 = NULL;
                 for(CButton *cur = comp->cgui_manager.findGameWindowById(11)->f66_buttons; cur; cur = cur->f78_next) {
-                    if (cur->f70_idx != 223) continue;
+                    if (cur->f70_id != 223) continue;
                     v40_foundBtn_223 = cur;
                     break;
                 }
                 CButton *v41_foundBtn_578 = NULL;
                 for(CButton *cur = comp->cgui_manager.findGameWindowById(39)->f66_buttons; cur; cur = cur->f78_next) {
-                    if (cur->f70_idx != 578) continue;
+                    if (cur->f70_id != 578) continue;
                     v41_foundBtn_578 = cur;
                     break;
                 }
@@ -782,7 +782,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             CFrontEndComponent_static_539490(0xFEu, 18, comp);
             CButton *v59_wnd18_buttons = comp->cgui_manager.findGameWindowById(18)->f66_buttons;
             if (v59_wnd18_buttons != nullptr) {
-                while (v59_wnd18_buttons->f70_idx != 47) {
+                while (v59_wnd18_buttons->f70_id != 47) {
                     v59_wnd18_buttons = v59_wnd18_buttons->f78_next;
                     if (!v59_wnd18_buttons) {
                         v59_wnd18_buttons = 0;

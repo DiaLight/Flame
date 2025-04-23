@@ -2,6 +2,9 @@
 // Created by DiaLight on 24.07.2024.
 //
 #include "dk2/CGameComponent.h"
+
+#include <tools/flame_config.h>
+
 #include "dk2/gui/CWindow.h"
 #include "dk2/CCamera.h"
 #include "dk2/MyDdSurfaceEx.h"
@@ -155,6 +158,7 @@ dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
     // hook::BEFORE_GAME_LOOP
     while ( !this->exit_flag ) {
         // hook::TICK_GAME_LOOP
+        if (flame_config::changed()) flame_config::save();
         patch::protocol_dump::tick();
         if(patch::control_windowed_mode::enabled) patch::limit_fps::call();
         patch::replace_mouse_dinput_to_user32::release_handled_dinput_actions();

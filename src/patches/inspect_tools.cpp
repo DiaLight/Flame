@@ -6,6 +6,7 @@
 #include "dk2_globals.h"
 #include <sstream>
 #include <dk2/gui/visual_debug.h>
+#include <tools/flame_config.h>
 
 #include "dk2/entities/entities_type.h"
 #include "dk2/entities/CObject.h"
@@ -20,8 +21,14 @@
 
 bool patch::inspect_tools::enable = false;
 
+flame_config::define_flame_option<bool> o_inspect(
+    "flame:inspect",
+    "Some debug info. Used in development\n",
+    false
+);
+
 void patch::inspect_tools::init() {
-    inspect_tools::enable = hasCmdOption("-inspect");
+    inspect_tools::enable = o_inspect.get();
     if(!inspect_tools::enable) return;
     printf("Flame inspect tools enabled\n");
 }
@@ -80,7 +87,7 @@ void patch::inspect_tools::windowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM
                     auto &gui = dk2::CFrontEndComponent_instance.cgui_manager;
                     for (auto w = gui.windowListEnd.f5E_next; w; w = w->f5E_next) {
                         if (w->f44_isCurrent) {
-                            printf("cur: id=0x%X\n", w->f40_idx);
+                            printf("cur: id=0x%X\n", w->f40_id);
                         }
                     }
                 } break;

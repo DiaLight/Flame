@@ -5,6 +5,9 @@
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #include "micro_patches.h"
+
+#include <tools/flame_config.h>
+
 #include "dk2/utils/Pos2i.h"
 #include "dk2/utils/AABB.h"
 #include "dk2/MyMouseUpdater.h"
@@ -69,8 +72,16 @@ void patch::null_surf_fix::init() {
 }
 
 
+flame_config::define_flame_option<int> o_experimentalRoomsLimit(
+    "flame:experimental:rooms-limit",
+    "Extending rooms limit. DK2 1.7 value is 96. max value: 255\n",
+    255
+);
 bool patch::override_max_room_count::enabled = true;
-uint8_t patch::override_max_room_count::limit = 255;  // default is 96  incompatible with 1.7
+uint8_t patch::override_max_room_count::limit = 96;  // default is 96  incompatible with 1.7
+void patch::override_max_room_count::init() {
+    override_max_room_count::limit = o_experimentalRoomsLimit.get();
+}
 
 void patch::use_wasd_by_default_patch::useAlternativeName(LPCSTR &lpValueName) {
     if(!use_wasd_by_default_patch::enabled) return;
@@ -224,19 +235,25 @@ void patch::limit_fps::call() {
     lastTime = time;
 }
 
+
+flame_config::define_flame_option<std::string> o_myip(
+    "flame:myip",
+    "force set local ip address in network sessions",
+    ""
+);
 bool patch::multi_interface_fix::enabled = true;
 std::vector<ULONG> patch::multi_interface_fix::localAddresses;
 ULONG patch::multi_interface_fix::userProvidedIpv4 = 0;
 void patch::multi_interface_fix::init() {
-    const char *ipv4Str = getCmdOption("-myip");
-    if (!ipv4Str) return;
+    std::string ipv4Str = o_myip.get();
+    if (ipv4Str.empty()) return;
     // if user specified address by flags, use it
     struct sockaddr_in sa;
-    if(::inet_pton(AF_INET, ipv4Str, &(sa.sin_addr)) == 1) {
-        printf("[multi_interface_fix] force use provided by flags ipv4 %s\n", ipv4Str);
+    if(::inet_pton(AF_INET, ipv4Str.c_str(), &(sa.sin_addr)) == 1) {
+        printf("[multi_interface_fix] force use provided by flags ipv4 %s\n", ipv4Str.c_str());
         userProvidedIpv4 = sa.sin_addr.S_un.S_addr;
     } else {
-        MessageBoxA(NULL, "you provided invalid -myip option", "Flame:multi_interface_fix", MB_OK);
+        MessageBoxA(NULL, "you provided invalid flame:myip option", "Flame:multi_interface_fix", MB_OK);
         exit(1);
     }
 }

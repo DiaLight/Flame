@@ -232,11 +232,8 @@ global: va=005B99E0,name=addHandler,size=200,member_of=constructor_005B97B0
     arg: kind=ptr
       type: kind=void
 )", "?addHandler@WinEventHandlers@dk2@@QAEXHP6GXHHPAX@Z0@Z", "void __thiscall dk2::WinEventHandlers::addHandler(int,void (__stdcall*)(int,int,void *),void *)");
-}
-
-void last_test() {
-    // winapi union
-    assert_mangle(R"(
+  // winapi union
+  assert_mangle(R"(
 global: va=00653080,name=mgsr_drawTriangle24_impl5,size=2798
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
@@ -249,9 +246,28 @@ global: va=00653080,name=mgsr_drawTriangle24_impl5,size=2798
 )", "?mgsr_drawTriangle24_impl5@dk2@@YAHPAT__m64@@00@Z", "int __cdecl dk2::mgsr_drawTriangle24_impl5(union __m64 *,union __m64 *,union __m64 *)");
 }
 
+void last_test() {
+  // duplicate arg type
+  assert_mangle(R"(
+struct: id=constructor_00554A60,name=RegKey,size=0
+global: va=005624D0,name=write_String,size=80,member_of=constructor_00554A60
+  type: kind=function,declspec=thiscall
+    ret: kind=ptr
+      type: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=constructor_00554A60
+    arg: kind=ptr
+      type: kind=int,size=4,signed=True
+    arg: kind=ptr,is_const=True,winapi=LPCSTR
+      type: kind=int,size=1,signed=True,winapi=CHAR,fname=CHAR
+    arg: kind=ptr,is_const=True
+      type: kind=int,size=1,signed=True,winapi=char
+)", "?write_String@RegKey@dk2@@QAEPAHPAHPBD1@Z", "public: int * __thiscall dk2::RegKey::write_String(int *,char const *,char const *)");
+}
+
 int main() {
     try {
-//        tests();
+        // tests();
         last_test();
     } catch (std::exception &e) {
         printf("[e] %s\n", e.what());

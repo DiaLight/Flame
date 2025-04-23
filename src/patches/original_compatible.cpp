@@ -3,6 +3,9 @@
 //
 
 #include "original_compatible.h"
+
+#include <tools/flame_config.h>
+
 #include "dk2_globals.h"
 #include "tools/command_line.h"
 #include "micro_patches.h"
@@ -10,8 +13,16 @@
 
 bool patch::original_compatible::enable = false;
 
+flame_config::define_flame_option<bool> o_original_compatible(
+    "flame:original-compatible",
+    "Flame will try to be compatible with DKII-DX.EXE v1.7.0\n"
+    "All patches that breaks network compatibility will be disabled\n"
+    "[drop_thing_from_hand_fix, override_max_room_count, backstab_fix, workshop_manufacture_build_time_fix, wooden_bridge_burn_fix, sleeping_possession_fix] will be disabled\n",
+    false
+);
+
 void patch::original_compatible::init() {
-    original_compatible::enable = hasCmdOption("-original_compatible");
+    original_compatible::enable = o_original_compatible.get();
     if(!original_compatible::enable) return;
     printf("[original_compatible] Flame will try to be compatible with DKII-DX.EXE v1.7.0\n");
 

@@ -31,6 +31,7 @@
 0054D920 char joinMultiplayerGame(int);  // ----------  /* auto */
 00542980 void sub_542980(FoundPlayService *);  // ----  /* auto */
 00534210 int load();  // -----------------------------  /* auto */
+0052F140 int launchGame();  // -----------------------  /* auto */
 
 # CGameComponent.h
 00525370 CGameComponent *mainGuiLoop();  // ----------  /* auto */
@@ -121,10 +122,19 @@
 005604C0 void fillKeyMaps();  // ---------------------  /* auto */
 
 # RegKey.h
-00562200 uint32_t *settings_writeBytes(uint32_t *, const CHAR *, uint32_t, uint8_t *, uint32_t);  /* auto */
-00562260 uint32_t *settings_readBytes(uint32_t *, const CHAR *, uint8_t *, uint32_t);  /* auto */
-005622B0 uint32_t settings_readBytesCount(const CHAR *);  /* auto */
-005626C0 int *settings_readValue(int *, LPCSTR, uint32_t *);  /* auto */
+005620E0 int *create_BfProdLtd_key(int *, LPCSTR, int);  /* auto */
+005621E0 void close();  // ---------------------------  /* auto */
+00562200 int *write_bytes(int *, LPCSTR, uint32_t, uint8_t *, uint32_t);  /* auto */
+00562260 int *read_Bytes(int *, LPCSTR, uint8_t *, uint32_t);  /* auto */
+005622B0 uint32_t read_Bytes_size(LPCSTR);  // -------  /* auto */
+005622F0 int *write_GUID(int *, LPCSTR, _GUID *);       /* auto */
+005623A0 int *read_GUID(int *, LPCSTR, _GUID *);  // -  /* auto */
+005624D0 int *write_String(int *, LPCSTR, const char *);  /* auto */
+00562520 int *read_String(int *, LPCSTR, char *, int, char *);  /* auto */
+00562670 int *write_DWORD(int *, LPCSTR, uint32_t);     /* auto */
+005626C0 int *read_DWORD(int *, LPCSTR, uint32_t *);    /* auto */
+005627C0 int *open_key(int *, LPCSTR, RegKey *);  // -  /* auto */
+00562860 int *create_key(int *, LPCSTR, RegKey *);      /* auto */
 
 # CCamera.h
 00449CA0 void zoomRel_449CA0(int);  // ---------------  /* auto */
