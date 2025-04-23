@@ -97,6 +97,14 @@ bool dk2::dk2_main2() {
             cur->v_f10_();
             cur = next;
         }
+        {  // patch: restore multicore at game exit
+            // don't know why, but process freezes in MySound_ptr->v_fun_567410 with single core
+            // attempts to attach debugger or trace threads just resuming frozen process
+            // attempts to make process full dump are freezing too
+
+            // the only solution I found is to set at least 2 cores at game exit
+            SetProcessAffinityMask(GetCurrentProcess(), 3);  // 3 == b11
+        }
         all_components_clearStaticListeners();
         WeaNetR_instance.destroy();
         CSpeechSystem_instance.sub_568020();
@@ -320,6 +328,14 @@ flame_config::define_flame_option<bool> o_windowed(
     "Open game in windowed mode\n",
     false
 );
+flame_config::define_flame_option<bool> o_single_core(
+    "flame:single-core",
+    "Limit game threading to one core\n"
+    "This is what gog patches doing by default but in some cases they might be disabled\n"
+    "Added this option as duplicate of gog:misc:SingleCore, but it will work in all cases\n"
+    "",
+    true
+);
 flame_config::define_flame_option<bool> o_no_initial_size(
     "flame:no-initial-size",
     "Disable autoresize window\n"
@@ -385,6 +401,10 @@ int main(int argc, const char **argv) {
     }
 #endif
 
+    if (*o_single_core) {
+        HANDLE hProc = GetCurrentProcess();
+        SetProcessAffinityMask(hProc, 1);
+    }
     if(o_windowed.get()) {
         gog::enable = false;  // gog is incompatible with windowed mode
         patch::control_windowed_mode::enabled = true;

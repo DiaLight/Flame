@@ -1075,7 +1075,7 @@ void bug_hunter::init() {
     g_prev = SetUnhandledExceptionFilter(TopLevelExceptionFilter);
 }
 
-void collectStackInfo() {
+void bug_hunter::collectStackInfo() {
     std::stringstream ss;
     FILETIME timespamp;
     GetSystemTimeAsFileTime(&timespamp);
@@ -1093,7 +1093,12 @@ void collectStackInfo() {
         ss << std::endl;
 
         StackLimits limits;
-        limits.resolve(ts.hThread);
+        if (!limits.resolve(ts.hThread)) {
+            DWORD lastError = GetLastError();
+            ss << std::endl;
+            ss << "thread " << ts.tid << " [error]: GetThreadStackLimits failed " << fmtHex32(lastError) << std::endl;
+            continue;
+        }
         ss << "thread " << ts.tid << " stack=" << fmtHex32(limits.low) << "-" << fmtHex32(limits.high) << std::endl;
         for(auto &fr : frames) {
             ss << fr << std::endl;

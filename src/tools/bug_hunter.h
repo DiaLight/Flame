@@ -13,6 +13,7 @@
 namespace bug_hunter {
     extern bool stopped;
     void init();
+    void collectStackInfo();
     void keyWatcher();
 }
 

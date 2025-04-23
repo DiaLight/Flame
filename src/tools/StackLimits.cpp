@@ -47,6 +47,10 @@ ULONG_PTR GetThreadStackLimits(HANDLE hThread, ULONG_PTR &low) {
         printf("NtQueryInformationThread failed %08X  size %d\n", status, length);
         return NULL;
     }
+    if (IsBadReadPtr(tbi.TebBaseAddress, sizeof(tbi))) {
+        printf("TebBaseAddress ptr is invalid %08X\n", tbi.TebBaseAddress);
+        return NULL;
+    }
     NT_TIB tib = {0};
     memcpy(&tib, tbi.TebBaseAddress, sizeof(tbi));
     low = (ULONG_PTR) tib.StackLimit;
