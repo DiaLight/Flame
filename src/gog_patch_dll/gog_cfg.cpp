@@ -77,7 +77,7 @@ flame_config::define_flame_option<bool> o_gog_Video_Bumpmap(
 flame_config::define_flame_option<bool> o_gog_Video_RealFullscreen(
      "gog:video:RealFullscreen",
      "",
-     false
+     true
 );
 flame_config::define_flame_option<int> o_gog_Misc_CpuIdle(
      "gog:misc:CpuIdle",

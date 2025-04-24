@@ -32,6 +32,7 @@ bool getGlobalsToReplace(const std::string &path, std::set<uint32_t> &globalsToR
     while(is) {
         if (std::getline(is, line)) {
             if(line.starts_with("#")) continue;
+            if(line.starts_with("//")) continue;
             if(line.empty()) continue;
 
             std::stringstream iss(line);
