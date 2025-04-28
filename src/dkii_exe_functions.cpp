@@ -1,6 +1,8 @@
 //
 // Created by DiaLight on 01.07.2024.
 //
+#include <dk2/dk2_memory.h>
+
 #include "dk2/MyGame.h"
 #include "dk2/MyMouseUpdater.h"
 #include "dk2/button/CTextBox.h"
@@ -9,6 +11,11 @@
 #include "patches/micro_patches.h"
 #include "patches/game_version_patch.h"
 #include "weanetr_dll/MLDPlay.h"
+#include "dk2/MyUnk67457C.h"
+#include "dk2/MyUnk673FD0.h"
+#include "dk2/MyBUnk673FD8.h"
+#include "dk2/MyBBase673E70.h"
+#include "dk2/MyObj673FD4.h"
 
 
 int32_t dk2::MyGame::isOsCompatible() {
@@ -116,4 +123,36 @@ int dk2::cmd_Game() {  // there should be args
     ProbablyConsole_instance.appendOutput("Send Guaranteed Data success");
     WeaNetR_instance.mldplay->EnableNewPlayers(0);
     return 1;
+}
+
+int dk2::MyUnk67457C::sub_61C090() {
+    if (patch::while_without_syscall_fix::enabled) {
+        SwitchToThread();
+    }
+    return this->flags & 2;
+}
+
+void dk2::MyUnk673FD0::destructor() {
+    *(void **) this = &MyUnk673FD0::vftable;
+    this->threadExit = 1;
+    InterlockedExchange((LONG volatile *) &this->threadWorking, 1);
+    while (!this->threadStopped) {
+        if (patch::while_without_syscall_fix::enabled) {
+            SwitchToThread();
+        }
+    }
+    MyBUnk673FD8 *arr0 = this->pMyBUnk673FD8_arrx12;
+    if (arr0) {
+        arr0->v_f8_array_delete(3);
+    }
+    dk2::operator_delete(this->f44);
+    for (MyBBase673E70 *cur = this->list_last_24; cur; cur = cur->prev ) {
+        cur->v_f24_cleanup();
+    }
+    for (MyObj673FD4 *cur = this->arr100_first; cur; cur = this->arr100_first) {
+        this->arr100_first = cur->next;
+        dk2::operator_delete(cur);
+    }
+    DeleteCriticalSection(&this->critSec);
+    dk2::operator_delete(this->parr_34);
 }

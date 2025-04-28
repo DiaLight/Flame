@@ -97,14 +97,6 @@ bool dk2::dk2_main2() {
             cur->v_f10_();
             cur = next;
         }
-        {  // patch: restore multicore at game exit
-            // don't know why, but process freezes in MySound_ptr->v_fun_567410 with single core
-            // attempts to attach debugger or trace threads just resuming frozen process
-            // attempts to make process full dump are freezing too
-
-            // the only solution I found is to set at least 2 cores at game exit
-            SetProcessAffinityMask(GetCurrentProcess(), 3);  // 3 == b11
-        }
         all_components_clearStaticListeners();
         WeaNetR_instance.destroy();
         CSpeechSystem_instance.sub_568020();

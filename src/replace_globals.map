@@ -179,3 +179,9 @@
 # CGuiManager.h
 0052B8F0 int createElements(WindowCfg **, CDefaultPlayerInterface *);  /* auto */
 
+# MyUnk67457C
+0061C090 int sub_61C090();  // -----------------------  /* auto */
+
+# MyUnk673FD0
+0060D630 void destructor();  // ----------------------  /* auto */
+
