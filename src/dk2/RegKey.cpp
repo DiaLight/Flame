@@ -173,7 +173,7 @@ int *dk2::RegKey::read_Bytes(int *pstatus, LPCSTR lpValueName, LPBYTE lpData, ui
 }
 
 int *dk2::RegKey::write_DWORD(int *pstatus, LPCSTR lpValueName, uint32_t Data) {
-    if (!Data || !this->key || !lpValueName) {
+    if (!this->key || !lpValueName) {
         *pstatus = -1;
         return pstatus;
     }

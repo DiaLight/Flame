@@ -484,7 +484,7 @@ flame_config::define_flame_option<bool> o_hide_defaults(
 );
 
 void flame_config::save() {
-    std::cout << "[flame_config] save toml config" << std::endl;
+//    std::cout << "[flame_config] save toml config" << std::endl;
     toml_value copy = toml_config_state;
     removeUnusedEntries(copy);
     removeEmptyNodes(copy);
