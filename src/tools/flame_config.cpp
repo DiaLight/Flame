@@ -11,7 +11,17 @@
 #include <patches/game_version_patch.h>
 
 #include "command_line.h"
+
+namespace std {  // fix for toml.hpp std __cdecl -> __stdcall used in dk2 by default
+    template <class Elem, class Traits = std::char_traits<Elem>>
+    std::basic_ostream<Elem, Traits>& __CLR_OR_THIS_CALL operator<<(std::basic_ostream<Elem, Traits>& os, std::basic_ostream<Elem, Traits>&(* Pfn)(std::basic_ostream<Elem, Traits>&) ) {
+        // call basic_ostream manipulator
+        return Pfn(os);
+    }
+}
+
 #include "toml.hpp"
+#include "console.h"
 
 
 struct toml_type_config {
@@ -455,11 +465,21 @@ void flame_config::load(std::string &file) {
             toml_config_state["version"] = LatestConfigVersion;
             toml_config_state.at("version").comments().push_back(" Config version");
         }
-    } catch (const ::toml::exception &e) {
+    } catch (const ::toml::file_io_error &e) {
         std::cout << "failed to load config: " << e.what() << std::endl;
         toml_config_state = toml_table{};
         toml_config_state["version"] = LatestConfigVersion;
         toml_config_state.at("version").comments().push_back(" Config version");
+    } catch (const ::toml::exception &e) {
+#if !DEV_FORCE_CONSOLE
+        initConsole();
+#endif
+        std::cout << "failed to parse config: " << e.what() << std::endl;
+#if !DEV_FORCE_CONSOLE
+        std::cout << "Press a key to continue...";
+        std::cin.get();
+#endif
+        exit(-1);
     }
     if (toml_config_state.contains("version")) {
         config_version = toml_config_state.at("version").as_integer();
