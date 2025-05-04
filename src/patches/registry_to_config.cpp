@@ -954,7 +954,7 @@ namespace registry::dk2::configuration::game {
         "GameDuration",
         "registry:configuration:game:GameDuration",
         "",
-        1
+        0
     );
 
     define_reg_int_option o_loseHeartType(
