@@ -4,7 +4,7 @@
 
 #include "CCreatureExtended.h"
 
-#ifdef UseExtendedCreature
+#if UseExtendedCreature
 
 void dk2ex::CCreatureExtended::constructorEx() {
     dropSelectPenalty = 0;

@@ -88,7 +88,7 @@ namespace dk2 {
                 if ((i_creature->creatureData->flags & 1) != 0) continue;  // IsWorker
                 if(patch::blocking_response_to_threat_fix::enabled) {
 //                    if ((i_creature->creatureData->flags & 2) == 0) continue;  // !CanBePickedUp
-#ifdef UseExtendedCreature
+#if UseExtendedCreature
                     if(((dk2ex::CCreatureExtended *) i_creature)->decrementDropSelectPenalty(totalNumberOfOwnedCreatures)) continue;
 #endif
                 }
@@ -145,7 +145,7 @@ namespace dk2 {
                 mrta->_threatLevel -= getDefenceLevel(i_creature);
             } else {
                 if(patch::blocking_response_to_threat_fix::enabled) {
-#ifdef UseExtendedCreature
+#if UseExtendedCreature
                     ((dk2ex::CCreatureExtended *) i_creature)->setDropSelectPenalty(totalNumberOfOwnedCreatures);
 #endif
                 }

@@ -7,9 +7,9 @@
 
 #include "dk2/entities/CCreature.h"
 
-#define UseExtendedCreature 0
+#define UseExtendedCreature 1
 
-#ifdef UseExtendedCreature
+#if UseExtendedCreature
 namespace dk2ex {
 
     struct CCreatureExtended : dk2::CCreature {
