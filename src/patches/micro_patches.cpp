@@ -28,6 +28,7 @@ bool patch::disable_bonus_damage::enabled = false;
 bool patch::backstab_fix::enabled = true;
 bool patch::workshop_manufacture_build_time_fix::enabled = true;
 bool patch::response_to_threat_fix::enabled = true;
+bool patch::blocking_response_to_threat_fix::enabled = true;
 bool patch::use_wasd_by_default_patch::enabled = true;
 bool patch::print_game_start_errors::enabled = true;
 bool patch::creatures_setup_lair_fix::enabled = true;

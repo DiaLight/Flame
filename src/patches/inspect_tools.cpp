@@ -11,6 +11,7 @@
 #include "dk2/entities/entities_type.h"
 #include "dk2/entities/CObject.h"
 #include "dk2/entities/CPlayer.h"
+#include "dk2/MyComputerPlayer.h"
 #include "tools/command_line.h"
 #include "dk2_functions.h"
 #include "weanetr_dll/protocol.h"
@@ -77,6 +78,17 @@ void patch::inspect_tools::windowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM
         case WM_KEYDOWN: {
             switch (wParam) {
                 case VK_UP: {
+                    auto *world = dk2::g_pCWorld;
+                    for (
+                            dk2::CPlayer *player = (dk2::CPlayer *) dk2::sceneObjects[world->playerList.allocatedList];
+                            player; player = (dk2::CPlayer *)dk2::sceneObjects[player->nextIdx]
+                    ) {
+                        if(player->computerPlayerOn) {
+                            auto *cp = player->pComputerPlayer;
+                            printf("%d: %04X\n", player->f0_tagId, cp->flagsFFFF);
+                        }
+                    }
+
                     // int textId = 218;
                     // uint8_t *MbString = (uint8_t *) dk2::MyMbStringList_idx1091_getMbString(textId);
                     // uint8_t *MbString = (uint8_t *) dk2::MyMbStringList_idx1090_getMbString(textId);
@@ -84,12 +96,12 @@ void patch::inspect_tools::windowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM
                     // wchar_t text[256] = {0};
                     // dk2::MBToUni_convert(MbString, text, 256);
                     // printf("%d: %S\n", textId, text);
-                    auto &gui = dk2::CFrontEndComponent_instance.cgui_manager;
-                    for (auto w = gui.windowListEnd.f5E_next; w; w = w->f5E_next) {
-                        if (w->f44_isCurrent) {
-                            printf("cur: id=0x%X\n", w->f40_id);
-                        }
-                    }
+//                    auto &gui = dk2::CFrontEndComponent_instance.cgui_manager;
+//                    for (auto w = gui.windowListEnd.f5E_next; w; w = w->f5E_next) {
+//                        if (w->f44_isCurrent) {
+//                            printf("cur: id=0x%X\n", w->f40_id);
+//                        }
+//                    }
                 } break;
                 case VK_RIGHT: {
                     auto *surf = dk2::MyResources_loadPng("unk");

@@ -80,6 +80,14 @@
 # CCreature.h
 00498E30 int processDealDamage();  // ----------------  /* auto */
 0045A8B0 void updateIsAttackable();  // --------------  /* auto */
+0048E6A0 BOOL _belongsTo(int16_t);  // ---------------  /* auto */
+004B5F70 char *deleting_destructor(char);  // --------  /* auto */
+004B5E10 void constructor();  // ---------------------  /* auto */
+
+# MyCreatureCollection
+004B5A10 int32_t createCreatures(CWorld *);  // ------  /* auto */
+004B75C0 int32_t fun_4B75C0();  // -------------------  /* auto */
+004B5FD0 void clear();  // ---------------------------  /* auto */
 
 # CTextBox.h
 00537E10 void __cdecl CTextBox_renderVersion(CTextBox *, CFrontEndComponent *);  /* auto */
@@ -116,6 +124,7 @@
 00450770 uint32_t attachToRoom(int, int, uint16_t, int16_t, int, int);  /* auto */
 
 # CComputerPlayer.h
+00500C20 int tick();  // -----------------------------  /* auto */
 004FE0B0 char tickRespondToAttack(char);  // ---------  /* auto */
 
 # PlayerCfg.h

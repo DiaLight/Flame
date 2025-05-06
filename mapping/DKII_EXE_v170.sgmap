@@ -14979,7 +14979,7 @@ struct: id=constructor_004F82E0,name=MyComputerPlayer,size=1273
     type: kind=int,size=1,signed=True,winapi=char
   field: name=f95_squaresCurrent
     type: kind=int,size=1,signed=True,winapi=char
-  field: name=f96_flags
+  field: name=f96_flagsFFFF
     type: kind=int,size=2
   field: name=f98_currentRoomToBuild
     type: kind=int,size=1
@@ -37959,7 +37959,7 @@ global: va=004BA720,name=updateOwnedArea,size=171,member_of=vtbl_0066D99C
       type: kind=struct,id=vtbl_0066D99C
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=004BA7D0,name=fun_4BA7D0,size=113,member_of=vtbl_0066D99C
+global: va=004BA7D0,name=GetNumberOfCreaturesOfType,size=113,member_of=vtbl_0066D99C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -38002,10 +38002,11 @@ global: va=004BAA10,name=sub_4BAA10,size=85,member_of=vtbl_0066D99C
       type: kind=struct,id=vtbl_0066D99C
     arg: kind=int,size=1
     arg: kind=int,size=4,signed=True
-global: va=004BAA70,name=sub_4BAA70,size=84
+global: va=004BAA70,name=GetNumberOfCreaturesOfType_sub,size=84,member_of=vtbl_0066D99C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D99C
     arg: kind=int,size=1
 global: va=004BAAD0,name=sub_4BAAD0,size=80,member_of=vtbl_0066D99C
   type: kind=function,declspec=thiscall
@@ -38206,7 +38207,7 @@ global: va=004BC290,name=sub_4BC290,size=615,member_of=vtbl_0066D99C
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=004BC500,name=fun_4BC500,size=494,member_of=vtbl_0066D99C
+global: va=004BC500,name=takeThingInHand,size=494,member_of=vtbl_0066D99C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -38324,7 +38325,7 @@ global: va=004BE430,name=sub_4BE430,size=302,member_of=vtbl_0066D99C
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D99C
     arg: kind=int,size=4,signed=True
-global: va=004BE560,name=GetNumberOfCreaturesOfType,size=205,member_of=vtbl_0066D99C
+global: va=004BE560,name=GetNumberOfCreaturesOfType_SpellShot,size=205,member_of=vtbl_0066D99C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -42728,10 +42729,11 @@ global: va=004F4700,name=fun_4F4700,size=41,member_of=vtbl_0066DB7C
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066DB7C
-global: va=004F4730,name=sub_4F4730,size=164
+global: va=004F4730,name=sub_4F4730,size=164,member_of=vtbl_0066DB7C
   type: kind=function,declspec=thiscall
-    ret: kind=int,size=1,signed=True,winapi=char
-    arg: kind=int,size=4,signed=True
+    ret: kind=int,size=1
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066DB7C
 global: va=004F47E0,name=sub_4F47E0,size=254,member_of=vtbl_0066DB7C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=1,signed=True,winapi=char
@@ -42998,7 +43000,8 @@ global: va=004F9B90,name=calcThreatLevel,size=1126,member_of=constructor_004F82E
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=constructor_004F82E0
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=call_new_arr_004C40B6
 global: va=004FA000,name=fun_4FA000,size=1010,member_of=constructor_004F82E0
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
@@ -43200,7 +43203,7 @@ global: va=004FFD80,name=ComputerPlayer_cpp_4FFD80,size=788
     arg: kind=int,size=1,signed=True,winapi=char
     arg: kind=int,size=4
     arg: kind=int,size=4
-global: va=005000A0,name=ComputerPlayer_cpp_5000A0,size=759
+global: va=005000A0,name=def_5000A0,size=759,member_of=constructor_004F82E0
   type: kind=function,declspec=thiscall
     ret: kind=int,size=1,signed=True,winapi=char
     arg: kind=ptr
@@ -43285,7 +43288,7 @@ global: va=00502F00,name=fun_502F00,size=338,member_of=constructor_004F82E0
     arg: kind=ptr
       type: kind=struct,id=constructor_004F82E0
     arg: kind=int,size=4,signed=True
-global: va=00503060,name=ComputerPlayer_cpp_503060,size=1578
+global: va=00503060,name=def_503060,size=1578,member_of=constructor_004F82E0
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -52258,7 +52261,7 @@ global: va=005558D0,name=randomInt,size=187
     arg: kind=int,size=4
     arg: kind=ptr
       type: kind=int,size=4
-    arg: kind=ptr
+    arg: kind=ptr,is_const=True
       type: kind=int,size=1,signed=True,winapi=char
     arg: kind=int,size=4,signed=True
 global: va=00555990,name=calcLength,size=168,member_of=vec_xyz
@@ -53468,7 +53471,7 @@ global: va=0055DD70,name=PlayerCfg_saveNewCampagin,size=119
     arg: kind=int,size=4,fname=DWORD
 global: va=0055DDF0,name=RegKey_initNewCampagin,size=223
   type: kind=function,declspec=stdcall
-    ret: kind=int,size=4,signed=True
+    ret: kind=int,size=4,fname=DWORD
 global: va=0055DED0,name=sub_55DED0,size=34,member_of=constructor_0055CCA0
   type: kind=function,declspec=thiscall
     ret: kind=ptr

@@ -50,6 +50,10 @@ namespace response_to_threat_fix {
     extern bool enabled;
 }
 
+namespace blocking_response_to_threat_fix {
+    extern bool enabled;
+}
+
 namespace print_game_start_errors {
     extern bool enabled;
 }

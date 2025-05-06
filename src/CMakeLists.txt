@@ -36,6 +36,9 @@ add_executable(${TARGET}
         dk2/dk2_memory.cpp
         dk2/dk2_command_line.cpp
         dk2/CNetworkCommunication.cpp
+        dk2/MyComputerPlayer_drop_condition.cpp
+        dk2/computer_player_flags.cpp
+        dk2/MyCreatureCollection.cpp
 
         dk2/button/button_types.cpp
         dk2/button/CTextInput.cpp
@@ -44,6 +47,7 @@ add_executable(${TARGET}
 
         dk2/entities/entities_type.cpp
         dk2/entities/CCreature.cpp
+        dk2/entities/CCreatureExtended.cpp
         dk2/entities/CPlayer.cpp
 
         dk2/engine/draw_functions.cpp
@@ -83,6 +87,10 @@ add_executable(${TARGET}
 
         ${GOG_PATCH_SOURCES}
         ${WEANETR_SOURCES}
+        dk2/MyComputerPlayer_drop_condition.cpp
+        dk2/MyComputerPlayer_drop_condition.h
+        dk2/computer_player_flags.cpp
+        dk2/computer_player_flags.h
 
 #        ${DKII_RESOURCES_FILE}
         )

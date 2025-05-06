@@ -6,6 +6,7 @@
 #include "dk2/entities/CObject.h"
 #include "dk2/entities/CPlayer.h"
 #include "dk2/entities/CDoor.h"
+#include "dk2/entities/CRoom.h"
 #include "dk2/entities/CTrap.h"
 #include "dk2/entities/data/MyCreatureDataObj.h"
 #include "dk2/entities/data/MyDoorDataObj.h"
@@ -16,6 +17,7 @@
 #include "patches/micro_patches.h"
 #include "creature_state.h"
 #include "entities_type.h"
+#include "dk2/world/map/MyMapElement.h"
 
 
 int dk2::CCreature::processDealDamage() {
@@ -175,4 +177,72 @@ void dk2::CCreature::updateIsAttackable() {
     } else {
         this->stateFlags2 &= ~0x40;  // !isAttackable
     }
+}
+
+BOOL dk2::CCreature::_belongsTo(__int16 a2_playerTagId) {
+    // creatureDying
+    if ((this->stateFlags & 0x200000) != 0)
+        return FALSE;
+
+    // inHand
+    if ((this->stateFlags & 1) != 0)
+        return FALSE;
+
+    if (this->countDownStartTick)
+        return FALSE;
+
+    // !CanBePickedUp
+    if ((this->creatureData->flags & 2) == 0)
+        return FALSE;
+
+    MyMapElement *v4_mapElem = g_pWorld->getMapElem_2(&this->f16_pos);
+
+    // 76: 2599"idle"  ||  193: 2788"joining your Dungeon."
+    if (this->cstate.currentStateId == 76 || this->cstate.currentStateId == 193)
+        return FALSE;
+
+    if (a2_playerTagId != this->f24_playerId) {
+        // isTool
+        if ((this->stateFlags2 & 0x100) != 0)
+            return TRUE;
+
+        if (this->sneakingAs && this->sneakingAs == a2_playerTagId)
+            return TRUE;
+
+        // creatureDying
+        if ((this->stateFlags & 0x200000) != 0)
+            return FALSE;
+
+        if(this->prisonOwner && this->prisonOwner == a2_playerTagId)
+            return TRUE;
+
+        return FALSE;
+    }
+
+    // combatPitFighter
+    if ((this->stateFlags & 0x8000) != 0) {
+        int tilePlayerOwnerId = v4_mapElem->_playerIdFFF & 0xFFF;
+        if(tilePlayerOwnerId == this->f24_playerId)
+            return TRUE;
+        return FALSE;
+    }
+
+    // 51: 2623"teleporting"  52: 2623"teleporting"
+    if (this->cstate.currentStateId == 51 || this->cstate.currentStateId == 52)
+        return FALSE;
+
+    if (this->turncoatTimer)
+        return FALSE;
+
+    // IsWorker && !WILL_BE_ATTACKED && !WILL_FIGHT
+    if ((this->creatureData->flags & 1) != 0 && (this->flags & 9) == 0)
+        return FALSE;
+
+    if (this->roomId) {
+        CRoom *pRoom = (dk2::CRoom *) sceneObjects[this->roomId];
+        if(pRoom->playerId == this->f24_playerId)
+            return TRUE;
+        return FALSE;
+    }
+    return TRUE;
 }
