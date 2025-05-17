@@ -3,6 +3,7 @@
 //
 #include "dk2/CGameComponent.h"
 
+#include <patches/limit_tps.h>
 #include <tools/flame_config.h>
 
 #include "dk2/gui/CWindow.h"
@@ -15,6 +16,8 @@
 #include "dk2/text/render/MyTextRenderer.h"
 #include "dk2_globals.h"
 #include "dk2_functions.h"
+#include "entities/CCreatureExtended.h"
+#include "math/int_float.h"
 #include "patches/micro_patches.h"
 #include "patches/replace_mouse_dinput_to_user32.h"
 #include "patches/protocol_dump.h"
@@ -132,9 +135,9 @@ dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
     if ( !CWorld_instance.sub_511280() )
         this->exit_flag = 1;
     v2_comm_i->sub_521B80();
-    this->drawCount = 0;
+    this->fpsCalc_drawCount = 0;
     this->fps.value = 0;
-    this->lastTimeMs = getTimeMs();
+    this->fpsCalc_lastTimeMs = getTimeMs();
     if (MyResources_instance.gameCfg.useFe3d) {
         static_CFrontEndComponent_sub_536F90(0);
         CFrontEndComponent_instance.fun_536E20(1, 0);
@@ -160,7 +163,6 @@ dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
         // hook::TICK_GAME_LOOP
         if (flame_config::changed()) flame_config::save();
         patch::protocol_dump::tick();
-        if(patch::control_windowed_mode::enabled) patch::limit_fps::call();
         patch::replace_mouse_dinput_to_user32::release_handled_dinput_actions();
         if ( !MyGame_instance.isNeedBlt() ) {
             MyCollectDxAction_Action dxAct;
@@ -211,17 +213,23 @@ dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
             MyGame_instance.prepareScreen();
             if ( MyResources_instance.video_settings.selected_3D_engine != 4 ) MyGame_instance.surf_Blt();
         }
-        ++this->drawCount;
-        DWORD deltaTime = getTimeMs() - this->lastTimeMs;
-        if (deltaTime > 1000 ) {
+        ++this->fpsCalc_drawCount;
+        patch::limit_tps::call();
+        // calc fps
+        DWORD deltaTimeMs = getTimeMs() - this->fpsCalc_lastTimeMs;
+        if (deltaTimeMs > 1000 ) {
             // inf as float with 12 bit precision math
-            // fps = (1000 * this->drawCount) / deltaTime
-            int v35 = deltaTime << 12;
-            IntFloat12 num = { (1000 * this->drawCount) << 12 };
-            uint32_t out;
-            this->fps.value = *num.shl12_div(&out, &v35);
-            this->lastTimeMs = getTimeMs();
-            this->drawCount = 0;
+            // fps = (1000 * drawCount) / deltaTime
+            IntFloat12 deltaTimeMsFl = dk2ex::IFl12_from(deltaTimeMs);
+            // tryLevel = 2
+            IntFloat12 num = dk2ex::IFl12_from(1000 * this->fpsCalc_drawCount);
+            IntFloat12 buf;
+            IntFloat12 *fpsResult = num.div(&buf, &deltaTimeMsFl);
+            // tryLevel = -1
+            this->fps = *fpsResult;
+            this->fpsCalc_lastTimeMs = getTimeMs();
+            this->fpsCalc_drawCount = 0;
+            // printf("tps: %.2f\n", dk2ex::toFloat(this->fps));
         }
     }
     // hook::AFTER_GAME_LOOP

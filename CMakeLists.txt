@@ -76,7 +76,7 @@ define_property(
         FULL_DOCS "...")
 
 if(USE_CONFIGURE_DATE)
-  string(TIMESTAMP CONFIGURE_DATE "%y%m%d.2")
+  string(TIMESTAMP CONFIGURE_DATE "%y%m%d")
 endif ()
 
 include(resources/CMakeLists.txt)

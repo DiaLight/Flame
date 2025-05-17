@@ -47,6 +47,13 @@ struct: id=parse_005211A4,name=ActionPointSaveData,size=60
     type: kind=int,size=1,signed=True,winapi=char
   field: name=f3B_nextWaypointId
     type: kind=int,size=1,signed=True,winapi=char
+struct: id=fill_0057D81B,name=AnimUnk3C,size=8
+  field: name=f0_SprsAnimIdx
+    type: kind=int,size=2
+  field: name=f2_VertExIdx
+    type: kind=int,size=2
+  field: name=f4_gid
+    type: kind=int,size=4,signed=True
 struct: id=construct_0057DEF4,name=AnimVertEx,size=18
   field: name=f0_x
     type: kind=float,size=4
@@ -274,7 +281,7 @@ struct: id=vtbl_0066D7BC,path=dk2/entities,name=CActionPoint,size=64,vtable=inst
   vtable_value: va=004B5C20
   vtable_value: va=004B5C20
 struct: id=instance_0066D7BC,path=dk2/entities,name=CActionPoint_vtbl,size=84,super=instance_0066D464
-struct: id=vtbl_0066FBBC,name=CAnimMeshResource,size=88,vtable=instance_0066FBBC,super=vtbl_0066FBCC
+struct: id=vtbl_0066FBBC,path=dk2/engine/primitive/resource,name=CAnimMeshResource,size=88,vtable=instance_0066FBBC,super=vtbl_0066FBCC
   field: name=f8_frameCount
     type: kind=int,size=4,signed=True
   field: name=fC_cubeScale
@@ -302,9 +309,9 @@ struct: id=vtbl_0066FBBC,name=CAnimMeshResource,size=88,vtable=instance_0066FBBC
   field: name=f38_itab_base
     type: kind=ptr
       type: kind=int,size=1,signed=True,winapi=char
-  field: name=f3C_unk_base
+  field: name=f3C_AnimIds
     type: kind=ptr
-      type: kind=int,size=1,signed=True,winapi=char
+      type: kind=struct,id=fill_0057D81B
   field: name=f40_numCTRL
     type: kind=int,size=4,signed=True
   field: name=f44_lodCount
@@ -320,7 +327,7 @@ struct: id=vtbl_0066FBBC,name=CAnimMeshResource,size=88,vtable=instance_0066FBBC
   vtable_value: va=0057E590
   vtable_value: va=00628BC0
   vtable_value: va=0057E7B0
-struct: id=instance_0066FBBC,name=CAnimMeshResource_vtbl,size=12,super=instance_0066FBCC
+struct: id=instance_0066FBBC,path=dk2/engine/primitive/resource,name=CAnimMeshResource_vtbl,size=12,super=instance_0066FBCC
 struct: id=vtbl_0066CC94,name=CBridge,size=9855,vtable=instance_0066CC94,super=vtbl_0066CF7C
   field: name=field_72
     type: kind=int,size=4
@@ -483,8 +490,12 @@ struct: id=vtbl_0066CC94,name=CBridge,size=9855,vtable=instance_0066CC94,super=v
   field: name=field_2659
     type: kind=int,size=4,signed=True
   field: name=f265d_gap
-    type: kind=array,count=11
+    type: kind=array,count=3
       type: kind=int,size=1
+  field: name=field_2660
+    type: kind=int,size=4,signed=True
+  field: name=field_2664
+    type: kind=int,size=4,signed=True
   field: name=f2668_resourcePath
     type: kind=array,count=22
       type: kind=int,size=1,signed=True,winapi=char
@@ -753,12 +764,12 @@ struct: id=instance_0066CF7C,name=CBridgeInterface_vtbl,size=320,super=instance_
         arg: kind=int,size=4,signed=True
         arg: kind=ptr
           type: kind=int,size=4
-  field: name=f134
+  field: name=f134_createMeshes
     type: kind=ptr
       type: kind=function,declspec=thiscall
         ret: kind=int,size=4,signed=True
         arg: kind=ptr
-          type: kind=int,size=4
+          type: kind=void
         arg: kind=int,size=4
         arg: kind=int,size=4
         arg: kind=int,size=4,signed=True
@@ -804,14 +815,10 @@ struct: id=vtbl_0066D0C4,name=CBridgeThing,size=257,vtable=instance_0066D0C4
     type: kind=int,size=2,signed=True
   field: name=f26_renderInfo
     type: kind=struct,id=vtbl_0066D454
-  field: name=field_D2
-    type: kind=int,size=4,signed=True
-  field: name=field_D6
-    type: kind=int,size=4,signed=True
-  field: name=field_DA
-    type: kind=int,size=4,signed=True
+  field: name=fD2_pos
+    type: kind=struct,id=vec_xyz
   field: name=fDE_angle
-    type: kind=int,size=2,signed=True
+    type: kind=int,size=2
   field: name=field_E0
     type: kind=int,size=4,signed=True
   field: name=field_E4
@@ -2394,50 +2401,8 @@ struct: id=vtbl_0066C4A4,name=CDefaultPlayerInterface,size=20273,vtable=instance
     type: kind=int,size=4
   field: name=f4B2F_obj507420
     type: kind=struct,id=constructor_00507420
-  field: name=field_4C6E
-    type: kind=int,size=4
-  field: name=gap_4C72
-    type: kind=array,count=8
-      type: kind=int,size=1
-  field: name=field_4C7A
-    type: kind=int,size=4
-  field: name=gap_4C7E
-    type: kind=array,count=8
-      type: kind=int,size=1
-  field: name=field_4C86
-    type: kind=int,size=4,signed=True
-  field: name=field_4C8A
-    type: kind=int,size=4,signed=True
-  field: name=field_4C8E
-    type: kind=int,size=4,signed=True
-  field: name=field_4C92
-    type: kind=int,size=4,signed=True
-  field: name=field_4C96
-    type: kind=int,size=4,signed=True
-  field: name=field_4C9A
-    type: kind=int,size=4,signed=True
-  field: name=f4C9E_worldEntry
-    type: kind=struct,id=constructor_00504D60
-  field: name=field_4CB9
-    type: kind=int,size=4,signed=True
-  field: name=field_4CBD
-    type: kind=int,size=4,signed=True
-  field: name=field_4CC1
-    type: kind=int,size=4,signed=True
-  field: name=field_4CC5
-    type: kind=int,size=4,signed=True
-  field: name=field_4CC9
-    type: kind=int,size=4,signed=True
-  field: name=field_4CCD
-    type: kind=int,size=4,signed=True
-  field: name=field_4CD1
-    type: kind=int,size=4,signed=True
-  field: name=field_4CD5
-    type: kind=int,size=4,signed=True
-  field: name=field_4CD9
-    type: kind=int,size=1,signed=True,winapi=char
-  field: name=field_4CDA
-    type: kind=int,size=4,signed=True
+  field: name=f4C6E_Obj402AF0_4C6E
+    type: kind=struct,id=constructor_00402AF0
   field: name=field_4CDE
     type: kind=int,size=4
   field: name=field_4CE2
@@ -2453,21 +2418,24 @@ struct: id=vtbl_0066C4A4,name=CDefaultPlayerInterface,size=20273,vtable=instance
       type: kind=int,size=1
   field: name=field_4D01
     type: kind=int,size=4
-  field: name=field_4D05
-    type: kind=int,size=4
-  field: name=gap_4D09
-    type: kind=array,count=116
-      type: kind=int,size=1
-  field: name=field_4D7D
-    type: kind=int,size=4
-  field: name=gap_4D81
-    type: kind=array,count=116
-      type: kind=int,size=1
-  field: name=field_4DF5
-    type: kind=int,size=4
-  field: name=gap_4DF9
-    type: kind=array,count=116
-      type: kind=int,size=1
+  field: name=f4D05_Obj402AF0_4D05
+    type: kind=struct,id=constructor_00402AF0
+  field: name=f4D75_Obj402AF0_4D05_loaded
+    type: kind=int,size=4,signed=True
+  field: name=field_4D79
+    type: kind=int,size=4,signed=True
+  field: name=f4D7D_Obj402AF0_4D7D
+    type: kind=struct,id=constructor_00402AF0
+  field: name=f4DED_Obj402AF0_4D7D_loaded
+    type: kind=int,size=4,signed=True
+  field: name=field_4DF1
+    type: kind=int,size=4,signed=True
+  field: name=f4DF5_Obj402AF0_4DF5
+    type: kind=struct,id=constructor_00402AF0
+  field: name=f4E65_Obj402AF0_4DF5_loaded
+    type: kind=int,size=4,signed=True
+  field: name=field_4E69
+    type: kind=int,size=4,signed=True
   field: name=field_4E6D
     type: kind=int,size=4
   field: name=gap_4E71
@@ -2823,29 +2791,21 @@ struct: id=vtbl_0066CBDC,name=CEffectElement,size=287,vtable=instance_0066CBDC,s
 struct: id=instance_0066CBDC,name=CEffectElement_vtbl,size=20,super=instance_0066D0C4
 struct: id=instance_0066CBB4,name=CEffect_vtbl,size=20,super=instance_0066D0C4
 struct: id=vtbl_0066FAD4,path=dk2/engine/primitive/2d,name=CEngine2DAnimMesh,size=88,vtable=instance_0066FAD4,super=vtbl_0066FB14
-  field: name=field_4
-    type: kind=int,size=4,signed=True
-  field: name=field_8
-    type: kind=int,size=4,signed=True
-  field: name=field_C
-    type: kind=int,size=4,signed=True
+  field: name=f4_pos
+    type: kind=struct,id=vecf_xyz
   field: name=field_10
     type: kind=array,count=36
       type: kind=int,size=1
   field: name=field_34
     type: kind=int,size=4,signed=True
   field: name=field_38
-    type: kind=int,size=4,signed=True
+    type: kind=float,size=4
   field: name=field_3C
     type: kind=float,size=4
   field: name=field_40
-    type: kind=int,size=4,signed=True
+    type: kind=float,size=4
   field: name=field_44
-    type: kind=float,size=4
-  field: name=field_48
-    type: kind=float,size=4
-  field: name=field_4C
-    type: kind=float,size=4
+    type: kind=struct,id=vecf_xyz
   field: name=f50_resource
     type: kind=ptr
       type: kind=struct,id=call_new_0057EF64
@@ -2855,21 +2815,24 @@ struct: id=vtbl_0066FAD4,path=dk2/engine/primitive/2d,name=CEngine2DAnimMesh,siz
   vtable_value: va=00583680
   vtable_value: va=005783A0
 struct: id=instance_0066FAD4,path=dk2/engine/primitive/2d,name=CEngine2DAnimMesh_vtbl,size=20,super=instance_0066FB14
-  field: name=CEngine2DAnimMesh::fun_5783D0
+  field: name=f8_getVecByIdx
     type: kind=ptr
       type: kind=function,declspec=thiscall
-        ret: kind=int,size=4,signed=True
+        ret: kind=ptr
+          type: kind=struct,id=vecf_xyz
+        arg: kind=ptr
+          type: kind=void
+        arg: kind=ptr
+          type: kind=struct,id=vecf_xyz
         arg: kind=int,size=4,signed=True
-        arg: kind=int,size=4,signed=True
-        arg: kind=float,size=4
-  field: name=CEngine2DAnimMesh::fun_583680
+  field: name=fC_getVecCount
     type: kind=ptr
       type: kind=function,declspec=thiscall
         ret: kind=int,size=4,signed=True
         arg: kind=ptr
           type: kind=ptr
             type: kind=int,size=4,signed=True
-  field: name=CEngine2DAnimMesh::fun_5783A0
+  field: name=f10_getGid
     type: kind=ptr
       type: kind=function,declspec=thiscall
         ret: kind=int,size=4,signed=True
@@ -2985,23 +2948,23 @@ struct: id=vtbl_0066FABC,path=dk2/engine/primitive/2d,name=CEngine2DStaticMesh,s
   vtable_value: va=00577D70
   vtable_value: va=00577D90
 struct: id=instance_0066FABC,path=dk2/engine/primitive/2d,name=CEngine2DStaticMesh_vtbl,size=20,super=instance_0066FB14
-  field: name=CEngine2DStaticMesh::fun_577DC0
+  field: name=f8_getVecByIdx
     type: kind=ptr
       type: kind=function,declspec=thiscall
         ret: kind=ptr
-          type: kind=float,size=4
-        arg: kind=int,size=4,signed=True
+          type: kind=struct,id=vecf_xyz
         arg: kind=ptr
-          type: kind=float,size=4
+          type: kind=void
+        arg: kind=ptr
+          type: kind=struct,id=vecf_xyz
         arg: kind=int,size=4,signed=True
-  field: name=CEngine2DStaticMesh::fun_577D70
+  field: name=fC_getVecCount
     type: kind=ptr
       type: kind=function,declspec=thiscall
         ret: kind=int,size=4,signed=True
         arg: kind=ptr
-          type: kind=ptr
-            type: kind=int,size=4,signed=True
-  field: name=CEngine2DStaticMesh::fun_577D90
+          type: kind=void
+  field: name=f10_getGid
     type: kind=ptr
       type: kind=function,declspec=thiscall
         ret: kind=int,size=4,signed=True
@@ -3015,7 +2978,9 @@ struct: id=vtbl_0066FD64,path=dk2/engine/primitive/2d/world,name=CEngineAnimMesh
   field: name=f10_matrix
     type: kind=struct,id=constructor_0042F480
   field: name=field_34
-    type: kind=float,size=8
+    type: kind=float,size=4
+  field: name=field_38
+    type: kind=int,size=4,signed=True
   field: name=field_3C
     type: kind=struct,id=vecf_xyz
   field: name=f48_flags
@@ -3023,8 +2988,9 @@ struct: id=vtbl_0066FD64,path=dk2/engine/primitive/2d/world,name=CEngineAnimMesh
   field: name=f4C_thing
     type: kind=ptr
       type: kind=struct,id=vtbl_0066D4BC
-  field: name=field_50
-    type: kind=int,size=4
+  field: name=f50_pMeshHolder
+    type: kind=ptr
+      type: kind=struct,id=call_new_0057EF64
   field: name=field_54
     type: kind=float,size=4
   field: name=field_58
@@ -3032,7 +2998,9 @@ struct: id=vtbl_0066FD64,path=dk2/engine/primitive/2d/world,name=CEngineAnimMesh
   field: name=field_5C
     type: kind=float,size=4
   field: name=field_60
-    type: kind=float,size=8
+    type: kind=float,size=4
+  field: name=field_64
+    type: kind=int,size=4,signed=True
   field: name=field_68
     type: kind=int,size=4,signed=True
   field: name=field_6C
@@ -3158,7 +3126,7 @@ struct: id=vtbl_0066FD1C,path=dk2/engine/primitive/2d/world,name=CEngineDynamicM
     type: kind=struct,id=vecf_xyz
   field: name=f10_mat
     type: kind=struct,id=constructor_0042F480
-  field: name=f34_pobj
+  field: name=f34_pMyMeshResourceHolder
     type: kind=ptr
       type: kind=struct,id=call_new_0057EF64
   field: name=f38_vec
@@ -3798,26 +3766,27 @@ struct: id=instance_0066D1D4,name=CEngineInterface_vtbl,size=272
         arg: kind=int,size=4,signed=True
         arg: kind=int,size=4,signed=True
         arg: kind=int,size=4,signed=True
-  field: name=fE8
+  field: name=fE8_createMesh_light
     type: kind=ptr
       type: kind=function,declspec=thiscall
         ret: kind=int,size=4,signed=True
         arg: kind=ptr
-          type: kind=int,size=4
+          type: kind=void
         arg: kind=int,size=4,signed=True
         arg: kind=int,size=4,signed=True
+        arg: kind=ptr
+          type: kind=struct,id=vtbl_0066D0C4
         arg: kind=int,size=4,signed=True
-        arg: kind=int,size=4,signed=True
-  field: name=fEC
+  field: name=fEC_createMesh_v
     type: kind=ptr
       type: kind=function,declspec=thiscall
         ret: kind=int,size=4,signed=True
         arg: kind=ptr
-          type: kind=int,size=4
+          type: kind=void
         arg: kind=int,size=4,signed=True
         arg: kind=int,size=4,signed=True
         arg: kind=ptr
-          type: kind=int,size=4,signed=True
+          type: kind=struct,id=vtbl_0066D464
   field: name=fF0
     type: kind=ptr
       type: kind=function,declspec=thiscall
@@ -3917,7 +3886,7 @@ struct: id=instance_0066D1D4,name=CEngineInterface_vtbl,size=272
         arg: kind=ptr
           type: kind=int,size=4
         arg: kind=int,size=4,signed=True
-  field: name=f10C
+  field: name=f10C_createMesh2_v
     type: kind=ptr
       type: kind=function,declspec=thiscall
         ret: kind=int,size=4,signed=True
@@ -4000,19 +3969,23 @@ struct: id=instance_0066FCF4,path=dk2/engine/primitive/2d,name=CEngineQuadPlane_
         arg: kind=ptr
           type: kind=int,size=4
         arg: kind=int,size=4,signed=True
-  field: name=CEngineWorldPrimitive::fun_5785E0
+  field: name=f10_getVecByIdx
     type: kind=ptr
-      type: kind=function,declspec=stdcall
+      type: kind=function,declspec=thiscall
         ret: kind=ptr
-          type: kind=int,size=4
+          type: kind=struct,id=vecf_xyz
         arg: kind=ptr
-          type: kind=int,size=4
+          type: kind=void
+        arg: kind=ptr
+          type: kind=struct,id=vecf_xyz
         arg: kind=int,size=4,signed=True
-  field: name=ret_0_0args
+  field: name=f14_getVecCount
     type: kind=ptr
-      type: kind=function,declspec=stdcall
+      type: kind=function,declspec=thiscall
         ret: kind=int,size=4,signed=True
-  field: name=ret_0_1args
+        arg: kind=ptr
+          type: kind=void
+  field: name=f18_getGid
     type: kind=ptr
       type: kind=function,declspec=stdcall
         ret: kind=int,size=4,signed=True
@@ -4034,20 +4007,12 @@ struct: id=vtbl_0066FCCC,path=dk2/engine/primitive/2d,name=CEngineSprite,size=84
   field: name=field_14
     type: kind=int,size=4,signed=True
   field: name=f1C_fl
-    type: kind=float,size=4
-  field: name=f20_fl
-    type: kind=float,size=4
-  field: name=f24_fl
-    type: kind=float,size=4
+    type: kind=struct,id=vecf_xyz
   field: name=gap_28
     type: kind=array,count=12
       type: kind=int,size=1
   field: name=f34_fl
-    type: kind=float,size=4
-  field: name=f38_fl
-    type: kind=float,size=4
-  field: name=f3C_fl
-    type: kind=float,size=4
+    type: kind=struct,id=vecf_xyz
   field: name=field_3C
     type: kind=int,size=4
   field: name=field_40
@@ -4083,19 +4048,23 @@ struct: id=instance_0066FCCC,path=dk2/engine/primitive/2d,name=CEngineSprite_vtb
         arg: kind=ptr
           type: kind=int,size=4
         arg: kind=int,size=4,signed=True
-  field: name=CEngineVirtualPerspective2DAnimMesh::fun_5785E0
+  field: name=f10_getVecByIdx
     type: kind=ptr
-      type: kind=function,declspec=stdcall
+      type: kind=function,declspec=thiscall
         ret: kind=ptr
-          type: kind=int,size=4
+          type: kind=struct,id=vecf_xyz
         arg: kind=ptr
-          type: kind=int,size=4
+          type: kind=void
+        arg: kind=ptr
+          type: kind=struct,id=vecf_xyz
         arg: kind=int,size=4,signed=True
-  field: name=ret_0_0args
+  field: name=f14_getVecCount
     type: kind=ptr
-      type: kind=function,declspec=stdcall
+      type: kind=function,declspec=thiscall
         ret: kind=int,size=4,signed=True
-  field: name=ret_0_1args
+        arg: kind=ptr
+          type: kind=void
+  field: name=f18_getGid
     type: kind=ptr
       type: kind=function,declspec=stdcall
         ret: kind=int,size=4,signed=True
@@ -4111,7 +4080,7 @@ struct: id=vtbl_0066FDB4,path=dk2/engine/primitive,name=CEngineStaticHeightField
   field: name=gap_C
     type: kind=array,count=4
       type: kind=int,size=1
-  field: name=f10_buf
+  field: name=f10_pObj57AD20
     type: kind=ptr
       type: kind=struct,id=constructor_0057AD20
   field: name=field_10
@@ -4147,19 +4116,23 @@ struct: id=instance_0066FDB4,path=dk2/engine/primitive,name=CEngineStaticHeightF
         arg: kind=ptr
           type: kind=int,size=4
         arg: kind=int,size=4,signed=True
-  field: name=CEngineWorldPrimitive::fun_5785E0
+  field: name=f10_getVecByIdx
     type: kind=ptr
-      type: kind=function,declspec=stdcall
+      type: kind=function,declspec=thiscall
         ret: kind=ptr
-          type: kind=int,size=4
+          type: kind=struct,id=vecf_xyz
         arg: kind=ptr
-          type: kind=int,size=4
+          type: kind=void
+        arg: kind=ptr
+          type: kind=struct,id=vecf_xyz
         arg: kind=int,size=4,signed=True
-  field: name=ret_0_0args
+  field: name=f14_getVecCount
     type: kind=ptr
-      type: kind=function,declspec=stdcall
+      type: kind=function,declspec=thiscall
         ret: kind=int,size=4,signed=True
-  field: name=ret_0_1args
+        arg: kind=ptr
+          type: kind=void
+  field: name=f18_getGid
     type: kind=ptr
       type: kind=function,declspec=stdcall
         ret: kind=int,size=4,signed=True
@@ -4170,7 +4143,7 @@ struct: id=instance_0066FDB4,path=dk2/engine/primitive,name=CEngineStaticHeightF
         ret: kind=int,size=4,signed=True
         arg: kind=int,size=4,signed=True
 struct: id=vtbl_0066FD8C,path=dk2/engine/primitive,name=CEngineStaticMesh,size=50,vtable=instance_0066FD8C,super=vtbl_0066FA9C
-  field: name=f8_v14
+  field: name=f8_pObj57AD20
     type: kind=ptr
       type: kind=struct,id=constructor_0057AD20
   field: name=gap_C
@@ -4282,27 +4255,33 @@ struct: id=instance_0066FD8C,path=dk2/engine/primitive,name=CEngineStaticMesh_vt
         arg: kind=ptr
           type: kind=int,size=4
         arg: kind=int,size=4,signed=True
-  field: name=CEngineWorldPrimitive::fun_5785E0
+  field: name=f10_getVecByIdx
     type: kind=ptr
-      type: kind=function,declspec=stdcall
+      type: kind=function,declspec=thiscall
         ret: kind=ptr
-          type: kind=int,size=4
+          type: kind=struct,id=vecf_xyz
         arg: kind=ptr
-          type: kind=int,size=4
+          type: kind=void
+        arg: kind=ptr
+          type: kind=struct,id=vecf_xyz
         arg: kind=int,size=4,signed=True
-  field: name=ret_0_0args
+  field: name=f14_getVecCount
     type: kind=ptr
-      type: kind=function,declspec=stdcall
+      type: kind=function,declspec=thiscall
         ret: kind=int,size=4,signed=True
-  field: name=ret_0_1args
+        arg: kind=ptr
+          type: kind=void
+  field: name=f18_getGid
     type: kind=ptr
       type: kind=function,declspec=stdcall
         ret: kind=int,size=4,signed=True
         arg: kind=int,size=4,signed=True
   field: name=CEngineStaticMesh::fun_586130
     type: kind=ptr
-      type: kind=function,declspec=stdcall
-        ret: kind=int,size=4,signed=True
+      type: kind=function,declspec=thiscall
+        ret: kind=void
+        arg: kind=ptr
+          type: kind=struct,id=vtbl_0066FD8C
         arg: kind=int,size=4,signed=True
 struct: id=vtbl_0067034C,name=CEngineSurface,size=24,vtable=instance_0067034C,super=vtbl_00670374
   field: name=f14_pixels
@@ -4483,19 +4462,23 @@ struct: id=instance_0066FE04,path=dk2/engine/primitive,name=CEngineUnlitProcedur
         arg: kind=ptr
           type: kind=int,size=4
         arg: kind=int,size=4,signed=True
-  field: name=CEngineWorldPrimitive::fun_5785E0
+  field: name=f10_getVecByIdx
     type: kind=ptr
-      type: kind=function,declspec=stdcall
+      type: kind=function,declspec=thiscall
         ret: kind=ptr
-          type: kind=int,size=4
+          type: kind=struct,id=vecf_xyz
         arg: kind=ptr
-          type: kind=int,size=4
+          type: kind=void
+        arg: kind=ptr
+          type: kind=struct,id=vecf_xyz
         arg: kind=int,size=4,signed=True
-  field: name=ret_0_0args
+  field: name=f14_getVecCount
     type: kind=ptr
-      type: kind=function,declspec=stdcall
+      type: kind=function,declspec=thiscall
         ret: kind=int,size=4,signed=True
-  field: name=ret_0_1args
+        arg: kind=ptr
+          type: kind=void
+  field: name=f18_getGid
     type: kind=ptr
       type: kind=function,declspec=stdcall
         ret: kind=int,size=4,signed=True
@@ -4539,19 +4522,23 @@ struct: id=vtbl_0066FAEC,path=dk2/engine/primitive/2d,name=CEngineVirtualPerspec
   vtable_value: va=00402AD0
   vtable_value: va=00628E30
 struct: id=instance_0066FAEC,path=dk2/engine/primitive/2d,name=CEngineVirtualPerspective2DAnimMesh_vtbl,size=20,super=instance_0066FB14
-  field: name=CEngineWorldPrimitive::fun_5785E0
+  field: name=f8_getVecByIdx
     type: kind=ptr
-      type: kind=function,declspec=stdcall
+      type: kind=function,declspec=thiscall
         ret: kind=ptr
-          type: kind=int,size=4
+          type: kind=struct,id=vecf_xyz
         arg: kind=ptr
-          type: kind=int,size=4
+          type: kind=void
+        arg: kind=ptr
+          type: kind=struct,id=vecf_xyz
         arg: kind=int,size=4,signed=True
-  field: name=ret_0_0args
+  field: name=fC_getVecCount
     type: kind=ptr
-      type: kind=function,declspec=stdcall
+      type: kind=function,declspec=thiscall
         ret: kind=int,size=4,signed=True
-  field: name=ret_0_1args
+        arg: kind=ptr
+          type: kind=void
+  field: name=f10_getGid
     type: kind=ptr
       type: kind=function,declspec=stdcall
         ret: kind=int,size=4,signed=True
@@ -4565,7 +4552,7 @@ struct: id=vtbl_0066FD44,path=dk2/engine/primitive/2d/world,name=CEngineWorldPri
   vtable_value: va=00402AD0
   vtable_value: va=00628E30
 struct: id=instance_0066FD44,path=dk2/engine/primitive/2d/world,name=CEngineWorldPrimitive_vtbl,size=28,super=instance_0066FB14
-  field: name=appendToSceneObject2EList
+  field: name=f8_appendToSceneObject2EList
     type: kind=ptr
       type: kind=function,declspec=thiscall
         ret: kind=void
@@ -4583,28 +4570,28 @@ struct: id=instance_0066FD44,path=dk2/engine/primitive/2d/world,name=CEngineWorl
         arg: kind=ptr
           type: kind=int,size=4
         arg: kind=int,size=4,signed=True
-  field: name=CEngineWorldPrimitive::fun_5785E0
+  field: name=f10_getVecByIdx
     type: kind=ptr
-      type: kind=function,declspec=stdcall
+      type: kind=function,declspec=thiscall
         ret: kind=ptr
-          type: kind=int,size=4
+          type: kind=struct,id=vecf_xyz
         arg: kind=ptr
-          type: kind=int,size=4
+          type: kind=void
+        arg: kind=ptr
+          type: kind=struct,id=vecf_xyz
         arg: kind=int,size=4,signed=True
-  field: name=f14
+  field: name=f14_getVecCount
     type: kind=ptr
       type: kind=function,declspec=thiscall
         ret: kind=int,size=4,signed=True
         arg: kind=ptr
-          type: kind=ptr
-            type: kind=int,size=4,signed=True
-  field: name=f18
+          type: kind=void
+  field: name=f18_getGId
     type: kind=ptr
       type: kind=function,declspec=thiscall
         ret: kind=int,size=4,signed=True
         arg: kind=ptr
-          type: kind=ptr
-            type: kind=int,size=4,signed=True
+          type: kind=void
         arg: kind=int,size=4,signed=True
 struct: id=vtbl_0066C424,name=CEntryComponent,size=64,vtable=instance_0066C424,super=vtbl_0066C45C
   field: name=fC_static_listeners
@@ -5542,11 +5529,11 @@ struct: id=vtbl_0066EC4C,name=CGameComponent,size=734,vtable=instance_0066EC4C,s
     type: kind=int,size=4
   field: name=mt_profiler
     type: kind=struct,id=constructor_00526020
-  field: name=drawCount
+  field: name=f2BA_fpsCalc_drawCount
     type: kind=int,size=4
   field: name=f2BE_fps
     type: kind=struct,id=div_fun_00441990
-  field: name=lastTimeMs
+  field: name=f2C2_fpsCalc_lastTimeMs
     type: kind=int,size=4,fname=DWORD
   field: name=f2C6_wicked_sprite_bank
     type: kind=struct,id=vtbl_0066EC6C
@@ -5881,9 +5868,11 @@ struct: id=vtbl_0066CC14,name=CLight,size=326,vtable=instance_0066CC14,super=vtb
     type: kind=int,size=2,signed=True
   field: name=word_129
     type: kind=int,size=2,signed=True
-  field: name=gap_12B
-    type: kind=array,count=5
+  field: name=f12b_gap
+    type: kind=array,count=3
       type: kind=int,size=1
+  field: name=field_12E
+    type: kind=int,size=2,signed=True
   field: name=dword_130
     type: kind=int,size=4,signed=True
   field: name=dword_134
@@ -6045,7 +6034,7 @@ struct: id=vtbl_0066FB9C,name=CMemLoadIFFFile,size=1060,vtable=instance_0066FB9C
   vtable_value: va=00443150
   vtable_value: va=005671E0
 struct: id=instance_0066FB9C,name=CMemLoadIFFFile_vtbl,size=12,super=instance_0066FB24
-struct: id=vtbl_0066FBEC,name=CMeshGroup,size=16,vtable=instance_0066FBEC,super=vtbl_0066FBCC
+struct: id=vtbl_0066FBEC,path=dk2/engine/primitive/resource,name=CMeshGroup,size=16,vtable=instance_0066FBEC,super=vtbl_0066FBCC
   field: name=f8_elemCount
     type: kind=int,size=4,signed=True
   field: name=fC_elemArr
@@ -6054,14 +6043,14 @@ struct: id=vtbl_0066FBEC,name=CMeshGroup,size=16,vtable=instance_0066FBEC,super=
   vtable_value: va=0057EB70
   vtable_value: va=0057EB60
   vtable_value: va=0057EB90
-struct: id=instance_0066FBEC,name=CMeshGroup_vtbl,size=12,super=instance_0066FBCC
-struct: id=vtbl_0066FBCC,name=CMeshResourceBase,size=8,vtable=instance_0066FBCC
+struct: id=instance_0066FBEC,path=dk2/engine/primitive/resource,name=CMeshGroup_vtbl,size=12,super=instance_0066FBCC
+struct: id=vtbl_0066FBCC,path=dk2/engine/primitive/resource,name=CMeshResourceBase,size=8,vtable=instance_0066FBCC
   field: name=f0_unk_base
     type: kind=int,size=4,signed=True
   vtable_value: va=0057E570
   vtable_value: va=00634D60
   vtable_value: va=00634D60
-struct: id=instance_0066FBCC,name=CMeshResourceBase_vtbl,size=12
+struct: id=instance_0066FBCC,path=dk2/engine/primitive/resource,name=CMeshResourceBase_vtbl,size=12
   field: name=deleting_destructor
     type: kind=ptr
       type: kind=function,declspec=thiscall
@@ -6838,13 +6827,13 @@ struct: id=vtbl_0066D4BC,path=dk2/entities,name=CPhysicalThing,size=246,vtable=i
   vtable_value: va=004B5C50
   vtable_value: va=004B34F0
 struct: id=instance_0066D4BC,path=dk2/entities,name=CPhysicalThing_vtbl,size=96,super=instance_0066D464
-  field: name=f54
+  field: name=f54_getLastDirection
     type: kind=ptr
       type: kind=function,declspec=thiscall
         ret: kind=ptr
-          type: kind=int,size=1,signed=True,winapi=char
+          type: kind=int,size=2
         arg: kind=ptr
-          type: kind=int,size=1,signed=True,winapi=char
+          type: kind=struct,id=vtbl_0066D5BC
   field: name=f58
     type: kind=ptr
       type: kind=function,declspec=stdcall
@@ -7272,16 +7261,16 @@ struct: id=instance_0066CB4C,name=CPlayerInterface_vtbl,size=92
         arg: kind=int,size=4,signed=True
         arg: kind=int,size=4,signed=True
 struct: id=instance_0066D99C,path=dk2/entities,name=CPlayer_vtbl,size=8,super=instance_0066E3DC
-struct: id=vtbl_0066FBDC,name=CPolyMeshResource,size=58,vtable=instance_0066FBDC,super=vtbl_0066FBCC
+struct: id=vtbl_0066FBDC,path=dk2/engine/primitive/resource,name=CPolyMeshResource,size=58,vtable=instance_0066FBDC,super=vtbl_0066FBCC
   field: name=f8_ptr
     type: kind=ptr
       type: kind=struct,id=construct_0057E9B0
   field: name=fC_geom_base
     type: kind=ptr
       type: kind=struct,id=vecf_xyz
-  field: name=f10_ctrl_uk_base
+  field: name=f10_AnimIds
     type: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=fill_0057D81B
   field: name=f14_numCTRL
     type: kind=int,size=4,signed=True
   field: name=f18_sprsCount
@@ -7301,7 +7290,7 @@ struct: id=vtbl_0066FBDC,name=CPolyMeshResource,size=58,vtable=instance_0066FBDC
   vtable_value: va=0057E840
   vtable_value: va=00402AD0
   vtable_value: va=0057EAA0
-struct: id=instance_0066FBDC,name=CPolyMeshResource_vtbl,size=12,super=instance_0066FBCC
+struct: id=instance_0066FBDC,path=dk2/engine/primitive/resource,name=CPolyMeshResource_vtbl,size=12,super=instance_0066FBCC
 struct: id=vtbl_0066ED3C,path=dk2/button,name=CProgressBar,size=128,vtable=instance_0066ED3C,super=vtbl_0066ECA4
   vtable_value: va=0052CAA0
   vtable_value: va=0052B6A0
@@ -7341,10 +7330,12 @@ struct: id=vtbl_0066D454,name=CRenderInfo,size=176,vtable=instance_0066D454
     type: kind=int,size=2
   field: name=field_26
     type: kind=int,size=2,signed=True
-  field: name=field_28
-    type: kind=int,size=4,signed=True
+  field: name=f28_pWorldEntry
+    type: kind=ptr
+      type: kind=struct,id=constructor_00504D60
   field: name=field_2C
-    type: kind=int,size=4,signed=True
+    type: kind=ptr
+      type: kind=struct,id=constructor_00504D60
   field: name=field_30
     type: kind=int,size=4,signed=True
   field: name=field_34
@@ -7391,9 +7382,13 @@ struct: id=vtbl_0066D454,name=CRenderInfo,size=176,vtable=instance_0066D454
     type: kind=int,size=2,signed=True
   field: name=f5B__allowToDrop
     type: kind=int,size=4,signed=True
-  field: name=gap_5F
-    type: kind=array,count=20
+  field: name=f5f_gap
+    type: kind=array,count=12
       type: kind=int,size=1
+  field: name=field_6B
+    type: kind=int,size=4,signed=True
+  field: name=field_6F
+    type: kind=int,size=4,signed=True
   field: name=field_73
     type: kind=int,size=4,signed=True
   field: name=field_77
@@ -7842,7 +7837,7 @@ struct: id=instance_0066F7FC,name=CSoundSystem_vtbl,size=128
       type: kind=function,declspec=thiscall
         ret: kind=int,size=4,signed=True
         arg: kind=ptr
-          type: kind=int,size=4
+          type: kind=void
         arg: kind=int,size=4,signed=True
         arg: kind=int,size=4,signed=True
         arg: kind=int,size=4,signed=True
@@ -9396,7 +9391,7 @@ struct: id=constructor_00504D60,name=CWorldEntry,size=27
     type: kind=int,size=1,signed=True,winapi=char
   field: name=field_9
     type: kind=int,size=1,signed=True,winapi=char
-  field: name=field_A
+  field: name=fA_typeA
     type: kind=int,size=1,signed=True,winapi=char
   field: name=field_B
     type: kind=int,size=1,signed=True,winapi=char
@@ -11639,14 +11634,14 @@ struct: id=instance_0066E3EC,path=dk2,name=CWorld_vtbl,size=920
       type: kind=function,declspec=stdcall
         ret: kind=ptr
           type: kind=void
-  field: name=loc_509010
+  field: name=f204_drawShadow
     type: kind=ptr
       type: kind=function,declspec=thiscall
         ret: kind=int,size=4,signed=True
         arg: kind=ptr
           type: kind=struct,id=vtbl_0066E3EC
         arg: kind=ptr
-          type: kind=int,size=4,signed=True
+          type: kind=struct,id=vec_xyz
   field: name=sub_509200
     type: kind=ptr
       type: kind=function,declspec=thiscall
@@ -17602,7 +17597,7 @@ struct: id=call_new_0057EF64,name=MyMeshResourceHolder,size=24
       type: kind=struct,id=call_new_0057EF64
   field: name=fC_mapIdx
     type: kind=int,size=4
-  field: name=f10_isResLoaded
+  field: name=f10_isResLoaded_unused
     type: kind=int,size=4,signed=True
   field: name=f14__initWidth
     type: kind=int,size=4,signed=True
@@ -17616,8 +17611,9 @@ struct: id=init_00594FA0,name=MyMoodRender,size=300
   field: name=f8_world
     type: kind=ptr
       type: kind=struct,id=vtbl_0066E3EC
-  field: name=field_C
-    type: kind=int,size=4,signed=True
+  field: name=fC_pPlayerList
+    type: kind=ptr
+      type: kind=struct,id=construct_004C1EAD
   field: name=byte_10
     type: kind=int,size=1,signed=True,winapi=char
   field: name=byte_11
@@ -17638,7 +17634,7 @@ struct: id=init_00594FA0,name=MyMoodRender,size=300
     type: kind=int,size=4,signed=True
   field: name=f25_pos
     type: kind=struct,id=vec_xyz
-  field: name=f31_vec
+  field: name=f31_lastPos
     type: kind=struct,id=vec_xyz
   field: name=f3D_renderInfo
     type: kind=struct,id=vtbl_0066D454
@@ -20806,10 +20802,12 @@ struct: id=call_new_00571B3B,name=NewObj571B3B,size=204
       type: kind=struct,id=call_new_00571B3B
   field: name=field_28
     type: kind=int,size=4,signed=True
-  field: name=field_2C
-    type: kind=int,size=4,signed=True
-  field: name=field_30
-    type: kind=int,size=4,signed=True
+  field: name=f2C_pCEnginePrimitiveBase
+    type: kind=ptr
+      type: kind=struct,id=vtbl_0066FA9C
+  field: name=f30_pCEnginePrimitiveBase_last
+    type: kind=ptr
+      type: kind=struct,id=vtbl_0066FA9C
   field: name=field_34
     type: kind=int,size=4,signed=True
   field: name=field_38
@@ -20824,6 +20822,45 @@ struct: id=call_new_00571B3B,name=NewObj571B3B,size=204
   field: name=field_C4
     type: kind=int,size=4,signed=True
   field: name=field_C8
+    type: kind=int,size=4,signed=True
+struct: id=constructor_00402AF0,name=Obj402AF0,size=112
+  field: name=f0_vec1
+    type: kind=struct,id=vecf_xyz
+  field: name=fC_vec2
+    type: kind=struct,id=vecf_xyz
+  field: name=field_18
+    type: kind=float,size=4
+  field: name=field_1C
+    type: kind=float,size=4
+  field: name=field_20
+    type: kind=int,size=4,signed=True
+  field: name=field_24
+    type: kind=int,size=4,signed=True
+  field: name=field_28
+    type: kind=int,size=4,signed=True
+  field: name=field_2C
+    type: kind=int,size=4,signed=True
+  field: name=f4C9E_worldEntry
+    type: kind=struct,id=constructor_00504D60
+  field: name=field_4B
+    type: kind=int,size=4,signed=True
+  field: name=field_4F
+    type: kind=int,size=4,signed=True
+  field: name=f53_timeMs
+    type: kind=int,size=4,signed=True
+  field: name=field_57
+    type: kind=int,size=4,signed=True
+  field: name=field_5B
+    type: kind=int,size=4,signed=True
+  field: name=field_5F
+    type: kind=int,size=4,signed=True
+  field: name=field_63
+    type: kind=int,size=4,signed=True
+  field: name=field_67
+    type: kind=int,size=4,signed=True
+  field: name=field_6B
+    type: kind=int,size=1,signed=True,winapi=char
+  field: name=field_6C
     type: kind=int,size=4,signed=True
 struct: id=constructor_00507420,name=Obj507420,size=319
   field: name=dword_0
@@ -21075,14 +21112,14 @@ struct: id=constructor_0057AD20,name=Obj57AD20,size=48
   field: name=f0_sprsCount
     type: kind=int,size=4
   field: name=field_4
-    type: kind=int,size=4
+    type: kind=ptr
+      type: kind=void
   field: name=f8_vec
     type: kind=struct,id=vecf_xyz
   field: name=f14_vec
     type: kind=struct,id=vecf_xyz
   field: name=field_20
-    type: kind=ptr
-      type: kind=float,size=4
+    type: kind=float,size=4
   field: name=field_24
     type: kind=int,size=4,signed=True
   field: name=field_28
@@ -24063,12 +24100,12 @@ global: va=00402AE0,name=constructor,size=13,member_of=vec_xyz
       type: kind=struct,id=vec_xyz
     arg: kind=ptr
       type: kind=struct,id=vec_xyz
-global: va=00402AF0,name=sub_402AF0,size=87
+global: va=00402AF0,name=constructor,size=87,member_of=constructor_00402AF0
   type: kind=function,declspec=thiscall
     ret: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=constructor_00402AF0
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=constructor_00402AF0
 global: va=00402B50,name=fun_402B50,size=13,member_of=vtbl_0066C4A4
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
@@ -24653,18 +24690,20 @@ global: va=0040CFD0,name=unknown_libname_3,size=11
     arg: kind=ptr
       type: kind=int,size=4
     arg: kind=int,size=4,signed=True
-global: va=0040CFE0,name=sub_40CFE0,size=813
+global: va=0040CFE0,name=sub_40CFE0,size=813,member_of=vtbl_0066C4A4
   type: kind=function,declspec=thiscall
     ret: kind=void
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066C4A4
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=int,size=4
-global: va=0040D310,name=sub_40D310,size=297
+global: va=0040D310,name=sub_40D310,size=297,member_of=vtbl_0066C4A4
   type: kind=function,declspec=thiscall
     ret: kind=void
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066C4A4
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -24672,44 +24711,46 @@ global: va=0040D310,name=sub_40D310,size=297
 global: va=0040D440,name=ret_void_0args,size=1
   type: kind=function,declspec=cdecl
     ret: kind=void
-global: va=0040D450,name=sub_40D450,size=474
+global: va=0040D450,name=sub_40D450,size=474,member_of=vtbl_0066C4A4
   type: kind=function,declspec=thiscall
     ret: kind=void
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vtbl_0066C4A4
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vtbl_0066D464
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=0040D630,name=sub_40D630,size=7
+global: va=0040D630,name=sub_40D630,size=7,member_of=vtbl_0066D524
   type: kind=function,declspec=thiscall
-    ret: kind=int,size=4,signed=True
+    ret: kind=ptr
+      type: kind=struct,id=constructor_00491DC0
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vtbl_0066D524
 global: va=0040D640,name=ret_this_0args,size=3
   type: kind=function,declspec=thiscall
     ret: kind=ptr
       type: kind=void
     arg: kind=ptr
       type: kind=void
-global: va=0040D650,name=sub_40D650,size=7
+global: va=0040D650,name=sub_40D650,size=7,member_of=constructor_00491DC0
   type: kind=function,declspec=thiscall
     ret: kind=ptr
-      type: kind=int,size=1,signed=True,winapi=char
+      type: kind=struct,id=constructor_00504D60
     arg: kind=ptr
-      type: kind=int,size=1,signed=True,winapi=char
+      type: kind=struct,id=constructor_00491DC0
 global: va=0040D660,name=sub_40D660,size=7,member_of=vtbl_0066D654
   type: kind=function,declspec=thiscall
     ret: kind=ptr
       type: kind=struct,id=constructor_0049DC80
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D654
-global: va=0040D670,name=sub_40D670,size=629
+global: va=0040D670,name=sub_40D670,size=629,member_of=vtbl_0066C4A4
   type: kind=function,declspec=thiscall
     ret: kind=ptr
       type: kind=struct,id=vtbl_0066E3DC
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066C4A4
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
 global: va=0040D8F0,name=checkAllowToDrop,size=443,member_of=vtbl_0066C4A4
@@ -25141,10 +25182,11 @@ global: va=004152B0,name=CWorldEntry_createArr10,size=920
       type: kind=ptr
         type: kind=struct,id=constructor_00504D60
     arg: kind=int,size=4,signed=True
-global: va=00415650,name=sub_415650,size=553
+global: va=00415650,name=sub_415650,size=553,member_of=vtbl_0066C4A4
   type: kind=function,declspec=thiscall
     ret: kind=void
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066C4A4
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
@@ -25509,14 +25551,14 @@ global: va=0041C460,name=sub_41C460,size=23
       type: kind=int,size=4
     arg: kind=ptr
       type: kind=int,size=4
-global: va=0041C480,name=sub_41C480,size=53
+global: va=0041C480,name=mulV,size=53,member_of=vecf_xyz
   type: kind=function,declspec=thiscall
     ret: kind=ptr
-      type: kind=float,size=4
+      type: kind=struct,id=vecf_xyz
     arg: kind=ptr
-      type: kind=float,size=4
+      type: kind=struct,id=vecf_xyz
     arg: kind=ptr
-      type: kind=float,size=4
+      type: kind=struct,id=vecf_xyz
     arg: kind=float,size=4
 global: va=0041C4C0,name=substractAssign,size=53,member_of=vecf_xyz
   type: kind=function,declspec=thiscall
@@ -26066,13 +26108,14 @@ global: va=00426CC0,name=sub_426CC0,size=191,member_of=vtbl_0066C4A4
     arg: kind=ptr
       type: kind=int,size=4
     arg: kind=int,size=4,signed=True
-global: va=00426D80,name=sub_426D80,size=191
+global: va=00426D80,name=sub_426D80,size=191,member_of=vtbl_0066C4A4
   type: kind=function,declspec=thiscall
     ret: kind=ptr
-      type: kind=int,size=4
-    arg: kind=int,size=4,signed=True
+      type: kind=struct,id=size_wh
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vtbl_0066C4A4
+    arg: kind=ptr
+      type: kind=struct,id=size_wh
     arg: kind=int,size=4,signed=True
 global: va=00426E40,name=sub_426E40,size=163,member_of=vtbl_0066C4A4
   type: kind=function,declspec=thiscall
@@ -26608,22 +26651,22 @@ global: va=0042BC70,name=sub_42BC70,size=394,member_of=vtbl_0066C4A4
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066C4A4
     arg: kind=int,size=4
-global: va=0042BE00,name=sub_42BE00,size=23
+global: va=0042BE00,name=constructor_0,size=23,member_of=vecf_xyz
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-global: va=0042BE20,name=sub_42BE20,size=24
+      type: kind=struct,id=vecf_xyz
+    arg: kind=float,size=4
+    arg: kind=float,size=4
+    arg: kind=float,size=4
+global: va=0042BE20,name=sub_42BE20,size=24,member_of=constructor_00402AF0
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+      type: kind=struct,id=constructor_00402AF0
+    arg: kind=float,size=4
+    arg: kind=float,size=4
+    arg: kind=float,size=4
 global: va=0042BE40,name=fun_42BE40,size=79,member_of=vtbl_0066C4A4
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
@@ -26637,19 +26680,19 @@ global: va=0042BE90,name=sub_42BE90,size=326,member_of=vtbl_0066C4A4
     arg: kind=int,size=4
 global: va=0042BFE0,name=fun_42BFE0,size=238,member_of=vtbl_0066C4A4
   type: kind=function,declspec=thiscall
-    ret: kind=int,size=4,signed=True
+    ret: kind=int,size=4,fname=DWORD
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vtbl_0066C4A4
 global: va=0042C0D0,name=fun_42C0D0,size=262,member_of=vtbl_0066C4A4
-  type: kind=function,declspec=thiscall
-    ret: kind=int,size=4,signed=True
-    arg: kind=ptr
-      type: kind=int,size=4
-global: va=0042C1E0,name=fun_42C1E0,size=430,member_of=vtbl_0066C4A4
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,fname=DWORD
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vtbl_0066C4A4
+global: va=0042C1E0,name=fun_42C1E0,size=430,member_of=vtbl_0066C4A4
+  type: kind=function,declspec=thiscall
+    ret: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066C4A4
     arg: kind=float,size=4
     arg: kind=float,size=4
 global: va=0042C390,name=sub_42C390,size=883,member_of=vtbl_0066C4A4
@@ -26835,22 +26878,23 @@ global: va=0042EE30,name=jpt_42EAED,size=16
   type: kind=array,count=4
     type: kind=ptr
       type: kind=void
-global: va=0042EE40,name=sub_42EE40,size=59
+global: va=0042EE40,name=destructor,size=59,member_of=constructor_00402AF0
   type: kind=function,declspec=thiscall
     ret: kind=void
     arg: kind=ptr
-      type: kind=int,size=4
-global: va=0042EE80,name=sub_42EE80,size=442
+      type: kind=struct,id=constructor_00402AF0
+global: va=0042EE80,name=sub_42EE80,size=442,member_of=constructor_00402AF0
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,fname=DWORD
     arg: kind=ptr
-      type: kind=int,size=1,signed=True,winapi=char
-global: va=0042F040,name=sub_42F040,size=1074
+      type: kind=struct,id=constructor_00402AF0
+global: va=0042F040,name=sub_42F040,size=1074,member_of=constructor_00402AF0
   type: kind=function,declspec=thiscall
     ret: kind=void
-    arg: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4,signed=True
+      type: kind=struct,id=constructor_00402AF0
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066CC94
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
 global: va=0042F480,name=constructor,size=65,member_of=constructor_0042F480
@@ -28121,14 +28165,14 @@ global: va=0043B220,name=fun_43B220,size=4122,member_of=vtbl_0066CC94
       type: kind=struct,id=vtbl_0066CC94
     arg: kind=ptr
       type: kind=int,size=4,signed=True
-global: va=0043C240,name=sub_43C240,size=22
+global: va=0043C240,name=sub_43C240,size=22,member_of=vtbl_0066D454
   type: kind=function,declspec=thiscall
     ret: kind=ptr
-      type: kind=int,size=4
+      type: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vtbl_0066D454
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=int,size=4,signed=True
 global: va=0043C260,name=sub_43C260,size=87,member_of=vec_xyz
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
@@ -28169,7 +28213,7 @@ global: va=0043CBD0,name=sub_43CBD0,size=92
     ret: kind=void
     arg: kind=ptr
       type: kind=int,size=1,signed=True,winapi=char
-global: va=0043CC30,name=fun_43CC30,size=2811,member_of=vtbl_0066CC94
+global: va=0043CC30,name=createMeshes,size=2811,member_of=vtbl_0066CC94
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -28648,7 +28692,7 @@ global: va=00441420,name=fun_441420,size=234,member_of=vtbl_0066CC94
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vtbl_0066CC94
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -28683,16 +28727,16 @@ global: va=00441870,name=Bridge_cpp_441870,size=273
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=00441990,name=shl12_div,size=60,member_of=div_fun_00441990
+global: va=00441990,name=div,size=60,member_of=div_fun_00441990
   type: kind=function,declspec=thiscall
     ret: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=div_fun_00441990
     arg: kind=ptr
       type: kind=struct,id=div_fun_00441990
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=div_fun_00441990
     arg: kind=ptr
-      type: kind=int,size=4,signed=True
+      type: kind=struct,id=div_fun_00441990
 global: va=004419D0,name=sub_4419D0,size=202
   type: kind=function,declspec=stdcall
     ret: kind=ptr
@@ -28703,14 +28747,18 @@ global: va=004419D0,name=sub_4419D0,size=202
       type: kind=struct,id=constructor_00452B30
     arg: kind=ptr
       type: kind=struct,id=constructor_004F6570
-global: va=00441AA0,name=fun_441AA0,size=37,member_of=vtbl_0066CC94
+global: va=00441AA0,name=createMesh2_v,size=37,member_of=vtbl_0066CC94
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066CC94
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D4BC
     arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vec_xyz
+    arg: kind=ptr
+      type: kind=void
 global: va=00441AD0,name=fun_441AD0,size=37,member_of=vtbl_0066CC94
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
@@ -31019,13 +31067,13 @@ global: va=00454230,name=sub_454230,size=902,member_of=constructor_00452B30
       type: kind=struct,id=constructor_00452B30
     arg: kind=ptr
       type: kind=int,size=1
-global: va=004545C0,name=sub_4545C0,size=1293,member_of=constructor_00452B30
+global: va=004545C0,name=drawShadow,size=1293,member_of=constructor_00452B30
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=constructor_00452B30
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vec_xyz
 global: va=00454AD0,name=jpt_454604,size=24
   type: kind=array,count=6
     type: kind=ptr
@@ -31627,10 +31675,11 @@ global: va=0045E450,name=sub_45E450,size=66
     arg: kind=ptr
       type: kind=int,size=2
     arg: kind=int,size=2,signed=True
-global: va=0045E4A0,name=sub_45E4A0,size=66
+global: va=0045E4A0,name=sub_45E4A0,size=66,member_of=vtbl_0066D524
   type: kind=function,declspec=thiscall
     ret: kind=int,size=1,signed=True,winapi=char
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D524
     arg: kind=int,size=2
 global: va=0045E4F0,name=fun_45E4F0,size=1023,member_of=vtbl_0066D524
   type: kind=function,declspec=thiscall
@@ -32984,7 +33033,7 @@ global: va=00476B40,name=fun_476B40,size=316,member_of=vtbl_0066D404
       type: kind=struct,id=vtbl_0066D524
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066E3EC
-global: va=00476C80,name=sub_476C80,size=35
+global: va=00476C80,name=sub_476C80,size=35,member_of=vtbl_0066D404
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -33439,7 +33488,7 @@ global: va=004810D0,name=j_CState_sub_4810E0,size=5
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D404
-global: va=004810E0,name=sub_4810E0,size=287,member_of=vtbl_0066D404
+global: va=004810E0,name=createMesh2_v,size=287,member_of=vtbl_0066D404
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -33921,11 +33970,11 @@ global: va=00487BE0,name=fun_487BE0,size=25,member_of=vtbl_0066D454
       type: kind=struct,id=vtbl_0066D454
     arg: kind=ptr
       type: kind=int,size=4,signed=True
-global: va=00487C00,name=sub_487C00,size=98
+global: va=00487C00,name=sub_487C00,size=98,member_of=vtbl_0066D524
   type: kind=function,declspec=thiscall
     ret: kind=int,size=1,signed=True,winapi=char
     arg: kind=ptr
-      type: kind=int,size=2,signed=True
+      type: kind=struct,id=vtbl_0066D524
 global: va=00487C70,name=_reset,size=2078,member_of=vtbl_0066D524
   type: kind=function,declspec=thiscall
     ret: kind=int,size=2
@@ -34437,7 +34486,7 @@ global: va=0048F0C0,name=sub_48F0C0,size=40,member_of=vtbl_0066D524
       type: kind=struct,id=vtbl_0066E3EC
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D524
-global: va=0048F0F0,name=sub_48F0F0,size=31
+global: va=0048F0F0,name=static_CWorld_random_1_to_2,size=31
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True,winapi=BOOL,fname=BOOL
 global: va=0048F110,name=calcCountDown,size=71,member_of=vtbl_0066D524
@@ -35286,7 +35335,7 @@ global: va=0049C140,name=jpt_49BFC9,size=16
 global: va=0049C150,name=idt_49BFC3,size=10
   type: kind=array,count=10
     type: kind=int,size=1
-global: va=0049C160,name=sub_49C160,size=236
+global: va=0049C160,name=sub_49C160,size=236,member_of=vtbl_0066D654
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True,winapi=BOOL,fname=BOOL
     arg: kind=ptr
@@ -37107,11 +37156,11 @@ global: va=004B3AA0,name=jpt_4B39D1,size=20
   type: kind=array,count=5
     type: kind=ptr
       type: kind=void
-global: va=004B3AC0,name=sub_4B3AC0,size=13
+global: va=004B3AC0,name=sub_4B3AC0,size=13,member_of=vtbl_0066D454
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vtbl_0066D454
     arg: kind=int,size=4,signed=True
 global: va=004B3AD0,name=fun_4B3AD0,size=102,member_of=vtbl_0066D454
   type: kind=function,declspec=thiscall
@@ -37389,10 +37438,10 @@ global: va=004B5C30,name=hasNoHealth_4B5C30,size=11,member_of=vtbl_0066D4BC
     ret: kind=int,size=4,signed=True,winapi=BOOL,fname=BOOL
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D4BC
-global: va=004B5C40,name=fun_4B5C40,size=7,member_of=vtbl_0066D4BC
+global: va=004B5C40,name=getLastAngle,size=7,member_of=vtbl_0066D4BC
   type: kind=function,declspec=thiscall
     ret: kind=ptr
-      type: kind=int,size=1,signed=True,winapi=char
+      type: kind=int,size=2
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D4BC
 global: va=004B5C50,name=fun_4B5C50,size=12,member_of=vtbl_0066D4BC
@@ -37425,10 +37474,10 @@ global: va=004B5D40,name=getLastPosition,size=7,member_of=vtbl_0066D5BC
       type: kind=struct,id=vec_xyz
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D5BC
-global: va=004B5D50,name=fun_4B5D50,size=7,member_of=vtbl_0066D5BC
+global: va=004B5D50,name=getLastAngle,size=7,member_of=vtbl_0066D5BC
   type: kind=function,declspec=thiscall
     ret: kind=ptr
-      type: kind=int,size=1,signed=True,winapi=char
+      type: kind=int,size=2
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D5BC
 global: va=004B5D60,name=fun_4B5D60,size=18,member_of=vtbl_0066D524
@@ -38601,10 +38650,11 @@ global: va=004C1AE0,name=fun_4C1AE0,size=55,member_of=vtbl_0066D99C
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D99C
-global: va=004C1B20,name=sub_4C1B20,size=55
+global: va=004C1B20,name=sub_4C1B20,size=55,member_of=vtbl_0066D99C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D99C
 global: va=004C1B60,name=sub_4C1B60,size=48,member_of=vtbl_0066D99C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
@@ -43803,11 +43853,11 @@ global: va=00507420,name=constructor,size=42,member_of=constructor_00507420
       type: kind=int,size=1,signed=True,winapi=char
     arg: kind=ptr
       type: kind=struct,id=constructor_00507420
-global: va=00507450,name=sub_507450,size=116
+global: va=00507450,name=destructor,size=116,member_of=constructor_00507420
   type: kind=function,declspec=thiscall
     ret: kind=void
     arg: kind=ptr
-      type: kind=int,size=1,signed=True,winapi=char
+      type: kind=struct,id=constructor_00507420
 global: va=005074D0,name=sub_5074D0,size=153
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
@@ -44412,13 +44462,13 @@ global: va=00508FE0,name=getMapElem_2,size=42,member_of=vtbl_0066E3EC
       type: kind=struct,id=vtbl_0066E3EC
     arg: kind=ptr
       type: kind=struct,id=vec_xyz
-global: va=00509010,name=fun_509010,size=50,member_of=vtbl_0066E3EC
+global: va=00509010,name=drawShadow,size=50,member_of=vtbl_0066E3EC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066E3EC
     arg: kind=ptr
-      type: kind=int,size=4,signed=True
+      type: kind=struct,id=vec_xyz
 global: va=00509050,name=fun_509050,size=51,member_of=vtbl_0066E3EC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True,winapi=BOOL,fname=BOOL
@@ -48839,7 +48889,7 @@ global: va=0052F550,name=fun_52F550,size=1164,member_of=vtbl_0066EF3C
       type: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066EF3C
-global: va=0052F9E0,name=maybe_update_textures,size=258,member_of=vtbl_0066EF3C
+global: va=0052F9E0,name=mainGuiLoop,size=258,member_of=vtbl_0066EF3C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -55696,14 +55746,14 @@ global: va=00571A90,name=sub_571A90,size=24
 global: va=00571AB0,name=sub_571AB0,size=24
   type: kind=function,declspec=cdecl
     ret: kind=ptr
-      type: kind=int,size=4
+      type: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=int,size=4,signed=True
 global: va=00571AD0,name=sub_571AD0,size=16
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
     arg: kind=float,size=4
-global: va=00571AE0,name=CEnginePrimitiveBase_sub_571AE0,size=25
+global: va=00571AE0,name=CEnginePrimitiveBase_addToList,size=25
   type: kind=function,declspec=cdecl
     ret: kind=ptr
       type: kind=struct,id=vtbl_0066FA9C
@@ -55742,27 +55792,27 @@ global: va=00571E60,name=freeSmthInArea,size=148
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=00571F00,name=sub_571F00,size=338
+global: va=00571F00,name=NewObj571B3B_sub_571F00,size=338
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=2,signed=True
+      type: kind=struct,id=call_new_00571B3B
 global: va=00572060,name=sub_572060,size=569
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=2,signed=True
-global: va=005722A0,name=sub_5722A0,size=296
+      type: kind=struct,id=call_new_00571B3B
+global: va=005722A0,name=NewObj571B3B_sub_5722A0,size=296
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=2,signed=True
-global: va=005723D0,name=sub_5723D0,size=498
+      type: kind=struct,id=call_new_00571B3B
+global: va=005723D0,name=static_createMeshes,size=498
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4
     arg: kind=ptr
       type: kind=int,size=2,signed=True
-global: va=005725D0,name=sub_5725D0,size=581
+global: va=005725D0,name=static_createMeshes_p,size=581
   type: kind=function,declspec=stdcall
     ret: kind=void
 global: va=00572820,name=ScreenObjectArr_findThingAtLoc,size=251
@@ -55874,11 +55924,11 @@ global: va=00574200,name=setGammaRamp,size=57
     ret: kind=int,size=4,signed=True,winapi=HRESULT,fname=HRESULT
     arg: kind=ptr,is_const=True
       type: kind=void
-global: va=00574240,name=sub_574240,size=163
+global: va=00574240,name=CEngineSprite_createAndAdd,size=163
   type: kind=function,declspec=cdecl
     ret: kind=ptr
       type: kind=struct,id=vtbl_0066FCCC
-    arg: kind=float,size=4
+    arg: kind=struct,id=vecf_xyz
 global: va=005742F0,name=MyHeap_autoremoveObjects,size=19
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
@@ -56149,9 +56199,7 @@ global: va=00577960,name=constructor,size=160,member_of=vtbl_0066FABC
       type: kind=struct,id=vtbl_0066FABC
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066FABC
-    arg: kind=float,size=4
-    arg: kind=float,size=4
-    arg: kind=float,size=4
+    arg: kind=struct,id=vecf_xyz
     arg: kind=ptr
       type: kind=struct,id=constructor_0042F480
     arg: kind=float,size=4
@@ -56169,26 +56217,25 @@ global: va=00577A00,name=fun_577A00,size=866,member_of=vtbl_0066FABC
     arg: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=construct_00586B96
-global: va=00577D70,name=fun_577D70,size=32,member_of=vtbl_0066FABC
+global: va=00577D70,name=getVecCount,size=32,member_of=vtbl_0066FABC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=ptr
-        type: kind=int,size=4,signed=True
-global: va=00577D90,name=fun_577D90,size=42,member_of=vtbl_0066FABC
+      type: kind=struct,id=vtbl_0066FABC
+global: va=00577D90,name=getGid,size=42,member_of=vtbl_0066FABC
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=ptr
-        type: kind=int,size=4,signed=True
+      type: kind=struct,id=vtbl_0066FABC
     arg: kind=int,size=4,signed=True
-global: va=00577DC0,name=fun_577DC0,size=152,member_of=vtbl_0066FABC
+global: va=00577DC0,name=getVecByIdx,size=152,member_of=vtbl_0066FABC
   type: kind=function,declspec=thiscall
     ret: kind=ptr
-      type: kind=float,size=4
-    arg: kind=int,size=4,signed=True
+      type: kind=struct,id=vecf_xyz
     arg: kind=ptr
-      type: kind=float,size=4
+      type: kind=struct,id=vtbl_0066FABC
+    arg: kind=ptr
+      type: kind=struct,id=vecf_xyz
     arg: kind=int,size=4,signed=True
 global: va=00577E60,name=constructor,size=167,member_of=vtbl_0066FAD4
   type: kind=function,declspec=thiscall
@@ -56196,19 +56243,17 @@ global: va=00577E60,name=constructor,size=167,member_of=vtbl_0066FAD4
       type: kind=struct,id=vtbl_0066FAD4
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066FAD4
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=struct,id=vecf_xyz
     arg: kind=ptr,is_const=True
       type: kind=void
     arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=float,size=4
+    arg: kind=float,size=4
     arg: kind=ptr
       type: kind=struct,id=call_new_0057EF64
     arg: kind=int,size=4
     arg: kind=ptr
-      type: kind=float,size=4
+      type: kind=struct,id=vecf_xyz
 global: va=00577F10,name=fun_577F10,size=1165,member_of=vtbl_0066FAD4
   type: kind=function,declspec=thiscall
     ret: kind=void
@@ -56217,21 +56262,21 @@ global: va=00577F10,name=fun_577F10,size=1165,member_of=vtbl_0066FAD4
     arg: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=construct_00586B96
-global: va=005783A0,name=fun_5783A0,size=42,member_of=vtbl_0066FAD4
+global: va=005783A0,name=getGid,size=42,member_of=vtbl_0066FAD4
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=ptr
-        type: kind=int,size=4,signed=True
+      type: kind=struct,id=vtbl_0066FAD4
     arg: kind=int,size=4,signed=True
-global: va=005783D0,name=fun_5783D0,size=352,member_of=vtbl_0066FAD4
+global: va=005783D0,name=getVecByIdx,size=352,member_of=vtbl_0066FAD4
   type: kind=function,declspec=thiscall
     ret: kind=ptr
-      type: kind=float,size=4
-    arg: kind=int,size=4,signed=True
+      type: kind=struct,id=vecf_xyz
     arg: kind=ptr
-      type: kind=float,size=4
-    arg: kind=float,size=4
+      type: kind=struct,id=vtbl_0066FAD4
+    arg: kind=ptr
+      type: kind=struct,id=vecf_xyz
+    arg: kind=int,size=4,signed=True
 global: va=00578530,name=constructor,size=174,member_of=vtbl_0066FAEC
   type: kind=function,declspec=thiscall
     ret: kind=ptr
@@ -56251,12 +56296,14 @@ global: va=00578530,name=constructor,size=174,member_of=vtbl_0066FAEC
     arg: kind=int,size=4
     arg: kind=ptr
       type: kind=float,size=4
-global: va=005785E0,name=CEngineWorldPrimitive::fun_5785E0,size=17
-  type: kind=function,declspec=stdcall
+global: va=005785E0,name=returnZeroVec3f,size=17,member_of=vtbl_0066FD44
+  type: kind=function,declspec=thiscall
     ret: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vecf_xyz
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=void
+    arg: kind=ptr
+      type: kind=struct,id=vecf_xyz
     arg: kind=int,size=4,signed=True
 global: va=00578600,name=fun_578600,size=1150,member_of=vtbl_0066FAEC
   type: kind=function,declspec=thiscall
@@ -56376,35 +56423,35 @@ global: va=00579730,name=CEngine2DStaticMesh_create,size=732
       type: kind=struct,id=vtbl_0066FABC
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=float,size=4
     arg: kind=ptr
       type: kind=struct,id=constructor_0042F480
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=float,size=4
+    arg: kind=float,size=4
     arg: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vecf_xyz
     arg: kind=float,size=4
     arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=int,size=4
 global: va=00579A10,name=CEngine2DAnimMesh_create,size=736
   type: kind=function,declspec=cdecl
     ret: kind=ptr
       type: kind=struct,id=vtbl_0066FAD4
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-    arg: kind=ptr,is_const=True
+    arg: kind=float,size=4
+    arg: kind=ptr
       type: kind=void
     arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-    arg: kind=ptr
-      type: kind=float,size=4
+    arg: kind=float,size=4
     arg: kind=float,size=4
     arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vecf_xyz
+    arg: kind=float,size=4
     arg: kind=int,size=4,signed=True
+    arg: kind=int,size=4
 global: va=00579CF0,name=CEngineVirtualPerspective2DAnimMesh_create,size=736
   type: kind=function,declspec=cdecl
     ret: kind=ptr
@@ -56571,11 +56618,11 @@ global: va=0057A9A0,name=sub_57A9A0,size=95,member_of=constructor_0057AD20
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=float,size=4
-global: va=0057AA00,name=sub_57AA00,size=13
+global: va=0057AA00,name=sub_57AA00,size=13,member_of=constructor_0057AD20
   type: kind=function,declspec=thiscall
     ret: kind=void
     arg: kind=ptr
-      type: kind=int,size=4,signed=True
+      type: kind=struct,id=constructor_0057AD20
 global: va=0057AA10,name=sub_57AA10,size=36
   type: kind=function,declspec=thiscall
     ret: kind=ptr
@@ -56588,11 +56635,11 @@ global: va=0057AA10,name=sub_57AA10,size=36
       type: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=int,size=4,signed=True
-global: va=0057AA40,name=sub_57AA40,size=457
+global: va=0057AA40,name=sub_57AA40,size=457,member_of=constructor_0057AD20
   type: kind=function,declspec=thiscall
     ret: kind=void
     arg: kind=ptr
-      type: kind=float,size=4
+      type: kind=struct,id=constructor_0057AD20
 global: va=0057AC10,name=sub_57AC10,size=42
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
@@ -56641,7 +56688,7 @@ global: va=0057AFD0,name=getMeshHeader,size=21,member_of=vtbl_0066FBDC
     arg: kind=int,size=4,signed=True
 global: va=0057AFF0,name=sub_57AFF0,size=225,member_of=constructor_0057AD20
   type: kind=function,declspec=thiscall
-    ret: kind=int,size=4,signed=True
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_0057AD20
     arg: kind=ptr
@@ -57113,12 +57160,12 @@ global: va=0057F110,name=constructor2,size=165,member_of=vtbl_0066FCCC
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066FCCC
     arg: kind=ptr
-      type: kind=float,size=4
+      type: kind=struct,id=vecf_xyz
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=float,size=4
+      type: kind=struct,id=vecf_xyz
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
@@ -57213,12 +57260,12 @@ global: va=005801E0,name=constructor2,size=639,member_of=vtbl_0066FD1C
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066FD1C
     arg: kind=ptr
-      type: kind=float,size=4
+      type: kind=struct,id=vecf_xyz
     arg: kind=int,size=4,signed=True
     arg: kind=float,size=4
     arg: kind=float,size=4
     arg: kind=float,size=4
-    arg: kind=int,size=4,signed=True
+    arg: kind=float,size=4
     arg: kind=float,size=4
     arg: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -57293,16 +57340,16 @@ global: va=00580E10,name=fun_580E10,size=42,member_of=vtbl_0066FD1C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=ptr
-        type: kind=int,size=4,signed=True
+      type: kind=struct,id=vtbl_0066FD1C
     arg: kind=int,size=4,signed=True
 global: va=00580E40,name=fun_580E40,size=119,member_of=vtbl_0066FD1C
   type: kind=function,declspec=thiscall
     ret: kind=ptr
-      type: kind=float,size=4
-    arg: kind=int,size=4,signed=True
+      type: kind=struct,id=vecf_xyz
     arg: kind=ptr
-      type: kind=float,size=4
+      type: kind=struct,id=vtbl_0066FD1C
+    arg: kind=ptr
+      type: kind=struct,id=vecf_xyz
     arg: kind=int,size=4,signed=True
 global: va=00580EC0,name=appendToSceneObject2EList,size=3257,member_of=vtbl_0066FD1C
   type: kind=function,declspec=thiscall
@@ -57405,18 +57452,18 @@ global: va=00583120,name=constructor,size=1210,member_of=vtbl_0066FD64
 global: va=005835E0,name=fun_5835E0,size=147,member_of=vtbl_0066FD64
   type: kind=function,declspec=thiscall
     ret: kind=ptr
-      type: kind=float,size=4
-    arg: kind=int,size=4,signed=True
+      type: kind=struct,id=vecf_xyz
     arg: kind=ptr
-      type: kind=float,size=4
+      type: kind=struct,id=vtbl_0066FD64
+    arg: kind=ptr
+      type: kind=struct,id=vecf_xyz
     arg: kind=int,size=4,signed=True
-global: va=00583680,name=fun_583680,size=32,member_of=vtbl_0066FAD4
+global: va=00583680,name=getVecCount,size=32,member_of=vtbl_0066FAD4
   type: kind=function,declspec=thiscall
     ret: kind=ptr
       type: kind=struct,id=instance_0066FBCC
     arg: kind=ptr
-      type: kind=ptr
-        type: kind=int,size=4,signed=True
+      type: kind=struct,id=vtbl_0066FAD4
 global: va=005836A0,name=sub_5836A0,size=1533,member_of=vtbl_0066FD64
   type: kind=function,declspec=thiscall
     ret: kind=void
@@ -57513,7 +57560,7 @@ global: va=005860D0,name=destructor,size=90,member_of=vtbl_0066FD8C
       type: kind=void
 global: va=00586130,name=fun_586130,size=19,member_of=vtbl_0066FD8C
   type: kind=function,declspec=thiscall
-    ret: kind=int,size=4,signed=True
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066FD8C
     arg: kind=int,size=4,signed=True
@@ -57572,13 +57619,12 @@ global: va=00586F90,name=destructor,size=90,member_of=vtbl_0066FDB4
   type: kind=function,declspec=thiscall
     ret: kind=void
     arg: kind=ptr
-      type: kind=void
+      type: kind=struct,id=vtbl_0066FDB4
 global: va=00586FF0,name=fun_586FF0,size=19,member_of=vtbl_0066FDB4
   type: kind=function,declspec=thiscall
-    ret: kind=int,size=4,signed=True
+    ret: kind=void
     arg: kind=ptr
-      type: kind=ptr
-        type: kind=int,size=4,signed=True
+      type: kind=struct,id=vtbl_0066FDB4
     arg: kind=int,size=4,signed=True
 global: va=00587010,name=fun_587010,size=67,member_of=vtbl_0066FDB4
   type: kind=function,declspec=thiscall
@@ -58793,7 +58839,7 @@ global: va=005952E0,name=sub_5952E0,size=234
     arg: kind=ptr
       type: kind=ptr
         type: kind=void
-global: va=005953D0,name=sub_5953D0,size=494,member_of=init_00594FA0
+global: va=005953D0,name=createMesh_p,size=494,member_of=init_00594FA0
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -58816,7 +58862,7 @@ global: va=005956E0,name=sub_5956E0,size=524,member_of=init_00594FA0
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D4BC
     arg: kind=int,size=4
-global: va=005958F0,name=sub_5958F0,size=157,member_of=init_00594FA0
+global: va=005958F0,name=createMesh_pp,size=157,member_of=init_00594FA0
   type: kind=function,declspec=thiscall
     ret: kind=void
     arg: kind=ptr
@@ -58837,7 +58883,7 @@ global: va=00595990,name=CRenderInfo_sub_595990,size=2064
     arg: kind=int,size=2
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=005961A0,name=handleCreature,size=623,member_of=init_00594FA0
+global: va=005961A0,name=createMesh,size=623,member_of=init_00594FA0
   type: kind=function,declspec=thiscall
     ret: kind=void
     arg: kind=ptr
@@ -58885,7 +58931,7 @@ global: va=005966B0,name=sub_5966B0,size=183,member_of=init_00594FA0
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D524
     arg: kind=int,size=4,signed=True
-global: va=00596770,name=sub_596770,size=211,member_of=init_00594FA0
+global: va=00596770,name=createMesh_curPl,size=211,member_of=init_00594FA0
   type: kind=function,declspec=thiscall
     ret: kind=void
     arg: kind=ptr
@@ -59099,7 +59145,7 @@ global: va=00599C00,name=sub_599C00,size=14
     ret: kind=void
     arg: kind=ptr
       type: kind=void
-global: va=00599C10,name=fun_599C10,size=76,member_of=vtbl_00670574
+global: va=00599C10,name=createMesh_v,size=76,member_of=vtbl_00670574
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -59107,15 +59153,16 @@ global: va=00599C10,name=fun_599C10,size=76,member_of=vtbl_00670574
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=struct,id=vtbl_0066D4BC
-global: va=00599C60,name=fun_599C60,size=1002,member_of=vtbl_00670574
+      type: kind=struct,id=vtbl_0066D5BC
+global: va=00599C60,name=createMesh_light,size=1002,member_of=vtbl_00670574
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=vtbl_00670574
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066CC14
     arg: kind=int,size=4,signed=True
 global: va=0059A050,name=fun_59A050,size=422,member_of=vtbl_00670574
   type: kind=function,declspec=thiscall
@@ -59181,7 +59228,7 @@ global: va=0059A5C0,name=sub_59A5C0,size=21
     ret: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=0059A5E0,name=sub_59A5E0,size=21
+global: va=0059A5E0,name=static_CPCEngineInterface_sub_59A5E0,size=21
   type: kind=function,declspec=cdecl
     ret: kind=void
     arg: kind=int,size=4,signed=True
@@ -59192,7 +59239,7 @@ global: va=0059A600,name=sub_59A600,size=35
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=0059A630,name=sub_59A630,size=30
+global: va=0059A630,name=static_CBridge_createMeshes,size=30
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
     arg: kind=int,size=4
@@ -59248,8 +59295,9 @@ global: va=0059B0C0,name=fun_59B0C0,size=1972,member_of=vtbl_00670574
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-global: va=0059B880,name=sub_59B880,size=758,member_of=vtbl_00670574
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D454
+global: va=0059B880,name=createMesh,size=758,member_of=vtbl_00670574
   type: kind=function,declspec=thiscall
     ret: kind=void
     arg: kind=ptr
@@ -59262,7 +59310,8 @@ global: va=0059B880,name=sub_59B880,size=758,member_of=vtbl_00670574
       type: kind=struct,id=vec_xyz
     arg: kind=ptr
       type: kind=int,size=2
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=int,size=2
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D4BC
 global: va=0059BB80,name=sub_59BB80,size=1162
@@ -59338,7 +59387,7 @@ global: va=0059C1D0,name=fun_59C1D0,size=201,member_of=vtbl_00670574
 global: va=0059C2A0,name=static_CRenderInfo_sub_59C2A0,size=183
   type: kind=function,declspec=cdecl
     ret: kind=ptr
-      type: kind=float,size=4
+      type: kind=struct,id=vecf_xyz
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D454
     arg: kind=ptr
@@ -59346,20 +59395,23 @@ global: va=0059C2A0,name=static_CRenderInfo_sub_59C2A0,size=183
     arg: kind=ptr
       type: kind=struct,id=vec_xyz
     arg: kind=ptr
-      type: kind=float,size=4
+      type: kind=struct,id=vecf_xyz
     arg: kind=ptr
-      type: kind=float,size=4
-global: va=0059C360,name=CRenderInfo_sub_59C360,size=956
+      type: kind=struct,id=vecf_xyz
+global: va=0059C360,name=CRenderInfo_createCEngineSprite,size=956
   type: kind=function,declspec=stdcall
     ret: kind=ptr
       type: kind=struct,id=vtbl_0066FCCC
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D454
     arg: kind=ptr
-      type: kind=struct,id=vtbl_0066FCCC
-    arg: kind=float,size=4
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+      type: kind=struct,id=vec_xyz
+    arg: kind=ptr
+      type: kind=struct,id=vec_xyz
+    arg: kind=ptr
+      type: kind=int,size=2
+    arg: kind=ptr
+      type: kind=int,size=2
 global: va=0059C720,name=CRenderInfo_sub_59C720,size=341
   type: kind=function,declspec=stdcall
     ret: kind=ptr
@@ -59369,23 +59421,25 @@ global: va=0059C720,name=CRenderInfo_sub_59C720,size=341
     arg: kind=ptr
       type: kind=struct,id=vec_xyz
     arg: kind=float,size=4
-global: va=0059C880,name=sub_59C880,size=1125,member_of=vtbl_00670574
+global: va=0059C880,name=createCEngineAnimMesh,size=1125,member_of=vtbl_00670574
   type: kind=function,declspec=thiscall
     ret: kind=ptr
       type: kind=struct,id=vtbl_0066FD64
     arg: kind=ptr
       type: kind=struct,id=vtbl_00670574
-    arg: kind=float,size=4
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D454
     arg: kind=ptr
       type: kind=struct,id=vec_xyz
     arg: kind=ptr
       type: kind=struct,id=vec_xyz
     arg: kind=ptr
-      type: kind=int,size=4,signed=True
-    arg: kind=float,size=4
+      type: kind=int,size=2
+    arg: kind=ptr
+      type: kind=int,size=2
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D4BC
-global: va=0059CCF0,name=sub_59CCF0,size=792,member_of=vtbl_00670574
+global: va=0059CCF0,name=createCEngineDynamicMesh,size=792,member_of=vtbl_00670574
   type: kind=function,declspec=thiscall
     ret: kind=ptr
       type: kind=struct,id=vtbl_0066FD1C
@@ -59399,10 +59453,11 @@ global: va=0059CCF0,name=sub_59CCF0,size=792,member_of=vtbl_00670574
       type: kind=struct,id=vec_xyz
     arg: kind=ptr
       type: kind=int,size=2
-    arg: kind=float,size=4
+    arg: kind=ptr
+      type: kind=int,size=2
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D4BC
-global: va=0059D010,name=CRenderInfo_sub_59D010,size=583
+global: va=0059D010,name=CRenderInfo_createCEngineDynamicMesh,size=583
   type: kind=function,declspec=stdcall
     ret: kind=ptr
       type: kind=struct,id=vtbl_0066FD1C
@@ -59410,10 +59465,11 @@ global: va=0059D010,name=CRenderInfo_sub_59D010,size=583
       type: kind=struct,id=vtbl_0066D454
     arg: kind=ptr
       type: kind=struct,id=vec_xyz
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=int,size=2
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D4BC
-global: va=0059D260,name=sub_59D260,size=286,member_of=vtbl_00670574
+global: va=0059D260,name=createMesh2,size=286,member_of=vtbl_00670574
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -59421,18 +59477,19 @@ global: va=0059D260,name=sub_59D260,size=286,member_of=vtbl_00670574
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066D454
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vec_xyz
     arg: kind=ptr
       type: kind=struct,id=vec_xyz
     arg: kind=ptr
       type: kind=int,size=2
-    arg: kind=float,size=4
+    arg: kind=ptr
+      type: kind=int,size=2
     arg: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vecf_xyz
     arg: kind=ptr
       type: kind=int,size=4,signed=True
-global: va=0059D380,name=fun_59D380,size=148,member_of=vtbl_00670574
+global: va=0059D380,name=createMesh2_v,size=148,member_of=vtbl_00670574
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -59441,7 +59498,7 @@ global: va=0059D380,name=fun_59D380,size=148,member_of=vtbl_00670574
       type: kind=struct,id=vtbl_0066D4BC
     arg: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vec_xyz
     arg: kind=ptr
       type: kind=int,size=4,signed=True
 global: va=0059D420,name=fun_59D420,size=133,member_of=vtbl_00670574
@@ -59455,7 +59512,7 @@ global: va=0059D420,name=fun_59D420,size=133,member_of=vtbl_00670574
       type: kind=int,size=4
     arg: kind=ptr
       type: kind=int,size=4,signed=True
-global: va=0059D4B0,name=sub_59D4B0,size=202
+global: va=0059D4B0,name=CRenderInfo_sub_59D4B0,size=202
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -59595,10 +59652,11 @@ global: va=0059DD30,name=Vec3f_sub_59DD30,size=1242
     arg: kind=struct,id=vecf_xyz
     arg: kind=struct,id=vecf_xyz
     arg: kind=int,size=4,signed=True
-global: va=0059E210,name=sub_59E210,size=396
+global: va=0059E210,name=CWorld_sub_59E210,size=396
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066E3EC
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
@@ -59616,10 +59674,11 @@ global: va=0059E400,name=sub_59E400,size=117
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=0059E480,name=sub_59E480,size=486
+global: va=0059E480,name=CWorld_sub_59E480,size=486
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066E3EC
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
@@ -59665,13 +59724,13 @@ global: va=0059EC90,name=sub_59EC90,size=88
     arg: kind=float,size=4
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=0059ECF0,name=sub_59ECF0,size=132
+global: va=0059ECF0,name=CWorld_sub_59ECF0,size=132
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+      type: kind=struct,id=vtbl_0066E3EC
+    arg: kind=int,size=4
+    arg: kind=int,size=4
 global: va=0059ED80,name=ProceduralMesh_cpp_59ED80,size=1383
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
@@ -59855,19 +59914,18 @@ global: va=005A3220,name=sub_5A3220,size=226
     arg: kind=float,size=4
     arg: kind=float,size=4
     arg: kind=float,size=4
-global: va=005A3310,name=ProceduralMesh_cpp_5A3310,size=633
+global: va=005A3310,name=fun_5A3310,size=633,member_of=vtbl_00670574
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=ptr
-        type: kind=int,size=4
+      type: kind=struct,id=vtbl_00670574
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=005A3590,name=sub_5A3590,size=599
+global: va=005A3590,name=sub_5A3590,size=599,member_of=vtbl_00670574
   type: kind=function,declspec=thiscall
     ret: kind=void
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=vtbl_00670574
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
 global: va=005A37F0,name=sub_5A37F0,size=685
@@ -82641,6 +82699,9 @@ global: va=00760B6C,name=g_pNewObj571B3B,size=4
     type: kind=struct,id=call_new_00571B3B
 global: va=00760B70,name=g_vec_760B70,size=12
   type: kind=struct,id=vecf_xyz
+global: va=00760B80,name=g_meshLast_760B80,size=4
+  type: kind=ptr
+    type: kind=struct,id=call_new_00571B3B
 global: va=00760B88,name=g_sceneHeight,size=4
   type: kind=int,size=4,signed=True
 global: va=00760B90,name=g_NewObj571B3B_hashTable,size=16384
@@ -82903,6 +82964,10 @@ global: va=00780E6C,name=shadows_dword_780E6C,size=4
   type: kind=int,size=4,signed=True
 global: va=00780E70,name=shadows_dword_780E70,size=4
   type: kind=int,size=4,signed=True
+global: va=00781078,name=g_Obj58EF60_instance_781078,size=12
+  type: kind=struct,id=constructor_0058EF60
+global: va=00781088,name=g_Obj58EF60_instance_781088,size=12
+  type: kind=struct,id=constructor_0058EF60
 global: va=007820A0,name=g_renMode_7820A0,size=4
   type: kind=int,size=4,signed=True
 global: va=007820A8,name=SceneObject2EList_instance,size=12

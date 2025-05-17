@@ -39,6 +39,12 @@ add_executable(${TARGET}
         dk2/MyComputerPlayer_drop_condition.cpp
         dk2/computer_player_flags.cpp
         dk2/MyCreatureCollection.cpp
+        dk2/MyComputerPlayer_drop_condition.cpp
+        dk2/MyComputerPlayer_drop_condition.h
+        dk2/computer_player_flags.cpp
+        dk2/computer_player_flags.h
+
+        dk2/math/int_float.cpp
 
         dk2/button/button_types.cpp
         dk2/button/CTextInput.cpp
@@ -84,13 +90,10 @@ add_executable(${TARGET}
         patches/protocol_dump.cpp
         patches/screen_resolution.cpp
         patches/registry_to_config.cpp
+        patches/limit_tps.cpp
 
         ${GOG_PATCH_SOURCES}
         ${WEANETR_SOURCES}
-        dk2/MyComputerPlayer_drop_condition.cpp
-        dk2/MyComputerPlayer_drop_condition.h
-        dk2/computer_player_flags.cpp
-        dk2/computer_player_flags.h
 
 #        ${DKII_RESOURCES_FILE}
         )
@@ -195,6 +198,6 @@ add_custom_target(dkii_flame ALL DEPENDS ${ABS_MERGED_EXE})
 install(FILES ${ABS_MERGED_EXE} DESTINATION ".")
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/DKII-${OUTPUT_NAME}.map" DESTINATION ".")
 
-if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/dev")
-    include(dev/dev.cmake)
+if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/../dev")
+    include(../dev/dev.cmake)
 endif ()

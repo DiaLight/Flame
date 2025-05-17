@@ -221,23 +221,6 @@ bool patch::skippable_title_screen::skipKeyPressed() {
 }
 
 
-namespace {
-
-#define DK2_fps_limit 60
-    DWORD lastTime = 0;
-
-}
-void patch::limit_fps::call() {
-    DWORD time = GetTickCount();
-    int mspf = 1000 / DK2_fps_limit; // 16
-    DWORD loopTime = time - lastTime;
-    if (loopTime < mspf) {
-        SleepEx(mspf - loopTime, FALSE);
-    }
-    lastTime = time;
-}
-
-
 flame_config::define_flame_option<std::string> o_myip(
     "flame:myip",
     "force set local ip address in network sessions",

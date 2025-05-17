@@ -41,7 +41,7 @@ venv.bak/
 /tools/obj_research/
 /libs/dkii_exe/api/
 /install/
-/src/dev/
+/dev/
 **/genlib/*.exp
 **/genlib/*.lib
 **/genlib/*.def

@@ -140,10 +140,6 @@ namespace skippable_title_screen {
     bool skipKeyPressed();
 }
 
-namespace limit_fps {
-    void call();
-}
-
 namespace multi_interface_fix {
     extern bool enabled;
     extern std::vector<ULONG> localAddresses;
