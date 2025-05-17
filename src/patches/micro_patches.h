@@ -120,7 +120,7 @@ namespace bring_to_foreground {
 }
 
 namespace fix_close_window {
-    void window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
+    bool window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 }
 
 namespace hide_mouse_cursor_in_window {

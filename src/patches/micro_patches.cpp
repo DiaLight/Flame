@@ -121,7 +121,7 @@ namespace dk2 {
     };
 }
 
-void patch::fix_close_window::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
+bool patch::fix_close_window::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
     switch(Msg) {
         case WM_CLOSE: {
             dk2::CDefaultPlayerInterface *playetIf = &dk2::CDefaultPlayerInterface_instance;
@@ -131,12 +131,14 @@ void patch::fix_close_window::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LP
                 action.actionKind = dk2::GA_ExitToWindows;
                 action.playerTagId = playetIf->playerTagId;
                 playetIf->pushAction(&action);
+                return false;
             } else {
                 dk2::setAppExitStatus(true);
             }
             break;
         }
     }
+    return true;
 }
 
 namespace {

@@ -26250,11 +26250,12 @@ global: va=004288C0,name=sub_4288C0,size=9
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=004288D0,name=sub_4288D0,size=182
+global: va=004288D0,name=sub_4288D0,size=182,member_of=vtbl_0066C4A4
   type: kind=function,declspec=thiscall
     ret: kind=ptr
       type: kind=struct,id=vtbl_0066EE94
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066C4A4
 global: va=00428990,name=sub_428990,size=61,member_of=vtbl_0066C4A4
   type: kind=function,declspec=thiscall
     ret: kind=ptr
@@ -51882,11 +51883,11 @@ global: va=00552F00,name=FontObj9_static_destructor,size=10
 global: va=00552F10,name=loadResources,size=1469
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
-global: va=005534D0,name=sub_5534D0,size=434
+global: va=005534D0,name=loadFontByScreenWidth,size=434
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
     arg: kind=int,size=4
-global: va=00553690,name=sub_553690,size=167
+global: va=00553690,name=widthToFontId,size=167
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
     arg: kind=int,size=4
@@ -81772,13 +81773,13 @@ global: va=00696828,name=Game_EndGame_BtnArr,size=80
   type: kind=struct,id=use_00528300
 global: va=00696A08,name=Game_Confirm_BtnArr,size=80
   type: kind=struct,id=use_00528300
-global: va=00696BE8,name=Game_EscMenu_WinCfg,size=68
+global: va=00696BE8,name=Game_EscOptions_WinCfg,size=68
   type: kind=struct,id=use_0052CED0
 global: va=00696C30,name=Game_Load_WinCfg,size=68
   type: kind=struct,id=use_0052CED0
 global: va=00696C78,name=Game_Save_WinCfg,size=68
   type: kind=struct,id=use_0052CED0
-global: va=00696CC0,name=Game_Options_WinCfg,size=68
+global: va=00696CC0,name=Game_GameOptions_WinCfg,size=68
   type: kind=struct,id=use_0052CED0
 global: va=00696D08,name=Game_GraphicsOptions_WinCfg,size=68
   type: kind=struct,id=use_0052CED0

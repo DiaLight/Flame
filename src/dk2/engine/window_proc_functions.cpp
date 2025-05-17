@@ -26,7 +26,7 @@ LRESULT dk2::CWindowTest_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
     patch::use_wheel_to_zoom::window_proc(hWnd, Msg, wParam, lParam);
     patch::fix_keyboard_state_on_alt_tab::window_proc(hWnd, Msg, wParam, lParam);
     patch::bring_to_foreground::window_proc(hWnd, Msg, wParam, lParam);
-    patch::fix_close_window::window_proc(hWnd, Msg, wParam, lParam);
+    if (!patch::fix_close_window::window_proc(hWnd, Msg, wParam, lParam)) return 0;
     switch(Msg) {
         case WM_ACTIVATE:
             g_isNeedBlt_fullscr = wParam != 0;
