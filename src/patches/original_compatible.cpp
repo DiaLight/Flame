@@ -21,6 +21,7 @@ flame_config::define_flame_option<bool> o_original_compatible(
     false
 );
 
+extern flame_config::define_flame_option<int> o_experimentalRoomsLimit;
 void patch::original_compatible::init() {
     original_compatible::enable = o_original_compatible.get();
     if(!original_compatible::enable) return;
@@ -28,8 +29,7 @@ void patch::original_compatible::init() {
 
     // minimal required to disable
     drop_thing_from_hand_fix::enabled = false;  // incompatible with 1.7
-    override_max_room_count::enabled = false;
-    override_max_room_count::limit = 96;  // default is 96  incompatible with 1.7
+    o_experimentalRoomsLimit.set_tmp(96);
 
     // disable fixes that will cause desynchronization
 //    add_win10_support::enabled = true;  // backward compatible

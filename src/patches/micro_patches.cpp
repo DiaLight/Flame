@@ -79,10 +79,8 @@ flame_config::define_flame_option<int> o_experimentalRoomsLimit(
     "Extending rooms limit. DK2 1.7 value is 96. max value: 255\n",
     255
 );
-bool patch::override_max_room_count::enabled = true;
-uint8_t patch::override_max_room_count::limit = 96;  // default is 96  incompatible with 1.7
-void patch::override_max_room_count::init() {
-    override_max_room_count::limit = o_experimentalRoomsLimit.get();
+uint8_t patch::override_max_room_count::getLimit() {
+    return *o_experimentalRoomsLimit;
 }
 
 void patch::use_wasd_by_default_patch::useAlternativeName(LPCSTR &lpValueName) {

@@ -201,6 +201,15 @@ void flame_config::set_option(const std::string &path, flame_value value) {
     }
 }
 
+void flame_config::set_tmp_option(const std::string &path, flame_value value) {
+    setToml(cmdl_state, path, toTomlValue(value));
+    auto &options = defined_options();
+    auto it = options.dict.find(path);
+    if (it != options.dict.end()) {
+        it->second->value = value;
+    }
+}
+
 void flame_config::_register_flame_option(const char *path, const char *help, flame_value &&defaultValue, flame_value &value) {
     defined_options().add(std::make_unique<defined_flame_option>(path, help, std::move(defaultValue), value));
 }

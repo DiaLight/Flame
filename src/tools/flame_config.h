@@ -105,6 +105,7 @@ namespace flame_config {
 
     flame_value get_option(const std::string &path);
     void set_option(const std::string &path, flame_value value);
+    void set_tmp_option(const std::string &path, flame_value value);
 
     void help();
     void load(std::string &file);
@@ -131,7 +132,7 @@ namespace flame_config {
     struct define_flame_option {
 
         const char *path = NULL;
-        flame_value value;
+        flame_value value;  // cache for faster access
         define_flame_option() = delete;
         define_flame_option(const char *path, const char *help, T defaultValue) : path(path) { _register_flame_option(path, help, flame_value(defaultValue), value); }
 
@@ -143,6 +144,10 @@ namespace flame_config {
         template<typename = std::enable_if<!std::is_same<T, std::string>::value>::type>
         void set(T value) {
             set_option(path, flame_value(value));
+        }
+        template<typename = std::enable_if<!std::is_same<T, std::string>::value>::type>
+        void set_tmp(T value) {
+            set_tmp_option(path, flame_value(value));
         }
 
 

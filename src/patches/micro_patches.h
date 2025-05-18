@@ -101,9 +101,7 @@ namespace null_surf_fix {
 }
 
 namespace override_max_room_count {
-    extern bool enabled;
-    extern uint8_t limit;
-    void init();
+    uint8_t getLimit();
 }
 
 namespace use_wasd_by_default_patch {

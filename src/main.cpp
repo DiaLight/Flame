@@ -417,7 +417,6 @@ int main(int argc, const char **argv) {
         }
     }
 
-    patch::override_max_room_count::init();
     patch::inspect_tools::init();
     patch::multi_interface_fix::init();
     patch::original_compatible::init();

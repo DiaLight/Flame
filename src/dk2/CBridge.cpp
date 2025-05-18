@@ -52,7 +52,7 @@ void dk2::CBridge::sub_443610(
         MyTerrainDataObj *a5,
         CEngineStaticMeshDataArrays *a6_arrs) {
     CRoom *v7_room = a4->getRoom();
-    if(patch::override_max_room_count::enabled) {
+    {  // patch
         if(v7_room == nullptr) {
             return;  // fix
         }

@@ -18,7 +18,8 @@ flame_config::define_flame_option<int> o_limitTps(
     "flame:limit-tps",
     "For displays with high frequency you can limit game loop time\n"
     "I don't know what fps value the dk2 developers were adjusting to\n"
-    "I was comfortable with 60 (frames/ticks) per second",
+    "I was comfortable with 60 (frames/ticks) per second\n"
+    "use value 0 to disable limit",
     60
 );
 

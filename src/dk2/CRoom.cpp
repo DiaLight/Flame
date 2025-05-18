@@ -176,7 +176,7 @@ int dk2::MyRooms::eventAttachAndReset(
     return arg4_ya;
 }
 
-#define MaxRoomCount (patch::override_max_room_count::limit * 7)  // 0x2A0
+#define MaxRoomCount (patch::override_max_room_count::getLimit() * 7)  // 0x2A0
 
 int dk2::MyRooms::createRooms(CWorld *a2_world) {
     DWORD *v3 = (DWORD *) dk2::operator_new(sizeof(CRoom) * MaxRoomCount + 4);  // 0x1BBA4
@@ -279,10 +279,8 @@ int dk2::CPlayer::fun_4C5C30_buildRoom(
         if (!g_pCWorld->v_sub_509280(a2_x, a3_y, v11_playerId_and_roomTypeId, a4_roomTypeId))
             return 0;
     }
-    uint8_t maxRoomLimit = 96;
-    if (patch::override_max_room_count::enabled) {
-        maxRoomLimit = patch::override_max_room_count::limit;
-    }
+    // uint8_t maxRoomLimit = 96;
+    uint8_t maxRoomLimit = patch::override_max_room_count::getLimit();
     uint8_t numRoomsLeft = maxRoomLimit - this->numberOfRooms;
     int8_t roomsCountNeg;
     if (!g_pCWorld->rooms.eventAttachAndReset(
@@ -338,10 +336,8 @@ int dk2::CPlayer::destroyRoom(int a2_x, int a3_y, int a4_bool) {
     MyMapElement *v7_mapElem = g_pCWorld->v_getMapElem(a2_x, v6_y);
     CRoom *room = v7_mapElem->getRoom();
     int salePrice = (unsigned __int16) room->pRoomDataObj->_getSalePrice();
-    uint8_t maxRoomLimit = 96;
-    if (patch::override_max_room_count::enabled) {
-        maxRoomLimit = patch::override_max_room_count::limit;
-    }
+    // uint8_t maxRoomLimit = 96;
+    uint8_t maxRoomLimit = patch::override_max_room_count::getLimit();
     uint8_t numRoomsLeft = maxRoomLimit - this->numberOfRooms;
 
     uint8_t roomTypeId = room->typeId;  // remember now as room obj will be released
