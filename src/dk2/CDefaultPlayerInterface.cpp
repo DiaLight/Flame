@@ -17,7 +17,9 @@
 #include "patches/micro_patches.h"
 #include "gog_patch.h"
 #include "tools/bug_hunter.h"
-#include "patches/inspect_tools.h"
+#if __has_include(<dk2_research.h>)
+   #include <dk2_research.h>
+#endif
 
 
 int dk2::CDefaultPlayerInterface::tickKeyboard2() {
@@ -182,7 +184,9 @@ BOOL __cdecl dk2::CDefaultPlayerInterface_onMouseAction(
     }
     Pos2i v8_coord = a3_coord;
     a4_dplif->sub_40BFF0(&v8_coord, 0);
-    patch::inspect_tools::onMouseAction(a4_dplif);
+#if __has_include(<dk2_research.h>)
+    research::onMouseAction(a4_dplif);
+#endif
     if (a1_KeyCode_F0toF3 == 0xF0) {
         a4_dplif->handleLeftClick(a2_isPressed, &a4_dplif->_underHand);
     } else {

@@ -24,9 +24,6 @@ namespace patch::inspect_tools {
 
     extern bool enable;
 
-    void onMouseAction(dk2::CDefaultPlayerInterface *dplif);
-    void windowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
-
     void sockBind(SOCKET hSock, ULONG ipv4);
     void sockSend(void *buf, int len, net::MySocket *dst, net::MySocket *src);
     void sockRecv(void *buf, int len, net::MySocket *dst, net::MySocket *src);

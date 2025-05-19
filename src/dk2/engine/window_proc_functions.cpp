@@ -10,7 +10,9 @@
 #include "patches/micro_patches.h"
 #include "patches/use_wheel_to_zoom.h"
 #include "gog_patch.h"
-#include "patches/inspect_tools.h"
+#if __has_include(<dk2_research.h>)
+   #include <dk2_research.h>
+#endif
 
 int __cdecl dk2::getCustomDefWindowProcA() {
     return customDefWindowProcA;
@@ -18,7 +20,9 @@ int __cdecl dk2::getCustomDefWindowProcA() {
 typedef LRESULT (__stdcall *CustomDefWindowProcA_t)(HWND, UINT, WPARAM, LPARAM);
 
 LRESULT dk2::CWindowTest_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {  // windowed proc
-    patch::inspect_tools::windowProc(hWnd, Msg, wParam, lParam);
+#if __has_include(<dk2_research.h>)
+    research::windowProc(hWnd, Msg, wParam, lParam);
+#endif
 
     // patch::BEFORE_WINDOW_PROC
     patch::remember_window_location_and_size::window_proc(hWnd, Msg, wParam, lParam);
