@@ -2232,7 +2232,7 @@ struct: id=vtbl_0066C4A4,name=CDefaultPlayerInterface,size=20273,vtable=instance
       type: kind=int,size=1
   field: name=f13A3_surf
     type: kind=struct,id=constructor_005B5270
-  field: name=f13CB
+  field: name=f13CB_isMouseRotateOrSoomPressed
     type: kind=int,size=4,signed=True
   field: name=field_13CF
     type: kind=int,size=4

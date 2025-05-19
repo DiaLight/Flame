@@ -22,6 +22,9 @@ enum Dk2Key {
 
     Key_ToggleAllyWindow = 36,  // A
 
+    Key_CameraMouseRotate = 43,  // X
+    Key_CameraMouseZoom = 44,  // Z
+
     Key_PitchUp = 47,  // ctrl + home
     Key_PitchDown = 48,  // ctrl + end
 
@@ -81,8 +84,8 @@ std::map<int, dk2::DxKeyEntry> defaultKeyTable = {
         {40,              {DIK_I,        0}},  // 40: 0x17
         {41,              {DIK_M,        0}},  // 41: 0x32
         {42,              {DIK_P,        0}},  // 42: 0x19
-        {43,              {DIK_X,        0}},  // 43: 0x2D
-        {44,              {DIK_Z,        0}},  // 44: 0x2C
+        {Key_CameraMouseRotate, {DIK_X,        0}},  // 43: 0x2D
+        {Key_CameraMouseZoom, {DIK_Z,        0}},  // 44: 0x2C
         {45,              {DIK_PERIOD,   Mod_Shift}},  // 45: 0x34 + 1
         {46,              {DIK_COMMA,    Mod_Shift}},  // 46: 0x33 + 1
         {Key_PitchUp,     {DIK_HOME,     Mod_Ctrl}},  // 47: 0xC7 + 2

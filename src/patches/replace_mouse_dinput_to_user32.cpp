@@ -72,6 +72,8 @@ namespace {
     DWORD controlFlags = 0;
     dk2::Pos2i clientSize;
     bool appIsActive = false;
+    POINT g_savedPos;
+    bool g_wasRelative = false;
 }
 
 void handle_fpv_mouse_move(HWND hWnd, POINT pos) {
@@ -109,27 +111,52 @@ void handle_fpv_mouse_move(HWND hWnd, POINT pos) {
 }
 
 void patch::replace_mouse_dinput_to_user32::handle_mouse_move(HWND hWnd, POINT pos) {
-    // handle gui mouse
-    dk2::AABB renderRect = dk2::MyInputManagerCb_instance.f60_mouse->f30_aabb;
-    dk2::Pos2i renderSize = {renderRect.maxX - renderRect.minX, renderRect.maxY - renderRect.minY};
-    POINT renderPos = {
-            (int) ((float) pos.x * (float) renderSize.x / (float) clientSize.x),
-            (int) ((float) pos.y * (float) renderSize.y / (float) clientSize.y)
-    };
-
-    dk2::MyInputManagerCb_instance.f60_mouse->f1C_flX = renderPos.x;
-    dk2::MyInputManagerCb_instance.f60_mouse->f20_flY = renderPos.y;
-    dk2::MyInputManagerCb_instance.f60_mouse->updatePos();
-
+    bool relativeMode = false;
     // handle first person view mouse
     if(dk2::g_pWorld != NULL) {
         if(dk2::CPlayer *pl = (dk2::CPlayer *) dk2::sceneObjects[dk2::g_pWorld->v_getMEPlayerTagId()]) {
-            if(pl->creaturePossessed != 0 && !dk2::CDefaultPlayerInterface_instance.inMenu) {
-                // keep mouse in the center of window
-                handle_fpv_mouse_move(hWnd, pos);
+            if (!dk2::CDefaultPlayerInterface_instance.inMenu) {
+                if(pl->creaturePossessed != 0 || dk2::CDefaultPlayerInterface_instance.isMouseRotateOrSoomPressed) {
+                    relativeMode = true;
+                }
             }
         }
     }
+    if (relativeMode) {
+        if (!g_wasRelative) {
+            g_savedPos = pos;
+
+            RECT clientRect;
+            GetClientRect(hWnd, &clientRect);
+            POINT clientResetPos;
+            clientResetPos.x = (clientRect.left + clientRect.right) / 2;
+            clientResetPos.y = (clientRect.top + clientRect.bottom) / 2;
+            POINT screenResetPos = clientResetPos;
+            ClientToScreen(hWnd, &screenResetPos);
+            SetCursorPos(screenResetPos.x, screenResetPos.y);
+            pos = clientResetPos;
+        }
+        // keep mouse in the center of window
+        handle_fpv_mouse_move(hWnd, pos);
+    } else {
+        if (g_wasRelative) {
+            POINT screenResetPos = g_savedPos;
+            ClientToScreen(hWnd, &screenResetPos);
+            SetCursorPos(screenResetPos.x, screenResetPos.y);
+            pos = g_savedPos;
+        }
+        // handle gui mouse
+        dk2::AABB renderRect = dk2::MyInputManagerCb_instance.f60_mouse->f30_aabb;
+        dk2::Pos2i renderSize = {renderRect.maxX - renderRect.minX, renderRect.maxY - renderRect.minY};
+        POINT renderPos = {
+            (int) ((float) pos.x * (float) renderSize.x / (float) clientSize.x),
+            (int) ((float) pos.y * (float) renderSize.y / (float) clientSize.y)
+        };
+        dk2::MyInputManagerCb_instance.f60_mouse->f1C_flX = renderPos.x;
+        dk2::MyInputManagerCb_instance.f60_mouse->f20_flY = renderPos.y;
+        dk2::MyInputManagerCb_instance.f60_mouse->updatePos();
+    }
+    g_wasRelative = relativeMode;
 }
 void patch::replace_mouse_dinput_to_user32::emulate_dinput_from_user32(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
     if(!enabled) return;
