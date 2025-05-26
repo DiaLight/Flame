@@ -35,7 +35,7 @@ BOOL dk2::collect_devices_DDEnumCB(GUID *lpGUID, const CHAR *driverName, const C
     ddraw_devices[device_offs].infoList = NULL;
 
     LPDIRECTDRAW lpDD;
-    if(gog::enable) {
+    if(*o_gog_enabled) {
         fake_DirectDrawCreate(lpGUID, &lpDD, NULL);
     } else {
         DirectDrawCreate(lpGUID, &lpDD, NULL);
@@ -75,7 +75,7 @@ BOOL dk2::collect_devices_DDEnumCB(GUID *lpGUID, const CHAR *driverName, const C
 
 BOOL dk2::collect_displayModes_DDEnumCB(GUID *lpGUID, LPSTR a2, LPSTR a3, HWND hWindow) {
     LPDIRECTDRAW lpDD;
-    if(gog::enable) {
+    if(*o_gog_enabled) {
         fake_DirectDrawCreate(lpGUID, &lpDD, NULL);
     } else {
         DirectDrawCreate(lpGUID, &lpDD, NULL);
@@ -91,7 +91,7 @@ BOOL dk2::collect_displayModes_DDEnumCB(GUID *lpGUID, LPSTR a2, LPSTR a3, HWND h
 
 int *__cdecl dk2::createDirectDrawObject(int *pstatus, GUID *lpGUID, LPDIRECTDRAW *lplpDD) {
     HRESULT hresult;
-    if(gog::enable) {
+    if(*o_gog_enabled) {
         hresult = fake_DirectDrawCreate(lpGUID, lplpDD, NULL);
     } else {
         hresult = DirectDrawCreate(lpGUID, lplpDD, NULL);
@@ -109,7 +109,7 @@ int *__cdecl dk2::createDirectDrawObject(int *pstatus, GUID *lpGUID, LPDIRECTDRA
 int dk2::getDevIdxSupportsLinearPerspective() {
     int devCount = ddraw_device_count;
     if (ddraw_device_count == 0) {
-        if(gog::enable) {
+        if(*o_gog_enabled) {
             fake_DirectDrawEnumerateA((LPDDENUMCALLBACKA) collect_devices_DDEnumCB, NULL);
         } else {
             DirectDrawEnumerateA((LPDDENUMCALLBACKA) collect_devices_DDEnumCB, NULL);
@@ -135,7 +135,7 @@ int dk2::getDevIdxSupportsLinearPerspective() {
 namespace dk2 {
     void inline_selectDrawEngine(dk2::MyGame *game) {
         game->dds_count = 0;
-        if(gog::enable) {
+        if(*o_gog_enabled) {
             fake_DirectDrawEnumerateA((LPDDENUMCALLBACKA) collect_namesAndDescs_DDEnumCB, game);
             if (ddraw_device_count == 0)
                 fake_DirectDrawEnumerateA((LPDDENUMCALLBACKA) collect_devices_DDEnumCB, NULL);
@@ -161,7 +161,7 @@ namespace dk2 {
                 return;
             }
             if (!ddraw_device_count) {
-                if(gog::enable) {
+                if(*o_gog_enabled) {
                     fake_DirectDrawEnumerateA((LPDDENUMCALLBACKA) collect_devices_DDEnumCB, 0);
                 } else {
                     DirectDrawEnumerateA((LPDDENUMCALLBACKA) collect_devices_DDEnumCB, 0);

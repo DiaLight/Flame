@@ -4,7 +4,7 @@ Flame modifies the Dungeon Keeper 2 code to fix the bugs found in both single an
 It works with the Disk, Steam and GOG versions of the game.
 
 Warning: Saves and network sessions between Flame and non-Flame Dungeon Keeper 2 versions are [incompatible](https://github.com/DiaLight/Flame/issues/57).
-But you can use `-original_compatible` flag to disable some patches that breaks compatibility.
+But you can use `-original-compatible` flag to disable some patches that breaks compatibility.
 
 ## How to report a bug
 

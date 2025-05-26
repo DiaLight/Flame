@@ -398,7 +398,7 @@ int main(int argc, const char **argv) {
         SetProcessAffinityMask(hProc, 1);
     }
     if(o_windowed.get()) {
-        gog::enable = false;  // gog is incompatible with windowed mode
+        o_gog_enabled.set_tmp(false);  // gog is incompatible with windowed mode
         patch::control_windowed_mode::enabled = true;
         if(!o_no_initial_size.get()) {
             // Finding the user's screen resolution
@@ -428,7 +428,7 @@ int main(int argc, const char **argv) {
         return 0;
     }, NULL, 0, NULL);
     // call entry point of DKII.EXE,
-    if(gog::enable) gog::patch_init();
+    if(*o_gog_enabled) gog::patch_init();
     // initialize its runtime and call dk2::WinMain
     int result = dk2::dk2_start();
     bug_hunter::stopped = true;

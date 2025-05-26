@@ -2,6 +2,9 @@
 // Created by DiaLight on 08.07.2024.
 //
 #include "dk2/MyGame.h"
+
+#include <patches/logging.h>
+
 #include "dk2/utils/Pos2i.h"
 #include "dk2/utils/AABB.h"
 #include "dk2/DxDeviceInfo.h"
@@ -18,11 +21,11 @@ int dk2::MyGame::prepareScreenEx(
         int screenSwap,
         int screenHardware3D) {
     if (patch::control_windowed_mode::enabled) {
-//        printf("prepareScreen %p %dx%d %d %d %d %d\n",
-//               this, dwWidth, dwHeight, dwRGBBitCount, isWindowed,
-//               screenSwap, screenHardware3D);
         isWindowed = true;  // todo: control
     }
+    patch::log::dbg("start prepareScreen %dx%d bpp=%d w=%d ssw=%d hw=%d",
+           dwWidth, dwHeight, dwRGBBitCount, isWindowed,
+           screenSwap, screenHardware3D);
     int sel_dd_idx = this->selected_dd_idx;
     if (sel_dd_idx != this->last_selected_dd_idx) {
         MyResources_instance.video_settings.writeGuidIndex(sel_dd_idx);
@@ -43,8 +46,10 @@ int dk2::MyGame::prepareScreenEx(
             isGameWindowCreated = 0;
         }
         int result = this->createWindow(0);
-        if (!result)
-            return result;
+        if (!result) {
+            patch::log::err("Screen Mode %d*%d (%d bpp) create window failed", dwWidth, dwHeight, dwRGBBitCount);
+            return 0;
+        }
     }
     int last_selected_dd_idx = this->last_selected_dd_idx;
     int ddraw_idx;
@@ -56,6 +61,7 @@ int dk2::MyGame::prepareScreenEx(
             f1FE_modeListCount = v13->modeListCount,
             f1FE_modeListCount <= 0)) {
         LABEL_14:
+        patch::log::err("Screen Mode %d*%d (%d bpp) is not available", dwWidth, dwHeight, dwRGBBitCount);
         MyGame_debugMsg(this, "Screen Mode %d*%d (%d bpp) is not available\n", dwWidth, dwHeight, dwRGBBitCount);
         return 0;
     }
@@ -105,10 +111,8 @@ int dk2::MyGame::prepareScreenEx(
     if (!cmd_flag_NOSOUND && MySound_ptr->v_sub_567210())
         MySound_ptr->v_fun_5677D0();
     this->c_window_test.recreate();
-    int dwHeight_;
     int dwRGBBitCount_;
     if (isWindowed) {
-        dwHeight_ = dwHeight;
         AABB aabb;
         int x = 50;
         int y = 50;
@@ -117,19 +121,24 @@ int dk2::MyGame::prepareScreenEx(
         aabb.minY = y;
         aabb.maxX = dwWidth + x;
         aabb.maxY = dwHeight + y;
-        if (*this->c_window_test.probably_do_show_window_ev0_7(&dwHeight, &aabb) < 0)
+        int status;
+        if (*this->c_window_test.probably_do_show_window_ev0_7((uint32_t *)&status, &aabb) < 0) {
+            patch::log::err("Screen Mode %d*%d (%d bpp) show failed", dwWidth, dwHeight, dwRGBBitCount);
             return 0;
+        }
         patch::remember_window_location_and_size::resizeWindow(this->c_window_test.hWnd);
         dwRGBBitCount_ = dwRGBBitCount;
     } else {
         dwRGBBitCount_ = dwRGBBitCount;
         int status;
         if (*dk2dd_init(&status, dwWidth, dwHeight, dwRGBBitCount, initFlags, 0) < 0) {
+            patch::log::err("Screen Mode %d*%d (%d bpp) dk2dd_init 1 failed", dwWidth, dwHeight, dwRGBBitCount);
             process_win_inputs();
-            if (*dk2dd_init(&status, dwWidth, dwHeight, dwRGBBitCount_, initFlags, 0) < 0)
+            if (*dk2dd_init(&status, dwWidth, dwHeight, dwRGBBitCount_, initFlags, 0) < 0) {
+                patch::log::err("Screen Mode %d*%d (%d bpp) dk2dd_init 2 failed", dwWidth, dwHeight, dwRGBBitCount);
                 return 0;
+            }
         }
-        dwHeight_ = dwHeight;
     }
     if (!cmd_flag_NOSOUND) {
         if (MySound_ptr->v_sub_567210())
@@ -141,7 +150,7 @@ int dk2::MyGame::prepareScreenEx(
     }
     this->isWindowed = isWindowed;
     this->dwWidth = dwWidth;
-    this->dwHeight = dwHeight_;
+    this->dwHeight = dwHeight;
     this->dwRGBBitCount = dwRGBBitCount_;
     this->_prepareScreen_a6 = screenSwap;
     this->_prepareScreen_a7 = screenHardware3D_;
@@ -168,7 +177,7 @@ int dk2::MyGame::prepareScreenEx(
     updateMousePos.minX = 0;
     updateMousePos.minY = 0;
     updateMousePos.maxX = dwWidth;
-    updateMousePos.maxY = dwHeight_;
+    updateMousePos.maxY = dwHeight;
     MyInputManagerCb_static_updateMouse(&updateMousePos);
     void (__cdecl **callbacks_)(int, uint32_t, uint32_t, void *); // esi
     callbacks_ = callbacks;
@@ -183,6 +192,9 @@ int dk2::MyGame::prepareScreenEx(
     MyResources_instance.video_settings.writeGuidIndexVerifiedWorking(1);
     HWND HWindow = getHWindow();
     ij_ImmAssociateContext(HWindow, 0);
+    patch::log::dbg("prepareScreen %dx%d bpp=%d w=%d ssw=%d hw=%d success",
+           dwWidth, dwHeight, dwRGBBitCount, isWindowed,
+           screenSwap, screenHardware3D);
     return 1;
 }
 
@@ -216,7 +228,7 @@ int dk2::MyGame::init() {
             MyResources_instance.video_settings.isWindowed,
             MyResources_instance.video_settings.screen_swap,
             MyResources_instance.video_settings.screen_hardware3D)) {
-        printf("failed to prepare screen\n");
+        patch::log::err("failed to prepare screen");
         return 0;
     }
     setCustomDefWindowProcA((int) myCustomDefWindowProcA);

@@ -6,7 +6,9 @@
 #define FLAME_GOG_PATCH_H
 
 #include <Windows.h>
+#include <tools/flame_config.h>
 
+extern flame_config::define_flame_option<bool> o_gog_enabled;
 namespace gog {
 
     namespace RtGuiView_fix {
@@ -16,7 +18,6 @@ namespace gog {
         bool isEnabled();
     }
 
-    extern bool enable;
     bool patch_init();
 
     namespace RegistryConfig_patch {
