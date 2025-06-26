@@ -21,6 +21,9 @@
 #include "patches/micro_patches.h"
 #include "patches/replace_mouse_dinput_to_user32.h"
 #include "patches/protocol_dump.h"
+#if __has_include(<dk2_research.h>)
+#include "dk2_research.h"
+#endif
 
 
 dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
@@ -161,6 +164,9 @@ dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
     // hook::BEFORE_GAME_LOOP
     while ( !this->exit_flag ) {
         // hook::TICK_GAME_LOOP
+#if __has_include(<dk2_research.h>)
+        research::tick();
+#endif
         if (flame_config::changed()) flame_config::save();
         patch::protocol_dump::tick();
         patch::replace_mouse_dinput_to_user32::release_handled_dinput_actions();
@@ -191,7 +197,7 @@ dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
                 if ( curWindow->f24_getPanelItemsCount )
                     curWindow->f24_getPanelItemsCount(curWindow, 0, &CFrontEndComponent_instance);
             }
-            CFrontEndComponent_do_special_gui(&CFrontEndComponent_instance);
+            CFrontEndComponent_tickMainGui(&CFrontEndComponent_instance);
             if ( CFrontEndComponent_instance.is_component_destroy )
                 this->exit_flag = 1;
         }
@@ -282,9 +288,9 @@ dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
                 v40.selectMyTR(&status, 2);
                 uint8_t *MbString = MyMbStringList_idx1091_getMbString(CWorld_instance.fA3C3);
                 PixelMask mask;
-                mask.f0 = 0xFF;
-                mask.f1 = 0xFF;
-                mask.f2 = 0xFF;
+                mask.b = 0xFF;
+                mask.g = 0xFF;
+                mask.r = 0xFF;
                 mask.f3 = 0xFF;
                 mask.f4 = 0;
                 g_FontObj5_instance.setFontMask(&status, &mask);
@@ -293,7 +299,7 @@ dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
                         &aabb,
                         MbString,
                         &g_FontObj5_instance,
-                        0);
+                        NULL);
                 v40.destructor();
             }
             MyGame_instance.getSurf_unlock();

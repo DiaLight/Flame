@@ -111,7 +111,7 @@ namespace {
         },
         {
             BT_CTextBox, 432, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            0, 40, 2560, 160, 0, 0, 0, 0, 0, NULL, dk2::CButton_render_536700, 0x00000000, 2, 0x00000000, 0x00010000, 0
+            0, 40, 2560, 160, 0, 0, 0, 0, 0, NULL, dk2::CTextBox_renderTitle_536700, 0x00000000, 2, 0x00000000, 0x00010000, 0
         },
         {
             BT_CTextBox, 429, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
@@ -134,7 +134,7 @@ namespace {
     };
 
     dk2::WindowCfg Net_AddressBook_WinCfg {
-        WID_AddressBook, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, NULL, 0,
+        MWID_AddressBook, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, NULL, 0,
         0, 0, 0, 0, 0, Net_AddressBook_BtnArr, 2
     };
 }

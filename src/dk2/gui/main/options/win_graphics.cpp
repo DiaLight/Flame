@@ -15,7 +15,7 @@ namespace {
     dk2::ButtonCfg Options_Graphics_BtnArr[] {
         {
             BT_CTextBox, 114, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            408, 4, 1712, 200, 0, 0, 0, 0, 0, NULL, dk2::CButton_render_536700, 0x00000000, 4, 0x00000000, 0x00000000, 0
+            408, 4, 1712, 200, 0, 0, 0, 0, 0, NULL, dk2::CTextBox_renderTitle_536700, 0x00000000, 4, 0x00000000, 0x00000000, 0
         },
         {
             BT_CTextBox, 115, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
@@ -47,7 +47,7 @@ namespace {
         },
         {
             BT_CClickButton, 122, 0, dk2::CButton_handleLeftClick_54C540, dk2::CButton_handleRightClick_54C6B0, 0, 0, 0x0000007A, 0x00000000, 0,
-            436, 1108, 820, 140, 0, 0, 820, 140, 0, NULL, dk2::CButton_render_532670, 0x00000000, 0, 0x00000007, 0x00000001, 34
+            436, 1108, 820, 140, 0, 0, 820, 140, 0, NULL, dk2::CClickButton_render_532670, 0x00000000, 0, 0x00000007, 0x00000001, 34
         },
         {
             BT_CTextBox, 123, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
@@ -55,7 +55,7 @@ namespace {
         },
         {
             BT_CClickButton, 124, 0, dk2::ResolutionBtn_handleLeftClick_54C2A0, dk2::ResolutionBtn_handleRightClick_54C3F0, 0, 0, 0x0000007C, 0x00000000, 0,
-            492, 1348, 820, 140, 0, 0, 820, 140, 0, NULL, dk2::CButton_render_532670, 0x00000000, 0, 0x00000000, 0x00000001, 33
+            492, 1348, 820, 140, 0, 0, 820, 140, 0, NULL, dk2::CClickButton_render_532670, 0x00000000, 0, 0x00000000, 0x00000001, 33
         },
         {
             BT_CTextBox, 125, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
@@ -79,7 +79,7 @@ namespace {
         },
         {
             BT_CClickButton, 680, 0, dk2::CButton_handleLeftClick_54D040, dk2::CButton_handleRightClick_54D0E0, 0, 0, 0x000002A8, 0x00000000, 0,
-            1440, 1348, 1008, 140, 0, 0, 1008, 140, 0, NULL, dk2::CButton_render_532670, 0x00000000, 0, 0x00000000, 0x00000002, 33
+            1440, 1348, 1008, 140, 0, 0, 1008, 140, 0, NULL, dk2::CClickButton_render_532670, 0x00000000, 0, 0x00000000, 0x00000002, 33
         },
         {
             BT_CClickButton, 130, 0, dk2::CButton_handleLeftClick_changeMenu, NULL, 4, 1, 0x00000004, 0x0000001F, 0,
@@ -94,7 +94,7 @@ namespace {
     };
 
     dk2::WindowCfg Options_Graphics_WinCfg {
-        WID_Graphics, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, NULL, 0,
+        MWID_Graphics, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, NULL, 0,
         0, 0, 0, 0, 0, Options_Graphics_BtnArr, 2
     };
 }

@@ -20,7 +20,7 @@ namespace {
         },
         {
             BT_CTextBox, 575, 255, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            668, 44, 1252, 140, 0, 0, 0, 0, 0, NULL, dk2::CButton_render_536700, 0x00000000, 17, 0x00000000, 0x00000000, 0
+            668, 44, 1252, 140, 0, 0, 0, 0, 0, NULL, dk2::CTextBox_renderTitle_536700, 0x00000000, 17, 0x00000000, 0x00000000, 0
         },
         {
             BT_CTextBox, 0, 255, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
@@ -56,15 +56,15 @@ namespace {
         },
         {
             BT_CClickButton, 577, 0, dk2::CButton_handleLeftClick_changeMenu, NULL, 0, 0, 0x00000020, 0x00000061, 0,
-            76, 1348, 632, 136, 0, 0, 632, 136, 0, NULL, dk2::CButton_render_532670, 0x00000000, 159, 0x00000000, 0x000C0002, 0
+            76, 1348, 632, 136, 0, 0, 632, 136, 0, NULL, dk2::CClickButton_render_532670, 0x00000000, 159, 0x00000000, 0x000C0002, 0
         },
         {
             BT_CClickButton, 578, 0, dk2::CFrontEndComponent_static_sub_5457A0, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            76, 1508, 632, 128, 0, 0, 632, 128, 0, NULL, dk2::CButton_render_532670, 0x00000000, 216, 0x00000001, 0x000C0002, 0
+            76, 1508, 632, 128, 0, 0, 632, 128, 0, NULL, dk2::CClickButton_render_532670, 0x00000000, 216, 0x00000001, 0x000C0002, 0
         },
         {
             BT_CClickButton, 670, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            76, 1508, 632, 128, 0, 0, 632, 128, 0, NULL, dk2::CButton_render_532670, 0x00000000, 2056, 0x00000002, 0x000C0002, 0
+            76, 1508, 632, 128, 0, 0, 632, 128, 0, NULL, dk2::CClickButton_render_532670, 0x00000000, 2056, 0x00000002, 0x000C0002, 0
         },
         {
             BT_CClickButton, 576, 0, dk2::CButton_handleLeftClick_changeMenu, NULL, 3, 1, 0x00000003, 0x00000017, 0,
@@ -79,7 +79,7 @@ namespace {
     };
 
     dk2::WindowCfg Net_InternetDungeonWatch_WinCfg {
-        WID_InternetDungeonWatch, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, dk2::CWindow_fun, 0,
+        MWID_InternetDungeonWatch, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, dk2::CWindow_fun, 0,
         0, 0, 0, 0, 0, Net_InternetDungeonWatch_BtnArr, 0
     };
 }

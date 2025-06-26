@@ -112,9 +112,9 @@ void dk2::CDefaultPlayerInterface::createSurfacesForView_42CDF0(RtGuiView *view)
         char *linePos = rowPos;
         for (unsigned int x = 0; x < view->width_128blocks; ++x) {
             int lPitch = view->surf.lPitch;
-            Pos2i v14_size;
-            v14_size.x = 128;
-            v14_size.y = 32;
+            Size2i v14_size;
+            v14_size.w = 128;
+            v14_size.h = 32;
             MySurface v15_surf;
             v15_surf.constructor(&v14_size, &view->surf.desc, linePos, lPitch);
             int _idx = x + view->width_128blocks * y;

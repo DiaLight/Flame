@@ -15,7 +15,7 @@ namespace {
     dk2::ButtonCfg Extras_TodaysTopKeepers_BtnArr[] {
         {
             BT_CTextBox, 25, 255, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            0, 64, 2560, 384, 0, 0, 0, 0, 0, NULL, dk2::CButton_render_536700, 0x00000000, 5, 0x0000000A, 0x00010000, 0
+            0, 64, 2560, 384, 0, 0, 0, 0, 0, NULL, dk2::CTextBox_renderTitle_536700, 0x00000000, 5, 0x0000000A, 0x00010000, 0
         },
         {
             BT_CTextBox, 26, 255, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
@@ -110,7 +110,7 @@ namespace {
     };
 
     dk2::WindowCfg Extras_TodaysTopKeepers_WinCfg {
-        WID_TodaysTopKeepers, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, NULL, 0,
+        MWID_TodaysTopKeepers, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, NULL, 0,
         0, 0, 0, 0, 0, Extras_TodaysTopKeepers_BtnArr, 2
     };
 }

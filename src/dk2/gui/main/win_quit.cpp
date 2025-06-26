@@ -38,7 +38,7 @@ namespace {
     };
 
     dk2::WindowCfg Main_Quit_WinCfg {
-        WID_Quit, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, NULL, 0,
+        MWID_Quit, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, NULL, 0,
         0, 0, 0, 0, 0, Main_Quit_BtnArr, 0
     };
 }

@@ -21,7 +21,7 @@ dk2::WindowCfg *Main_Multiplayer_layout() {
 
     buttons.emplace_back() = {
         BT_CTextBox, 13, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-        0, 52, 2560, 160, 0, 0, 0, 0, 0, NULL, dk2::CButton_render_536700, NULL, 16, 0x00000000, 0x00010000, 0
+        0, 52, 2560, 160, 0, 0, 0, 0, 0, NULL, dk2::CTextBox_renderTitle_536700, NULL, 16, 0x00000000, 0x00010000, 0
     };
     buttons.emplace_back() = {
         BT_CListBox, 12, 0, NULL, NULL, 0, 0, (uint32_t) dk2::getListElementCount, (uint32_t) dk2::CListBox_listfun, 0,
@@ -40,7 +40,7 @@ dk2::WindowCfg *Main_Multiplayer_layout() {
 
     window = std::make_unique<dk2::WindowCfg>();
     *window = {
-        WID_Multiplayer, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, NULL, 0,
+        MWID_Multiplayer, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, NULL, 0,
         0, 0, 0, 0, 0, buttons.data(), 2
     };
     return window.get();

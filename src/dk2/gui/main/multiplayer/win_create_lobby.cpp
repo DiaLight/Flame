@@ -57,23 +57,23 @@ namespace {
         },
         {
             BT_CClickButton, 464, 0, dk2::Button_kickPlayer, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            64, 1044, 560, 116, 0, 0, 560, 116, 0, NULL, dk2::CButton_render_532670, 0x00000000, 270, 0x0000000A, 0x00030000, 0
+            64, 1044, 560, 116, 0, 0, 560, 116, 0, NULL, dk2::CClickButton_render_532670, 0x00000000, 270, 0x0000000A, 0x00030000, 0
         },
         {
             BT_CClickButton, 528, 0, dk2::Button_addAiPlayer, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            64, 1180, 1360, 116, 0, 0, 1360, 116, 0, NULL, dk2::CButton_render_532670, 0x00000000, 1547, 0x0000000B, 0x00030001, 0
+            64, 1180, 1360, 116, 0, 0, 1360, 116, 0, NULL, dk2::CClickButton_render_532670, 0x00000000, 1547, 0x0000000B, 0x00030001, 0
         },
         {
             BT_CClickButton, 454, 0, dk2::CButton_handleLeftClick_changeMenu, NULL, 33, 1, 0x00000021, 0x0000004D, 0,
-            1480, 1180, 960, 116, 1, 0, 960, 116, 0, NULL, dk2::CButton_render_532670, 0x00000000, 1495, 0x0000000C, 0x00030002, 0
+            1480, 1180, 960, 116, 1, 0, 960, 116, 0, NULL, dk2::CClickButton_render_532670, 0x00000000, 1495, 0x0000000C, 0x00030002, 0
         },
         {
             BT_CClickButton, 453, 0, dk2::CButton_handleLeftClick_546360, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            1480, 1336, 960, 116, 0, 0, 960, 116, 0, NULL, dk2::CButton_render_532670, 0x00000000, 1496, 0x0000000D, 0x00030002, 0
+            1480, 1336, 960, 116, 0, 0, 960, 116, 0, NULL, dk2::CClickButton_render_532670, 0x00000000, 1496, 0x0000000D, 0x00030002, 0
         },
         {
             BT_CClickButton, 455, 0, dk2::CButton_handleLeftClick_changeMenu, NULL, 35, 1, 0x00000023, 0x00000048, 0,
-            1480, 1484, 960, 116, 1, 0, 960, 116, 0, NULL, dk2::CButton_render_532670, 0x00000000, 2803, 0x0000000E, 0x00030002, 0
+            1480, 1484, 960, 116, 1, 0, 960, 116, 0, NULL, dk2::CClickButton_render_532670, 0x00000000, 2803, 0x0000000E, 0x00030002, 0
         },
         {
             BT_CTextBox, 461, 255, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
@@ -93,14 +93,14 @@ namespace {
         },
         {
             BT_CClickButton, 681, 0, dk2::Button_changeAiType_leftClick, dk2::Button_changeAiType_rightClick, 0, 0, 0x00000000, 0x00000000, 0,
-            624, 1044, 776, 108, 0, 0, 776, 108, 0, NULL, dk2::CButton_render_532670, 0x00000000, 0, 0x00000000, 0x00090001, 32
+            624, 1044, 776, 108, 0, 0, 776, 108, 0, NULL, dk2::CClickButton_render_532670, 0x00000000, 0, 0x00000000, 0x00090001, 32
         },
 
         EngOfButtonList,
     };
 
     dk2::WindowCfg Net_CreateLobby_WinCfg {
-        WID_CreateLobby, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, dk2::__onMapSelected, 0,
+        MWID_CreateLobby, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, dk2::__onMapSelected, 0,
         0, 0, 0, 0, 0, Net_CreateLobby_BtnArr, 2
     };
 }

@@ -139,7 +139,7 @@ namespace {
         },
         {
             BT_CTextBox, 627, 255, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            0, 8, 2560, 224, 0, 0, 0, 0, 0, NULL, dk2::CButton_render_536700, 0x00000000, 3, 0x00000000, 0x00000000, 0
+            0, 8, 2560, 224, 0, 0, 0, 0, 0, NULL, dk2::CTextBox_renderTitle_536700, 0x00000000, 3, 0x00000000, 0x00000000, 0
         },
         {
             BT_CTextBox, 636, 255, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
@@ -147,7 +147,7 @@ namespace {
         },
         {
             BT_CClickButton, 637, 0, dk2::CButton_handleLeftClick_54AC90, dk2::CButton_handleLeftClick_54AC90, 0, 0, 0x00000000, 0x00000005, 0,
-            72, 1272, 1316, 104, 0, 0, 1316, 104, 0, NULL, dk2::CButton_render_532670, 0x00000000, 1537, 0x00000005, 0x000E0001, 33
+            72, 1272, 1316, 104, 0, 0, 1316, 104, 0, NULL, dk2::CClickButton_render_532670, 0x00000000, 1537, 0x00000005, 0x000E0001, 33
         },
         {
             BT_CTextBox, 628, 255, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
@@ -290,7 +290,7 @@ namespace {
     };
 
     dk2::WindowCfg GameSettings_WinCfg {
-        WID_GameSettings, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, dk2::__onMapSelected, 0,
+        MWID_GameSettings, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, dk2::__onMapSelected, 0,
         0, 0, 0, 0, 0, GameSettings_BtnArr, 2
     };
 }

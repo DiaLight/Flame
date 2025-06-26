@@ -43,7 +43,7 @@ namespace {
     };
 
     dk2::WindowCfg CreateLobby_PlayerList_WinCfg {
-        WID_PlayerList, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, dk2::__onMapSelected, 0,
+        MWID_PlayerList, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, dk2::__onMapSelected, 0,
         0, 0, 0, 0, 0, CreateLobby_PlayerList_BtnArr, 2
     };
 }

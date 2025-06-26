@@ -45,6 +45,8 @@
 00406530 BOOL __cdecl CDefaultPlayerInterface_onMouseAction(int, uint32_t, Pos2i, CDefaultPlayerInterface *);  /* auto */
 0040DAB0 void pushDropThingFromHandAction(CThing *, ObjUnderHand *);  /* auto */
 0040D8F0 BOOL checkAllowToDrop(CThing *, int, int);     /* auto */
+00402D00 int fun_402D00(uint16_t);  // ---------------  /* auto */
+004098D0 int fun_4098D0();  // -----------------------  /* auto */
 
 # MyDxMouse.h
 005BC760 int *__cdecl MyDxMouse_create(int *, MyDxMouse **);  /* auto */
@@ -184,6 +186,11 @@
 00532670 char __cdecl CButton_render(CButton *, CFrontEndComponent *);  /* auto */
 00541F50 char __cdecl CButton_render_541F50(CButton *, CFrontEndComponent *);  /* auto */
 005391F0 void __cdecl changeGui(int, int, CFrontEndComponent *);  /* auto */
+00532670 char __cdecl CClickButton_render_532670(CButton *, CFrontEndComponent *);  /* auto */
+005329A0 char renderButtonsText_5329A0(int, uint8_t, RenderButtonTextInfo *, int);  /* auto */
+00533570 char bakeButton(int, uint8_t, int);  // -----  /* auto */
+00538000 void __cdecl CButton_handleLeftClick_538000(int, int, CFrontEndComponent *);  /* auto */
+005384F0 void __cdecl CFrontEndComponent_subTickMainGui(CFrontEndComponent *);  /* auto */
 
 # CGuiManager.h
 0052B8F0 int createElements(WindowCfg **, CDefaultPlayerInterface *);  /* auto */

@@ -15,7 +15,7 @@ namespace {
     dk2::ButtonCfg Options_Control_BtnArr[] {
         {
             BT_CTextBox, 148, 255, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            540, 16, 1376, 188, 0, 0, 0, 0, 0, NULL, dk2::CButton_render_536700, 0x00000000, 12, 0x00000000, 0x00000000, 0
+            540, 16, 1376, 188, 0, 0, 0, 0, 0, NULL, dk2::CTextBox_renderTitle_536700, 0x00000000, 12, 0x00000000, 0x00000000, 0
         },
         {
             BT_CTextBox, 673, 255, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
@@ -34,7 +34,7 @@ namespace {
             1280, 464, 1184, 76, 0, 0, 0, 0, 0, NULL, dk2::CButton_render_5322F0, 0x00000000, 2846, 0x00000000, 0x00010000, 0
         },
         {
-            BT_CListBox, 150, 0, dk2::CButton_handleLeftClick_54BD70, dk2::CButton_handleLeftClick_54BD70, 0, 0, (uint32_t) dk2::CListBox__54BDE0, (uint32_t) dk2::CListBox__54BDF0, 0,
+            BT_CListBox, 150, 0, dk2::CButton_handleLeftClick_54BD70, dk2::CButton_handleLeftClick_54BD70, 0, 0, (uint32_t) dk2::CListBox_clickArg1_54BDE0, (uint32_t) dk2::CListBox_clickArg2_54BDF0, 0,
             60, 548, 2396, 388, 0, 0, 2396, 388, 0, dk2::CListBox_sub_530440, dk2::CListBox_render_54BE30, (uint32_t) dk2::CVerticalSlider_551BA0, 1, 0x00000001, 0x00000040, 0
         },
         {
@@ -82,7 +82,7 @@ namespace {
     };
 
     dk2::WindowCfg Options_Control_WinCfg {
-        WID_Control, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, NULL, 0,
+        MWID_Control, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, NULL, 0,
         0, 0, 0, 0, 0, Options_Control_BtnArr, 2
     };
 }

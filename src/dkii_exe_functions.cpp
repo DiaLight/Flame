@@ -79,7 +79,7 @@ void __cdecl dk2::CTextBox_renderVersion(dk2::CTextBox *textBox, CFrontEndCompon
     AABB area;
     textBox->getScreenAABB(&area);
     AABB scaled;
-    scaled = *frontend->cgui_manager.scaleAabb(&scaled, &area);
+    scaled = *frontend->cgui_manager.scaleAabb_2560_1920(&scaled, &area);
 
     uint8_t __buf[sizeof(MyTextRenderer)];
     MyTextRenderer &renderer = *(MyTextRenderer *) &__buf;
@@ -94,7 +94,7 @@ void __cdecl dk2::CTextBox_renderVersion(dk2::CTextBox *textBox, CFrontEndCompon
         swprintf(wstring, L"V%lu.%lu", g_majorVersion, g_minorVersion);
     }
     uint8_t mbstring[64];
-    MyLangObj_static_toUniToMB_2(wstring, mbstring, 64);
+    UniToMb_convert(wstring, mbstring, 64);
     renderer.renderText(&status, &scaled, mbstring, &g_FontObj2_instance, NULL);
     renderer.destructor();
 }

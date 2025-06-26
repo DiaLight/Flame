@@ -99,6 +99,7 @@ int BullfrogNET::waitResetSessions(int a2_clearSessions) {
         if ( this->f59F_enumerateSessions_hThread == INVALID_HANDLE_VALUE )
             isThreadAlive = 0;
         LeaveCriticalSection(&this->dataLock);
+        SwitchToThread();  // fix for single thread affinity
     } while ( isThreadAlive );
     this->f58F_flags = 0;
     if ( a2_clearSessions )
@@ -794,6 +795,7 @@ void BullfrogNET::waitForThreadExit_JoinSession() {
         if ( this->f59B_joinSession_hThread == INVALID_HANDLE_VALUE )
             isThreadAlive = 0;
         LeaveCriticalSection(&this->dataLock);
+        SwitchToThread();  // fix for single thread affinity
     } while ( isThreadAlive );
 }
 
@@ -1103,6 +1105,7 @@ void BullfrogNET::listenThread_waitDestroy() {
         if ( this->f597_listenThread_hThread == INVALID_HANDLE_VALUE )
             isThreadAlive = 0;
         LeaveCriticalSection(&this->dataLock);
+        SwitchToThread();  // fix for single thread affinity
     }
     this->dword_5a3 = 0;
     _log("DESTROYED LISTEN THREAD\n");

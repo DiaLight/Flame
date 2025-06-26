@@ -62,7 +62,7 @@ bool patch::null_surf_fix::enabled = true;
 dk2::MySurface patch::null_surf_fix::emptySurf;
 void patch::null_surf_fix::init() {
     emptySurf.constructor_empty();
-    dk2::Pos2i size = {64, 64};
+    dk2::Size2i size = {64, 64};
     dk2::MySurfDesc desc = {
         0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000,
         32, 0

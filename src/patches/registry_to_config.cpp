@@ -499,10 +499,10 @@ namespace registry::dk2::configuration::video {
         "1: 512x384\n"
         "2: 640x480 if VRAM > 2mb\n"
         "3: 800x600 if VRAM > 3mb\n"
-        "4: 1024x768 if VRAM > 6mb\n"
-        "5: 1280x1024 if VRAM > 10mb\n"
-        "6: 1600x1200 if VRAM > 14mb\n"
-        "dk2 default value is calculated based on RAM size but I will set it to 6\n"
+        "4: 1024x768 if VRAM > 6mb  (most stable)\n"
+        "5: 1280x1024 if VRAM > 10mb  (crashes the game)\n"
+        "6: 1600x1200 if VRAM > 14mb  (fonts not loading)\n"
+        "dk2 default value is calculated based on RAM size but I will set it to 4\n"
         "",
         4
     );

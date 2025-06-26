@@ -15,11 +15,11 @@ namespace {
     dk2::ButtonCfg MyPetDungeon_Other_BtnArr[] {
         {
             BT_CTextBox, 562, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            0, 44, 2560, 140, 0, 0, 0, 0, 0, NULL, dk2::CButton_render_536700, 0x00000000, 21, 0x00000000, 0x00010000, 0
+            0, 44, 2560, 140, 0, 0, 0, 0, 0, NULL, dk2::CTextBox_renderTitle_536700, 0x00000000, 21, 0x00000000, 0x00010000, 0
         },
         {
             BT_CTextBox, 231, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            620, 616, 1240, 640, 0, 0, 0, 0, 0, NULL, dk2::CButton_render_541980, 0x00000000, 0, 0x00000000, 0x00000000, 0
+            620, 616, 1240, 640, 0, 0, 0, 0, 0, NULL, dk2::CTextBox_renderTableBackground_541980, 0x00000000, 0, 0x00000000, 0x00000000, 0
         },
         {
             BT_CTextBox, 470, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
@@ -46,7 +46,7 @@ namespace {
     };
 
     dk2::WindowCfg MyPetDungeon_Other_WinCfg {
-        WID_MyPetDungeon_Other, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, NULL, 0,
+        MWID_MyPetDungeon_Other, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, NULL, 0,
         0, 0, 0, 0, 0, MyPetDungeon_Other_BtnArr, 4
     };
 }

@@ -61,7 +61,7 @@ void dk2::CBridge::sub_443610(
     switch (f19_pRoomDataObj->someTy) {
         case 1: {
             CEngineStaticMeshData *v10 = &a6_arrs->field_1B4_CEngineStaticMeshData_arr[a6_arrs->field_2E8_CEngineStaticMeshData_count];
-            v10->field_0_MyMeshResourceHolder_idx = f19_pRoomDataObj->f1B.fF;
+            v10->field_0_MyMeshResourceHolder_idx = f19_pRoomDataObj->f1B.idx;
             v10->field_4_mat3x3f_idx = 0;
             v10->byte_8_vec3b.x = 0;
             v10->byte_8_vec3b.y = 0;

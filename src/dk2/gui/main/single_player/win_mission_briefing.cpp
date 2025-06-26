@@ -14,7 +14,7 @@ namespace {
     dk2::ButtonCfg Map3d_MissionBriefing_BtnArr[] {
         {
             BT_CTextBox, 161, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            0, 40, 2560, 208, 0, 0, 0, 0, 0, NULL, dk2::CButton_render_536700, 0x00000000, 1, 0x0000000C, 0x00010000, 0
+            0, 40, 2560, 208, 0, 0, 0, 0, 0, NULL, dk2::CTextBox_renderTitle_536700, 0x00000000, 1, 0x0000000C, 0x00010000, 0
         },
         {
             BT_CTextBox, 162, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
@@ -50,7 +50,7 @@ namespace {
     };
 
     dk2::WindowCfg Map3d_MissionBriefing_WinCfg {
-        WID_MissionBriefing, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, NULL, 0,
+        MWID_MissionBriefing, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, NULL, 0,
         0, 0, 0, 0, 0, Map3d_MissionBriefing_BtnArr, 2
     };
 }

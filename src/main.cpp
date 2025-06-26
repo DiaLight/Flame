@@ -233,7 +233,7 @@ bool dk2::dk2_main1(int argc, LPCSTR *argv) {
 }
 
 int __cdecl dk2::dk2_main(int argc, LPCSTR *argv) {
-    uint32_t finalStatus = 0;
+    uint32_t try_level = 0;
     MyMutex mutex;
     mutex.constructor("DKII MUTEX");
     if (!mutex.alredyExists ) {
@@ -241,7 +241,7 @@ int __cdecl dk2::dk2_main(int argc, LPCSTR *argv) {
             if(patch::print_game_start_errors::enabled) {
                 MessageBoxA(NULL, "Game failed to start", "Flame", MB_OK);
             }
-            finalStatus = -1;
+            try_level = -1;
             mutex.destroy();
             return 0;
         }
@@ -250,7 +250,7 @@ int __cdecl dk2::dk2_main(int argc, LPCSTR *argv) {
         MessageBoxA(NULL, "Another instance of DK2 is already running", "Dungeon Keeper 2", MB_OK);
     }
 
-    finalStatus = -1;
+    try_level = -1;
     mutex.destroy();
     return 0;
 }

@@ -25,7 +25,7 @@ namespace {
     };
 
     dk2::WindowCfg Map3d_WinCfg {
-        WID_Map3d, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, NULL, 0,
+        MWID_Map3d, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, NULL, 0,
         0, 0, 0, 0, 0, Map3d_BtnArr, 3
     };
 }

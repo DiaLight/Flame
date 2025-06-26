@@ -15,7 +15,7 @@ namespace {
     dk2::ButtonCfg Options_Sound_BtnArr[] {
         {
             BT_CTextBox, 131, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            384, 12, 1684, 196, 0, 0, 0, 0, 0, NULL, dk2::CButton_render_536700, 0x00000000, 11, 0x00000000, 0x00000000, 0
+            384, 12, 1684, 196, 0, 0, 0, 0, 0, NULL, dk2::CTextBox_renderTitle_536700, 0x00000000, 11, 0x00000000, 0x00000000, 0
         },
         {
             BT_CTextBox, 132, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
@@ -23,7 +23,7 @@ namespace {
         },
         {
             BT_CClickButton, 133, 0, dk2::CButton_handleLeftClick_54C810, dk2::CButton_handleRightClick_54C8C0, 0, 0, 0x00000085, 0x00000000, 0,
-            820, 428, 496, 120, 0, 0, 496, 120, 0, NULL, dk2::CButton_render_532670, 0x00000000, 0, 0x00000000, 0x00010001, 34
+            820, 428, 496, 120, 0, 0, 496, 120, 0, NULL, dk2::CClickButton_render_532670, 0x00000000, 0, 0x00000000, 0x00010001, 34
         },
         {
             BT_CTextBox, 134, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
@@ -31,7 +31,7 @@ namespace {
         },
         {
             BT_CClickButton, 135, 0, dk2::CButton_handleLeftClick_54C970, dk2::CButton_handleLeftClick_54C970, 0, 0, 0x00000087, 0x00000000, 0,
-            800, 724, 516, 120, 0, 0, 516, 120, 0, NULL, dk2::CButton_render_532670, 0x00000000, 0, 0x00000000, 0x00010001, 34
+            800, 724, 516, 120, 0, 0, 516, 120, 0, NULL, dk2::CClickButton_render_532670, 0x00000000, 0, 0x00000000, 0x00010001, 34
         },
         {
             BT_CTextBox, 138, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
@@ -51,7 +51,7 @@ namespace {
         },
         {
             BT_CClickButton, 678, 0, dk2::CButton_handleLeftClick_54C9F0, dk2::CButton_handleLeftClick_54C9F0, 0, 0, 0x000002A6, 0x00000000, 0,
-            2180, 616, 272, 120, 0, 0, 272, 120, 0, NULL, dk2::CButton_render_532670, 0x00000000, 0, 0x00000000, 0x00010002, 32
+            2180, 616, 272, 120, 0, 0, 272, 120, 0, NULL, dk2::CClickButton_render_532670, 0x00000000, 0, 0x00000000, 0x00010002, 32
         },
         {
             BT_CTextBox, 142, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
@@ -63,7 +63,7 @@ namespace {
         },
         {
             BT_CClickButton, 676, 0, dk2::CButton_handleLeftClick_54C9F0, dk2::CButton_handleLeftClick_54C9F0, 0, 0, 0x000002A4, 0x00000000, 0,
-            2176, 912, 272, 120, 0, 0, 272, 120, 0, NULL, dk2::CButton_render_532670, 0x00000000, 0, 0x00000000, 0x00010002, 32
+            2176, 912, 272, 120, 0, 0, 272, 120, 0, NULL, dk2::CClickButton_render_532670, 0x00000000, 0, 0x00000000, 0x00010002, 32
         },
         {
             BT_CTextBox, 145, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
@@ -75,7 +75,7 @@ namespace {
         },
         {
             BT_CClickButton, 677, 0, dk2::CButton_handleLeftClick_54C9F0, dk2::CButton_handleLeftClick_54C9F0, 0, 0, 0x000002A5, 0x00000000, 0,
-            2180, 1208, 272, 120, 0, 0, 272, 120, 0, NULL, dk2::CButton_render_532670, 0x00000000, 0, 0x00000000, 0x00010002, 32
+            2180, 1208, 272, 120, 0, 0, 272, 120, 0, NULL, dk2::CClickButton_render_532670, 0x00000000, 0, 0x00000000, 0x00010002, 32
         },
         {
             BT_CTextBox, 136, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
@@ -106,7 +106,7 @@ namespace {
     };
 
     dk2::WindowCfg Options_Sound_WinCfg {
-        WID_Sound, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, NULL, 0,
+        MWID_Sound, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, NULL, 0,
         0, 0, 0, 0, 0, Options_Sound_BtnArr, 2
     };
 }

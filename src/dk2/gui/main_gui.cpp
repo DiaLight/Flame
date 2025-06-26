@@ -9,179 +9,18 @@
 #include <dk2_globals.h>
 #include <dk2/button/button_types.h>
 #include <dk2/gui/main/main_layout.h>
-
-
-bool eq(void *cur, void *fun) {
-    if (cur == fun) return true;
-    uint8_t *p = (uint8_t*) fun;
-    if (*p++ == 0xFF && *p++ == 0x25) { // follow jmp
-        fun = **(void***) p;
-        if (cur == fun) return true;
-    }
-    return false;
-}
-
-void dumpButtons(dk2::ButtonCfg *cur) {
-    if (cur == nullptr) return;
-    printf("    dk2::ButtonCfg N_BtnArr[] {\n");
-    for (; cur->idx != 0xFFFFFFFF; ++cur) {
-        printf("        {\n            ");
-        switch ((CButtonType) cur->kind) {
-        case BT_CClickButton: printf("BT_CClickButton, ");
-            break;
-        case BT_CRadioButton: printf("BT_CRadioButton, ");
-            break;
-        case BT_CVerticalSlider: printf("BT_CVerticalSlider, ");
-            break;
-        case BT_CHorizontalSlider: printf("BT_CHorizontalSlider, ");
-            break;
-        case BT_CDragButton: printf("BT_CDragButton, ");
-            break;
-        case BT_CHoldButton: printf("BT_CHoldButton, ");
-            break;
-        case BT_CCheckBoxButton: printf("BT_CCheckBoxButton, ");
-            break;
-        case BT_CTextBox: printf("BT_CTextBox, ");
-            break;
-        case BT_CTextInput: printf("BT_CTextInput, ");
-            break;
-        case BT_CSpinButton: printf("BT_CSpinButton, ");
-            break;
-        case BT_CListBox: printf("BT_CListBox, ");
-            break;
-        case BT_CProgressBar: printf("BT_CProgressBar, ");
-            break;
-        case BT_CClickTextButton: printf("BT_CClickTextButton, ");
-            break;
-        default: printf("%d, ", cur->kind);
-            break;
-        }
-        printf("%d, ", cur->idx);
-        printf("%d, ", cur->f5);
-        if (cur->leftClickHandler) {
-            if (eq(cur->leftClickHandler, &dk2::CButton_handleLeftClick_changeMenu)) {
-                printf("dk2::CButton_handleLeftClick_changeMenu, ");
-            } else printf("dk2::CButton_handleLeftClick_%X, ", cur->leftClickHandler);
-        } else printf("NULL, ");
-        if (cur->rightClickHandler) printf("dk2::CButton_handleRightClick_%X, ", cur->rightClickHandler);
-        else printf("NULL, ");
-        printf("%d, ", cur->_nextWindowIdOnClick);
-        printf("%d, ", cur->f12);
-        printf("0x%08X, ", cur->clickHandler_arg1);
-        printf("0x%08X, ", cur->clickHandler_arg2);
-        printf("%d,\n            ", cur->posFlags);
-        printf("%d, ", cur->x);
-        printf("%d, ", cur->y);
-        printf("%d, ", cur->w);
-        printf("%d, ", cur->h);
-        printf("%d, ", cur->x_offs);
-        printf("%d, ", cur->y_offs);
-        printf("%d, ", cur->width);
-        printf("%d, ", cur->height);
-        printf("%d, ", cur->f30);
-        if (cur->f34) printf("0x%p, ", cur->f34);
-        else printf("NULL, ");
-        if (cur->renderFun) {
-            if (eq(cur->renderFun, &dk2::CButton_render_532670)) {
-                printf("dk2::CButton_render_532670, ");
-            } else if (eq(cur->renderFun, &dk2::CClickButton_renderExitBtn)) {
-                printf("dk2::CClickButton_renderExitBtn, ");
-            } else if (eq(cur->renderFun, &dk2::CClickButton_renderApplyBtn)) {
-                printf("dk2::CClickButton_renderApplyBtn, ");
-            } else if (eq(cur->renderFun, &dk2::CButton_render_541F50)) {
-                printf("dk2::CButton_render_541F50, ");
-            } else if (eq(cur->renderFun, &dk2::CButton_render_532670)) {
-                printf("dk2::CButton_render_532670, ");
-            } else {
-                printf("dk2::CButton_render_%X, ", cur->renderFun);
-            }
-        } else printf("NULL, ");
-        printf("0x%08X, ", cur->btn_arg1);
-        printf("%d, ", cur->textId);
-        printf("0x%08X, ", cur->p_idxLow);
-        printf("0x%08X, ", cur->idxHigh);
-        printf("%d\n        ", cur->nameIdx);
-        printf("},\n");
-    }
-    printf(R"(
-        {
-            0, 0xFFFFFFFF, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL, 0, 0x00000000, 0x00000000, 0
-        },
-    };
-
-)");
-}
-
-void dumpWindow(dk2::WindowCfg *cur) {
-    if (cur == nullptr) return;
-    dumpButtons(cur->pButtonCfg_list);
-    printf("    dk2::WindowCfg N_WinCfg {\n        ");
-    printf("%d, ", cur->idx);
-    printf("%d, ", cur->isCurrent);
-    printf("%d, ", cur->flags);
-    printf("%d, ", cur->x);
-    printf("%d, ", cur->y);
-    printf("%d, ", cur->w);
-    printf("%d, ", cur->h);
-    printf("%d, ", cur->x_offs);
-    printf("%d, ", cur->y_offs);
-    printf("%d, ", cur->width);
-    printf("%d, ", cur->height);
-    printf("%d, ", cur->f1A);
-    if (cur->f1E) printf("0x%p, ", cur->f1E);
-    else printf("NULL, ");
-    if (cur->fun) printf("0x%p, ", cur->fun);
-    else printf("NULL, ");
-    printf("%d,\n        ", cur->f26);
-    printf("%d, ", cur->f2A);
-    printf("%d, ", cur->f2E);
-    printf("%d, ", cur->f32);
-    printf("%d, ", cur->f36);
-    printf("%d, ", cur->f3A);
-    printf("%p, ", cur->pButtonCfg_list);
-    printf("%d\n    ", cur->f42);
-    printf("};\n");
-}
-
-namespace {
-
-
-
-    dk2::ButtonCfg Game_win0_BtnArr[] {
-        {
-            BT_CClickButton, 1, 0, dk2::leftClickHandler_417730, NULL, 0, 0, 0x1, 0x00000001, 0,
-            0, 0, 64, 440, 24, 0, 6, 440, 0, dk2::fun_f34_410A60, dk2::renderFun_4129E0, 0xA, 0, 0x00000000, 0x00000000, 14
-        },
-        {
-            BT_CClickButton, 1, 0, dk2::leftClickHandler_417730, NULL, 0, 0, 0xFFFFFFFF, 0x00000001, 0,
-            0, 0, 64, 440, 24, 0, 6, 440, 0, dk2::fun_f34_410A60, dk2::renderFun_4129E0, 0xB, 0, 0x00000000, 0x00000000, 14
-        },
-        {
-            BT_CClickButton, 2, 0, dk2::BtnHandler_leftClickHandler_410860, dk2::BtnHandler_rightClickHandler_4118B0, 0, 0, 0x1, 0x00000000, 0,
-            0, 0, 212, 128, 0, 0, 212, 128, 0, dk2::fun_f34_410990, dk2::renderFun_412FC0, 0xE, 174, 0x00000000, 0x00000000, 5
-        },
-
-        {
-            0, 0xFFFFFFFF, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL, 0, 0x00000000, 0x00000000, 0
-        },
-    };
-
-    dk2::WindowCfg Game_win0 = {
-        1, 0, 1, 0x244, 0x5D0, 0x2DC, 0x1D4, 0, 0, 0x2DC, 0x1D4, 0, 0, &dk2::CWindow_getPanelItemsCount, 0,
-        0, 0, 0, 0, 0, Game_win0_BtnArr, 0
-    };
-}
+#include <dk2/sound/TbSysCommand_Process.h>
+#include <dk2/button/CButton.h>
+#include <patches/gui/main/single_player/win_custom_campaign.h>
 
 
 typedef char (__cdecl *CButton_render_t)(dk2::CButton *btn, dk2::CFrontEndComponent *front);
 
-char __cdecl dk2::CButton_render_532670(dk2::CButton *btn, dk2::CFrontEndComponent *front) {
-    // fixme: tmp usages fix
-    auto orig = (CButton_render_t) 0x00532670;
-    return orig(btn, front);
-}
+// char __cdecl dk2::CClickButton_render_532670(dk2::CButton *btn, dk2::CFrontEndComponent *front) {
+//     // fixme: tmp usages fix
+//     auto orig = (CButton_render_t) 0x00532670;
+//     return orig(btn, front);
+// }
 
 typedef char (__cdecl *CButton_render_t)(dk2::CButton *btn, dk2::CFrontEndComponent *front);
 
@@ -395,13 +234,13 @@ int dk2::CFrontEndComponent::load() {
     // this->cgui_manager.createElements(mainView, (CDefaultPlayerInterface*) this);  // original
     this->cgui_manager.createElements(main_layout(), (CDefaultPlayerInterface*) this);  // dynamic layout build
 
-    g_FontObj3_instance.setFontMask(&status, (PixelMask*) &this->fontMask_3031E);
-    this->sub_54CC70();
-    this->sub_54CB50();
-    this->sub_54CDE0();
-    this->sub_546F00();
-    this->sub_547EE0();
-    this->sub_5472F0();
+    g_FontObj3_instance.setFontMask(&status, &this->fontMask_3031E);
+    this->renderButtonsText_15_0_4();
+    this->renderButtonsText_16_1_4();
+    this->renderButtonsText_17_2_5();
+    this->renderButtonsText_9_9_4();
+    this->renderButtonsText_32_3_4();
+    this->renderButtonsText_35_14_3__35_15_2();
     this->bakeButton(1, 4u, 6);
     this->bakeButton(2, 5u, 6);
     this->bakeButton(4, 6u, 6);
@@ -418,8 +257,7 @@ int dk2::CFrontEndComponent::load() {
     this->f670D = 1;
     this->sub_536A80();
     g_sceneObjectIdx = 0;
-    this->fontMask_3031E = this->fontMask_3031E;
-    this->f5FF8 = this->f30322;
+    this->fontMask_5FF4 = this->fontMask_3031E;
     this->sub_54FCF0(696, 48);
     this->sub_54FCF0(72, 8);
     this->sub_54FCF0(150, 17);
@@ -486,3 +324,364 @@ void __cdecl dk2::changeGui(int a1_isCurrent, int a2_windowId, CFrontEndComponen
     g_button73ED9C = 0;
     window->f44_isCurrent = a1_isCurrent;
 }
+
+
+
+
+
+void __cdecl dk2::CButton_handleLeftClick_538000(int a1_arg1, int a2_arg2,CFrontEndComponent *a3_frontend) {
+    int v3_curWindowId = LOWORD(a1_arg1);
+    int v5_nextWindowId = HIWORD(a1_arg1);
+    int switchKey = LOWORD(a2_arg2);
+    int btnIdx = HIWORD(a2_arg2);
+
+    if (MyResources_instance.gameCfg.useFe2d_unk1 &&g_bg2d_loaded[g_surfIdx_6AD608] ) {
+        static_MyDdSurfaceEx_BltWait(
+           &a2_arg2, a3_frontend->pMyDdSurfaceEx, 0, 0,
+           &g_bg2d_surface[g_surfIdx_6AD608], NULL, 0
+        );
+    }
+    if ( btnIdx == 255 || a3_frontend->arr_x16x30_hovered[windowId_to_x16Idx(v3_curWindowId)][btnIdx] ) {
+        if ( v3_curWindowId ) {
+            changeGui(0, v3_curWindowId, a3_frontend);
+            if ( (uint16_t) v5_nextWindowId )
+                changeGui(1, (unsigned __int16)v5_nextWindowId, a3_frontend);
+        }
+        memset(a3_frontend->arr_x16x30_hovered, 0, sizeof(a3_frontend->arr_x16x30_hovered));
+        switch ( switchKey ) {
+        case 1:  // New Campaign
+            if (MyResources_instance.playerCfg.getPlayerLevelStatus(1u) != 2 ||
+                MyResources_instance.playerCfg.loadLevelAttempts(1u)) {
+                a3_frontend->sub_537990();
+            } else {
+                CButton_handleLeftClick_changeMenu(0, 109, a3_frontend);
+            }
+            break;
+        case 2:  // Multiplayer game
+            if (!MyResources_instance.gameCfg.useFe2d_unk1) {
+                CCamera *cam = a3_frontend->bridge->v_getCamera();
+                cam->flags_E3C |= 8u;
+                cam->loadEnginePath(0x10Fu, 3u, 0xCu, 1);
+            }
+            g_maybeGuiIsShowing = 0;
+            g_pathAnimationEndSwitch = 5;
+            break;
+        case 5:  // Options
+            if (!MyResources_instance.gameCfg.useFe2d_unk1) {
+                CCamera *cam = a3_frontend->bridge->v_getCamera();
+                cam->flags_E3C |= 8u;
+                cam->loadEnginePath(0x100u, 3u, 0xCu, 1);
+            }
+            g_maybeGuiIsShowing = 0;
+            g_pathAnimationEndSwitch = 8;
+            break;
+        case 6:  // Extras
+            if (!MyResources_instance.gameCfg.useFe2d_unk1) {
+                CCamera *cam = a3_frontend->bridge->v_getCamera();
+                cam->flags_E3C |= 8u;
+                cam->loadEnginePath(0x103u, 3u, 0xCu, 1);
+            }
+            g_maybeGuiIsShowing = 0;
+            g_pathAnimationEndSwitch = 25;
+            break;
+        case 7: {  // Load Game
+            DirFileList_instance2_saves_sav.collectFiles(MyResources_instance.savesDir, "*.sav", 1);
+            CButton *BtnBySomeId = a3_frontend->findBtnBySomeId(73, 8);
+            if (BtnBySomeId)
+                BtnBySomeId->f5D_isVisible = static_DirFileList_instance2_saves_sav_getCount() > 0;
+            if (!MyResources_instance.gameCfg.useFe2d_unk1) {
+                CCamera *cam = a3_frontend->bridge->v_getCamera();
+                cam->flags_E3C |= 8u;
+                cam->loadEnginePath(0x10Fu, 3u, 0xCu, 1);
+            }
+            g_maybeGuiIsShowing = 0;
+            g_pathAnimationEndSwitch = 6;
+        } break;
+        case 8:  // Quit
+            a3_frontend->fun_536BA0(28, 15, 0, 111, 112, 3, NULL, 0, 0);
+            break;
+        case 10:  // Skirmish
+            a3_frontend->playerIdx11 = 0;
+            if (!MyResources_instance.gameCfg.useFe2d_unk1) {
+                CCamera *cam = a3_frontend->bridge->v_getCamera();
+                cam->flags_E3C |= 8u;
+                cam->loadEnginePath(0x10Fu, 3u, 0xCu, 1);
+            }
+            g_maybeGuiIsShowing = 0;
+            g_pathAnimationEndSwitch = 26;
+            break;
+        case 11:  // My Pet Dungeon
+            memset(a3_frontend->wstr19, 0, 0x208u);
+            if (!MyResources_instance.gameCfg.useFe2d_unk1) {
+                CCamera *cam = a3_frontend->bridge->v_getCamera();
+                cam->flags_E3C |= 8u;
+                cam->loadEnginePath(0x106u, 3u, 0xCu, 1);
+            }
+            g_maybeGuiIsShowing = 0;
+            g_pathAnimationEndSwitch = 16;
+            break;
+        case 12:  // Extras->Credits
+            if (!MyResources_instance.gameCfg.useFe2d_unk1) {
+                CCamera *cam = a3_frontend->bridge->v_getCamera();
+                cam->flags_E3C |= 8u;
+                cam->loadEnginePath(0x109u, 3u, 0xCu, 1);
+            }
+            g_maybeGuiIsShowing = 0;
+            g_pathAnimationEndSwitch = 17;
+            break;
+        case 13:  // Continue Campaign
+            CFrontEndComponent_sub_538B90(0, a3_frontend);
+            if (!MyResources_instance.gameCfg.useFe2d_unk1) {
+                CCamera *cam = a3_frontend->bridge->v_getCamera();
+                cam->flags_E3C |= 8u;
+                cam->loadEnginePath(0xFBu, 3u, 0xCu, 1);
+            }
+            g_maybeGuiIsShowing = 0;
+            g_pathAnimationEndSwitch = 2;
+            break;
+        case 15:  // Main_Options.Apply
+            if (!MyResources_instance.gameCfg.useFe2d_unk1) {
+                CCamera *cam = a3_frontend->bridge->v_getCamera();
+                cam->flags_E3C |= 8u;
+                cam->loadEnginePath(0x101u, 3u, 0xCu, 1);
+            }
+            g_maybeGuiIsShowing = 0;
+            g_pathAnimationEndSwitch = 28;
+            break;
+        case 16:  // Main_Extras.Apply
+            if (!MyResources_instance.gameCfg.useFe2d_unk1) {
+                CCamera *cam = a3_frontend->bridge->v_getCamera();
+                cam->flags_E3C |= 8u;
+                cam->loadEnginePath(0x104u, 3u, 0xCu, 1);
+            }
+            g_maybeGuiIsShowing = 0;
+            g_pathAnimationEndSwitch = 28;
+            break;
+        default:
+            return;
+        }
+    }
+}
+
+namespace dk2 {
+
+    void execSwitch(CFrontEndComponent *front) {
+        switch (g_pathAnimationEndSwitch) {
+        case 1:
+            if ( !MyResources_instance.gameCfg.useFe2d_unk1 ) {
+                CCamera *cam = front->bridge->v_getCamera();
+                cam->flags_E3C |= 8u;
+                cam->loadEnginePath(0xFAu, 3u, 0xCu, 1);
+            }
+            g_maybeGuiIsShowing = 0;
+            g_pathAnimationEndSwitch = 12;
+            break;
+        case 2:  // Continue Campaign
+        case 19:
+            CFrontEndComponent_sub_538D00(front);
+            break;
+        case 3:
+            CFrontEndComponent_sub_53C3C0(4, front);
+            break;
+        case 4:
+            CFrontEndComponent_sub_53A010(0, front);
+            break;
+        case 5:  // Multiplayer game
+            do_smth_and_execute_action_8(front);
+            break;
+        case 6:  // Load Game
+            g_pathAnimationEndSwitch = 0;
+            changeGui(1, MWID_LoadGame, front);
+            break;
+        case 7:  // 26 -> Skirmish
+            CFrontEndComponent_createScrimishGame(front);
+            break;
+        case 8:  // Options
+        case 15:
+            g_pathAnimationEndSwitch = 0;
+            changeGui(1, MWID_Options, front);
+            break;
+        case 9:
+            g_pathAnimationEndSwitch = 0;
+            changeGui(1, MWID_TodaysTopKeepers, front);
+            CButton_handleLeftClick_changeMenu(0, 61, front);
+            break;
+        case 10:
+            g_pathAnimationEndSwitch = 0;
+            CButton_handleLeftClick_changeMenu(0, 62, front);
+            break;
+        case 11:
+            g_pathAnimationEndSwitch = 0;
+            changeGui(1, MWID_ViewMovies, front);
+            CButton_handleLeftClick_changeMenu(0, 59, front);
+            break;
+        case 12:  // 28 -> Main_Options.Apply
+            g_pathAnimationEndSwitch = 0;
+            changeGui(1, MWID_Main, front);
+            break;
+        case 13:
+        case 25:  // Extras
+            g_pathAnimationEndSwitch = 0;
+            changeGui(1, MWID_Extras, front);
+            break;
+        case 14:
+            g_pathAnimationEndSwitch = 0;
+            changeGui(1, MWID_SinglePlayer, front);
+            break;
+        case 16:  // My Pet Dungeon
+            do_smth_and_execute_action_91(front);
+            break;
+        case 17:  // Extras->Credits
+            g_pathAnimationEndSwitch = 0;
+            changeGui(1, MWID_Credits, front);
+            break;
+        case 18:
+            CFrontEndComponent_sub_538B90(0, front);
+            break;
+        case 20:
+            CFrontEndComponent_sub_53A010(1, front);
+            break;
+        case 22:
+            CFrontEndComponent_sub_53C3C0(2, front);
+            break;
+        case 23:
+            CFrontEndComponent_sub_53C3C0(3, front);
+            break;
+        case 26:  // Skirmish
+            g_pathAnimationEndSwitch = 7;
+            break;
+        case 27:
+            CFrontEndComponent_sub_53C3C0(1, front);
+            break;
+        case 28:  // Main_Options.Apply || Main_Extras.Apply
+            if (!MyResources_instance.gameCfg.useFe2d_unk1) {
+                CCamera *cam = front->bridge->v_getCamera();
+                cam->flags_E3C |= 8u;
+                cam->loadEnginePath(0x112u, 3u, 0xCu, 1);
+            }
+            g_maybeGuiIsShowing = 0;
+            g_pathAnimationEndSwitch = 12;
+            break;
+        case 29:
+            if (!MyResources_instance.gameCfg.useFe2d_unk1) {
+                CCamera *cam = front->bridge->v_getCamera();
+                cam->flags_E3C |= 8u;
+                cam->loadEnginePath(0x112u, 3u, 0xCu, 1);
+            }
+            g_maybeGuiIsShowing = 0;
+            g_pathAnimationEndSwitch = 14;
+            break;
+        default:
+            if (patch::custom_campaign::enabled) {
+                if (g_pathAnimationEndSwitch == patch::custom_campaign::animEndAction) {
+                    g_pathAnimationEndSwitch = 0;
+                    changeGui(1, MWID_SinglePlayer_CustomCampaign, front);
+                }
+            }
+            return;
+        }
+    }
+}
+
+void __cdecl dk2::CFrontEndComponent_subTickMainGui(CFrontEndComponent *a1_front) {
+    int status;
+    MySound_ptr->v_fun_567BE0(255);
+    CSpeechSystem_instance.SetMusicVolume(1);
+    MySound_ptr->v_fun_5674F0();
+
+    uint8_t cmd_buf[sizeof(TbSysCommand_Process)];
+    TbSysCommand_Process &cmd = *(TbSysCommand_Process *) cmd_buf;
+    // v14_cmd.__vftable = (TbSysCommand_Process_vtbl *)&TbSysCommand::Process::`vftable';
+    *(void **) &cmd = TbSysCommand_Process::vftable;
+    MySound_ptr->v_fun_567A40(&cmd.status, &cmd);
+
+    CFrontEndComponent *v1_front = a1_front;
+    if ( a1_front->_aBool_221 == 1 ) {
+        CWindow *curWin = a1_front->getCurrentWindow();
+        if (curWin) {
+            if (curWin->f40_id != 44)
+                v1_front->_aBool_221 = 0;
+        }
+    }
+    bool v3 = v1_front->cgui_manager.sub_52C520();
+    int v4_usingIme = v1_front->usingIme;
+    if (v3) {
+        if (!v4_usingIme) {
+            HWND HWindow = getHWindow();
+            MyInputMethodEditor_instance2.replaceWndProc(&status, HWindow);
+            v1_front->usingIme = status == 0;
+        }
+        CWindow *GameWindowById = v1_front->cgui_manager.findGameWindowById(47);
+        CWindow_sub_547B40(GameWindowById, v1_front);
+    } else {
+        if (v4_usingIme == 1)
+            MyInputMethodEditor_instance2.restoreWndProc();
+        v1_front->usingIme = 0;
+    }
+    if (!g_isMainGuiIntroduction) {
+        switch (MyResources_instance.playerCfg.mgIntroSwitch) {
+        case 0x25:
+            CFrontEndComponent_sub_538B90(0, v1_front);
+            if (!MyResources_instance.gameCfg.useFe2d_unk1) {
+                CCamera *cam = v1_front->bridge->v_getCamera();
+                cam->flags_E3C |= 8u;
+                cam->loadEnginePath(0xFBu, 3u, 0xCu, 1);
+            }
+            g_maybeGuiIsShowing = 0;
+            g_pathAnimationEndSwitch = 2;
+            g_isMainGuiIntroduction = 1;
+            break;
+        case 9:
+            if (!MyResources_instance.gameCfg.useFe2d_unk1) {
+                CCamera *cam = v1_front->bridge->v_getCamera();
+                cam->flags_E3C |= 8u;
+                cam->loadEnginePath(0x103u, 3u, 0xCu, 1);
+            }
+            g_maybeGuiIsShowing = 0;
+            g_pathAnimationEndSwitch = 7;
+            g_isMainGuiIntroduction = 1;
+            break;
+        case 0xB:
+        case 0xA:
+        case 0x27:
+            if (!MyResources_instance.gameCfg.useFe2d_unk1) {
+                CCamera *cam = v1_front->bridge->v_getCamera();
+                cam->flags_E3C |= 8u;
+                cam->loadEnginePath(0x100u, 3u, 0xCu, 1);
+            }
+            g_maybeGuiIsShowing = 0;
+            g_pathAnimationEndSwitch = 5;  // Multiplayer game
+            g_isMainGuiIntroduction = 1;
+            break;
+        case 0x26:
+            if (!MyResources_instance.gameCfg.useFe2d_unk1) {
+                CCamera *cam = v1_front->bridge->v_getCamera();
+                cam->flags_E3C |= 8u;
+                cam->loadEnginePath(0x108u, 3u, 0xCu, 1);
+            }
+            g_maybeGuiIsShowing = 0;
+            g_pathAnimationEndSwitch = 16;
+            g_isMainGuiIntroduction = 1;
+            break;
+        default:
+            break;
+        }
+    }
+    if (MyResources_instance.gameCfg.useFe2d_unk1) {
+        if (g_bg2d_loaded[g_surfIdx_6AD608]) {
+            static_MyDdSurfaceEx_BltWait(
+                &status, v1_front->pMyDdSurfaceEx, 0, 0,
+                &g_bg2d_surface[g_surfIdx_6AD608], 0, 0
+            );
+        }
+        if (MyResources_instance.gameCfg.useFe2d_unk1) {
+            execSwitch(v1_front);
+            return;
+        }
+    }
+    if (v1_front->bridge->v_getCamera()->_mode != 18) {
+        execSwitch(v1_front);
+    }
+}
+
+

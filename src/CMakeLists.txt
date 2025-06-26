@@ -12,6 +12,7 @@ function(collect_sources OUT PREFIX)
 endfunction()
 
 collect_sources(MAIN_LAYOUT_SOURCES dk2/gui/main)
+collect_sources(GAME_LAYOUT_SOURCES dk2/gui/game)
 collect_sources(GOG_PATCH_SOURCES gog_patch_dll)
 collect_sources(WEANETR_SOURCES weanetr_dll)
 
@@ -65,10 +66,13 @@ add_executable(${TARGET}
         dk2/network/protocol.cpp
 
         ${MAIN_LAYOUT_SOURCES}
+        ${GAME_LAYOUT_SOURCES}
 
         dk2/gui/main_gui.cpp
+        dk2/gui/CDefaultPlayerInterface_game_gui.cpp
         dk2/gui/CGuiManager.cpp
         dk2/gui/visual_debug.cpp
+        dk2/gui/button_render.cpp
 
         tools/bug_hunter.cpp
         tools/StackLimits.cpp
@@ -91,6 +95,12 @@ add_executable(${TARGET}
         patches/screen_resolution.cpp
         patches/registry_to_config.cpp
         patches/limit_tps.cpp
+
+        patches/gui/main/main_layout.cpp
+        patches/gui/main/single_player/btn_custom_campaign.cpp
+        patches/gui/main/single_player/win_custom_campaign.cpp
+
+        patches/gui/game/game_layout.cpp
 
         ${GOG_PATCH_SOURCES}
         ${WEANETR_SOURCES}

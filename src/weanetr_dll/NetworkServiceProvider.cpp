@@ -36,6 +36,7 @@ int NetworkServiceProvider::destroySystemThread() {
         if ( this->f41B_SendDeliverThread_hThread == INVALID_HANDLE_VALUE )
             isThreadAlive = 0;
         LeaveCriticalSection(&this->dataLock);
+        SwitchToThread();  // fix for single thread affinity
     } while ( isThreadAlive );
     _log("DESTROYED SYSTEM THREAD\n");
     CloseHandle(this->h166_OnStopDeliverThread_hEvent);

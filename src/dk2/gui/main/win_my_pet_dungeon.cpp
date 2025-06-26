@@ -15,7 +15,7 @@ namespace {
     dk2::ButtonCfg Main_MyPetDungeon_BtnArr[] {
         {
             BT_CTextBox, 560, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            0, 44, 2560, 140, 0, 0, 0, 0, 0, NULL, dk2::CButton_render_536700, 0x00000000, 21, 0x00000000, 0x00000000, 0
+            0, 44, 2560, 140, 0, 0, 0, 0, 0, NULL, dk2::CTextBox_renderTitle_536700, 0x00000000, 21, 0x00000000, 0x00000000, 0
         },
         {
             BT_CClickButton, 539, 0, dk2::CButton_handleLeftClick_542070, NULL, 0, 0, 0x00000000, 0x00000000, 0,
@@ -54,7 +54,7 @@ namespace {
     };
 
     dk2::WindowCfg Main_MyPetDungeon_WinCfg {
-        WID_MyPetDungeon, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, NULL, 0,
+        MWID_MyPetDungeon, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, NULL, 0,
         0, 0, 0, 0, 0, Main_MyPetDungeon_BtnArr, 4
     };
 }

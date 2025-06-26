@@ -19,7 +19,7 @@ namespace {
         },
         {
             BT_CTextBox, 197, 255, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            668, 44, 1252, 140, 0, 0, 0, 0, 0, NULL, dk2::CButton_render_536700, 0x00000000, 14, 0x00000000, 0x00000000, 0
+            668, 44, 1252, 140, 0, 0, 0, 0, 0, NULL, dk2::CTextBox_renderTitle_536700, 0x00000000, 14, 0x00000000, 0x00000000, 0
         },
         {
             BT_CTextBox, 198, 255, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
@@ -63,11 +63,11 @@ namespace {
         },
         {
             BT_CClickButton, 207, 0, dk2::CButton_handleLeftClick_changeMenu, NULL, 0, 0, 0x00000020, 0x00000021, 0,
-            0, 1348, 792, 136, 0, 0, 792, 136, 0, NULL, dk2::CButton_render_532670, 0x00000000, 159, 0x00000000, 0x000B0002, 0
+            0, 1348, 792, 136, 0, 0, 792, 136, 0, NULL, dk2::CClickButton_render_532670, 0x00000000, 159, 0x00000000, 0x000B0002, 0
         },
         {
             BT_CClickButton, 208, 0, dk2::CButton_handleLeftClick_changeMenu, NULL, 0, 0, 0x00000020, 0x00000020, 0,
-            896, 1352, 632, 136, 0, 0, 632, 136, 0, NULL, dk2::CButton_render_532670, 0x00000000, 158, 0x00000001, 0x000B0002, 0
+            896, 1352, 632, 136, 0, 0, 632, 136, 0, NULL, dk2::CClickButton_render_532670, 0x00000000, 158, 0x00000001, 0x000B0002, 0
         },
         {
             BT_CClickButton, 209, 0, dk2::CButton_handleLeftClick_changeMenu, NULL, 3, 1, 0x00000003, 0x00000017, 0,
@@ -78,7 +78,7 @@ namespace {
     };
 
     dk2::WindowCfg Multiplayer_IpxLocalNetwork_WinCfg {
-        WID_IpxLocalNetwork, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, dk2::CWindow_fun, 0,
+        MWID_IpxLocalNetwork, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, dk2::CWindow_fun, 0,
         0, 0, 0, 0, 0, Multiplayer_IpxLocalNetwork_BtnArr, 2
     };
 }

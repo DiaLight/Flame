@@ -15,7 +15,7 @@ namespace {
     dk2::ButtonCfg Extras_Credits_BtnArr[] {
         {
             BT_CTextBox, 586, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            628, 40, 1308, 140, 0, 0, 0, 0, 0, NULL, dk2::CButton_render_536700, 0x00000000, 20, 0x00000000, 0x00010000, 0
+            628, 40, 1308, 140, 0, 0, 0, 0, 0, NULL, dk2::CTextBox_renderTitle_536700, 0x00000000, 20, 0x00000000, 0x00010000, 0
         },
         {
             BT_CTextBox, 588, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
@@ -30,7 +30,7 @@ namespace {
     };
 
     dk2::WindowCfg Extras_Credits_WinCfg {
-        WID_Credits, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, NULL, 0,
+        MWID_Credits, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, NULL, 0,
         0, 0, 0, 0, 0, Extras_Credits_BtnArr, 2
     };
 }

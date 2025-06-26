@@ -16,7 +16,7 @@ namespace {
     dk2::ButtonCfg Multiplayer_MapSelect_BtnArr[] {
         {
             BT_CTextBox, 474, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            0, 40, 2560, 160, 0, 0, 0, 0, 0, NULL, dk2::CButton_render_536700, 0x00000000, 9, 0x00000006, 0x00010000, 0
+            0, 40, 2560, 160, 0, 0, 0, 0, 0, NULL, dk2::CTextBox_renderTitle_536700, 0x00000000, 9, 0x00000006, 0x00010000, 0
         },
         {
             BT_CTextBox, 231, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
@@ -67,7 +67,7 @@ namespace {
     };
 
     dk2::WindowCfg Multiplayer_MapSelect_WinCfg {
-        WID_Multiplayer_MapSelect, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, dk2::__onMapSelected, 0,
+        MWID_Multiplayer_MapSelect, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, dk2::__onMapSelected, 0,
         0, 0, 0, 0, 0, Multiplayer_MapSelect_BtnArr, 2
     };
 }

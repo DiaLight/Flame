@@ -15,7 +15,7 @@ namespace {
     dk2::ButtonCfg MissionDebriefing_StatsShort_BtnArr[] {
         {
             BT_CTextBox, 177, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
-            0, 48, 2560, 160, 0, 0, 0, 0, 0, NULL, dk2::CButton_render_536700, 0x00000000, 18, 0x00000001, 0x00010000, 0
+            0, 48, 2560, 160, 0, 0, 0, 0, 0, NULL, dk2::CTextBox_renderTitle_536700, 0x00000000, 18, 0x00000001, 0x00010000, 0
         },
         {
             BT_CTextBox, 162, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
@@ -46,7 +46,7 @@ namespace {
     };
 
     dk2::WindowCfg MissionDebriefing_StatsShort_WinCfg {
-        WID_MissionDebriefing_StatsShort, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, NULL, 0,
+        MWID_MissionDebriefing_StatsShort, 0, 0, 0, 0, 2560, 1920, 0, 0, 2560, 1920, 0, NULL, NULL, 0,
         0, 0, 0, 0, 0, MissionDebriefing_StatsShort_BtnArr, 2
     };
 }

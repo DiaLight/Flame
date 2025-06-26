@@ -115,8 +115,8 @@ int dk2::CGuiManager::createElements(WindowCfg **ppCurWinCfg, CDefaultPlayerInte
         }
     }
     this->strlen = 0;
-    this->f10 = 0;
-    this->f14 = 0;
+    this->inputFieldTypingText = 0;
+    this->spinButtonActive = 0;
     this->f18 = 0;
     this->f1C = 0;
     this->f20 = 0;

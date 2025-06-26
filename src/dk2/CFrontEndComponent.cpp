@@ -471,7 +471,7 @@ int dk2::CFrontEndComponent::launchGame() {
     this->fun_552C70();
     WeaNetR_instance.reinitializeNetworkSystem();
     MyResources_instance.gameCfg.useFe2d_unk1 = MyResources_instance.gameCfg.useFe2d_unk2 == 1;
-    this->f6011 = MyResources_instance.gameCfg.useFe3d;
+    this->isUseFe3d = MyResources_instance.gameCfg.useFe3d;
     MyGame_instance.recreateOnPrepare = 0;
     uint32_t screenWidth = 640u;
     uint32_t screenHeight = 480u;
@@ -480,8 +480,8 @@ int dk2::CFrontEndComponent::launchGame() {
                screenWidth, screenHeight,
                MyResources_instance.video_settings.display_bitnes,
                MyResources_instance.video_settings.isWindowed,
-               this->f6011 != 1,
-               this->f6011 == 1
+               this->isUseFe3d != 1,
+               this->isUseFe3d == 1
                )) return 0;
     this->pMyDdSurfaceEx = MyGame_instance.getCurOffScreenSurf();
     MyDdSurfaceEx *CurOffScreenSurf = MyGame_instance.getCurOffScreenSurf();
@@ -561,9 +561,9 @@ int dk2::CFrontEndComponent::launchGame() {
     this->Shots_ddSurfArr_isLoaded[0] = 0;
     this->Shots_ddSurfArr_isLoaded[1] = 0;
     initStringLists();
-    CFrontEndComponent_sub_541DF0(this);
+    CFrontEndComponent_renderButtonsText_38_13_5(this);
     this->sub_53B3D0();
     this->timestampMs = getTimeMs();
-    this->fC = 0;
+    this->usingIme = 0;
     return 1;
 }

@@ -6,9 +6,9 @@
 #include "main_layout.h"
 
 #include <dk2_functions.h>
-#include <dk2_globals.h>
 #include <vector>
 #include <dk2/button/button_types.h>
+#include <patches/gui/main/single_player/win_custom_campaign.h>
 
 
 namespace {
@@ -26,7 +26,7 @@ namespace {
     };
 
     dk2::WindowCfg UnkList_WinCfg {
-        WID_UnkList, 0, 0, 0, 1000, 400, 680, 0, 0, 400, 680, 0, NULL, NULL, 8,
+        MWID_UnkList, 0, 0, 0, 1000, 400, 680, 0, 0, 400, 680, 0, NULL, NULL, 8,
         0, 0, 0, 0, 0, UnkList_BtnArr, 0
     };
 
@@ -109,6 +109,10 @@ dk2::WindowCfg **main_layout() {
     windows.emplace_back(&UnkList_WinCfg); // 47
     windows.emplace_back(CreateLobby_PlayerList_layout()); // 46
     windows.emplace_back(MyPetDungeon_Other_layout()); // 48
+
+    if (patch::custom_campaign::enabled) {
+        windows.emplace_back(patch::custom_campaign::SinglePlayer_CustomCampaign_layout()); // 50
+    }
 
     windows.emplace_back(&Main_endOfList_WinCfg);
 

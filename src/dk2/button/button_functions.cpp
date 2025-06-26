@@ -194,7 +194,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             String.y = 0;
             int v68_status;
             static_MyInputManagerCb_sub_5B2BD0(&v68_status, 0, 0, &String);
-            if (comp->f6011) {
+            if (comp->isUseFe3d) {
                 MyResources_instance.gameCfg.unk_f16C = 1;
                 CSpeechSystem_instance.add_stop_handle(
                         (void *) comp->f311A2,
@@ -206,16 +206,16 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             }
             switch (MyResources_instance.gameCfg.useFe_playMode) {
                 case 3:
-                    MyResources_instance.playerCfg.f4 = 27;
+                    MyResources_instance.playerCfg.mgIntroSwitch = 27;
                     break;
                 case 1:
-                    MyResources_instance.playerCfg.f4 = 26;
+                    MyResources_instance.playerCfg.mgIntroSwitch = 26;
                     break;
                 case 4:
-                    MyResources_instance.playerCfg.f4 = 42;
+                    MyResources_instance.playerCfg.mgIntroSwitch = 42;
                     break;
                 case 2:
-                    MyResources_instance.playerCfg.f4 = 45;
+                    MyResources_instance.playerCfg.mgIntroSwitch = 45;
                     break;
             }
             memset(comp->wstr19, 0, 0x208u);
@@ -691,7 +691,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             CFrontEndComponent_static_539490(0xFCu, 14, comp);
             break;
         case 90: {
-            if (comp->f6011) {
+            if (comp->isUseFe3d) {
                 MyResources_instance.gameCfg.unk_f16C = 1;
             } else {
                 g_flags_74034C |= 0xC00;
@@ -717,7 +717,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             wcsncpy(MyResources_instance.gameCfg.levelName, comp->mapName, 0x40u);
             MyResources_instance.gameCfg.levelName[63] = 0;
             MyResources_instance.gameCfg.hasSaveFile = 0;
-            MyResources_instance.playerCfg.f4 = 45;
+            MyResources_instance.playerCfg.mgIntroSwitch = 45;
             comp->applyLevelVariables();
             comp->fun_552C80((CComponent *) &CGameComponent_instance);
         } break;
@@ -1028,7 +1028,7 @@ int __cdecl dk2::__onMapSelected(CButton *a1_btn, int a2, CFrontEndComponent *a3
     a3_comp->f325 = 0;
     *(DWORD *) a3_comp->_wstr = 0;
     uint8_t v35_mbMapName[64];
-    if (MyLangObj_static_toUniToMB_2(a3_comp->mapName, v35_mbMapName, 64)) {
+    if (UniToMb_convert(a3_comp->mapName, v35_mbMapName, 64)) {
         uint8_t vtag_buf[sizeof(TbMBStringVTag)];
         TbMBStringVTag &v33_vtag = *(TbMBStringVTag *) vtag_buf;
         *(void **) &v33_vtag = &TbMBStringVTag::vftable;
