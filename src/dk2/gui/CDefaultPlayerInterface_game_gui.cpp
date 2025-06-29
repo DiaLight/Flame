@@ -11,9 +11,6 @@
 #include "dk2/gui/game/game_layout.h"
 
 
-void dumpButtons(dk2::ButtonCfg *cur);
-void dumpWindow(dk2::WindowCfg *cur);
-
 int dk2::CDefaultPlayerInterface::fun_402D00(uint16_t a2_playerSceneId) {
     this->pCWorld = this->profiler->cworld;
     MyInputMethodEditor_instance2.restoreWndProc();

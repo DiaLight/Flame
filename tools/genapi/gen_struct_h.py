@@ -1,4 +1,6 @@
 import pathlib
+
+import sgmap
 from gen_utils import *
 from dk2cxx import *
 
@@ -65,7 +67,10 @@ def format_struct_h(
       name_suffix = f" : {struct.super.name}"
     yield f"namespace dk2 {{"
     yield f"#pragma pack(push, 1)"
-    yield f"{'union' if struct.is_union else 'struct'} {struct.name}{name_suffix} {{"
+    suffix = ''
+    if struct.attribs:
+      suffix = f"  // attribs: {struct.attribs}"
+    yield f"{'union' if struct.is_union else 'struct'} {struct.name}{name_suffix} {{{suffix}"
     if struct.vtable is not None:
       vtable_glob = vtable_map.get(struct.vtable.id, None)
       if vtable_glob is not None:
@@ -83,7 +88,8 @@ def format_struct_h(
     yield empty_line
     if struct.vtable is not None:
       yield f"/*---*/ {struct.name}() = delete;"
-      yield f"/*---*/ ~{struct.name}() = delete;"
+      if 'trivial_destructor' not in struct.attribs:
+        yield f"/*---*/ ~{struct.name}() = delete;"
 
       def format_vtable(struct: sgmap.Struct, vtable_values, is_super=False):
         if len(struct.vtable.fields) == 0:
@@ -119,7 +125,25 @@ def format_struct_h(
         if name.startswith(f"{struct.name}_"):
           name = name[len(struct.name) + 1:]
         name = format_function_name(name)
-        yield f"/*{glob.va:08X}*/ {format_function(fun_t, name)};"
+        if fun_t.cxx is sgmap.CxxFunType.Regular:
+          yield f"/*{glob.va:08X}*/ {format_function(fun_t, name)};"
+        elif fun_t.cxx is sgmap.CxxFunType.Constructor:
+          args = [format_type(arg) for arg in fun_t.args]
+          assert fun_t.declspec == sgmap.Declspec.Thiscall
+          args = args[1:]
+          yield f"/*{glob.va:08X}*/ {struct.name}({', '.join(args)});  // constructor"
+        elif fun_t.cxx is sgmap.CxxFunType.Destructor:
+          yield f"/*{glob.va:08X}*/ ~{struct.name}();  // destructor"
+        elif fun_t.cxx is sgmap.CxxFunType.CopyConstructor:
+          yield f"/*{glob.va:08X}*/ {struct.name}(const {struct.name}&);  // copy constructor"
+        elif fun_t.cxx is sgmap.CxxFunType.MoveConstructor:
+          yield f"/*{glob.va:08X}*/ {struct.name}({struct.name}&&);  // move constructor"
+        elif fun_t.cxx is sgmap.CxxFunType.CopyAssign:
+          yield f"/*{glob.va:08X}*/ {struct.name}& operator=(const {struct.name}& x);  // copy assignment"
+        elif fun_t.cxx is sgmap.CxxFunType.MoveAssign:
+          yield f"/*{glob.va:08X}*/ {struct.name}& operator=({struct.name}&&);  // move assignment"
+        else:
+          raise Exception()
       yield empty_line
   yield from map(format_autogen_line, format_h_struct_head())
 

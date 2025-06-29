@@ -153,6 +153,8 @@
 # CWorld.h
 00519F90 int WorldTrigger_cpp_519F90(int16_t, int, int);  /* auto */
 00509340 BOOL checkAllowObjectToDrop_509340(int, int, uint16_t, int);  /* auto */
+0050FD10 int saveToFile(const char *);  // -----------  /* auto */
+0050FD70 int loadFromFile(const char *);  // ---------  /* auto */
 
 # WeaNetR.h
 00559BE0 int init();  // -----------------------------  /* auto */

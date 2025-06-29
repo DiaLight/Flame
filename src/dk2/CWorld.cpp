@@ -2,14 +2,17 @@
 // Created by DiaLight on 19.10.2024.
 //
 #include <dk2/CWorld.h>
-#include <dk2/entities/CPlayer.h>
 #include <dk2/entities/CActionPoint.h>
 #include <dk2/entities/CCreature.h>
+#include <dk2/entities/CPlayer.h>
 #include <dk2/entities/data/MyCreatureDataObj.h>
 #include <dk2/world/map/MyMapElement.h>
 #include <dk2/world/nav/MyNavigationSystem.h>
-#include "dk2_globals.h"
+#include <patches/gui/game/esc_options/btn_autosave.h>
+
 #include "dk2_functions.h"
+#include "dk2_globals.h"
+#include "dk2_memory.h"
 #include "patches/micro_patches.h"
 
 
@@ -268,4 +271,96 @@ BOOL dk2::CWorld::checkAllowObjectToDrop_509340(
         uint16_t playerTagId,
         int objTypeId) {
     return this->cmap.checkAllowObjectToDrop_450BE0(x, y, playerTagId, objTypeId);
+}
+
+int dk2::CWorld::saveToFile(const char *path) {
+    int status;
+    TbDiscFile *file = nullptr;
+    if(*MyDiscFile_create(&status, &file, path, 0xC0000030) < 0) return 0;
+    this->saveAllToTbDiscFile(&file);
+    TbDiscFile_delete(&status, file);
+    patch::autosave::updateLastAutoSaveTime();
+    return 1;
+}
+int dk2::CWorld::loadFromFile(const char *a2_savePath) {
+    int status;
+    Pos2i v9 = {0, 0};
+    static_MyInputManagerCb_sub_5B2BD0(&status, 0, 0, &v9);
+
+    this->showLoadingScreen();
+    if (this->is_surface_filled) {
+        MyDdSurface_release(&status, &this->surface.dd_surf);
+        this->is_surface_filled = 0;
+    }
+    if ( MyResources_instance.gameCfg.useFe_playMode == 3 ) {
+        if ( this->fun_510BE0() == 1 ) {
+            this->v_fun_510730((int)sub_510950, (int)this);
+            this->fA3AF = 1;
+            CWorld_5113C0(this);
+        }
+        CNetworkCommunication_instance.fun_523FD0(1, 800, 0);
+    } else {
+        this->v_fun_510730((int)sub_510790, (int)this);
+    }
+    bool v3_failedToload = this->v_fun_50E920_loadsaveFile((int)a2_savePath) == 0;
+    int buf_field_A3A3 = this->buf_field_A3A3;
+    if (v3_failedToload) {
+        if (buf_field_A3A3) {
+            dk2::operator_delete((void*) this->buf_field_A3A3);
+            this->buf_field_A3A3 = 0;
+        }
+        if (this->buf_field_A3A7) {
+            dk2::operator_delete((void*) this->buf_field_A3A7);
+            this->buf_field_A3A7 = 0;
+        }
+        this->v_sub_509820();
+        this->fA3AF = 0;
+        if (MyResources_instance.gameCfg.useFe_playMode == 3)
+            CNetworkCommunication_instance.fun_524050(1, 0);
+        char Buffer[292];
+        sprintf(Buffer, "Failed to load saved game (%s)", a2_savePath);
+        return 0;
+    }
+    patch::autosave::updateLastAutoSaveTime();
+    if (buf_field_A3A3) {
+        dk2::operator_delete((void*) this->buf_field_A3A3);
+        this->buf_field_A3A3 = 0;
+    }
+    if (this->buf_field_A3A7) {
+        dk2::operator_delete((void*) this->buf_field_A3A7);
+        this->buf_field_A3A7 = 0;
+    }
+    this->v_sub_509820();
+    this->fA3AF = 0;
+    if (MyResources_instance.gameCfg.useFe_playMode != 3)
+        return 1;
+    CNetworkCommunication_instance.fun_524050(1, 0);
+    if (MyResources_instance.gameCfg.useFe_playMode != 3)
+        return 1;
+    CCommunicationInterface* f18_communication_interface = this->profiler->communication_interface;
+    int v7_save2else1 = (this->flags < 0) + 1; // isSaveFile + 1
+    this->showLoadingScreen();
+    if (this->is_surface_filled) {
+        MyDdSurface_release(&status, &this->surface.dd_surf);
+        this->is_surface_filled = 0;
+    }
+    if (MyResources_instance.gameCfg.useFe_playMode == 3) {
+        if (this->fun_510BE0() == 1) {
+            this->v_fun_510730((int) sub_510950, (int) this);
+            this->fA3AF = 1;
+            CWorld_5113C0(this);
+        }
+        CNetworkCommunication_instance.fun_523FD0(1, 800, 0);
+    } else {
+        this->v_fun_510730((int) sub_510790, (int) this);
+    }
+    f18_communication_interface->v_f40((int) CWorld_5113C0, (int) this);
+    f18_communication_interface->v_fun_521B40(v7_save2else1);
+    Sleep(1000u);
+    this->sub_510FE0();
+    this->v_sub_509820();
+    this->fA3AF = 0;
+    if (MyResources_instance.gameCfg.useFe_playMode == 3)
+        CNetworkCommunication_instance.fun_524050(1, 0);
+    return 1;
 }

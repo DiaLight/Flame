@@ -348,6 +348,19 @@ void mangleGlobal(std::stringstream &ss, Global *global, std::map<std::string, s
     mangleQualifiers(ss, global->type, false);
 }
 std::string msvcMangleName(Global *global) {
+    if(global->type->kind == TK_Function && global->member_of != nullptr) {
+        std::string &structName = global->member_of->name;
+        auto *fun = (FunctionType *) global->type;
+        switch (fun->cxx) {
+        case CXXF_Regular: break;
+        case CXXF_Constructor: break;
+        case CXXF_Destructor: break;
+        case CXXF_CopyConstructor: return "??0" + structName + "@dk2@@QAE@ABU01@@Z";
+        case CXXF_MoveConstructor: break;
+        case CXXF_CopyAssign: break;
+        case CXXF_MoveAssign: break;
+        }
+    }
     std::vector<std::string> names;
     names.emplace_back("dk2");  // namespace
     if(global->name.ends_with("_vftable")) {

@@ -43,7 +43,7 @@ namespace {
             .posFlags=0,
             .x=616, .y=curY, .w=1304, .h=172,
             .x_offs=0, .y_offs=0, .width=1304, .height=172,
-            .f30=0, .f34=NULL, .renderFun=dk2::CClickButton_render_532670,
+            .f30=0, .tickFun=NULL, .renderFun=dk2::CClickButton_render_532670,
             .btn_arg1=NULL, .textId=textId,
             .p_idxLow=(uint32_t) MAKELONG(btnIdx, p_idxLowHigh),
             .idxHigh=(uint32_t) MAKELONG(alignTy, x16Idx), .nameIdx=32

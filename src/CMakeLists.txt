@@ -101,6 +101,7 @@ add_executable(${TARGET}
         patches/gui/main/single_player/win_custom_campaign.cpp
 
         patches/gui/game/game_layout.cpp
+        patches/gui/game/esc_options/btn_autosave.cpp
 
         ${GOG_PATCH_SOURCES}
         ${WEANETR_SOURCES}

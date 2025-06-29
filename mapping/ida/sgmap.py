@@ -1,8 +1,20 @@
 import pathlib
 import typing
+import re
 from enum import Enum, auto
 
 BADADDR = 0xFFFFFFFF
+
+
+def camel_to_snake(name):
+  name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+  return re.sub('([a-z0-9])([A-Z])', r'\1_\2', name).lower()
+
+
+def parse_attribs(attribs: str):
+  if not attribs:
+    return []
+  return attribs.split(':')
 
 
 class TypeKind(Enum):
@@ -271,18 +283,38 @@ class Declspec(Enum):
 NAME_TO_DECLSPEC = {str(decl): decl for decl in Declspec}
 
 
+class CxxFunType(Enum):
+  Regular = auto()
+  Constructor = auto()
+  Destructor = auto()
+  CopyConstructor = auto()
+  MoveConstructor = auto()
+  CopyAssign = auto()
+  MoveAssign = auto()
+
+  def __str__(self):
+    return camel_to_snake(self.name)
+
+
+NAME_TO_CXXF = {str(v): v for v in CxxFunType}
+NAME_TO_CXXF[None] = CxxFunType.Regular
+
+
 class FunctionType(Type):
   kind = TypeKind.Function
 
-  def __init__(self, declspec, ret):
+  def __init__(self, declspec, ret, cxx):
     super().__init__()
     self.declspec = declspec  # type: Declspec
     self.ret = ret  # type: Type
     self.args = []  # type: list[Type]
+    self.cxx = cxx
 
   def serialize_short(self):
     yield from super().serialize_short()
     yield f"declspec={self.declspec}"
+    if self.cxx is not CxxFunType.Regular:
+      yield f"cxx={self.cxx}"
 
   def serialize_detail(self):
     yield from super().serialize_detail()
@@ -297,6 +329,7 @@ class FunctionType(Type):
 
   def deserialize(self, it: ScopeLineIter, short_props: typing.Dict[str, str]):
     self.declspec = NAME_TO_DECLSPEC[short_props["declspec"]]
+    self.cxx = NAME_TO_CXXF[short_props.get("cxx")]
     while True:
       key, short_props = _parse_short(next(it))
       if key is None:
@@ -318,7 +351,7 @@ class FunctionType(Type):
 
   @classmethod
   def create(cls, short_props: typing.Dict[str, str]):
-    return cls(None, None)
+    return cls(None, None, None)
 
   def link(self, structs_map):
     self.ret.link(structs_map)
@@ -466,6 +499,7 @@ class Struct:
     self._vtable_id = None
     self._super_id = None
     self._linked = False
+    self.attribs = []
 
   def calc_fields_offs(self):
     offs = 0
@@ -501,6 +535,9 @@ class Struct:
       yield f"vtable={self.vtable.id}"
     if self.super is not None:
       yield f"super={self.super.id}"
+    if self.attribs:
+      attribs = ':'.join(self.attribs)
+      yield f"attribs={attribs}"
 
   def serialize_detail(self):
     if self.fields:
@@ -519,6 +556,7 @@ class Struct:
     self.is_union = short_props.get("is_union", "False").lower() == 'true'
     self._vtable_id = short_props.get("vtable", None)
     self._super_id = short_props.get("super", None)
+    self.attribs = parse_attribs(short_props.get("attribs", ""))
     while True:
       key, short_props = _parse_short(next(it))
       if key is None:

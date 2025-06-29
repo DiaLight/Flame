@@ -5,6 +5,8 @@
 #include "Struct.h"
 #include "ScopeLineIter.h"
 #include "SGMap.h"
+#include <sstream>
+#include <vector>
 
 bool getStruct(std::map<std::string, Struct *> &structsMap, const std::string &id, Struct *&struc) {
     auto it = structsMap.find(id);
@@ -127,6 +129,15 @@ Type *StructType::create(ScopeLineIter &sli, std::map<std::string, std::string> 
 
 bool StructType::deserialize(ScopeLineIter &sli, std::map<std::string, std::string> &shortProps, SGMapArena &arena) {
     _struct_id = shortProps["id"];
+    attribs.clear();
+    auto it = shortProps.find("attribs");
+    if(it != shortProps.end()) {
+        std::istringstream f(it->second);
+        std::string s;
+        while (std::getline(f, s, ':')) {
+            attribs.push_back(s);
+        }
+    }
     return true;
 }
 
@@ -166,13 +177,37 @@ bool parseDeclspec(const std::string& name, CConv &val) {
     return true;
 }
 
+bool parseCxxType(const std::string& name, CxxFunType &val) {
+    if(name.empty()) {
+        val = CXXF_Regular;
+    } else if(name == "regular") {
+        val = CXXF_Regular;
+    } else if(name == "constructor") {
+        val = CXXF_Constructor;
+    } else if(name == "destructor") {
+        val = CXXF_Destructor;
+    } else if(name == "copy_constructor") {
+        val = CXXF_CopyConstructor;
+    } else if(name == "move_constructor") {
+        val = CXXF_MoveConstructor;
+    } else if(name == "copy_assign") {
+        val = CXXF_CopyAssign;
+    } else if(name == "move_assign") {
+        val = CXXF_MoveAssign;
+    } else {
+        return false;
+    }
+    return true;
+}
+
 
 Type *FunctionType::create(ScopeLineIter &sli, std::map<std::string, std::string> &shortProps, SGMapArena &arena) {
-    return arena.types.emplace_back(new FunctionType(DS_stdcall, nullptr)).get();
+    return arena.types.emplace_back(new FunctionType(DS_stdcall, nullptr, CXXF_Regular)).get();
 }
 
 bool FunctionType::deserialize(ScopeLineIter &sli, std::map<std::string, std::string> &shortProps, SGMapArena &arena) {
     if(!parseDeclspec(shortProps["declspec"], cconv)) return false;
+    if(!parseCxxType(shortProps["cxx"], cxx)) return false;
     while (true) {
         std::string *line = sli.next();
         if(line == nullptr) break;

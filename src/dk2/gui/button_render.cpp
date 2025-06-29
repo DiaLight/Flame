@@ -697,3 +697,50 @@ char dk2::CFrontEndComponent::bakeButton(int a2_wndId, unsigned __int8 x16Idx, i
     return 1;
 }
 
+int __cdecl dk2::CButton_render_42A160(CButton *a1_btn, CDefaultPlayerInterface *a2_defplif) {
+    int v14_try_level;
+
+    AABB v13_tmp;
+    Area4i pos = *(Area4i *) a2_defplif->cgui_manager.scaleAabb_2560_1920(&v13_tmp, (AABB *)&a1_btn->pos);
+
+    PixelMask v11_pixelMask {0, 0, 0, 0, 0};
+    if (a1_btn->f5D_isVisible != 1) return 0;
+
+    unsigned __int8 v5_brightnes;
+    if ( !a1_btn->f34_idxHigh || (v5_brightnes = -1, !a1_btn->f45_containsCursor) )
+        v5_brightnes = -56;
+
+    v11_pixelMask = {v5_brightnes, v5_brightnes, v5_brightnes, 0, 0};
+
+    int value = MyResources_instance.video_settings.texture_reduction_level;
+
+    if (value == 0) {
+        v14_try_level = -1;
+        unsigned __int8* v8_mbstr = MyMbStringList_idx1091_getMbString(0x5A2u);
+        return a2_defplif->sub_42CB60(
+            &a2_defplif->_options,
+            pos.x, pos.y, v8_mbstr,
+            &v11_pixelMask,
+            0x11, 0, FontObj_3_instance, 1);
+    }
+    if (value == 1) {
+        v14_try_level = -1;
+        unsigned __int8* MbString = MyMbStringList_idx1091_getMbString(0x119u);
+        return a2_defplif->sub_42CB60(
+            &a2_defplif->_options,
+            pos.x, pos.y, MbString,
+            &v11_pixelMask,
+            0x11, 0, FontObj_3_instance, 1);
+    }
+    if (value == 2) {
+        v14_try_level = -1;
+        unsigned __int8* v6_mbstr = MyMbStringList_idx1091_getMbString(0x5A3u);
+        return a2_defplif->sub_42CB60(
+            &a2_defplif->_options,
+            pos.x, pos.y, v6_mbstr,
+            &v11_pixelMask,
+            0x11, 0, FontObj_3_instance, 1);
+    }
+    return value - 2;
+}
+

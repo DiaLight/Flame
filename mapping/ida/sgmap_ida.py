@@ -5,6 +5,20 @@ import pathlib
 import sgmap
 
 
+def parse_cmt_props(cmt: str):
+  result = {}
+  if cmt is not None:
+    for line in cmt.split('\n'):
+      try:
+        idx = line.index('=')
+        key = line[:idx]
+        value = line[idx+1:]
+        result[key] = value
+      except ValueError:
+        pass
+  return result
+
+
 def format_windows_type(tname):
   if tname == "LPDIDEVICEOBJECTDATA_10":
     return "LPDIDEVICEOBJECTDATA"
@@ -75,10 +89,11 @@ def is_int_type(tname):
 
 class IdaStruct(sgmap.Struct):
 
-  def __init__(self, sid, name):
+  def __init__(self, sid, name, cmt_props: dict):
     super().__init__(name)
     self.instances = []  # type: list[IdaGlobal]
     self.ida = idaapi.get_struc(sid)  # type: idaapi.struc_t
+    self.attribs = sgmap.parse_attribs(cmt_props.get('attribs', ''))
 
   def visit_body_field(self, field):  # type: (IdaField) -> None
     field = field  # type: IdaField
@@ -137,7 +152,8 @@ class IdaStruct(sgmap.Struct):
   def build(sid, sname):
     if sname == '__m64':
       raise Exception()
-    struct = IdaStruct(sid, sname)
+    cmt_props = parse_cmt_props(idaapi.get_struc_cmt(sid, False))
+    struct = IdaStruct(sid, sname, cmt_props)
     struct.size = idaapi.get_struc_size(struct.ida)
     if struct.ida.is_union():
       struct.is_union = True
@@ -245,7 +261,8 @@ class IdaStructs:
       for field in struct.fields:  # type: IdaField
         if field.type is not None:
           continue
-        field.type = IdaTypeConvert(struct.name, field.name, self).accept(field.tif)
+        cmt_props = parse_cmt_props(idaapi.get_member_cmt(field.ida.id, False))
+        field.type = IdaTypeConvert(struct.name, field.name, self).accept(field.tif, cmt_props)
 
     # locate struct related globals
     for ea, name in idautils.Names():  # type: int, str
@@ -356,9 +373,10 @@ class IdaStructs:
   def resolve_id(self, struct: IdaStruct):
     if struct.id is not None:
       return
-    cmt = idaapi.get_struc_cmt(struct.ida.id, False)
-    if cmt and cmt.startswith("id="):
-      struct.id = cmt[len("id="):]
+    cmt_props = parse_cmt_props(idaapi.get_struc_cmt(struct.ida.id, False))
+    struct_id = cmt_props.get('id')
+    if struct_id is not None:
+      struct.id = struct_id
       return
     con_ea = idaapi.get_name_ea(idaapi.BADADDR, f'{struct.name}_constructor')
     if con_ea != idaapi.BADADDR:
@@ -424,12 +442,15 @@ class IdaTypeConvert:
       tname = tname[len('struct '):]
     return tname
 
-  def format_func(self, tif: idaapi.tinfo_t) -> sgmap.FunctionType:
+  def format_func(self, tif: idaapi.tinfo_t, cmt_props: dict = None) -> sgmap.FunctionType:
+    if cmt_props is None:
+      cmt_props = {}
     tname = self.get_tname(tif)  # type: str
     tfunc = idaapi.func_type_data_t()
     if not tif.get_func_details(tfunc):
       raise Exception(tname)
 
+    cxx = sgmap.NAME_TO_CXXF[cmt_props.get("cxx")]
     # cc = tfunc.guess_cc() & idaapi.CM_CC_MASK
     cc = tfunc.cc & idaapi.CM_CC_MASK
     if cc == idaapi.CM_CC_THISCALL:
@@ -451,7 +472,8 @@ class IdaTypeConvert:
       if '__usercall' in str(tif) or '__userpurge' in str(tif):
         return sgmap.FunctionType(
           sgmap.Declspec.Assembly,
-          sgmap.PtrType(sgmap.VoidType())
+          sgmap.PtrType(sgmap.VoidType()),
+          cxx
         )
       print(f"visit unsupported function type", self.struct, self.field, tname, str(tif))
       # return sgmap.WinapiType('unsupported')
@@ -459,7 +481,7 @@ class IdaTypeConvert:
         self.struct, self.field, tname, tfunc.size(), cc, idaapi.CM_CC_UNKNOWN
       ])
     ret = self.accept(tfunc.rettype)
-    fun = sgmap.FunctionType(declspec, ret)
+    fun = sgmap.FunctionType(declspec, ret, cxx)
     for i in range(tif.get_nargs()):
       arg = tif.get_nth_arg(i)  # type: idaapi.tinfo_t
       fun.args.append(self.accept(arg))
@@ -511,9 +533,11 @@ class IdaTypeConvert:
     # print(f"visit udt type {tname}", self.struct, self.field)
     # return sgmap.WinapiType(tname, udt.total_size)
 
-  def accept(self, tif: idaapi.tinfo_t):
+  def accept(self, tif: idaapi.tinfo_t, cmt_props: dict = None):
+    if cmt_props is None:
+      cmt_props = {}
     if tif.is_func():
-      return self.format_func(tif)
+      return self.format_func(tif, cmt_props)
 
     tname = self.get_tname(tif)  # type: str
     winapi = self.try_winapi(tif, tname)
@@ -683,7 +707,8 @@ class IdaCollectGlobals:
     if not idaapi.get_tinfo(tif, ea):
       if idaapi.guess_tinfo(tif, ea) in [0, -1, idaapi.BADADDR]:
         return None
-    type = IdaTypeConvert("%08X" % ea, name, self.structs).accept(tif)
+    cmt_props = parse_cmt_props(idaapi.get_cmt(ea, False))
+    type = IdaTypeConvert("%08X" % ea, name, self.structs).accept(tif, cmt_props)
     return self.get_global(ea, type)
 
   def collect_instances(self, glob: IdaGlobal, name: str):
@@ -792,8 +817,9 @@ class IdaCollectGlobals:
       #   raise Exception(["%08X" % ea, name])
       if idaapi.get_tinfo(tif, ea):
         try:
-          glob = self.get_global(ea, IdaTypeConvert("%08X" % ea, name, self.structs).accept(tif))
           chunk = idaapi.get_fchunk(ea)  # type: idaapi.func_t
+          cmt_props = parse_cmt_props(idaapi.get_func_cmt(chunk, False))
+          glob = self.get_global(ea, IdaTypeConvert("%08X" % ea, name, self.structs).accept(tif, cmt_props))
           assert chunk.end_ea > chunk.start_ea
           glob.size = chunk.end_ea - chunk.start_ea
         except Exception:

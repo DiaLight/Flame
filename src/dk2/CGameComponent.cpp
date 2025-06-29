@@ -3,6 +3,7 @@
 //
 #include "dk2/CGameComponent.h"
 
+#include <patches/gui/game/esc_options/btn_autosave.h>
 #include <patches/limit_tps.h>
 #include <tools/flame_config.h>
 
@@ -161,6 +162,7 @@ dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
     v23.blue = palleteEntries[0].peBlue;
     v23.alpha = -1;
     initCurOffScreenSurf(v23, 0);
+    patch::autosave::updateLastAutoSaveTime();
     // hook::BEFORE_GAME_LOOP
     while ( !this->exit_flag ) {
         // hook::TICK_GAME_LOOP
@@ -219,6 +221,7 @@ dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
             MyGame_instance.prepareScreen();
             if ( MyResources_instance.video_settings.selected_3D_engine != 4 ) MyGame_instance.surf_Blt();
         }
+        patch::autosave::Autosave_tick();
         ++this->fpsCalc_drawCount;
         patch::limit_tps::call();
         // calc fps

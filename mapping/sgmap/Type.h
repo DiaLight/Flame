@@ -129,6 +129,7 @@ struct StructType : public Type {
 
     Struct *struc;
     std::string _struct_id;
+    std::vector<std::string> attribs;
 
     explicit StructType(Struct *struc) : Type(TK_Struct), struc(struc) {}
     ~StructType() override = default;
@@ -155,13 +156,25 @@ enum CConv {
 [[nodiscard]] bool parseDeclspec(const std::string& name, CConv &val);
 
 
+enum CxxFunType {
+  CXXF_Regular,
+  CXXF_Constructor,
+  CXXF_Destructor,
+  CXXF_CopyConstructor,
+  CXXF_MoveConstructor,
+  CXXF_CopyAssign,
+  CXXF_MoveAssign,
+};
+
+
 struct FunctionType : public Type {
 
     CConv cconv;
     std::vector<Type *> args;
     Type *ret;
+    CxxFunType cxx;
 
-    FunctionType(CConv declspec, Type *ret) : Type(TK_Function), cconv(declspec), ret(std::move(ret)) {}
+    FunctionType(CConv declspec, Type *ret, CxxFunType cxx) : Type(TK_Function), cconv(declspec), ret(std::move(ret)), cxx(cxx) {}
     ~FunctionType() override = default;
 
     [[nodiscard]] static Type *create(ScopeLineIter &sli, std::map<std::string, std::string> &shortProps, SGMapArena &arena);
