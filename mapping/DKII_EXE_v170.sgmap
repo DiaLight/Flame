@@ -26563,7 +26563,7 @@ global: va=0042A780,name=CListBox_clickArg1_42A780,size=16
     ret: kind=int,size=4,signed=True
 global: va=0042A790,name=CListBox_clickArg2_42A790,size=55
   type: kind=function,declspec=cdecl
-    ret: kind=ptr,is_const=True
+    ret: kind=ptr
       type: kind=int,size=2,winapi=wchar_t,fname=wchar_t
     arg: kind=int,size=4,signed=True
 global: va=0042A7D0,name=CButton_handleLeftClick_42A7D0,size=120
@@ -27400,7 +27400,7 @@ global: va=004333F0,name=sub_4333F0,size=129
     arg: kind=ptr
       type: kind=ptr
         type: kind=void
-global: va=00433480,name=sub_433480,size=170
+global: va=00433480,name=constructor_0,size=170,member_of=constructor_0042F740
   type: kind=function,declspec=thiscall
     ret: kind=void
     arg: kind=ptr
@@ -52990,10 +52990,11 @@ global: va=00559690,name=addWmActivateCallback,size=50,member_of=constructor_005
       type: kind=void
 global: va=005596D0,name=removeWmActivateCallback,size=56,member_of=constructor_00557B70
   type: kind=function,declspec=thiscall
-    ret: kind=int,size=4,signed=True
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_00557B70
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=void
 global: va=00559710,name=static_MyGame_Event07_cb,size=45
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True

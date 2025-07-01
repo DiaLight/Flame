@@ -245,3 +245,25 @@ int dk2::MyGame::init() {
     this->fF51 = 0;
     return 1;
 }
+
+namespace patch {
+
+    void *try_unpack_jmp(void *fun) {
+        if (fun == NULL) return NULL;
+        uint8_t *p = (uint8_t*) fun;
+        if (*p++ == 0xFF && *p++ == 0x25) { // follow jmp
+            fun = **(void***) p;
+        }
+        return fun;
+    }
+
+}
+
+void dk2::MyGame::removeWmActivateCallback(void *ptr) {;
+    for (int i = 0; i < 8; ++i) {
+        if (patch::try_unpack_jmp(this->WM_ACTIVATE_callbacks[i]) != patch::try_unpack_jmp(ptr)) continue;
+        this->WM_ACTIVATE_callbacks[i] = NULL;
+        this->WM_ACTIVATE_userData[i] = NULL;
+        return;
+    }
+}

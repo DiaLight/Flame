@@ -68,6 +68,7 @@
 00557CB0 int init();  // -----------------------------  /* auto */
 00557FB0 int isOsCompatible();  // -------------------  /* auto */
 005581B0 int prepareScreenEx(uint32_t, uint32_t, uint32_t, int, int, int);  /* auto */
+005596D0 void removeWmActivateCallback(void *);  // --  /* auto */
 
 # MyResources.h
 0055C020 MyResources *init_resources();  // ----------  /* auto */
