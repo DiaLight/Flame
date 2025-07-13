@@ -32,6 +32,8 @@
 00542980 void sub_542980(FoundPlayService *);  // ----  /* auto */
 00534210 int load();  // -----------------------------  /* auto */
 0052F140 int launchGame();  // -----------------------  /* auto */
+0054D370 char updateNetworkSessions();  // -----------  /* auto */
+0053ED60 void isMapPresent(SessionMapInfo *, wchar_t *);  /* auto */
 
 # CGameComponent.h
 00525370 CGameComponent *mainGuiLoop();  // ----------  /* auto */

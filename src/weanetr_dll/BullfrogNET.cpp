@@ -572,8 +572,7 @@ int BullfrogNET::CreateSPSession(
     this->f186_sessionDesc.guidApplication = this->f44_guidApplication;
     this->f186_sessionDesc.totalMaxPlayers = a5_cred->f10_totalMaxPlayers;
     this->f186_sessionDesc.currentPlayers = 1;
-    this->f186_sessionDesc.mapNameLen_mapPlayersCount = a5_cred->f20_mapNameLen_mapPlayersCount;
-    this->f186_sessionDesc.mapNameHash = a5_cred->f24_mapNameHash;
+    this->f186_sessionDesc.mapInfo = a5_cred->f20_mapInfo;
     this->f186_sessionDesc.fileHashsum = a5_cred->f28_fileHashsum;
     this->f186_sessionDesc.cred_2C = a5_cred->field_2C;
     wcscpy(this->f186_sessionDesc.gameName, a3_gameName);
@@ -870,8 +869,7 @@ int BullfrogNET::JoinSPSession(
     this->f186_sessionDesc.guidApplication = this->f44_guidApplication;
     this->f186_sessionDesc.totalMaxPlayers = a2_desc->totalMaxPlayers;
     this->f186_sessionDesc.currentPlayers = a2_desc->currentPlayers;
-    this->f186_sessionDesc.mapNameLen_mapPlayersCount = a2_desc->mapNameLen_mapPlayersCount;
-    this->f186_sessionDesc.mapNameHash = a2_desc->mapNameHash;
+    this->f186_sessionDesc.mapInfo = a2_desc->mapInfo;
     this->f186_sessionDesc.fileHashsum = a2_desc->fileHashsum;
     this->f186_sessionDesc.cred_2C = a2_desc->cred_2C;
     wcscpy(this->f186_sessionDesc.gameName, a2_desc->gameName);
@@ -2165,8 +2163,7 @@ int BullfrogNET::setSessionDesc(MLDPLAY_SESSIONDESC *a2_desc, DWORD a3_size) {
     MLDPLAY_SESSIONDESC v9_desc;
     this->getSessionDesc(&v9_desc, &v8_size);
     v9_desc.totalMaxPlayers = a2_desc->totalMaxPlayers;
-    v9_desc.mapNameLen_mapPlayersCount = a2_desc->mapNameLen_mapPlayersCount;
-    v9_desc.mapNameHash = a2_desc->mapNameHash;
+    v9_desc.mapInfo = a2_desc->mapInfo;
     v9_desc.fileHashsum = a2_desc->fileHashsum;
     v9_desc.cred_2C = a2_desc->cred_2C;
     EnterCriticalSection(&this->dataLock);

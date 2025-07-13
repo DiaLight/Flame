@@ -5,18 +5,19 @@
 #include <dk2/MyMapInfo.h>
 #include <dk2/Obj543D99.h>
 #include <dk2/button/CListBox.h>
-#include <dk2/network/protocol/NetMessage_65.h>
-#include <dk2/network/FoundSessionDesc.h>
 #include <dk2/button/CTextInput.h>
+#include <dk2/network/FoundSessionDesc.h>
+#include <dk2/network/MLDPLAY_SESSIONDESC.h>
+#include <dk2/network/protocol/NetMessage_65.h>
 #include <patches/screen_resolution.h>
 #include <weanetr_dll/MLDPlay.h>
-#include "dk2_globals.h"
-#include "dk2_functions.h"
-#include "patches/micro_patches.h"
-#include "dk2_memory.h"
-#include "weanetr_dll/globals.h"
-#include "patches/logging.h"
 #include "dk2/CListBox_ItemHeightCfg.h"
+#include "dk2_functions.h"
+#include "dk2_globals.h"
+#include "dk2_memory.h"
+#include "patches/logging.h"
+#include "patches/micro_patches.h"
+#include "weanetr_dll/globals.h"
 
 
 void dk2::CFrontEndComponent::showTitleScreen() {
@@ -566,4 +567,111 @@ int dk2::CFrontEndComponent::launchGame() {
     this->timestampMs = getTimeMs();
     this->usingIme = 0;
     return 1;
+}
+
+char dk2::CFrontEndComponent::updateNetworkSessions() {
+    unsigned int v2_netstatus = WeaNetR_instance.enumerateSessions(TRUE);
+    unsigned __int8 *MbString;
+    if ( v2_netstatus > 0x20 ) {
+        if ( v2_netstatus != 0x40000 )
+            return 1;
+        MbString = MyMbStringList_idx1091_getMbString(0x823u);
+        strcpy((char *) this->mbStr, (const char *)MbString);
+        return 1;
+    }
+    if (v2_netstatus == 32) return 0;
+    if (v2_netstatus == 1) {
+        MbString = MyMbStringList_idx1091_getMbString(0x816u);
+        strcpy((char *) this->mbStr, (const char *)MbString);
+        return 1;
+    }
+    if (v2_netstatus != 2) return 1;
+    op_delete((void **)&g_networkStrInfo);
+    wchar_t *networkStrInfo = (wchar_t *) malloc_2(2u);
+    g_networkStrInfo = networkStrInfo;
+    if (!networkStrInfo) return 0;
+    *networkStrInfo = '\0';
+    memset(this->isSessionCompatible, 0, 8);
+    sub_54E4D0();
+    if ( g_MLDPLAY_SESSIONDESC_arr_count ) {
+        if (CButton *btn = this->findBtnBySomeId(577, 39)) btn->f5D_isVisible = 1;
+        if (CButton *btn = this->findBtnBySomeId(224, 11)) btn->f5D_isVisible = 1;
+        if (CButton *btn = this->findBtnBySomeId(207, 10)) btn->f5D_isVisible = 1;
+    } else {
+        if (CButton *btn = this->findBtnBySomeId(577, 39)) btn->f5D_isVisible = 0;
+        if (CButton *btn = this->findBtnBySomeId(224, 11)) btn->f5D_isVisible = 0;
+        if (CButton *btn = this->findBtnBySomeId(207, 10)) btn->f5D_isVisible = 0;
+    }
+    unsigned int curSize = 2;
+    for (int i = 0; i < g_MLDPLAY_SESSIONDESC_arr_count; ++i) {
+        auto &sessionDesc = g_MLDPLAY_SESSIONDESC_arr[i];
+        SessionMapInfo mapInfo = sessionDesc.mapInfo;
+        int v13_aiPlayersCount = mapInfo.aiPlayersCount_flag & 0x7F;
+        unsigned int v14_mapPlayersCount = mapInfo.playersCount;
+        wchar_t mapNameStr[64];
+        this->isMapPresent(&mapInfo, mapNameStr);
+        unsigned int majorVersion = (sessionDesc.gameVersion >> 16) & 0xFFFF;
+        wchar_t versionStr[64];
+        if ( majorVersion ) {
+            int minorVersion = sessionDesc.gameVersion & 0xFFFF;
+            swprintf(versionStr, L"#%lu.%lu", majorVersion, minorVersion);
+        } else {
+            unsigned __int8 *v18 = MyMbStringList_idx1091_getMbString(0xBCCu);
+            wchar_t Format[32];
+            MBToUni_convert(v18, Format, 32);
+            swprintf(versionStr, L"#%s", Format);
+        }
+        g_currentPlayersInSession = v13_aiPlayersCount + sessionDesc.currentPlayers;
+        BOOL v15_hashEquals = sessionDesc.fileHashsum == g_fileHashsum;
+        patch::log::dbg("compatible: hasSlots=%d<%d version=%X?%X hash=%08X?%08X notSingleplayer=%d>1\n",
+            g_currentPlayersInSession, v14_mapPlayersCount,
+            (g_minorVersion | (g_majorVersion << 16)), sessionDesc.gameVersion,
+            sessionDesc.fileHashsum, g_fileHashsum,
+            v14_mapPlayersCount > 1
+        );
+        this->isSessionCompatible[i] = g_currentPlayersInSession < v14_mapPlayersCount
+                          && (g_minorVersion | (g_majorVersion << 16)) == sessionDesc.gameVersion
+                          && v15_hashEquals
+                          && v14_mapPlayersCount > 1;
+        if (v14_mapPlayersCount == 0) v14_mapPlayersCount = 4;
+        wchar_t playerCountsStr[128];
+        swprintf(playerCountsStr, L"#%lu / %lu#", g_currentPlayersInSession, v14_mapPlayersCount);
+        size_t newSize = sizeof(wchar_t) * (
+            wcslen(sessionDesc.sessionName) + wcslen(playerCountsStr) + wcslen(mapNameStr) + wcslen(versionStr)
+        ) + 2 + curSize;
+        wchar_t *newStrInfoBuf = (wchar_t *) realloc_soft(g_networkStrInfo, curSize, newSize);
+        if (!newStrInfoBuf) {
+            g_networkStrInfo[(curSize - 1) >> 1] = -1;
+            netStrLen((__int16 *)g_networkStrInfo);
+            return 0;
+        }
+        g_networkStrInfo = newStrInfoBuf;
+        curSize = newSize;
+        wcscat(g_networkStrInfo, sessionDesc.sessionName);
+        wcscat(g_networkStrInfo, playerCountsStr);
+        wcscat(g_networkStrInfo, mapNameStr);
+        wcscat(g_networkStrInfo, versionStr);
+        wcscat(g_networkStrInfo, g_sessionStrInfoSeparator);
+    }
+    g_networkStrInfo[(curSize - 1) >> 1] = -1;
+    netStrLen((__int16 *)g_networkStrInfo);
+    return 1;
+}
+
+void dk2::CFrontEndComponent::isMapPresent(SessionMapInfo *mapInfo, wchar_t *mapName) {
+    bool isPresent = false;
+    for (int i = 0; i < this->mapsCount; ++i) {
+        MyMapInfo &curMapInfo = this->mapInfoArr[i];
+        if (curMapInfo.nameHash != mapInfo->nameHash) continue;
+        if (wcslen(curMapInfo.name) != mapInfo->nameLen) continue;
+        wcscpy(mapName, this->mapInfoArr[i].name);
+        isPresent = true;
+        break;
+    }
+    if (!isPresent) {
+        unsigned __int8 *MbString = MyMbStringList_idx1091_getMbString(0xC06u);
+        wchar_t Source[60];
+        MBToUni_convert(MbString, Source, 50);
+        wcscpy(mapName, Source);
+    }
 }

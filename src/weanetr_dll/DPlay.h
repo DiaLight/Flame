@@ -19,6 +19,10 @@ public:
     DPSESSIONDESC2 f571_desc;
     void *f5C1_ptr_eos = NULL;
 
+    int createIDirectPlayLobby3(IDirectPlayLobby3 **a2_out);
+    int createIDirectPlay4(IDirectPlay4 **a1_out);
+    int releaseIDirectPlay4(IDirectPlay4 *obj);
+
     int Startup(MessageHandlerType handler) override;
 
     int ShutDown() override;
@@ -61,6 +65,7 @@ public:
 
     int SendMessageTo(MySocket *a2_dstSock, void *a3_buf, size_t a4_size, int a5_ignored) override;
 
+    void ProcessDPlaySystemMessage(DPMSG_GENERIC *a2_packet);
     PacketHeader *ReadSPMessage() override;
 
     void setNewHost(MyPacket_E_NewHost *a2_packet) override;

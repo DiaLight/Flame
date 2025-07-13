@@ -320,7 +320,7 @@ int MLDPlay::DestroySession() {
     return 0x20;
 }
 
-int MLDPlay::EnumerateSessions(unsigned int a2_zero, EnumerateSessionsCallback a3_callback, unsigned int a4_flags,
+int MLDPlay::EnumerateSessions(unsigned int a2_timeout, EnumerateSessionsCallback a3_callback, unsigned int a4_flags,
                                void *a5_arg) {
     if (!this->fc_hasHandler) {
         _log("MLDPlay::EnumerateSessions Error:-Not Initialised\n");
@@ -332,7 +332,7 @@ int MLDPlay::EnumerateSessions(unsigned int a2_zero, EnumerateSessionsCallback a
         return 0x20;
     }
     return provider->EnumerateSessions(
-            a2_zero,
+            a2_timeout,
             a3_callback,
             a4_flags,
             a5_arg);

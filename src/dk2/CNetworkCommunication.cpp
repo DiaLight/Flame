@@ -3,19 +3,22 @@
 //
 
 #include "dk2/CNetworkCommunication.h"
-#include "dk2/CWorld.h"
+
+#include <patches/logging.h>
+
 #include "dk2/CDefaultPlayerInterface.h"
-#include "dk2/text/textmap/MyMbStringList.h"
-#include "dk2/text/TbUniStringVTag.h"
-#include "dk2/entities/CPlayer.h"
-#include "dk2_globals.h"
-#include "dk2_functions.h"
-#include "weanetr_dll/MLDPlay.h"
+#include "dk2/CWorld.h"
 #include "dk2/MySemaphore.h"
+#include "dk2/entities/CPlayer.h"
+#include "dk2/network/protocol.h"
 #include "dk2/network/protocol/DataMessage_1.h"
 #include "dk2/network/protocol/DataMessage_3.h"
+#include "dk2/text/TbUniStringVTag.h"
+#include "dk2/text/textmap/MyMbStringList.h"
+#include "dk2_functions.h"
+#include "dk2_globals.h"
 #include "dk2_memory.h"
-#include "dk2/network/protocol.h"
+#include "weanetr_dll/MLDPlay.h"
 
 
 namespace dk2 {
@@ -360,7 +363,7 @@ BOOL dk2::CNetworkCommunication::collectActions(GameActionCtx *a2_outCtx) {
             ff730_endTick = this->ff730_highTick;
         }
     }
-//    printf("skip sending %d-%d\n", f7260_startTick, ff730_endTick);
+    // patch::log::dbg("skip sending %d-%d", f7260_startTick, ff730_endTick);
     if (!v51_doSendMessage) return 0;
     DK2Packet_3_ResendActionsRequest packet;
     packet.packetId = DK2Packet_3_ResendActionsRequest::ID;
@@ -511,7 +514,7 @@ void __cdecl dk2::CNetworkCommunication_dataCallback(
             if (WeaNetR_instance.updatePlayers_isHost())
                 return;
             // server->client  [BC] in B{1,00000003}  pl=0 cpl=1
-            printf("[UploadTrackPing] in B{%d,%08X}  pl=%d cpl=%d\n", (uint16_t) pkt->f0_save2else1, pkt->f4_slotMask, a3_playersSlot, WeaNetR_instance.playersSlot);
+            patch::log::dbg("[UploadTrackPing] in B{%d,%08X}  pl=%d cpl=%d", (uint16_t) pkt->f0_save2else1, pkt->f4_slotMask, a3_playersSlot, WeaNetR_instance.playersSlot);
             char f1D4_playersSlot = WeaNetR_instance.playersSlot;
             uint16_t v15_save2else1 = (uint16_t) pkt->f0_save2else1;
             int v16_slotMask = pkt->f4_slotMask;
@@ -538,7 +541,7 @@ void __cdecl dk2::CNetworkCommunication_dataCallback(
                 return;
             EnterCriticalSection(&a4_arg->critSec);
             // client->server  [BC] in C{1,4343}  pl=1
-            printf("[UploadTrackPong] in {%d,%d}  pl=%d\n", pkt->f0_save2else1, pkt->f4_4343, a3_playersSlot);
+            patch::log::dbg("[UploadTrackPong] in {%d,%d}  pl=%d", pkt->f0_save2else1, pkt->f4_4343, a3_playersSlot);
             unsigned int v19_slot = pkt->f0_save2else1;
             a4_arg->clientWorldState[a3_playersSlot].checksum = pkt->f4_4343;
             if (v19_slot < 4) {

@@ -2,20 +2,21 @@
 // Created by DiaLight on 01.07.2024.
 //
 #include <dk2/dk2_memory.h>
+#include <patches/logging.h>
 
+#include "dk2/MyBBase673E70.h"
+#include "dk2/MyBUnk673FD8.h"
 #include "dk2/MyGame.h"
 #include "dk2/MyMouseUpdater.h"
+#include "dk2/MyObj673FD4.h"
+#include "dk2/MyUnk673FD0.h"
+#include "dk2/MyUnk67457C.h"
 #include "dk2/button/CTextBox.h"
 #include "dk2_functions.h"
 #include "dk2_globals.h"
-#include "patches/micro_patches.h"
 #include "patches/game_version_patch.h"
+#include "patches/micro_patches.h"
 #include "weanetr_dll/MLDPlay.h"
-#include "dk2/MyUnk67457C.h"
-#include "dk2/MyUnk673FD0.h"
-#include "dk2/MyBUnk673FD8.h"
-#include "dk2/MyBBase673E70.h"
-#include "dk2/MyObj673FD4.h"
 
 
 int32_t dk2::MyGame::isOsCompatible() {
@@ -30,7 +31,7 @@ void dk2::resolveDk2HomeDir() {
         char tmp[MAX_PATH];
         DWORD len = GetCurrentDirectoryA(MAX_PATH, tmp);
         strcpy(tmp + len, "\\");
-//        printf("replace exe dir path1: %s -> %s\n", dk2::dk2HomeDir, tmp);
+        // patch::log::dbg("replace exe dir path1: %s -> %s", dk2::dk2HomeDir, tmp);
         strcpy(dk2::dk2HomeDir, tmp);
         return;
     }
@@ -145,7 +146,7 @@ void dk2::MyUnk673FD0::destructor() {
     if (arr0) {
         arr0->v_f8_array_delete(3);
     }
-    dk2::operator_delete(this->f44);
+    dk2::operator_delete(this->pMyBUnk673FD8_arrx12_f44);
     for (MyBBase673E70 *cur = this->list_last_24; cur; cur = cur->prev ) {
         cur->v_f24_cleanup();
     }

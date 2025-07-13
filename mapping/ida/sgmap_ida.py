@@ -59,7 +59,8 @@ def is_windows_type(tname):
     '_UNICODE_STRING', '_LIST_ENTRY', '_PROCESSOR_NUMBER', '_LARGE_INTEGER',
     '_ULARGE_INTEGER', '_CURDIR', '_STRING', 'tWAVEFORMATEX', '_DSCAPS', 'DSCAPS',
     'DSBCAPS', '_DSBUFFERDESC', 'WAVEFORMATEX',
-    'LPCSTR', 'CHAR', 'char', '_TBYTE', 'WCHAR', 'wchar_t'
+    'LPCSTR', 'CHAR', 'char', '_TBYTE', 'WCHAR', 'wchar_t',
+    'DSBUFFERDESC',
   ]: return True
   return False
 

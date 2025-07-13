@@ -4,6 +4,7 @@
 #include "dk2/RegKey.h"
 
 #include <dk2_globals.h>
+#include <patches/logging.h>
 #include <patches/registry_to_config.h>
 
 #include "patches/micro_patches.h"
@@ -115,10 +116,10 @@ int *dk2::RegKey::write_bytes(
         uint32_t cbData) {
     if (patch::registry_to_config::enabled) {
         switch (dwType) {
-        case REG_BINARY: break;
-        case REG_FULL_RESOURCE_DESCRIPTOR: break;
+            case REG_BINARY: break;
+            case REG_FULL_RESOURCE_DESCRIPTOR: break;
             default: {
-                printf("[err] invalid bytes type %d\n", dwType);
+                patch::log::err("invalid bytes type %d", dwType);
                 *pstatus = -1;
                 return pstatus;
             } break;
@@ -153,7 +154,7 @@ unsigned int dk2::RegKey::read_Bytes_size(LPCSTR lpValueName) {
 
 int *dk2::RegKey::read_Bytes(int *pstatus, LPCSTR lpValueName, LPBYTE lpData, uint32_t cbData) {
     if (!lpValueName || this->key == NULL) {
-        printf("[err] tried to read \"%s\" but key is NULL\n", lpValueName);
+        patch::log::err("tried to read \"%s\" but key is NULL", lpValueName);
         *pstatus = -1;
         return pstatus;
     }

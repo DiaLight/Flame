@@ -497,10 +497,9 @@ BOOL dk2::WeaNetR::collectNetworkSessions() {
     return 0;
 }
 
-int dk2::WeaNetR::enumerateSessions(int a2) {
+int dk2::WeaNetR::enumerateSessions(int a2_async) {
     this->descArr_count = 0;
-    unsigned int flags = a2 ? 2 : 4;
-    int status = this->mldplay->EnumerateSessions(0, EnumerateSessions_callback, flags, this);
+    int status = this->mldplay->EnumerateSessions(0, EnumerateSessions_callback, a2_async ? 2 : 4, this);
     process_win_inputs();
     return status;
 }

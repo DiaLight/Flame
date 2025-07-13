@@ -46,13 +46,6 @@ namespace {
         return result;
     }
 
-    void dumpLabel(int textId) {
-        auto *v24_mbstr = dk2::MyMbStringList_idx1091_getMbString(textId);
-        wchar_t text[256] = {0};
-        dk2::MBToUni_convert(v24_mbstr, text, 256);
-        printf("[mbstr] %d: %S\n", textId, text);
-    }
-
 }
 
 dk2::WindowCfg *patch::custom_campaign::SinglePlayer_CustomCampaign_layout() {

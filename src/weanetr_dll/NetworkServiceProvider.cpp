@@ -131,10 +131,9 @@ int NetworkServiceProvider::CreateServiceProvider() {
     HANDLE v5_hThread = (HANDLE) _beginthread([](void *arg) {
         auto *self = (NetworkServiceProvider *) arg;
         _log("IDLE NetworkServiceProvider Thread\n");
-        HANDLE f176_handle2 = self->f176_OnTerminateNspThread_hEvent;
         HANDLE Handles[2];
         Handles[0] = self->f172_OnPlayerJoined_hEvent;
-        Handles[1] = f176_handle2;
+        Handles[1] = self->f176_OnTerminateNspThread_hEvent;
         DWORD waitResult = WaitForMultipleObjects(2u, Handles, 0, INFINITE);
         if (waitResult) {
             if (waitResult == 1)
@@ -424,6 +423,7 @@ int NetworkServiceProvider::GetAllPlayersInfo(DWORD *a2_outCurPlayerSlot) {
             if (v13_sysTime.u.ms - startTime.u.ms > (30 * 1000) )
                 break;
         }
+        SwitchToThread();  // fix for single thread affinity
     }
     if ( isSuccess )
         return TRUE;
@@ -1760,7 +1760,8 @@ int NetworkServiceProvider::SendDataDatagram(
     }
     LeaveCriticalSection(&this->dataLock);
 
-    if (!v16_doHandle ) {
+    if (!v16_doHandle) {
+        patch::log::dbg("NetworkServiceProvider::SendDataDatagram DONT_HANDLE\n");
         net::operator_delete(v8_packetbuf);
         return v15_result;
     }

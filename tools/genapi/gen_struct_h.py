@@ -84,7 +84,7 @@ def format_struct_h(
       if not struct.is_union:
         offs += field.type.get_size()
     if not struct.is_union and offs != struct.size:
-      raise Exception()
+      raise Exception(f'{struct.name} offs != struct.size: {field.name}.{offs:X} != {struct.size:X}')
     yield empty_line
     if struct.vtable is not None:
       yield f"/*---*/ {struct.name}() = delete;"

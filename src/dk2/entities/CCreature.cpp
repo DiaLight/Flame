@@ -3,21 +3,24 @@
 //
 
 #include "dk2/entities/CCreature.h"
+
+#include <patches/logging.h>
+
+#include "creature_state.h"
+#include "dk2/entities/CDoor.h"
 #include "dk2/entities/CObject.h"
 #include "dk2/entities/CPlayer.h"
-#include "dk2/entities/CDoor.h"
 #include "dk2/entities/CRoom.h"
 #include "dk2/entities/CTrap.h"
 #include "dk2/entities/data/MyCreatureDataObj.h"
 #include "dk2/entities/data/MyDoorDataObj.h"
-#include "dk2/entities/data/MyTrapDataObj.h"
 #include "dk2/entities/data/MyObjectDataObj.h"
-#include "dk2_globals.h"
-#include "dk2_functions.h"
-#include "patches/micro_patches.h"
-#include "creature_state.h"
-#include "entities_type.h"
+#include "dk2/entities/data/MyTrapDataObj.h"
 #include "dk2/world/map/MyMapElement.h"
+#include "dk2_functions.h"
+#include "dk2_globals.h"
+#include "entities_type.h"
+#include "patches/micro_patches.h"
 
 
 int dk2::CCreature::processDealDamage() {
@@ -90,13 +93,13 @@ int dk2::CCreature::processDealDamage() {
             if ( v17_angleDiv20 > 15 ) {
                 v18_newDamage = v8_damage + v8_damage * v17_angleDiv20 / 100;
             }
-//            printf("%d:%s:%d:%d->%d:%s:%d:%d damage=%d(+%d) vec:{%d,%d} a:%d(%d) degrees:%.2f\n",
-//                   this->f24_playerId, CCreature_typeId_toString(this->typeId), this->f0_tagId, this->f3C_health,
-//                   targetCreature->f24_playerId, CCreature_typeId_toString(targetCreature->typeId), targetCreature->f0_tagId, targetCreature->f3C_health,
-//                   -v8_damage, -(v18_newDamage - v8_damage),
-//                   this->f16_pos.x - targetCreature->f16_pos.x, this->f16_pos.y - targetCreature->f16_pos.y,
-//                   v24_angle2048, v17_angleDiv20, (float) v24_angle2048 / 2048 * 360
-//            );
+            // patch::log::dbg("%d:%s:%d:%d->%d:%s:%d:%d damage=%d(+%d) vec:{%d,%d} a:%d(%d) degrees:%.2f",
+            //        this->f24_playerId, CCreature_typeId_toString(this->typeId), this->f0_tagId, this->f3C_health,
+            //        targetCreature->f24_playerId, CCreature_typeId_toString(targetCreature->typeId), targetCreature->f0_tagId, targetCreature->f3C_health,
+            //        -v8_damage, -(v18_newDamage - v8_damage),
+            //        this->f16_pos.x - targetCreature->f16_pos.x, this->f16_pos.y - targetCreature->f16_pos.y,
+            //        v24_angle2048, v17_angleDiv20, (float) v24_angle2048 / 2048 * 360
+            // );
             v8_damage = v18_newDamage;
         }
     }

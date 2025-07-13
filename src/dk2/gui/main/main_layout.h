@@ -5,6 +5,7 @@
 #ifndef MAIN_LAYOUT_H
 #define MAIN_LAYOUT_H
 
+#include <dk2/gui/WindowCfg.h>
 
 #define EngOfButtonList {\
     0, 0xFFFFFFFF, 0, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,\

@@ -5,6 +5,7 @@
 
 #include <patches/gui/game/esc_options/btn_autosave.h>
 #include <patches/limit_tps.h>
+#include <patches/logging.h>
 #include <tools/flame_config.h>
 
 #include "dk2/gui/CWindow.h"
@@ -238,7 +239,7 @@ dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
             this->fps = *fpsResult;
             this->fpsCalc_lastTimeMs = getTimeMs();
             this->fpsCalc_drawCount = 0;
-            // printf("tps: %.2f\n", dk2ex::toFloat(this->fps));
+            // patch::log::dbg("tps: %.2f", dk2ex::toFloat(this->fps));
         }
     }
     // hook::AFTER_GAME_LOOP

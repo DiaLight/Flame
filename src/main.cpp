@@ -3,22 +3,23 @@
 //
 #include <algorithm>
 
-#include "dk2_functions.h"
-#include "dk2_globals.h"
-#include "dk2/MyMutex.h"
-#include "patches/micro_patches.h"
-#include "gog_patch.h"
-#include "tools/bug_hunter.h"
-#include "tools/command_line.h"
-#include "patches/inspect_tools.h"
-#include "patches/original_compatible.h"
-#include "tools/console.h"
-#include <thread>
-#include <stdexcept>
 #include <iostream>
 #include <patches/game_version_patch.h>
+#include <patches/logging.h>
 #include <patches/screen_resolution.h>
+#include <stdexcept>
+#include <thread>
 #include <tools/flame_config.h>
+#include "dk2/MyMutex.h"
+#include "dk2_functions.h"
+#include "dk2_globals.h"
+#include "gog_patch.h"
+#include "patches/inspect_tools.h"
+#include "patches/micro_patches.h"
+#include "patches/original_compatible.h"
+#include "tools/bug_hunter.h"
+#include "tools/command_line.h"
+#include "tools/console.h"
 
 #include "patches/protocol_dump.h"
 
@@ -48,7 +49,7 @@ bool dk2::dk2_main2() {
                 CSpeechSystem_instance.sub_568020();
             }
             if(patch::print_game_start_errors::enabled) {
-                printf("failed to call WeaNetR_instance.init()\n");
+                patch::log::dbg("failed to call WeaNetR_instance.init()");
             }
             return false;
         }
@@ -56,7 +57,7 @@ bool dk2::dk2_main2() {
             WeaNetR_instance.destroy();
             if ( !cmd_flag_NOSOUND ) MySound_ptr->v_fun_567410();
             if(patch::print_game_start_errors::enabled) {
-                printf("failed to call MyGame_instance.isOsCompatible()\n");
+                patch::log::dbg("failed to call MyGame_instance.isOsCompatible()");
             }
             return false;
         }
@@ -64,7 +65,7 @@ bool dk2::dk2_main2() {
             WeaNetR_instance.destroy();
             if ( !cmd_flag_NOSOUND ) MySound_ptr->v_fun_567410();
             if(patch::print_game_start_errors::enabled) {
-                printf("failed to call all_components_fillStaticListeners()\n");
+                patch::log::dbg("failed to call all_components_fillStaticListeners()");
             }
             return false;
         }
@@ -172,13 +173,13 @@ bool dk2::dk2_main1(int argc, LPCSTR *argv) {
     MyResources_instance.readOrCreate();
     if (!parse_command_line(argc, argv)) {
         if(patch::print_game_start_errors::enabled) {
-            printf("failed to parse command line\n");
+            patch::log::err("failed to parse command line");
         }
         return false;
     }
     if (!loadResources()) {
         if(patch::print_game_start_errors::enabled) {
-            printf("failed to load resources\n");
+            patch::log::err("failed to load resources");
         }
         return false;
     }
@@ -218,12 +219,12 @@ bool dk2::dk2_main1(int argc, LPCSTR *argv) {
             success = true;
         } else {
             if(patch::print_game_start_errors::enabled) {
-                printf("failed to call dk2_main2()\n");
+                patch::log::err("failed to call dk2_main2()");
             }
         }
     } else {
         if(patch::print_game_start_errors::enabled) {
-            printf("failed to call MyGame_instance.init()\n");
+            patch::log::err("failed to call MyGame_instance.init()");
         }
     }
     MyGame_instance.release();
@@ -246,7 +247,7 @@ int __cdecl dk2::dk2_main(int argc, LPCSTR *argv) {
             return 0;
         }
     } else if(patch::notify_another_instance_is_running::enabled) {
-        printf("[ERROR]: another instance of DK2 is already running");
+        patch::log::err("another instance of DK2 is already running");
         MessageBoxA(NULL, "Another instance of DK2 is already running", "Dungeon Keeper 2", MB_OK);
     }
 

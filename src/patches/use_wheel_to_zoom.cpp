@@ -3,8 +3,10 @@
 //
 
 #include "use_wheel_to_zoom.h"
-#include "dk2_globals.h"
 #include <windowsx.h>
+#include "dk2_globals.h"
+
+#include "logging.h"
 
 bool patch::use_wheel_to_zoom::enabled = true;
 void patch::use_wheel_to_zoom::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
@@ -14,7 +16,7 @@ void patch::use_wheel_to_zoom::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, L
             DWORD zDelta = GET_WHEEL_DELTA_WPARAM(wParam);  // +-120*speed
             DWORD xPos = GET_X_LPARAM(lParam);
             DWORD yPos = GET_Y_LPARAM(lParam);
-//            printf("k=%08X d=%d {%d %d}\n", fwKeys, zDelta, xPos, yPos);
+            // patch::log::dbg("k=%08X d=%d {%d %d}", fwKeys, zDelta, xPos, yPos);
             if(dk2::CGameComponent_instance.mt_profiler.player_i != NULL) {
                 dk2::CBridge_instance.camera.zoomRel_449CA0(-zDelta * 50);
             }
@@ -32,7 +34,7 @@ void patch::use_wheel_to_zoom::dinput_proc(DIDEVICEOBJECTDATA *data) {
             int zDelta = data->dwData;  // +-150 with timestamp
             int tsDelta = data->dwTimeStamp - g_lastTimestamp;
             g_lastTimestamp = data->dwTimeStamp;
-//            printf("wheel: %d, ts: %d\n", data->dwData, tsDelta);
+            // patch::log::dbg("wheel: %d, ts: %d", data->dwData, tsDelta);
             int mult = 80;
             if (tsDelta > 100) mult = 40;
             if (tsDelta > 500) mult = 20;

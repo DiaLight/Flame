@@ -2,10 +2,41 @@
 // Created by DiaLight on 08.07.2024.
 //
 #include "dk2/MyResources.h"
+
+#include <patches/logging.h>
+
 #include "dk2_functions.h"
 #include "dk2_globals.h"
 #include "patches/micro_patches.h"
 
+namespace {
+    void getExePath(char *exeDir) {
+        dk2::_strcpy(exeDir, "D:\\DEV\\DK2\\");
+        char *CommandLineA = GetCommandLineA();
+        char *cmdl = CommandLineA;
+        char *str_end;
+        if (*CommandLineA == '"') {
+            cmdl = CommandLineA + 1;
+            str_end = strchr(CommandLineA + 1, '"');
+            if (!str_end) return;
+        }
+        str_end = strchr(CommandLineA + 1, ' ');
+        if (!str_end) {
+            str_end = &cmdl[strlen(cmdl)];
+            if (!str_end) return;
+        }
+        if (str_end > cmdl) {
+            do {
+                if (*str_end == '\\')
+                    break;
+                --str_end;
+            } while (str_end > cmdl);
+            if (str_end > cmdl)
+                str_end[1] = '\0';
+        }
+        dk2::_strcpy(exeDir, cmdl);
+    }
+}
 
 dk2::MyResources *dk2::MyResources::init_resources() {
     this->meshesFileMan.constructor();
@@ -21,35 +52,12 @@ dk2::MyResources *dk2::MyResources::init_resources() {
     this->frontEndFileMan.constructor();
     this->f0 = '\0';
     v9 = (uint8_t) 9;
-    char exeDir[260];
-    _strcpy(exeDir, "D:\\DEV\\DK2\\");
-    char *CommandLineA = GetCommandLineA();
-    char *cmdl = CommandLineA;
-    char *str_end;
-    if (*CommandLineA == '"') {
-        cmdl = CommandLineA + 1;
-        str_end = strchr(CommandLineA + 1, '"');
-        goto LABEL_5;
-    }
-    str_end = strchr(CommandLineA + 1, ' ');
-    if (!str_end) {
-        str_end = &cmdl[strlen(cmdl)];
-        LABEL_5:
-        if ( !str_end ) goto LABEL_12;
-    }
-    if (str_end > cmdl) {
-        do {
-            if ( *str_end == '\\' ) break;
-            --str_end;
-        } while( str_end > cmdl );
-        if (str_end > cmdl) str_end[1] = '\0';
-    }
-    _strcpy(exeDir, cmdl);
-    LABEL_12:
+    char exeDir[MAX_PATH];
+    getExePath(exeDir);
     if(patch::use_cwd_as_dk2_home_dir::enabled) {
         GetCurrentDirectoryA(MAX_PATH, exeDir);
         strcat(exeDir, "\\");
-//        printf("replace exe dir path2: %s -> %s\n", cmdl, exeDir);
+        // patch::log::dbg("replace exe dir path2: %s -> %s\n", cmdl, exeDir);
     }
     MyGame_debugMsg(&MyGame_instance, "HD Path: %s\n", exeDir);
     _strcpy(this->executableDir, exeDir);

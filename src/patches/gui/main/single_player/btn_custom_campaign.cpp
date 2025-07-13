@@ -2,14 +2,15 @@
 // Created by DiaLight on 6/2/2025.
 //
 
-#include "win_custom_campaign.h"
+#include <dk2/button/CButton.h>
+#include <dk2/button/button_types.h>
+#include <dk2/gui/main/main_layout.h>
+#include <dk2/gui/visual_debug.h>
 #include <dk2_functions.h>
 #include <dk2_globals.h>
-#include <dk2/button/button_types.h>
-#include <dk2/button/CButton.h>
-#include <dk2/gui/visual_debug.h>
-#include <dk2/gui/main/main_layout.h>
 #include <patches/gui/button_id.h>
+#include <patches/logging.h>
+#include "win_custom_campaign.h"
 
 namespace patch {
     struct PrerenderCustomCampaignButton {
@@ -127,7 +128,7 @@ namespace patch {
             }
 
             // {  // debug
-            //     printf("b=%X g=%X r=%X f3=%X f4=%X\n",
+            //     patch::log::dbg("b=%X g=%X r=%X f3=%X f4=%X",
             //         front->fontMask_3031E.b,
             //         front->fontMask_3031E.g,
             //         front->fontMask_3031E.r,

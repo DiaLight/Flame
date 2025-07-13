@@ -9,6 +9,7 @@
 #include "MySocket.h"
 #include "weanetr_memory.h"
 #include <cstdint>
+#include <dk2/SessionMapInfo.h>
 
 namespace net {
 
@@ -83,8 +84,7 @@ struct MLDPLAY_SESSIONDESC {
     int currentPlayers = 0;
     BYTE f2C[16] = {0};
     int flags = 0;  // 0x200: has password
-    int mapNameLen_mapPlayersCount = 0;
-    int mapNameHash = 0;
+    dk2::SessionMapInfo mapInfo = {0, 0, 0, 0, 0};
     int fileHashsum = 0;
     int cred_2C = 0;
     MySocket sock;
@@ -215,8 +215,7 @@ struct MySessionCredentials {
     int f14__totalMaxPlayers2;
     int field_18;
     const wchar_t *f1C_password;
-    int f20_mapNameLen_mapPlayersCount;
-    int f24_mapNameHash;
+    dk2::SessionMapInfo f20_mapInfo;
     int f28_fileHashsum;
     int field_2C;
 };

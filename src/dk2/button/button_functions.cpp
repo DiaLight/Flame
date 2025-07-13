@@ -2,18 +2,21 @@
 // Created by DiaLight on 25.01.2025.
 //
 
-#include "dk2_functions.h"
+#include <dk2/SessionMapInfo.h>
+
+
 #include "dk2/CFrontEndComponent.h"
+#include "dk2/MyMapInfo.h"
 #include "dk2/button/CButton.h"
 #include "dk2/button/CListBox.h"
 #include "dk2/button/CTextInput.h"
 #include "dk2/button/CVerticalSlider.h"
-#include "dk2_globals.h"
-#include "weanetr_dll/MLDPlay.h"
 #include "dk2/dk2_memory.h"
-#include "dk2/MyMapInfo.h"
 #include "dk2/text/TbMBStringVTag.h"
+#include "dk2_functions.h"
+#include "dk2_globals.h"
 #include "patches/logging.h"
+#include "weanetr_dll/MLDPlay.h"
 
 
 namespace dk2 {
@@ -345,7 +348,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
                 uint8_t *MbString = MyMbStringList_idx1091_getMbString(0x611u);
                 strcpy((char *) comp->mbStr, (const char *) MbString);
             } else {
-                if (comp->f602B[g_listItemNum] == 1) {
+                if (comp->isSessionCompatible[g_listItemNum] == 1) {
                     comp->clear_MyPlayerConfig_instance_arr__setupMpGui();
                     comp->sub_54DEC0(204, 230, 10, comp);
                     if (comp->joinMultiplayerGame(g_listItemNum) == 1) {
@@ -357,7 +360,11 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
                         comp->f6037 = 10;
                         MyResources_instance.gameCfg.f150 = 0;
                         break;
+                    } else {
+                        patch::log::dbg("failed to join session");
                     }
+                } else {
+                    patch::log::dbg("session is incompatible");
                 }
                 uint8_t *v62_mbstr = MyMbStringList_idx1091_getMbString(0x611u);
                 strcpy((char *) comp->mbStr, (const char *) v62_mbstr);
@@ -656,7 +663,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             comp->fun_536E20(1, 1);
             WeaNetR_instance.enumerateSessions(0);
             if (g_MLDPLAY_SESSIONDESC_arr_count) {
-                if (g_listItemNum != -1 && comp->f602B[g_listItemNum] == 1) {
+                if (g_listItemNum != -1 && comp->isSessionCompatible[g_listItemNum] == 1) {
                     comp->clear_MyPlayerConfig_instance_arr__setupMpGui();
                     comp->sub_54DEC0(221, 227, 11, comp);
                     if (comp->joinMultiplayerGame(g_listItemNum) == 1) {
@@ -737,7 +744,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             WeaNetR_instance.enumerateSessions(0);
             if (g_MLDPLAY_SESSIONDESC_arr_count
                 && g_listItemNum != -1
-                && comp->f602B[g_listItemNum] == 1
+                && comp->isSessionCompatible[g_listItemNum] == 1
                 && (comp->clear_MyPlayerConfig_instance_arr__setupMpGui(),
                     comp->sub_54DEC0(584, 0, 39, comp),
                     comp->joinMultiplayerGame(g_listItemNum) == 1)) {
@@ -942,20 +949,13 @@ int __cdecl dk2::__onMapSelected(CButton *a1_btn, int a2, CFrontEndComponent *a3
             net::MLDPLAY_SESSIONDESC v34_sessionDesc;
             DWORD descSize = sizeof(net::MLDPLAY_SESSIONDESC);
             WeaNetR_instance.mldplay->GetSessionDesc(&v34_sessionDesc, &descSize);
-            memset(&v34_sessionDesc.mapNameHash, 0, 0xC);  // some kind of bit struct
-            v34_sessionDesc.mapNameLen_mapPlayersCount = g__aiPlayersCount & 0x7F;
-            const wchar_t *v20_mapName = a3_comp->getMapName();
-            char v21_mapNameLen = wcslen(v20_mapName);
-            int f660C_mapNameHash = a3_comp->mapNameHash;
+            memset(&v34_sessionDesc.mapInfo, 0, 0xC);  // some kind of bit struct
+            v34_sessionDesc.mapInfo.aiPlayersCount_flag = g__aiPlayersCount & 0x7F;
             v34_sessionDesc.fileHashsum = g_fileHashsum;
-            v34_sessionDesc.mapNameHash = f660C_mapNameHash;
-            {
-                int bitData = v34_sessionDesc.mapNameLen_mapPlayersCount;
-                bitData |= 0x80;
-                bitData |= (v21_mapNameLen << 8);
-                bitData |= ((a3_comp->b4_mapPlayersCount_goldDencity_loseHeartType & 0xF0) << 12);
-                v34_sessionDesc.mapNameLen_mapPlayersCount = bitData;
-            }
+            v34_sessionDesc.mapInfo.nameHash = a3_comp->mapNameHash;
+            v34_sessionDesc.mapInfo.aiPlayersCount_flag |= 0x80;
+            v34_sessionDesc.mapInfo.nameLen = wcslen(a3_comp->getMapName());
+            v34_sessionDesc.mapInfo.playersCount = (a3_comp->b4_mapPlayersCount_goldDencity_loseHeartType >> 4) & 0xF;
             WeaNetR_instance.mldplay->SetSessionDesc(&v34_sessionDesc, descSize);
             a3_comp->sub_5454F0();
             unsigned int v25_i = 0;

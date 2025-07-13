@@ -2,8 +2,11 @@
 // Created by DiaLight on 08.08.2024.
 //
 #include "dk2/entities/CPlayer.h"
-#include "dk2/entities/CCreature.h"
+
+#include <patches/logging.h>
+
 #include "dk2/CWorld.h"
+#include "dk2/entities/CCreature.h"
 #include "dk2/entities/CRoom.h"
 #include "dk2/entities/data/MyObjectDataObj.h"
 #include "dk2_globals.h"
@@ -28,9 +31,9 @@ int dk2::MyManufactureList::getPercentCompleted(unsigned __int16 a2_completed) {
 
 int dk2::CPlayer::creatureDidWorkshopWork(int workMade, CCreature *a3_creature) {
     workMade &= 0xFFFF;  // arg is uint16_t
-//    printf("tickWorkshopProduction %d manufacture: (%d += %d) / %d\n", a3_creature->f0_tagId,
-//           this->manufactureCompleted, productionSpeed,
-//           this->manufactures.items[this->manufactures.startIndex].manufactureRequired);
+    // patch::log::dbg("tickWorkshopProduction %d manufacture: (%d += %d) / %d", a3_creature->f0_tagId,
+    //        this->manufactureCompleted, workMade,
+    //        this->manufactures.items[this->manufactures.startIndex].manufactureRequired);
     if (this->casinoBigWinnerGameTickRemaining) {
         // potential place to speedup by casino
         g_pCWorld->getGameTick();
@@ -106,7 +109,7 @@ int dk2::CPlayer::act4_dropThingFromHand() {
                 g_pWorld, this->f0_tagId, v6_thing,
                 dropPos.x >> 12, dropPos.y >> 12);
         if (!allowToDrop) {
-//            printf("cancel drop\n");
+            // patch::log::dbg("cancel drop");
             return 0;
         }
     }

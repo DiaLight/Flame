@@ -7,8 +7,9 @@
 #include <dk2/button/button_types.h>
 #include <dk2_functions.h>
 #include <dk2_globals.h>
-#include <tools/flame_config.h>
 #include <filesystem>
+#include <patches/logging.h>
+#include <tools/flame_config.h>
 
 namespace fs = std::filesystem;
 
@@ -180,11 +181,11 @@ namespace {
                     }
                 }
                 if (oldestAutosave.empty() || autosaveCount <= keepLastAutosaves) break;
-                printf("remove autosave: %s\n", oldestAutosave.string().c_str());
+                patch::log::dbg("remove autosave: %s", oldestAutosave.string().c_str());
                 remove(oldestAutosave);
             }
         } catch (const std::exception &e) {
-            printf("exc: %s\n", e.what());
+            patch::log::err("exc: %s", e.what());
         }
 
         dk2::DirFileList_instance1_saves_sav.reset();
@@ -206,6 +207,8 @@ void patch::autosave::Autosave_tick() {
         // some camera state or multiplayer
         return;
     }
+    dk2::CDefaultPlayerInterface *defplif = &dk2::CDefaultPlayerInterface_instance;
+    if (defplif->pCWorld == NULL) return;
 
     if (profiler->inMenu) {
         if (!g_lastTickIsMenu) {
@@ -225,7 +228,7 @@ void patch::autosave::Autosave_tick() {
     uint32_t autosaveMinMs = *o_autosave * 60 * 1000;
     if (autosaveMinMs == 0) return;
     uint32_t timePassedMs = (curTime - g_lastAutoSaveTime);
-    // printf("%d/%d\n", timePassedMs / 1000, autosaveMinMs / 1000);
+    // patch::log::dbg("%d/%d", timePassedMs / 1000, autosaveMinMs / 1000);
     if (timePassedMs > autosaveMinMs) {
         doSilentAutosave();
     }

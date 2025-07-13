@@ -2,21 +2,24 @@
 // Created by DiaLight on 21.08.2024.
 //
 #include "dk2/MyComputerPlayer.h"
-#include "dk2/entities/CCreature.h"
-#include "dk2/entities/CPlayer.h"
-#include "dk2/entities/CRoom.h"
-#include "dk2/utils/Pos2us.h"
-#include "dk2/entities/data/MyCreatureDataObj.h"
-#include "dk2/world/nav/MyNavigationSystem.h"
-#include "dk2/world/map/MyMapElement.h"
-#include "dk2_globals.h"
-#include "patches/micro_patches.h"
+
+#include <patches/logging.h>
+
 #include "MyComputerPlayer_drop_condition.h"
 #include "computer_player_flags.h"
+#include "dk2/entities/CCreature.h"
 #include "dk2/entities/CCreatureExtended.h"
+#include "dk2/entities/CPlayer.h"
+#include "dk2/entities/CRoom.h"
+#include "dk2/entities/data/MyCreatureDataObj.h"
 #include "dk2/entities/player/MyTask.h"
 #include "dk2/entities/player/MyTaskStack.h"
+#include "dk2/utils/Pos2us.h"
+#include "dk2/world/map/MyMapElement.h"
+#include "dk2/world/nav/MyNavigationSystem.h"
 #include "dk2_functions.h"
+#include "dk2_globals.h"
+#include "patches/micro_patches.h"
 
 int abs32(int v) {
     return v < 0 ? -v : v;
@@ -97,7 +100,7 @@ namespace dk2 {
             --a2_tendancySpeed;
             if (!i_creature) {
                 MyRespondToAttack *mrta = &cp->respondToAttack[getCurrentEventTask(cp)];
-//                printf("nothing to drop thr=%d\n", mrta->_threatLevel);
+                // patch::log::dbg("nothing to drop thr=%d", mrta->_threatLevel);
                 updateFlags_finishTask(cp);
                 return;
             }
@@ -135,13 +138,13 @@ namespace dk2 {
                     }
                 }
                 MyRespondToAttack *mrta = &cp->respondToAttack[getCurrentEventTask(cp)];
-//                printf("drop id=%d thr=%d def=%d dfl=%08X at %d,%d\n", i_creature->f0_tagId,
-//                       mrta->_threatLevel,
-//                       getDefenceLevel(i_creature),
-//                       i_creature->creatureData->flags,
-//                       i_creature->f16_pos.x >> 12,
-//                       i_creature->f16_pos.y >> 12
-//                );
+                // patch::log::dbg("drop id=%d thr=%d def=%d dfl=%08X at %d,%d", i_creature->f0_tagId,
+                //        mrta->_threatLevel,
+                //        getDefenceLevel(i_creature),
+                //        i_creature->creatureData->flags,
+                //        i_creature->f16_pos.x >> 12,
+                //        i_creature->f16_pos.y >> 12
+                // );
                 mrta->_threatLevel -= getDefenceLevel(i_creature);
             } else {
                 if(patch::blocking_response_to_threat_fix::enabled) {
@@ -150,14 +153,14 @@ namespace dk2 {
 #endif
                 }
                 MyRespondToAttack *mrta = &cp->respondToAttack[getCurrentEventTask(cp)];
-//                printf("!drop id=%d thr=%d def=%d dfl=%08X at %d,%d tnooc=%d\n", i_creature->f0_tagId,
-//                       mrta->_threatLevel,
-//                       getDefenceLevel(i_creature),
-//                       i_creature->creatureData->flags,
-//                       i_creature->f16_pos.x >> 12,
-//                       i_creature->f16_pos.y >> 12,
-//                       totalNumberOfOwnedCreatures
-//                );
+                // patch::log::dbg("!drop id=%d thr=%d def=%d dfl=%08X at %d,%d tnooc=%d", i_creature->f0_tagId,
+                //        mrta->_threatLevel,
+                //        getDefenceLevel(i_creature),
+                //        i_creature->creatureData->flags,
+                //        i_creature->f16_pos.x >> 12,
+                //        i_creature->f16_pos.y >> 12,
+                //        totalNumberOfOwnedCreatures
+                // );
             }
             MyRespondToAttack *mrta = &cp->respondToAttack[getCurrentEventTask(cp)];
             if (mrta->_threatLevel <= 0) {
@@ -202,7 +205,7 @@ namespace dk2 {
             --a2_tendancySpeed;
             if (!i_creature) {
                 MyRespondToAttack *mrta = &cp->respondToAttack[getCurrentEventTask(cp)];
-//                printf("nothing to save thr=%d\n", mrta->_threatLevel);
+                // patch::log::dbg("nothing to save thr=%d", mrta->_threatLevel);
                 updateFlags_finishTask(cp);
                 return;
             }
@@ -223,11 +226,11 @@ namespace dk2 {
                     cp->cplayer->dropThingFromHand(&dropLoc, &v74_direction);
                 }
                 MyRespondToAttack *mrta = &cp->respondToAttack[getCurrentEventTask(cp)];
-//                printf("save thr=%d def=%d\n", mrta->_threatLevel, getDefenceLevel(i_creature));
+                // patch::log::dbg("save thr=%d def=%d", mrta->_threatLevel, getDefenceLevel(i_creature));
                 mrta->_threatLevel += getDefenceLevel(i_creature);
             } else {
                 MyRespondToAttack *mrta = &cp->respondToAttack[getCurrentEventTask(cp)];
-//                printf("!save thr=%d def=%d\n", mrta->_threatLevel, getDefenceLevel(i_creature));
+                // patch::log::dbg("!save thr=%d def=%d", mrta->_threatLevel, getDefenceLevel(i_creature));
             }
             MyRespondToAttack *mrta = &cp->respondToAttack[getCurrentEventTask(cp)];
             if (mrta->_threatLevel >= 0) {
