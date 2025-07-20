@@ -152,7 +152,6 @@ uint32_t dk2::CFrontEndComponent::broadcastMsg_0x65() {
     g_lastTimeMs_73FC20 = result;
     return result;
 }
-// function with bug
 
 char dk2::CFrontEndComponent::sub_54DD10(int a2_isHost) {
     net::MLDPLAY_PLAYERINFO playerInfoArr[8];

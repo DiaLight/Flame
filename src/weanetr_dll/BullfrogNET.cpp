@@ -1200,7 +1200,10 @@ void BullfrogNET::EnumerateSessions_proc() {
         sysTime.wType = 1;
         timeGetSystemTime(&sysTime, 0xCu);
         EnterCriticalSection(&this->dataLock);
-        if ( v4_size >= 0xC && packet->signature == PacketHeader::MAGIC && packet->packetTy == MyPacket_6_sessionDesc::ID) {
+        if ( v4_size >= sizeof(PacketHeader)
+            && packet->signature == PacketHeader::MAGIC
+            && packet->packetTy == MyPacket_6_sessionDesc::ID
+        ) {
             if ( v4_size < sizeof(MyPacket_6_sessionDesc) ) {
                 _log("\tBullfrogNET:got a session packet from a Host, but its corrupt\n");
             } else {

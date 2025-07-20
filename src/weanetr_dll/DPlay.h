@@ -13,11 +13,11 @@ namespace net {
 #pragma pack(push, 1)
 class DPlay : public NetworkServiceProvider {
 public:
-    HANDLE f565_hEvent = NULL;
+    HANDLE f565_messageReceivedEvent = NULL;
     IDirectPlay4 *f569_pIDirectPlay4 = NULL;
     IDirectPlayLobby3 *f56d_pIDirectPlayLobby3 = NULL;
     DPSESSIONDESC2 f571_desc;
-    void *f5C1_ptr_eos = NULL;
+    void *f5C1_pMessageBuf = NULL;
 
     int createIDirectPlayLobby3(IDirectPlayLobby3 **a2_out);
     int createIDirectPlay4(IDirectPlay4 **a1_out);

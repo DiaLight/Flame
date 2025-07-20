@@ -92,7 +92,7 @@ void __stdcall log_HRESULT(HRESULT hresult) {
     case 0x887703E8:
         _log("\t\tThe data buffer is too large to store. \n");
         break;
-    case 0x8877015E:
+    case DPERR_CONNECTING:
         _log(
           "\t\tThe method is in the process of connecting to the network. The application"
           " should keep calling the method until it returns DP_OK, indicating successful "
@@ -250,12 +250,12 @@ int DPlay::releaseIDirectPlay4(IDirectPlay4 *obj) {
 }
 
 int DPlay::Startup(MessageHandlerType handler) {
-    this->f565_hEvent = CreateEventA(NULL, FALSE, FALSE, NULL);
-    if ( this->f5C1_ptr_eos ) {
-        free(this->f5C1_ptr_eos);
-        this->f5C1_ptr_eos = NULL;
+    this->f565_messageReceivedEvent = CreateEventA(NULL, FALSE, FALSE, NULL);
+    if ( this->f5C1_pMessageBuf ) {
+        free(this->f5C1_pMessageBuf);
+        this->f5C1_pMessageBuf = NULL;
     }
-    if ( !this->f565_hEvent )
+    if ( !this->f565_messageReceivedEvent )
         return 0;
 
     int result = 0;
@@ -270,10 +270,10 @@ int DPlay::Startup(MessageHandlerType handler) {
             this->f56d_pIDirectPlayLobby3 = NULL;
         }
     }
-    if ( result || !this->f565_hEvent )
+    if ( result || !this->f565_messageReceivedEvent )
         return result;
-    CloseHandle(this->f565_hEvent);
-    this->f565_hEvent = NULL;
+    CloseHandle(this->f565_messageReceivedEvent);
+    this->f565_messageReceivedEvent = NULL;
     return result;
 }
 
@@ -284,9 +284,9 @@ int DPlay::ShutDown() {
     }
     int result = 0;
     NetworkServiceProvider::Destroy();
-    if (this->f565_hEvent) {
-        CloseHandle(this->f565_hEvent);
-        this->f565_hEvent = NULL;
+    if (this->f565_messageReceivedEvent) {
+        CloseHandle(this->f565_messageReceivedEvent);
+        this->f565_messageReceivedEvent = NULL;
     }
     releaseIDirectPlay4(this->f569_pIDirectPlay4);
     this->f56d_pIDirectPlayLobby3->Release();
@@ -296,9 +296,9 @@ int DPlay::ShutDown() {
     memset(&this->f571_desc, 0, sizeof(this->f571_desc));
     NetworkServiceProvider::ShutDown();
     result = 1;
-    if (this->f5C1_ptr_eos) {
-        free(this->f5C1_ptr_eos);
-        this->f5C1_ptr_eos = NULL;
+    if (this->f5C1_pMessageBuf) {
+        free(this->f5C1_pMessageBuf);
+        this->f5C1_pMessageBuf = NULL;
         return 1;
     }
     return result;
@@ -472,7 +472,6 @@ int DPlay::BuildSession(MessageHandlerType handler, GUID *guid, char *a4_outNGLD
     if (EventA) {
         if (this->createIDirectPlayLobby3(&this->f56d_pIDirectPlayLobby3)) {
             DWORD Size = 0;
-            static_assert(DPERR_BUFFERTOOSMALL == 0x8877001E);
             if (this->f56d_pIDirectPlayLobby3->GetConnectionSettings(0, NULL, &Size) == DPERR_BUFFERTOOSMALL) {
                 auto *v13_connection = (DPLCONNECTION *) malloc(Size);
                 if (v13_connection) {
@@ -496,7 +495,7 @@ int DPlay::BuildSession(MessageHandlerType handler, GUID *guid, char *a4_outNGLD
                                 if ( a4_outNGLD )
                                     memset(a4_outNGLD, 0, 0xD0u);
                                 if ( (v13_connection->dwFlags & DPLCONNECTION_CREATESESSION) != 0 ) {
-                                    if ( !this->f569_pIDirectPlay4->CreatePlayer((DPID *) &this->f226_curPlayer.playerId, v13_connection->lpPlayerName, this->f565_hEvent, 0, 0, 0) ) {
+                                    if ( !this->f569_pIDirectPlay4->CreatePlayer((DPID *) &this->f226_curPlayer.playerId, v13_connection->lpPlayerName, this->f565_messageReceivedEvent, NULL, 0, 0) ) {
                                         this->f226_curPlayer.flags |= 3u;
                                         this->f226_curPlayer.playersSlot = 0;
                                         this->f24_playerList->f20_playerId_slot = this->f226_curPlayer.playerId;
@@ -507,7 +506,7 @@ int DPlay::BuildSession(MessageHandlerType handler, GUID *guid, char *a4_outNGLD
                                         result = 0x1000;
                                         Sleep(10000u);
                                     }
-                                } else if ( !this->f569_pIDirectPlay4->CreatePlayer((DPID *) &this->f226_curPlayer.playerId, v13_connection->lpPlayerName, this->f565_hEvent, 0, 0, 0)) {
+                                } else if ( !this->f569_pIDirectPlay4->CreatePlayer((DPID *) &this->f226_curPlayer.playerId, v13_connection->lpPlayerName, this->f565_messageReceivedEvent, NULL, 0, 0)) {
                                     result = 0x2000;
                                     *a5_outPlayers = 0;
                                     this->f186_sessionDesc.currentPlayers = v13_connection->lpSessionDesc->dwCurrentPlayers;
@@ -603,14 +602,14 @@ int DPlay::connectLobby(int a2_flags, WCHAR *a3_sessionName, WCHAR *a4_playerNam
         v35_connection.lpAddress = compoundAddressBuf;
 
         DWORD v31_dwAppID;
-        if (!this->f56d_pIDirectPlayLobby3->RunApplication(0, &v31_dwAppID, &v35_connection, this->f565_hEvent)) {
+        if (!this->f56d_pIDirectPlayLobby3->RunApplication(0, &v31_dwAppID, &v35_connection, this->f565_messageReceivedEvent)) {
             DWORD messageFlags = 0;
             DWORD v27_size = 0x800;
             int *v18_buf = (int *) malloc(0x800u);
             if (v18_buf) {
                 int isConnected = 0;
                 while (true) {
-                    if (WaitForSingleObject(this->f565_hEvent, 60000u) == WAIT_OBJECT_0) {
+                    if (WaitForSingleObject(this->f565_messageReceivedEvent, 60000u) == WAIT_OBJECT_0) {
                         messageFlags = 1;
                         int hresult = this->f56d_pIDirectPlayLobby3->ReceiveLobbyMessage(0, v31_dwAppID, &messageFlags, v18_buf, &v27_size);
                         if (hresult != 0) {
@@ -706,8 +705,8 @@ int DPlay::CreateSPSession(DWORD *a2_outPlayers, wchar_t *a3_gameName, wchar_t *
             }
             hresult = this->f569_pIDirectPlay4->Open(&this->f571_desc, 0x82);
         }
-        if ( hresult ) {
-            if ( hresult != 0x8877015E ) {
+        if (hresult) {
+            if (hresult != DPERR_CONNECTING) {
                 log_HRESULT(hresult);
                 return 32;
             }
@@ -731,11 +730,11 @@ int DPlay::CreateSPSession(DWORD *a2_outPlayers, wchar_t *a3_gameName, wchar_t *
         if ( v15 ) {
             hresult = f569_pIDirectPlay4->CreatePlayer(
                         (DPID *) &this->f226_curPlayer.playerId,
-                        &v27_playerName, this->f565_hEvent, 0, 0, 0);
+                        &v27_playerName, this->f565_messageReceivedEvent, NULL, 0, 0);
         } else {
             hresult = f569_pIDirectPlay4->CreatePlayer(
                         (DPID *) &this->f226_curPlayer.playerId,
-                        &v27_playerName, this->f565_hEvent, 0, 0, 256);
+                        &v27_playerName, this->f565_messageReceivedEvent, NULL, 0, DPPLAYER_SERVERPLAYER);
         }
         if (hresult) {
             _log("DPlay::CreateSPSession Error:-Couldnot create player dplay code %x\n", hresult);
@@ -845,7 +844,6 @@ int DPlay::JoinSPSession(MLDPLAY_SESSIONDESC *a2_desc, DWORD *a3_outPlayerCount,
         return 0x800;
     }
     if (hresult) {
-        static_assert(DPERR_CONNECTING == 0x8877015E);
         if (hresult == DPERR_CONNECTING) {
             return 1;
         }
@@ -893,7 +891,7 @@ int DPlay::JoinSPSession(MLDPLAY_SESSIONDESC *a2_desc, DWORD *a3_outPlayerCount,
     v31_playerName.dwSize = 16;
     v31_playerName.lpszShortName = a4_playerName;
     v31_playerName.lpszLongName = 0;
-    if (this->f569_pIDirectPlay4->CreatePlayer((DPID*) &this->f226_curPlayer.playerId, &v31_playerName, this->f565_hEvent, 0, 0, 0)) {
+    if (this->f569_pIDirectPlay4->CreatePlayer((DPID*) &this->f226_curPlayer.playerId, &v31_playerName, this->f565_messageReceivedEvent, NULL, 0, 0)) {
         this->f569_pIDirectPlay4->Close();
         return 32;
     }
@@ -931,7 +929,7 @@ int DPlay::JoinSPSession(MLDPLAY_SESSIONDESC *a2_desc, DWORD *a3_outPlayerCount,
 
 int DPlay::DestroySPSession() {
     if ( this->f20_isServiceProviderInitialized ) {
-        if ( (this->f226_curPlayer.flags & 2) != 0 ) {
+        if (this->f226_curPlayer.isConnectedToSession()) {
             _log("\tDPlay::DestroySPSession\n");
             EnterCriticalSection(&this->dataLock);
             this->f226_curPlayer.flags &= ~2;
@@ -947,10 +945,10 @@ int DPlay::DestroySPSession() {
     } else {
         _log("\tDPlay::DestroySPSession:-Service Provider Not Initialised\n");
     }
-    if ( !this->f5C1_ptr_eos )
+    if ( !this->f5C1_pMessageBuf )
         return 0;
-    free(this->f5C1_ptr_eos);
-    this->f5C1_ptr_eos = NULL;
+    free(this->f5C1_pMessageBuf);
+    this->f5C1_pMessageBuf = NULL;
     return 0;
 }
 BOOL FAR PASCAL IDirectPlay4_EnumSessions_callback(LPCDPSESSIONDESC2 lpThisSD, LPDWORD lpdwTimeOut, DWORD dwFlags, LPVOID lpContext) {
@@ -1008,7 +1006,7 @@ int DPlay::EnumerateSessions(DWORD a2_timeout, EnumerateSessionsCallback a3_call
         v10_context,
         flags);
     if (hresult) {
-        if (hresult == 0x8877015E) {
+        if (hresult == DPERR_CONNECTING) {
             _log("STILL CONNECTING %x\n", hresult);
             return 1;
         }
@@ -1023,12 +1021,12 @@ int DPlay::getSessionDesc(MLDPLAY_SESSIONDESC *a2_pDesc, DWORD *a3_pSize) {
     int f20__isConnectionSetupComplete = this->f20_isServiceProviderInitialized;
     int result = 32;
     DWORD Size = 0;
-    if (!f20__isConnectionSetupComplete || (this->f226_curPlayer.flags & 2) == 0) return result;
+    if (!f20__isConnectionSetupComplete || !this->f226_curPlayer.isConnectedToSession()) return result;
     if (!a2_pDesc) {
         *a3_pSize = sizeof(MLDPLAY_SESSIONDESC);
         return 2;
     }
-    if (*a3_pSize < sizeof(MLDPLAY_SESSIONDESC) || this->f569_pIDirectPlay4->GetSessionDesc(NULL, &Size) != 0x8877001E) {
+    if (*a3_pSize < sizeof(MLDPLAY_SESSIONDESC) || this->f569_pIDirectPlay4->GetSessionDesc(NULL, &Size) != DPERR_BUFFERTOOSMALL) {
         return result;
     }
     DPSESSIONDESC2 *v7_descBuf = (DPSESSIONDESC2 *)malloc(Size);
@@ -1067,9 +1065,9 @@ int DPlay::setSessionDesc(MLDPLAY_SESSIONDESC *a2_desc, DWORD a3_size) {
     if (!f20__isConnectionSetupComplete) return 0;
 
     DWORD Size = 0;
-    if ((this->f226_curPlayer.flags & 2) == 0
+    if (!this->f226_curPlayer.isConnectedToSession()
       || a3_size < 0xA4
-      || this->f569_pIDirectPlay4->GetSessionDesc(0, &Size) != 0x8877001E) {
+      || this->f569_pIDirectPlay4->GetSessionDesc(NULL, &Size) != DPERR_BUFFERTOOSMALL) {
         return 0;
     }
     DPSESSIONDESC2 *pDesc2 = (DPSESSIONDESC2 *) malloc(Size);
@@ -1105,11 +1103,11 @@ int DPlay::DestroySession(unsigned int a2_slot) {
         _log("\tNetworkServiceProvider::DestroySession Error::ServiceProvider Not Initialised\n");
         return 32;
     }
-    if ((this->f226_curPlayer.flags & 2) == 0) {
+    if (!this->f226_curPlayer.isConnectedToSession()) {
         _log("\tNetworkServiceProvider::DestroySession Error::Not connected to session\n");
         return 32;
     }
-    if ((this->f226_curPlayer.flags & 1) == 0) {
+    if (!this->f226_curPlayer.isHost()) {
         _log("\tNetworkServiceProvider::DestroySession Error::Not host\n");
         return 0x80000;
     }
@@ -1133,16 +1131,16 @@ void DPlay::EnableNewPlayers(int a2_enabled) {
         _log("\tDPlay::EnableNewPlayers Error:Not Initialised\n");
         return;
     }
-    if ((this->f226_curPlayer.flags & 2) == 0) {
+    if (!this->f226_curPlayer.isConnectedToSession()) {
         _log("\tDPlay::EnableNewPlayers Error:Not Connected To Session\n");
         return;
     }
     _log("CALLING ENABLENEWPLAYERS\n");
-    if ((this->f226_curPlayer.flags & 1) == 0) return;
+    if (!this->f226_curPlayer.isHost()) return;
 
     EnterCriticalSection(&this->dataLock);
     DWORD Size = 0;
-    if (this->f569_pIDirectPlay4->GetSessionDesc(NULL, &Size) == 0x8877001E) {
+    if (this->f569_pIDirectPlay4->GetSessionDesc(NULL, &Size) == DPERR_BUFFERTOOSMALL) {
         DPSESSIONDESC2* desc = (DPSESSIONDESC2*) malloc(Size);
         if (desc) {
             HRESULT hresult = this->f569_pIDirectPlay4->GetSessionDesc(desc, &Size);
@@ -1150,7 +1148,7 @@ void DPlay::EnableNewPlayers(int a2_enabled) {
                 int dwFlags = desc->dwFlags;
                 int f3C_flags;
                 if (a2_enabled) {
-                    desc->dwFlags = dwFlags & 0xFFFFFFDF;
+                    desc->dwFlags = dwFlags & ~0x20;
                     this->f186_sessionDesc.flags &= ~0x10;
                 } else {
                     desc->dwFlags = dwFlags | 0x20;
@@ -1209,19 +1207,18 @@ int DPlay::EnumPlayers(GUID *a2_guidInstance, MyPlayerEnumCb a3_callback, int a4
 }
 
 BOOL DPlay::SendMessage(uint32_t a2_playerId_slot, void *a3_buf, size_t a4_size, int a5_ignored) {
-    // printf("DPlay::SendMessage ty=%X sz=%X pl=%X\n", (int) (*(uint8_t *) a3_buf), a4_size, a2_playerId_slot);
     if (!this->f20_isServiceProviderInitialized) {
         _log("\tDPlay::SendMessage Error:-Not Initialised\n");
         return 32;
     }
-    if ((this->f226_curPlayer.flags & 2) == 0) {
+    if (!this->f226_curPlayer.isConnectedToSession()) {
         _log("\tDPlay::SendMessage Error:-Not Connected To Session\n");
         return 32;
     }
     PlayerId f28_playerId = {.value = a2_playerId_slot};
-    if (a2_playerId_slot == 0xFFFF) {
+    if (a2_playerId_slot == net_AllPlayers) {
         f28_playerId = {.value = 0};
-    } else if (a2_playerId_slot == 0xFFFE) {
+    } else if (a2_playerId_slot == net_HostPlayer) {
         f28_playerId = {.value = 1};
         if ((this->f186_sessionDesc.flags & 8) == 0) {
             f28_playerId = this->f28_host_playerId;
@@ -1240,19 +1237,18 @@ BOOL DPlay::SendMessage(uint32_t a2_playerId_slot, void *a3_buf, size_t a4_size,
 }
 
 int DPlay::SendMessageTo(MySocket *a2_dstSock, void *a3_buf, size_t a4_size, int a5_ignored) {
-    // patch::log::dbg("DPlay::SendMessageTo ty=%X sz=%X sock=%X", (int) (*(uint8_t *) a3_buf), a4_size, a2_dstSock);
     PlayerId f28_playerId = *(PlayerId *) a2_dstSock;
     if (!this->f20_isServiceProviderInitialized) {
         _log("\tDPlay::SendMessageTo Error:-Not Initialised\n");
         return 32;
     }
-    if ((this->f226_curPlayer.flags & 2) == 0) {
+    if (!this->f226_curPlayer.isConnectedToSession()) {
         _log("\tDPlay::SendMessageTo Error:-Not Connected To Session\n");
         return 32;
     }
-    if (f28_playerId == 0xFFFF) {
+    if (f28_playerId == net_AllPlayers) {
         f28_playerId = {.value = 0};
-    } else if (f28_playerId == 0xFFFE) {
+    } else if (f28_playerId == net_HostPlayer) {
         f28_playerId = {.value = 1};
         if ((this->f186_sessionDesc.flags & 8) == 0) {
             f28_playerId = this->f28_host_playerId;
@@ -1271,17 +1267,16 @@ int DPlay::SendMessageTo(MySocket *a2_dstSock, void *a3_buf, size_t a4_size, int
 }
 
 void DPlay::ProcessDPlaySystemMessage(DPMSG_GENERIC *a2_packet) {
-    // patch::log::dbg("DPlay::ProcessDPlaySystemMessage ty=%X", a2_packet->dwType);
     int v22_handleMessage = 0;
     switch (a2_packet->dwType) {
     case DPSYS_SESSIONLOST:
-        if ((this->f226_curPlayer.flags & 2) != 0) {
+        if (this->f226_curPlayer.isConnectedToSession()) {
             _log("SESSION HAS BEEN LOST, MUST EXIT GRACEFULLY\n");
         }
         break;
     case DPSYS_HOST:
         _log("DPSYS_HOST\n");
-        if ( (this->f226_curPlayer.flags & 2) != 0 ) {
+        if (this->f226_curPlayer.isConnectedToSession()) {
             EnterCriticalSection(&this->dataLock);
             for (int i = 0; i < this->f186_sessionDesc.totalMaxPlayers; ++i) {
                 MyPlayerDesc &pl = this->f24_playerList[i];
@@ -1293,7 +1288,7 @@ void DPlay::ProcessDPlaySystemMessage(DPMSG_GENERIC *a2_packet) {
             BYTE *v19_pFlags = &this->f24_playerList[this->f226_curPlayer.playersSlot].flags;
             *v19_pFlags = *v19_pFlags & 0xF | 0x10;
             DWORD Size;
-            if (this->f569_pIDirectPlay4->GetSessionDesc(NULL, &Size) == 0x8877001E) {
+            if (this->f569_pIDirectPlay4->GetSessionDesc(NULL, &Size) == DPERR_BUFFERTOOSMALL) {
                 DPSESSIONDESC2 *sessionDesc = (DPSESSIONDESC2 *)malloc(Size);
                 if ( sessionDesc ) {
                     Size = 0;
@@ -1311,7 +1306,7 @@ void DPlay::ProcessDPlaySystemMessage(DPMSG_GENERIC *a2_packet) {
               this->f24_playerList[this->f226_curPlayer.playersSlot].f0_playername,
               this->f226_curPlayer.flags);
             LeaveCriticalSection(&this->dataLock);
-            this->messageHandler(0xFFFE, NULL, 0, 0xA, this->f4_arg);
+            this->messageHandler(net_HostPlayer, NULL, 0, 0xA, this->f4_arg);
         }
         break;
     case DPSYS_SETPLAYERORGROUPDATA:
@@ -1340,7 +1335,7 @@ void DPlay::ProcessDPlaySystemMessage(DPMSG_GENERIC *a2_packet) {
         break;
     case DPSYS_CREATEPLAYERORGROUP: {
         DPMSG_CREATEPLAYERORGROUP *v2_packet = (DPMSG_CREATEPLAYERORGROUP *) a2_packet;
-        if (v2_packet->dwPlayerType == 1 && (this->f226_curPlayer.flags & 1) != 0) {
+        if (v2_packet->dwPlayerType == 1 && this->f226_curPlayer.isHost()) {
             EnterCriticalSection(&this->dataLock);
             MyMessage_1_AddedPlayer v24_message;
             for (int slotNo = 0; slotNo < this->f186_sessionDesc.totalMaxPlayers; ++slotNo) {
@@ -1385,7 +1380,7 @@ void DPlay::ProcessDPlaySystemMessage(DPMSG_GENERIC *a2_packet) {
             }
             LeaveCriticalSection(&this->dataLock);
             if (v22_handleMessage) {
-                this->messageHandler(0xFFFE, &v24_message, sizeof(MyMessage_1_AddedPlayer), 1, this->f4_arg);
+                this->messageHandler(net_HostPlayer, &v24_message, sizeof(MyMessage_1_AddedPlayer), 1, this->f4_arg);
             }
         }
     } break;
@@ -1403,9 +1398,8 @@ void DPlay::ProcessDPlaySystemMessage(DPMSG_GENERIC *a2_packet) {
                 this->fDA_unused1_perPlayerSlot[v7_playerList->f35_slotNo] = 0;
                 this->f5A_ackPacketCount_perPlayerSlot[v7_playerList->f35_slotNo] = 0;
                 memset(v7_playerList, 0, sizeof(MyPlayerDesc));
-                char flags = this->f226_curPlayer.flags;
                 --this->f186_sessionDesc.currentPlayers;
-                if ((flags & 1) != 0) {
+                if (this->f226_curPlayer.isHost()) {
                     this->releasePacketSendArr_forPlayer(slotNo);
                     if ((this->f186_sessionDesc.flags & 8) != 0)
                         this->schedulePlayersChangePacket(9, v7_playerList->f20_playerId_slot, 0, NULL, 0);
@@ -1414,7 +1408,7 @@ void DPlay::ProcessDPlaySystemMessage(DPMSG_GENERIC *a2_packet) {
             }
             LeaveCriticalSection(&this->dataLock);
             if (v22_handleMessage) {
-                this->messageHandler(0xFFFE, &a2_packet, 4, 2, this->f4_arg);
+                this->messageHandler(net_HostPlayer, &a2_packet, 4, 2, this->f4_arg);
             }
         }
     } break;
@@ -1422,25 +1416,23 @@ void DPlay::ProcessDPlaySystemMessage(DPMSG_GENERIC *a2_packet) {
         _log("ADD PLAYER TO GROUP MESSAGE \n");
         break;
     default:
-        LABEL_57:
         _log("  WARNING network: NLDPlay::ProcessDPlaySystemMessage() dwType out of range: %08X\n", a2_packet->dwType);
         break;
     }
 }
 
 PacketHeader *DPlay::ReadSPMessage() {
-    void *f5C1_ptr_eos = this->f5C1_ptr_eos;
-    if ( !f5C1_ptr_eos ) {
-        this->f5C1_ptr_eos = malloc(0x1000u);
+    if (this->f5C1_pMessageBuf == NULL) {
+        this->f5C1_pMessageBuf = malloc(0x1000u);
     }
 
     BOOL exitLoop = 0;
     PacketHeader *result = NULL;
     while (true) {
-        if ((this->f226_curPlayer.flags & 1) == 0) {
+        if (!this->f226_curPlayer.isHost()) {
             EnterCriticalSection(&this->dataLock);
-            if ( this->f5C1_ptr_eos && this->popReceivedPacketToHandle((PacketHeader*) this->f5C1_ptr_eos)) {
-                result = (PacketHeader*) this->f5C1_ptr_eos;
+            if ( this->f5C1_pMessageBuf && this->popReceivedPacketToHandle((PacketHeader*) this->f5C1_pMessageBuf)) {
+                result = (PacketHeader*) this->f5C1_pMessageBuf;
                 LeaveCriticalSection(&this->dataLock);
                 return result;
             }
@@ -1451,25 +1443,23 @@ PacketHeader *DPlay::ReadSPMessage() {
         this->f569_pIDirectPlay4->GetMessageQueue(0, 0, 2, &count, NULL);
         if ( !count ) {
             HANDLE Handles[2];
-            Handles[0] = this->f565_hEvent;
+            Handles[0] = this->f565_messageReceivedEvent;
             Handles[1] = this->f162_DestroySPSession_hEvent;
             waitResult = WaitForMultipleObjects(2u, Handles, 0, 0xFFFFFFFF);
         }
         switch (waitResult) {
-            case WAIT_OBJECT_0: {  // this->f565_hEvent
-                void *lpData = this->f5C1_ptr_eos;
+            case WAIT_OBJECT_0: {  // player has message to read
                 DWORD Size = 4096;
                 int hresult = 0x80004005;
                 DPID lpidFrom;
                 DPID lpidTo;
-                if ( lpData ) {
-                    hresult = this->f569_pIDirectPlay4->Receive(&lpidFrom, &lpidTo, 1, lpData, &Size);
-                    if ( hresult == 0x8877001E ) {
-                        free(this->f5C1_ptr_eos);
-                        void *v9_buf = malloc(Size);
-                        this->f5C1_ptr_eos = v9_buf;
-                        if ( v9_buf )
-                            hresult = this->f569_pIDirectPlay4->Receive(&lpidFrom, &lpidTo, 1, v9_buf, &Size);
+                if (this->f5C1_pMessageBuf) {
+                    hresult = this->f569_pIDirectPlay4->Receive(&lpidFrom, &lpidTo, 1, this->f5C1_pMessageBuf, &Size);
+                    if (hresult == DPERR_BUFFERTOOSMALL) {
+                        free(this->f5C1_pMessageBuf);
+                        this->f5C1_pMessageBuf = malloc(Size);
+                        if (this->f5C1_pMessageBuf)
+                            hresult = this->f569_pIDirectPlay4->Receive(&lpidFrom, &lpidTo, 1, this->f5C1_pMessageBuf, &Size);
                     }
                 }
                 if ( hresult ) {
@@ -1477,10 +1467,10 @@ PacketHeader *DPlay::ReadSPMessage() {
                     break;
                 }
                 if (lpidFrom == 0) {
-                    this->ProcessDPlaySystemMessage((DPMSG_GENERIC*) this->f5C1_ptr_eos);
+                    this->ProcessDPlaySystemMessage((DPMSG_GENERIC*) this->f5C1_pMessageBuf);
                     break;
                 }
-                auto* packet = (PacketHeader*) this->f5C1_ptr_eos;
+                auto* packet = (PacketHeader*) this->f5C1_pMessageBuf;
                 if (Size < 0xC) {
                     _log("INVALID LENGTH\n");
                     break;
@@ -1490,21 +1480,21 @@ PacketHeader *DPlay::ReadSPMessage() {
                     break;
                 }
                 int packetHandled = 0;
-                if ((this->f226_curPlayer.flags & 1) == 0) {
+                if (!this->f226_curPlayer.isHost()) {
                     EnterCriticalSection(&this->dataLock);
-                    packetHandled = this->handlePacket_1_2_9_B_E((PacketHeader*) this->f5C1_ptr_eos, Size, (MySocket*) &lpidFrom);
+                    packetHandled = this->handlePacket_1_2_9_B_E((PacketHeader*) this->f5C1_pMessageBuf, Size, (MySocket*) &lpidFrom);
                     LeaveCriticalSection(&this->dataLock);
                 }
                 if (!packetHandled) {
                     switch (packet->packetTy) {
-                    case 3:
-                    case 4:
-                    case 0xD:
-                    case 0x10:
+                    case MyPacket_3_Data::ID:
+                    case MyPacket_4_ChatMessage::ID:
+                    case MyPacket_D_Guaranteed::ID:
+                    case MyPacket_10_GuaranteedProgress::ID:
                         exitLoop = 1;
                         result = packet;
                         break;
-                    case 0xC:
+                    case MyPacket_C_HandledPackets::ID:
                         EnterCriticalSection(&this->dataLock);
                         if (Size >= 0xD8)
                             this->handlePacket_C((MyPacket_C_HandledPackets*) packet);
@@ -1582,7 +1572,7 @@ int DPlay::EnumerateNetworkMediums(void *a2, void *a3_dataBuf, DWORD *a4_pSize) 
         return 0x20;
     if (
         !dplay4->InitializeConnection(*(LPVOID *)((char *) a2 + 32), 0)
-        && dplay4->GetPlayerAddress(0, NULL, &Size) == 0x8877001E
+        && dplay4->GetPlayerAddress(0, NULL, &Size) == DPERR_BUFFERTOOSMALL
     ) {
         void *v8_buf = malloc(Size);
         if ( v8_buf ) {
@@ -1607,7 +1597,7 @@ int DPlay::CreateCompoundAddress(
     int hresult = this->f56d_pIDirectPlayLobby3->CreateCompoundAddress(
         a2_elements, a3_elementCount, a4_outAddr, (LPDWORD) a5_outSize
     );
-    if (hresult == 0x8877001E) return 16;
+    if (hresult == DPERR_BUFFERTOOSMALL) return 16;
     if (!hresult) return 2;
     return 32;
 }
@@ -1618,9 +1608,9 @@ unsigned int DPlay::__getHiWord(PlayerId playerId) {
 
 PacketHeader *DPlay::_handleMessage(PacketHeader *a2_packet, uint8_t a3_handlerTy, int *a4_outSize) {
     uint16_t slot = a2_packet->playerListIdx_m1_m2;
-    if (slot != 0xFFFF
+    if (slot != net_AllPlayers
       && slot != this->f226_curPlayer.playersSlot
-      && (slot != 0xFFFE || (this->f226_curPlayer.flags & 1) == 0)
+      && (slot != net_HostPlayer || !this->f226_curPlayer.isHost())
     ) {
         patch::log::dbg("DPlay::_handleMessage DONT_HANDLE");
         return NULL;
@@ -1629,9 +1619,9 @@ PacketHeader *DPlay::_handleMessage(PacketHeader *a2_packet, uint8_t a3_handlerT
         a2_packet->playersSlot, &a2_packet[1], a2_packet->f8_messageSize,
         a3_handlerTy, this->f4_arg
     );
-    if ((this->f226_curPlayer.flags & 1) != 0 && a2_packet->playerListIdx_m1_m2 == net_AllPlayers) {
+    if (this->f226_curPlayer.isHost() && a2_packet->playerListIdx_m1_m2 == net_AllPlayers) {
         EnterCriticalSection(&this->dataLock);
-        this->SendMessage(0xFFFF, a2_packet, a2_packet->f8_messageSize + sizeof(PacketHeader), 0);
+        this->SendMessage(net_AllPlayers, a2_packet, a2_packet->f8_messageSize + sizeof(PacketHeader), 0);
         LeaveCriticalSection(&this->dataLock);
     } else {
         patch::log::dbg("DPlay::_handleMessage DONT_SEND");
