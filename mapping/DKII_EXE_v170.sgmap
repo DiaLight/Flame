@@ -5127,7 +5127,7 @@ struct: id=vtbl_0066EF3C,name=CFrontEndComponent,size=201210,vtable=instance_006
   field: name=f6608_mapIdx_6608
     type: kind=int,size=4
   field: name=f660C_mapNameHash
-    type: kind=int,size=4,signed=True
+    type: kind=int,size=4
   field: name=f6610
     type: kind=int,size=1
   field: name=f6611_Confirm_surf
@@ -5257,7 +5257,7 @@ struct: id=vtbl_0066EF3C,name=CFrontEndComponent,size=201210,vtable=instance_006
   field: name=f30340_pMyDdSurfaceEx
     type: kind=ptr
       type: kind=struct,id=instance_0079D200
-  field: name=field_30344
+  field: name=f30344__tableTy
     type: kind=int,size=1,signed=True,winapi=char
   field: name=f30345
     type: kind=int,size=4,signed=True
@@ -23348,7 +23348,7 @@ struct: id=SessionMapInfo,name=SessionMapInfo,size=8
   field: name=f2_playersCount
     type: kind=int,size=2,signed=True
   field: name=f4_nameHash
-    type: kind=int,size=2,signed=True
+    type: kind=int,size=2
   field: name=field_6
     type: kind=int,size=2,signed=True
 struct: id=size_wh,path=dk2/utils,name=Size2i,size=8
@@ -49815,7 +49815,7 @@ global: va=00531F20,name=calcMapCount,size=34
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=int,size=1,signed=True,winapi=char
-global: va=00531F50,name=calcStringListCount,size=43
+global: va=00531F50,name=TableStr_getLinesCount,size=43
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -49827,7 +49827,7 @@ global: va=00531F80,name=getMapName_531F80,size=105
     arg: kind=int,size=4,signed=True
     arg: kind=ptr,is_const=True
       type: kind=int,size=1,signed=True,winapi=CHAR,fname=CHAR
-global: va=00531FF0,name=sub_531FF0,size=66
+global: va=00531FF0,name=TableStr_selectLine,size=66
   type: kind=function,declspec=cdecl
     ret: kind=ptr
       type: kind=int,size=2
@@ -51335,11 +51335,13 @@ global: va=005466E0,name=sub_5466E0,size=321,member_of=vtbl_0066EF3C
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066EF3C
     arg: kind=int,size=4,signed=True
-global: va=00546830,name=CListBox_render_546830,size=1743
+global: va=00546830,name=CListBox_renderTableStr,size=1743
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True,winapi=BOOL,fname=BOOL
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066ED54
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066EF3C
 global: va=00546F00,name=renderButtonsText_9_9_4,size=1002,member_of=vtbl_0066EF3C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=1,signed=True,winapi=char
@@ -52253,12 +52255,12 @@ global: va=0054EE10,name=CTextInput_handleLeftClick_54EE10,size=17
   type: kind=function,declspec=stdcall
     ret: kind=ptr
       type: kind=int,size=2,winapi=wchar_t,fname=wchar_t
-global: va=0054EE30,name=CListBox__54EE30,size=20
+global: va=0054EE30,name=CListBox_selectLine,size=20
   type: kind=function,declspec=cdecl
     ret: kind=ptr
       type: kind=void
     arg: kind=int,size=4,winapi=size_t,fname=size_t
-global: va=0054EE50,name=CListBox__54EE50,size=15
+global: va=0054EE50,name=CListBox_getLinesCount,size=15
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
 global: va=0054EE60,name=sub_54EE60,size=488,member_of=vtbl_0066EF3C

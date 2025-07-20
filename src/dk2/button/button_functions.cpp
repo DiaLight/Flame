@@ -128,7 +128,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             }
             break;
         case 8:
-            comp->f30344 = 9;
+            comp->_tableTy = 9;
             comp->fun_533460(1);
             fillNetworkStringList();
             comp->f30C1E = 0;
@@ -252,7 +252,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
                 v15_button->f5D_isVisible = static_DirFileList_instance2_saves_sav_getCount() > 0;
         } break;
         case 21:
-            comp->f30344 = 7;
+            comp->_tableTy = 7;
             comp->clear_MyPlayerConfig_instance_arr__setupMpGui();
             comp->buildLevelConfig();
             comp->fun_533460(0);
@@ -291,7 +291,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             v18_foundBtn_578->f63_clickHandler_arg1 = 0;  // devs has no NULL checks here
             CFrontEndComponent_static_sub_5457A0(0, 0, comp);
             fillNetworkStringList();
-            comp->f30344 = 9;
+            comp->_tableTy = 9;
             comp->f30C1E = 0;
         } break;
         case 24:
@@ -299,7 +299,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             CFrontEndComponent_static_539490(0x110u, 29, comp);
             break;
         case 26:
-            comp->f30344 = 3;
+            comp->_tableTy = 3;
             comp->sub_54B4B0();
             break;
         case 27:
@@ -319,7 +319,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             MyResources_instance.soundCfg.saveSoundQuality(comp->soundQuality);
         } break;
         case 29:
-            comp->f30344 = 1;
+            comp->_tableTy = 1;
             comp->sub_54B060();
             comp->f30C1E = 0;
             break;
@@ -340,7 +340,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             uint8_t *MbString = MyMbStringList_idx1091_getMbString(0x613u);
             strcpy((char *) comp->mbStr, (const char *) MbString);
             comp->f30C1E = 0;
-            comp->f30344 = 12;
+            comp->_tableTy = 12;
             comp->fun_5321A0(10, 10);
         } break;
         case 33:
@@ -354,7 +354,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
                     if (comp->joinMultiplayerGame(g_listItemNum) == 1) {
                         WeaNetR_instance.enumerateSessions(0);
                         comp->f30C1E = 2;
-                        comp->f30344 = 16;
+                        comp->_tableTy = 16;
                         comp->fun_5321A0(32, 10);
                         comp->sub_5453F0();
                         comp->f6037 = 10;
@@ -370,7 +370,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
                 strcpy((char *) comp->mbStr, (const char *) v62_mbstr);
             }
             comp->f30C1E = 0;
-            comp->f30344 = 12;
+            comp->_tableTy = 12;
             comp->fun_5321A0(10, 10);
             break;
         case 42:
@@ -382,7 +382,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             comp->sub_5435E0(0, comp);
             break;
         case 43:
-            comp->f30344 = 5;
+            comp->_tableTy = 5;
             break;
         case 56: {
             comp->copyDxKeysToConfig();
@@ -408,12 +408,12 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             break;
         case 58:
             comp->sub_54C240();
-            comp->f30344 = 2;
+            comp->_tableTy = 2;
             comp->sub_54B780();
             comp->f30C1E = 0;
             break;
         case 59:
-            comp->f30344 = 8;
+            comp->_tableTy = 8;
             comp->f30C1E = 0;
             comp->sub_53B3F0(5);
             break;
@@ -422,7 +422,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             comp->f30C1E = 0;
             break;
         case 61:
-            comp->f30344 = 6;
+            comp->_tableTy = 6;
             comp->f30C1E = 0;
             break;
         case 62: {
@@ -443,11 +443,11 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
                 v20_foundBtn_47->f55__nextWindowIdOnClick = 6;
         } break;
         case 69:
-            comp->f30344 = 15;
+            comp->_tableTy = 15;
             break;
         case 70: {
             comp->saveAddressBookWinsock(1);
-            comp->f30344 = 15;
+            comp->_tableTy = 15;
             CButton *v53_foundBtn_223 = 0;
             for(CButton *cur = comp->cgui_manager.findGameWindowById(11)->f66_buttons; cur; cur = cur->f78_next) {
                 if (cur->f70_id != 223) continue;
@@ -467,7 +467,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
         case 72:
         case 87:
             g_flags_74034C &= ~8u;
-            comp->f30344 = 17;
+            comp->_tableTy = 17;
             comp->f30C1E = 0;
             comp->levelConfig_ty = 0;
             comp->f3133 = -1;
@@ -482,7 +482,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
         case 77:
         case 88: {
             int f6608_mapIdx = comp->mapIdx_6608;
-            comp->f30344 = 18;
+            comp->_tableTy = 18;
             comp->mapIdx_6033 = f6608_mapIdx;
             CListBox *foundBtn = NULL;
             if (command == 77) {
@@ -508,12 +508,12 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
         case 78:
             if (comp->wndId_6016 == 32) {
                 int v64_isZero = comp->mp_isHost == 0;
-                comp->f30344 = 16;
+                comp->_tableTy = 16;
                 comp->f30C1E = 2;
                 comp->sub_53FAA0(v64_isZero);
                 comp->fun_5321A0(comp->wndId_6016, 33);
             } else {
-                comp->f30344 = 7;
+                comp->_tableTy = 7;
                 comp->f30C1E = 1;
                 comp->sub_53FAA0(1);
                 comp->fun_5321A0(comp->wndId_6016, 34);
@@ -525,9 +525,9 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             int f311F2_mp_isHost = 0;
             if (v24_wndId == 32) {
                 f311F2_mp_isHost = comp->mp_isHost;
-                comp->f30344 = 16;
+                comp->_tableTy = 16;
             } else {
-                comp->f30344 = 7;
+                comp->_tableTy = 7;
             }
             if (f311F2_mp_isHost || v24_wndId == 9) {
                 int f6033_mapIdx = comp->mapIdx_6033;
@@ -543,7 +543,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
                     comp->fun_5321A0(v26_wndId, 33);
                 }
             } else {
-                comp->f30344 = 16;
+                comp->_tableTy = 16;
                 comp->f30C1E = 0;
                 comp->fun_5321A0(v24_wndId, 34);
             }
@@ -551,11 +551,11 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
         } break;
         case 80: {
             if (comp->wndId_6016 == 32) {
-                comp->f30344 = 16;
+                comp->_tableTy = 16;
                 comp->f30C1E = 2;
                 if (comp->mp_isHost) comp->applyLevelVariables();
             } else {
-                comp->f30344 = 7;
+                comp->_tableTy = 7;
                 comp->f30C1E = 2;
                 comp->applyLevelVariables();
             }
@@ -567,11 +567,11 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             comp->buildLevelConfig();
             int f6016_wndId_6016 = comp->wndId_6016;
             if (f6016_wndId_6016 == 32) {
-                comp->f30344 = 16;
+                comp->_tableTy = 16;
                 comp->f30C1E = 2;
                 comp->fun_5321A0(32, 35);
             } else {
-                comp->f30344 = 7;
+                comp->_tableTy = 7;
                 comp->f30C1E = 1;
                 comp->fun_5321A0(f6016_wndId_6016, 35);
             }
@@ -655,7 +655,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             unsigned __int8 *v48_mbStr_613 = MyMbStringList_idx1091_getMbString(0x613u);
             strcpy((char *) comp->mbStr, (const char *) v48_mbStr_613);
             comp->f30C1E = 0;
-            comp->f30344 = 12;
+            comp->_tableTy = 12;
             comp->fun_5321A0(11, 11);
         } break;
         case 84:
@@ -668,7 +668,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
                     comp->sub_54DEC0(221, 227, 11, comp);
                     if (comp->joinMultiplayerGame(g_listItemNum) == 1) {
                         comp->f30C1E = 2;
-                        comp->f30344 = 16;
+                        comp->_tableTy = 16;
                         comp->fun_5321A0(32, 11);
                         comp->sub_5453F0();
                         comp->f6037 = 11;
@@ -679,7 +679,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
                 }
             }
             comp->f30C1E = 0;
-            comp->f30344 = 12;
+            comp->_tableTy = 12;
             comp->fun_5321A0(11, 11);
             comp->fun_536E20(1, 0);
             break;
@@ -687,7 +687,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             if(!handle85(comp)) CFrontEndComponent_static_539490(0xFEu, 18, comp);
         } break;
         case 86:
-            comp->f30344 = 19;
+            comp->_tableTy = 19;
             comp->f30C1E = 0;
             comp->saveAddressBookWinsock(0);
             break;
@@ -749,7 +749,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
                     comp->sub_54DEC0(584, 0, 39, comp),
                     comp->joinMultiplayerGame(g_listItemNum) == 1)) {
                 comp->f30C1E = 2;
-                comp->f30344 = 16;
+                comp->_tableTy = 16;
                 comp->fun_5321A0(32, 39);
                 comp->sub_5453F0();
                 comp->f6037 = 39;
@@ -759,7 +759,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
                 uint8_t *v49_mbString_611 = MyMbStringList_idx1091_getMbString(0x611u);
                 strcpy((char *) comp->mbStr, (const char *) v49_mbString_611);
                 comp->f30C1E = 0;
-                comp->f30344 = 12;
+                comp->_tableTy = 12;
                 comp->fun_5321A0(39, 39);
                 comp->fun_536E20(1, 0);
             }
@@ -1045,7 +1045,7 @@ int __cdecl dk2::__onMapSelected(CButton *a1_btn, int a2, CFrontEndComponent *a3
 
 uint8_t __cdecl dk2::Button_addAiPlayer(int a1, int a2, CFrontEndComponent *a3_frontend) {
     uint8_t f311F2_mp_isHost = 0;
-    char v4 = a3_frontend->f30344;
+    char v4 = a3_frontend->_tableTy;
     if ( v4 == 16 )
         f311F2_mp_isHost = a3_frontend->mp_isHost;
     if ( f311F2_mp_isHost != 1 && v4 != 7 )
@@ -1101,7 +1101,7 @@ char dk2::CFrontEndComponent::sub_53FC40(int a2) {
     uint8_t bitData = this->b4_mapPlayersCount_goldDencity_loseHeartType & 0xF;
     bitData |= (v4_mapInfo->playerCount & 0xFF) << 4;
     this->b4_mapPlayersCount_goldDencity_loseHeartType = bitData;
-    if (this->f30344 != 7) this->initMaxPlayers(v4_mapInfo->playerCount);
+    if (this->_tableTy != 7) this->initMaxPlayers(v4_mapInfo->playerCount);
 
     CHAR mapNameArr[260];
     unicodeToUtf8(this->mapName, mapNameArr, 260);

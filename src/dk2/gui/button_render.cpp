@@ -1,11 +1,14 @@
 //
 // Created by DiaLight on 5/29/2025.
 //
+#include <dk2/button/CButton.h>
+#include <dk2/button/CListBox.h>
+#include <dk2/button/CVerticalSlider.h>
+#include <dk2/button/button_types.h>
+#include <dk2/gui/RenderButtonTextInfo.h>
 #include <dk2_functions.h>
 #include <dk2_globals.h>
-#include <dk2/button/button_types.h>
-#include <dk2/button/CButton.h>
-#include <dk2/gui/RenderButtonTextInfo.h>
+#include <patches/micro_patches.h>
 
 #include "visual_debug.h"
 
@@ -742,5 +745,230 @@ int __cdecl dk2::CButton_render_42A160(CButton *a1_btn, CDefaultPlayerInterface 
             0x11, 0, FontObj_3_instance, 1);
     }
     return value - 2;
+}
+
+BOOL __cdecl dk2::CListBox_renderTableStr(CListBox *a1_listBox, CFrontEndComponent *a2_front) {
+    CVerticalSlider *f78_slider = (CVerticalSlider *) a1_listBox->f78_next;
+    AABB v30_rowArea;
+    memset(&v30_rowArea, 0, sizeof(v30_rowArea));
+    int v3_itemsCount = a1_listBox->getItemsCount();
+    CFrontEndComponent *v4_front = a2_front;
+    AABB cellArea;
+    v30_rowArea = *a1_listBox->getScreenAABB(&cellArea);
+    AABB *v5_renderArea = a2_front->cgui_manager.scaleAabb_2560_1920(&cellArea, &v30_rowArea);
+    v30_rowArea = *v5_renderArea;
+    int minX = v5_renderArea->minX;
+    int v39_minX = v5_renderArea->minY;
+    int v40_maxX = v5_renderArea->maxX;
+    int v41_maxY = v5_renderArea->maxY;
+    MySurface_AABB_sub_5B35B0(&v30_rowArea);
+    if (a1_listBox->f5D_isVisible != 1 || v3_itemsCount <= 0)
+        return sub_5B36F0();
+    int f8C_itemHeight = a1_listBox->itemHeight;
+    int *f30_arg = (int *) a1_listBox->f30_arg;
+    int v12_scrollIdx = f78_slider->v_f28();
+    char f30344__tableTy = a2_front->_tableTy;
+    int *v44_arg = f30_arg;
+    if ((f30344__tableTy == 14 || f30344__tableTy == 15) && *f30_arg > 0) {
+        unsigned int v14_startIdx = *f30_arg - v12_scrollIdx;
+        if (v14_startIdx <= 7) {
+            int v15_startOffs = v39_minX + f8C_itemHeight * v14_startIdx;
+            if (g_bgTiles_loaded[21]) {
+                int status;
+                MySurface_static_copy(
+                    &status, &a2_front->surf65_btnRenderOut,
+                    minX - 2, v15_startOffs + 2,
+                    &g_bgTiles_surf[21], NULL, 0);
+            }
+        }
+    } else {
+        if (*f30_arg != -1) {
+            unsigned int v16_startIdx = *f30_arg - v12_scrollIdx;
+            if (v16_startIdx <= 7) {
+                int v15_startOffs = v39_minX + f8C_itemHeight * v16_startIdx;
+                if (g_bgTiles_loaded[21]) {
+                    int status;
+                    MySurface_static_copy(
+                        &status, &a2_front->surf65_btnRenderOut,
+                        minX - 2, v15_startOffs + 2,
+                        &g_bgTiles_surf[21], NULL, 0);
+                }
+            }
+        }
+    }
+
+    int v17_endIdx = v12_scrollIdx + 8;
+    int v35_maxOffs = v12_scrollIdx + 8;
+    if (v12_scrollIdx + 8 > v3_itemsCount) {
+        v35_maxOffs = v3_itemsCount;
+        v17_endIdx = v3_itemsCount;
+    }
+    int v18_idx = v12_scrollIdx;
+    if (v12_scrollIdx >= v17_endIdx)
+        return sub_5B36F0();
+    int v19_offset = v12_scrollIdx * f8C_itemHeight;
+    int v20_curHeight = v19_offset;
+    int v43_offset = v19_offset;
+    int v37_curHeight = v19_offset;
+    while (true) {
+        if (v18_idx == a1_listBox->f88 && a1_listBox->f3D__isPressed) {
+            char v21_tableTy = v4_front->_tableTy;
+            if (v21_tableTy == 14 || v21_tableTy == 15) {
+                if (v4_front->isSessionCompatible[v18_idx]) {
+                    *f30_arg = v18_idx;
+                    if (g_bgTiles_loaded[21]) {
+                        int v52_status;
+                        MySurface_static_copy(
+                            &v52_status, &v4_front->surf65_btnRenderOut,
+                            minX - 2, v39_minX + v20_curHeight - v19_offset + 2,
+                            &g_bgTiles_surf[21], NULL, 0);
+                    }
+                }
+            } else if ((unsigned int)(*f30_arg - v12_scrollIdx) <= 7) {
+                *f30_arg = v18_idx;
+                if (g_bgTiles_loaded[21]) {
+                    int v53_status;
+                    MySurface_static_copy(
+                        &v53_status, &v4_front->surf65_btnRenderOut,
+                        minX - 2, v39_minX + v20_curHeight - v19_offset + 2,
+                        &g_bgTiles_surf[21], NULL, 0);
+                }
+            }
+        }
+        char v22_tableTy = v4_front->_tableTy;
+        if ((v22_tableTy == 14 || v22_tableTy == 15) && !v4_front->isSessionCompatible[v18_idx]) {
+            PixelMask pixelMask;
+            pixelMask.b = 0xBF;
+            pixelMask.g = 0xBF;
+            pixelMask.r = 0xBF;
+            pixelMask.f3 = 0xFF;
+            pixelMask.f4 = 0;
+            int v56_status;
+            g_FontObj2_instance.setFontMask(&v56_status, &pixelMask);
+        }
+        if (patch::display_incompatible_reason::enabled) {
+            if (!v4_front->isSessionCompatible[v18_idx]) {
+                PixelMask pixelMask;
+                pixelMask.b = 0x30;
+                pixelMask.g = 0x30;
+                pixelMask.r = 0x30;
+                pixelMask.f3 = 0xFF;
+                pixelMask.f4 = 0;
+                int v56_status;
+                g_FontObj2_instance.setFontMask(&v56_status, &pixelMask);
+            }
+        }
+
+        uint8_t v59_renderer_buf[sizeof(MyTextRenderer)];
+        MyTextRenderer &renderer = *(MyTextRenderer*) v59_renderer_buf;
+        renderer.constructor();
+        AABB v33_rowArea = v30_rowArea;
+        int v60_tryLevel = 0;
+        const wchar_t *v23_rowStr = a1_listBox->cbGetItemStr(v18_idx);
+        const wchar_t *cell0 = NULL;
+        wchar_t cellStr[32];
+        memset(cellStr, 0, sizeof(cellStr));
+        if (v23_rowStr) {
+            cell0 = wcsstr(v23_rowStr, L"#");
+            wcsncat(cellStr, v23_rowStr, cell0 - v23_rowStr);
+            if (UniToMb_convert(cellStr, MBStr_741120, 512)) {
+                int v48_status;
+                renderer.renderText(&v48_status, &v33_rowArea, MBStr_741120, &g_FontObj2_instance, NULL);
+            }
+            int status;
+            renderer.selectMyCR(&status, 2);
+        }
+        const wchar_t *cell1 = NULL;
+        memset(cellStr, 0, sizeof(cellStr));
+        if (cell0) {
+            cell1 = wcsstr(cell0 + 1, L"#");
+            wcsncat(cellStr, cell0 + 1, cell1 - cell0 - 1);
+            if (UniToMb_convert(cellStr, MBStr_741120, 512)) {
+                AABB cellArea;
+                cellArea.minX = v33_rowArea.minX + 133;
+                cellArea.maxX = v33_rowArea.minX + 201;
+                cellArea.minY = v33_rowArea.minY;
+                cellArea.maxY = v33_rowArea.maxY;
+                int v51_status;
+                renderer.renderText(&v51_status, &cellArea, MBStr_741120, &g_FontObj2_instance, NULL);
+            }
+        }
+        int status2;
+        renderer.selectMyCR(&status2, 0);
+        const wchar_t *cell2 = NULL;
+        memset(cellStr, 0, sizeof(cellStr));
+        if (cell1) {
+            cell2 = wcsstr(cell1 + 1, L"#");
+            wcsncat(cellStr, cell1 + 1, cell2 - cell1 - 1);
+            if (UniToMb_convert(cellStr, MBStr_741120, 512)) {
+                AABB cellArea;
+                cellArea.minX = v33_rowArea.minX + 202;
+                cellArea.maxX = v33_rowArea.minX + 326;
+                cellArea.minY = v33_rowArea.minY;
+                cellArea.maxY = v33_rowArea.maxY;
+                int status;
+                renderer.renderText(&status, &cellArea, MBStr_741120, &g_FontObj2_instance, NULL);
+            }
+        }
+        int status3;
+        renderer.selectMyCR(&status3, 2);
+        memset(cellStr, 0, sizeof(cellStr));
+        const wchar_t* cell3 = NULL;
+        if (cell2) {
+            cell3 = wcsstr(cell2 + 1, L"#");
+            wcsncat(cellStr, cell2 + 1, cell3 - cell2 - 1);
+            if (UniToMb_convert(cellStr, MBStr_741120, 512)) {
+                cellArea.minX = v33_rowArea.minX + 326;
+                cellArea.maxX = v33_rowArea.minX + 365;
+                cellArea.minY = v33_rowArea.minY;
+                cellArea.maxY = v33_rowArea.maxY;
+                int status;
+                renderer.renderText(&status, &cellArea, MBStr_741120, &g_FontObj2_instance, NULL);
+            }
+        }
+        if (patch::display_incompatible_reason::enabled) {
+            int status4;
+            renderer.selectMyCR(&status4, 2);
+            memset(cellStr, 0, sizeof(cellStr));
+            const wchar_t* cell4 = NULL;
+            if (cell3) {
+                cell4 = wcsstr(cell3 + 1, L"#");
+                wcsncat(cellStr, cell3 + 1, cell4 - cell3 - 1);
+                if (UniToMb_convert(cellStr, MBStr_741120, 512)) {
+                    cellArea.minX = v33_rowArea.minX;
+                    cellArea.maxX = v33_rowArea.minX + 365;
+                    cellArea.minY = v33_rowArea.minY;
+                    cellArea.maxY = v33_rowArea.maxY;
+                    {
+                        PixelMask pixelMask;
+                        pixelMask.b = 0xA0;
+                        pixelMask.g = 0xA0;
+                        pixelMask.r = 0xFF;
+                        pixelMask.f3 = 0xFF;
+                        pixelMask.f4 = 0;
+                        int v56_status;
+                        g_FontObj2_instance.setFontMask(&v56_status, &pixelMask);
+                    }
+                    int status;
+                    renderer.renderText(&status, &cellArea, MBStr_741120, &g_FontObj2_instance, NULL);
+                }
+            }
+        }
+        int v57_status;
+        g_FontObj2_instance.setFontMask(&v57_status, &a2_front->fontMask_5FF4);
+        v60_tryLevel = -1;
+        v30_rowArea.minY += f8C_itemHeight;
+        v30_rowArea.maxY = f8C_itemHeight + v30_rowArea.minY;
+        renderer.destructor();
+        ++v18_idx;
+        v37_curHeight += f8C_itemHeight;
+        if (v18_idx >= v35_maxOffs)
+            break;
+        v4_front = a2_front;
+        f30_arg = v44_arg;
+        v20_curHeight = v37_curHeight;
+        v19_offset = v43_offset;
+    }
+    return sub_5B36F0();
 }
 

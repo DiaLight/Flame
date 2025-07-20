@@ -569,6 +569,22 @@ int dk2::CFrontEndComponent::launchGame() {
     return 1;
 }
 
+namespace dk2 {
+
+
+    MyMapInfo *findMap(CFrontEndComponent *front, SessionMapInfo *mapInfo) {
+        for (int i = 0; i < front->mapsCount; ++i) {
+            MyMapInfo &curMapInfo = front->mapInfoArr[i];
+            if (curMapInfo.nameHash != mapInfo->nameHash) continue;
+            if (wcslen(curMapInfo.name) != mapInfo->nameLen) continue;
+            return &curMapInfo;
+        }
+        return nullptr;
+    }
+
+
+}
+
 char dk2::CFrontEndComponent::updateNetworkSessions() {
     unsigned int v2_netstatus = WeaNetR_instance.enumerateSessions(TRUE);
     unsigned __int8 *MbString;
@@ -608,8 +624,10 @@ char dk2::CFrontEndComponent::updateNetworkSessions() {
         SessionMapInfo mapInfo = sessionDesc.mapInfo;
         int v13_aiPlayersCount = mapInfo.aiPlayersCount_flag & 0x7F;
         unsigned int v14_mapPlayersCount = mapInfo.playersCount;
-        wchar_t mapNameStr[64];
-        this->isMapPresent(&mapInfo, mapNameStr);
+        wchar_t incompatibleReason[128];
+        if (patch::display_incompatible_reason::enabled) {
+            wcscpy(incompatibleReason, L"#");
+        }
         unsigned int majorVersion = (sessionDesc.gameVersion >> 16) & 0xFFFF;
         wchar_t versionStr[64];
         if ( majorVersion ) {
@@ -622,23 +640,63 @@ char dk2::CFrontEndComponent::updateNetworkSessions() {
             swprintf(versionStr, L"#%s", Format);
         }
         g_currentPlayersInSession = v13_aiPlayersCount + sessionDesc.currentPlayers;
-        BOOL v15_hashEquals = sessionDesc.fileHashsum == g_fileHashsum;
-        patch::log::dbg("compatible: hasSlots=%d<%d version=%X?%X hash=%08X?%08X notSingleplayer=%d>1\n",
-            g_currentPlayersInSession, v14_mapPlayersCount,
-            (g_minorVersion | (g_majorVersion << 16)), sessionDesc.gameVersion,
-            sessionDesc.fileHashsum, g_fileHashsum,
-            v14_mapPlayersCount > 1
-        );
-        this->isSessionCompatible[i] = g_currentPlayersInSession < v14_mapPlayersCount
-                          && (g_minorVersion | (g_majorVersion << 16)) == sessionDesc.gameVersion
-                          && v15_hashEquals
-                          && v14_mapPlayersCount > 1;
+        // patch::log::dbg("compatible: hasSlots=%d<%d version=%X?%X hash=%08X?%08X notSingleplayer=%d>1",
+        //     g_currentPlayersInSession, v14_mapPlayersCount,
+        //     (g_minorVersion | (g_majorVersion << 16)), sessionDesc.gameVersion,
+        //     sessionDesc.fileHashsum, g_fileHashsum,
+        //     v14_mapPlayersCount > 1
+        // );
+        int gameVersion = g_minorVersion | (g_majorVersion << 16);
+
+        bool isCompatible = true;
+
+        wchar_t mapNameStr[64];
+        // this->isMapPresent(&mapInfo, mapNameStr);
+        {  // inlined this->isMapPresent
+            if (auto *info = findMap(this, &mapInfo)) {
+                wcscpy(mapNameStr, info->name);
+            } else {
+                wchar_t name[60];
+                MBToUni_convert(MyMbStringList_idx1091_getMbString(0xC06u), name, 50);
+                wcscpy(mapNameStr, name);
+                if (patch::display_incompatible_reason::enabled) {
+                    wsprintfW(incompatibleReason, L"#missing map hash:%X len:%d", mapInfo.nameHash, mapInfo.nameLen);
+                    isCompatible = false;
+                }
+            }
+        }
+
+        if (g_currentPlayersInSession >= v14_mapPlayersCount) {
+            isCompatible = false;
+            if (patch::display_incompatible_reason::enabled) {
+                wcscpy(incompatibleReason, L"#room is full");
+            }
+        } else if (sessionDesc.gameVersion != gameVersion) {
+            isCompatible = false;
+            if (patch::display_incompatible_reason::enabled) {
+                wsprintfW(incompatibleReason, L"#bad exe version %08X != cur:%08X", sessionDesc.gameVersion, gameVersion);
+            }
+        } else if (sessionDesc.fileHashsum != g_fileHashsum) {
+            isCompatible = false;
+            if (patch::display_incompatible_reason::enabled) {
+                wsprintfW(incompatibleReason, L"#bad exe hashsum %08X != cur:%08X", sessionDesc.fileHashsum, g_fileHashsum);
+            }
+        } else if (v14_mapPlayersCount <= 1) {
+            isCompatible = false;
+            if (patch::display_incompatible_reason::enabled) {
+                wcscpy(incompatibleReason, L"#maxPlayers <= 1");
+            }
+        }
+        this->isSessionCompatible[i] = isCompatible;
         if (v14_mapPlayersCount == 0) v14_mapPlayersCount = 4;
         wchar_t playerCountsStr[128];
         swprintf(playerCountsStr, L"#%lu / %lu#", g_currentPlayersInSession, v14_mapPlayersCount);
         size_t newSize = sizeof(wchar_t) * (
             wcslen(sessionDesc.sessionName) + wcslen(playerCountsStr) + wcslen(mapNameStr) + wcslen(versionStr)
         ) + 2 + curSize;
+        if (patch::display_incompatible_reason::enabled) {
+            newSize += sizeof(wchar_t) * wcslen(incompatibleReason);
+        }
         wchar_t *newStrInfoBuf = (wchar_t *) realloc_soft(g_networkStrInfo, curSize, newSize);
         if (!newStrInfoBuf) {
             g_networkStrInfo[(curSize - 1) >> 1] = -1;
@@ -651,6 +709,9 @@ char dk2::CFrontEndComponent::updateNetworkSessions() {
         wcscat(g_networkStrInfo, playerCountsStr);
         wcscat(g_networkStrInfo, mapNameStr);
         wcscat(g_networkStrInfo, versionStr);
+        if (patch::display_incompatible_reason::enabled) {
+            wcscat(g_networkStrInfo, incompatibleReason);
+        }
         wcscat(g_networkStrInfo, g_sessionStrInfoSeparator);
     }
     g_networkStrInfo[(curSize - 1) >> 1] = -1;
@@ -659,19 +720,11 @@ char dk2::CFrontEndComponent::updateNetworkSessions() {
 }
 
 void dk2::CFrontEndComponent::isMapPresent(SessionMapInfo *mapInfo, wchar_t *mapName) {
-    bool isPresent = false;
-    for (int i = 0; i < this->mapsCount; ++i) {
-        MyMapInfo &curMapInfo = this->mapInfoArr[i];
-        if (curMapInfo.nameHash != mapInfo->nameHash) continue;
-        if (wcslen(curMapInfo.name) != mapInfo->nameLen) continue;
-        wcscpy(mapName, this->mapInfoArr[i].name);
-        isPresent = true;
-        break;
-    }
-    if (!isPresent) {
-        unsigned __int8 *MbString = MyMbStringList_idx1091_getMbString(0xC06u);
-        wchar_t Source[60];
-        MBToUni_convert(MbString, Source, 50);
-        wcscpy(mapName, Source);
+    if (auto *info = findMap(this, mapInfo)) {
+        wcscpy(mapName, info->name);
+    } else {
+        wchar_t name[60];
+        MBToUni_convert(MyMbStringList_idx1091_getMbString(0xC06u), name, 50);
+        wcscpy(mapName, name);
     }
 }

@@ -54,8 +54,8 @@ namespace {
             880, 468, 496, 76, 0, 0, 0, 0, 0, NULL, dk2::CButton_render_5322F0, 0x00000000, 533, 0x00000003, 0x00010000, 0
         },
         {
-            BT_CListBox, 203, 0, NULL, NULL, 0, 0, (uint32_t) dk2::CListBox__54EE50, (uint32_t) dk2::CListBox__54EE30, 0,
-            72, 540, 1456, 620, 0, 0, 1456, 620, 0, dk2::CListBox_sub_530440, dk2::CListBox_render_546830, (uint32_t) dk2::CVerticalSlider_render_551490, 123, (uint32_t) &dk2::g_listItemNum, 0x00000040, 0
+            BT_CListBox, 203, 0, NULL, NULL, 0, 0, (uint32_t) dk2::CListBox_getLinesCount, (uint32_t) dk2::CListBox_selectLine, 0,
+            72, 540, 1456, 620, 0, 0, 1456, 620, 0, dk2::CListBox_sub_530440, dk2::CListBox_renderTableStr, (uint32_t) dk2::CVerticalSlider_render_551490, 123, (uint32_t) &dk2::g_listItemNum, 0x00000040, 0
         },
         {
             BT_CTextBox, 210, 255, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,

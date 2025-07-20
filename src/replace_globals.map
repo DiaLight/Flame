@@ -196,6 +196,7 @@
 00533570 char bakeButton(int, uint8_t, int);  // -----  /* auto */
 00538000 void __cdecl CButton_handleLeftClick_538000(int, int, CFrontEndComponent *);  /* auto */
 005384F0 void __cdecl CFrontEndComponent_subTickMainGui(CFrontEndComponent *);  /* auto */
+00546830 BOOL __cdecl CListBox_renderTableStr(CListBox *, CFrontEndComponent *);  /* auto */
 
 # CGuiManager.h
 0052B8F0 int createElements(WindowCfg **, CDefaultPlayerInterface *);  /* auto */
