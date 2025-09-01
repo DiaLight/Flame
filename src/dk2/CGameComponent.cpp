@@ -6,6 +6,7 @@
 #include <patches/gui/game/esc_options/btn_autosave.h>
 #include <patches/limit_tps.h>
 #include <patches/logging.h>
+#include <patches/scheduler.h>
 #include <tools/flame_config.h>
 
 #include "dk2/gui/CWindow.h"
@@ -170,6 +171,7 @@ dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
 #if __has_include(<dk2_research.h>)
         research::tick();
 #endif
+        patch::scheduler::tick();
         if (flame_config::changed()) flame_config::save();
         patch::protocol_dump::tick();
         patch::replace_mouse_dinput_to_user32::release_handled_dinput_actions();

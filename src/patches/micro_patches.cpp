@@ -285,7 +285,7 @@ void patch::multi_interface_fix::replaceConnectAddress(_Inout_ DWORD &ipv4, net:
         }
     }
 
-    if(mostSimilar != 0) {
+    if(mostSimilar != 0 && mostSimilar != wouldBeUsed) {
         static_assert(sizeof(struct in_addr) == sizeof(ULONG));
         std::string mostSimilarStr = ::inet_ntoa(*(struct in_addr *) &mostSimilar);
         patch::log::dbg("[multi_interface_fix] replace local ip %s -> %s as %d bits matched with remote %s",

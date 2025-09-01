@@ -5,9 +5,12 @@ import pathlib
 import os.path
 
 
-def apply_map():
-  exe_file = pathlib.Path(idaapi.get_input_file_path())
-  map_file = exe_file.parent / f'{os.path.splitext(exe_file.name)[0]}.map'
+def apply_map(map_file=None):
+  if map_file is None:
+    exe_file = pathlib.Path(idaapi.get_input_file_path())
+    map_file = exe_file.parent / f'{os.path.splitext(exe_file.name)[0]}.map'
+  else:
+    map_file = pathlib.Path(map_file)
   if map_file.exists():
     with open(map_file, 'r') as f:
       lines = f.readlines()

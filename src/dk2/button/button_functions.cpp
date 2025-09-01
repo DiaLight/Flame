@@ -224,15 +224,15 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             memset(comp->wstr19, 0, 0x208u);
             comp->fun_552C80((CComponent *) &CGameComponent_instance);
         } break;
-        case 13:
-            if (comp->fun_54DB20()) {
+        case 13: {  // open selected network service
+            if (comp->networkSelectService()) {
                 memset(comp->mbStr, 0, sizeof(comp->mbStr));
                 comp->fun_548610();
                 comp->f601A = 1;
             } else {
                 comp->fun_536BA0(0, 0, 2079, 105, 0, 1, 0, 0, 0);
             }
-            break;
+        } break;
         case 19:
             DirFileList_instance2_saves_sav.reset();
             comp->f30C1E = 0;
@@ -257,7 +257,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             comp->buildLevelConfig();
             comp->fun_533460(0);
             if (comp->fun_53EF60(2u, comp->playersCount))
-                comp->fun_53F7F0(comp->mapName);
+                comp->loadMapThumbnail(comp->mapName);
             break;
         case 22:
             if (g_network_string_list) {
@@ -327,7 +327,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             comp->sub_54BB80();
             comp->f30C1E = 0;
             break;
-        case 32: {
+        case 32: {  // network -> ipx -> Create
             WeaNetR_instance.enumerateSessions(0);
             comp->sub_54DEC0(204, 230, 10, comp);
             comp->sub_54E8B0(230, 10);
@@ -343,7 +343,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             comp->_tableTy = 12;
             comp->fun_5321A0(10, 10);
         } break;
-        case 33:
+        case 33:  // network -> ipx -> Join
             if (!WeaNetR_instance.descArr_count || g_listItemNum == -1) {
                 uint8_t *MbString = MyMbStringList_idx1091_getMbString(0x611u);
                 strcpy((char *) comp->mbStr, (const char *) MbString);
@@ -481,9 +481,9 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             break;
         case 77:
         case 88: {
-            int f6608_mapIdx = comp->mapIdx_6608;
+            int selectedMapIdx = comp->lobbySelectedMapIdx;
             comp->_tableTy = 18;
-            comp->mapIdx_6033 = f6608_mapIdx;
+            comp->mapIdx_6033 = selectedMapIdx;
             CListBox *foundBtn = NULL;
             if (command == 77) {
                 comp->f30C1E = 3;
@@ -531,8 +531,8 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             }
             if (f311F2_mp_isHost || v24_wndId == 9) {
                 int f6033_mapIdx = comp->mapIdx_6033;
-                comp->mapIdx_6608 = f6033_mapIdx;
-                comp->sub_53FC40(f6033_mapIdx);
+                comp->lobbySelectedMapIdx = f6033_mapIdx;
+                comp->lobbyMapWasChanged(f6033_mapIdx);
                 loadThumbnail(comp->mapName, (MyDdSurfaceEx *) comp);
                 int v26_wndId = comp->wndId_6016;
                 if (v26_wndId == 9) {
@@ -642,7 +642,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             if (v38_failedToInitService)
                 comp->fun_536BA0(0, 0, 2079, 105, 0, 1, 0, 0, 0);
         } break;
-        case 83: {
+        case 83: {  // network -> tcpip -> Create
             if(handle83(comp)) {
                 comp->sub_54DEC0(221, 227, 11, comp);
                 comp->sub_54E8B0(227, 11);
@@ -658,7 +658,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             comp->_tableTy = 12;
             comp->fun_5321A0(11, 11);
         } break;
-        case 84:
+        case 84: {  // network -> tcpip -> Connect
             comp->sub_537AE0(0x1Bu);
             comp->fun_536E20(1, 1);
             WeaNetR_instance.enumerateSessions(0);
@@ -682,7 +682,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             comp->_tableTy = 12;
             comp->fun_5321A0(11, 11);
             comp->fun_536E20(1, 0);
-            break;
+        } break;
         case 85: {
             if(!handle85(comp)) CFrontEndComponent_static_539490(0xFEu, 18, comp);
         } break;
@@ -1092,10 +1092,10 @@ uint8_t __cdecl dk2::Button_addAiPlayer(int a1, int a2, CFrontEndComponent *a3_f
     return (uint8_t) ++g__aiPlayersCount;
 }
 
-char dk2::CFrontEndComponent::sub_53FC40(int a2) {
-    wchar_t *MapName_531F80 = getMapName_531F80(this->mapIdx_6608, g_mapNames);
+char dk2::CFrontEndComponent::lobbyMapWasChanged(int a2) {
+    wchar_t *MapName_531F80 = getMapName_531F80(this->lobbySelectedMapIdx, g_mapNames);
     wcscpy(this->mapName, MapName_531F80);
-    MyMapInfo *v4_mapInfo = &this->mapInfoArr[this->mapIdx_6608];
+    MyMapInfo *v4_mapInfo = &this->mapInfoArr[this->lobbySelectedMapIdx];
     this->mapNameHash = v4_mapInfo->nameHash;
 
     uint8_t bitData = this->b4_mapPlayersCount_goldDencity_loseHeartType & 0xF;
@@ -1111,7 +1111,7 @@ char dk2::CFrontEndComponent::sub_53FC40(int a2) {
     int Level_data = this->loadLevel_data(filePath);
     sprintf(filePath, "%sVariables.kld", mapNameArr);
     this->loadVariable_data(filePath, Level_data);
-    MyMapInfo *v9_mapInfo = &this->mapInfoArr[this->mapIdx_6608];
+    MyMapInfo *v9_mapInfo = &this->mapInfoArr[this->lobbySelectedMapIdx];
     char f88E_eos = v9_mapInfo->eos;
     if ((f88E_eos & 2) != 0) {
         int playersLeft = g__humanPlayersCount + g__aiPlayersCount - v9_mapInfo->playerCount + 1;

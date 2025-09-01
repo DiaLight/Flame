@@ -9,6 +9,7 @@
 #include <dk2/network/FoundSessionDesc.h>
 #include <dk2/network/MLDPLAY_SESSIONDESC.h>
 #include <dk2/network/protocol/NetMessage_65.h>
+#include <patches/auto_network.h>
 #include <patches/screen_resolution.h>
 #include <weanetr_dll/MLDPlay.h>
 #include "dk2/CListBox_ItemHeightCfg.h"
@@ -553,8 +554,8 @@ int dk2::CFrontEndComponent::launchGame() {
     this->sub_542570();
     if ( this->mapName[0] ) {
         int v13_mapCount = calcMapCount2();
-        for (this->mapIdx_6608 = 0; this->mapIdx_6608 < v13_mapCount; this->mapIdx_6608++) {
-            if (_wcsicmp(this->mapInfoArr[this->mapIdx_6608].name, this->mapName) == 0 ) break;
+        for (this->lobbySelectedMapIdx = 0; this->lobbySelectedMapIdx < v13_mapCount; this->lobbySelectedMapIdx++) {
+            if (_wcsicmp(this->mapInfoArr[this->lobbySelectedMapIdx].name, this->mapName) == 0 ) break;
         }
     }
     this->sub_534F70();
@@ -715,6 +716,7 @@ char dk2::CFrontEndComponent::updateNetworkSessions() {
     }
     g_networkStrInfo[(curSize - 1) >> 1] = -1;
     netStrLen((__int16 *)g_networkStrInfo);
+    patch::auto_network::onSessionsUpdated(this);
     return 1;
 }
 

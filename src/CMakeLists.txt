@@ -95,6 +95,8 @@ add_executable(${TARGET}
         patches/screen_resolution.cpp
         patches/registry_to_config.cpp
         patches/limit_tps.cpp
+        patches/auto_network.cpp
+        patches/scheduler.cpp
 
         patches/gui/main/main_layout.cpp
         patches/gui/main/single_player/btn_custom_campaign.cpp

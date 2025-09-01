@@ -811,7 +811,7 @@ BOOL __cdecl dk2::CListBox_renderTableStr(CListBox *a1_listBox, CFrontEndCompone
     int v43_offset = v19_offset;
     int v37_curHeight = v19_offset;
     while (true) {
-        if (v18_idx == a1_listBox->f88 && a1_listBox->f3D__isPressed) {
+        if (v18_idx == a1_listBox->hoveredIdx && a1_listBox->f3D__isPressed) {
             char v21_tableTy = v4_front->_tableTy;
             if (v21_tableTy == 14 || v21_tableTy == 15) {
                 if (v4_front->isSessionCompatible[v18_idx]) {

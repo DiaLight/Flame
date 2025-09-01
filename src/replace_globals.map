@@ -9,7 +9,7 @@
 005306F0 int __cdecl CButton_leftClick_changeMenu(uint32_t, int, CFrontEndComponent *);  /* auto */
 00545FC0 uint8_t __cdecl Button_addAiPlayer(int, int, CFrontEndComponent *);  /* auto */
 00543840 int __cdecl __onMapSelected(CButton *, int, CFrontEndComponent *);  /* auto */
-0053FC40 char sub_53FC40(int);  // -------------------  /* auto */
+0053FC40 char lobbyMapWasChanged(int);  // -------------------  /* auto */
 00546300 int initMaxPlayers(uint8_t);  // ------------  /* auto */
 
 # engine

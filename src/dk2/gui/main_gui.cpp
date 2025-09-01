@@ -2,16 +2,18 @@
 // Created by DiaLight on 3/25/2025.
 //
 
-#include "visual_debug.h"
+#include <dk2/MyMapInfo.h>
 #include <dk2/NameAndSurf.h>
 #include <dk2/NameAndSurfEx.h>
-#include <dk2_functions.h>
-#include <dk2_globals.h>
+#include <dk2/button/CButton.h>
 #include <dk2/button/button_types.h>
 #include <dk2/gui/main/main_layout.h>
 #include <dk2/sound/TbSysCommand_Process.h>
-#include <dk2/button/CButton.h>
+#include <dk2_functions.h>
+#include <dk2_globals.h>
+#include <patches/auto_network.h>
 #include <patches/gui/main/single_player/win_custom_campaign.h>
+#include "visual_debug.h"
 
 
 typedef char (__cdecl *CButton_render_t)(dk2::CButton *btn, dk2::CFrontEndComponent *front);
@@ -517,6 +519,7 @@ namespace dk2 {
             break;
         case 12:  // 28 -> Main_Options.Apply
             g_pathAnimationEndSwitch = 0;
+            if (patch::auto_network::main(front)) break;
             changeGui(1, MWID_Main, front);
             break;
         case 13:

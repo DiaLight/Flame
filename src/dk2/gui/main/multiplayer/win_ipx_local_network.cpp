@@ -61,11 +61,11 @@ namespace {
             BT_CTextBox, 210, 255, NULL, NULL, 0, 0, 0x00000000, 0x00000000, 0,
             0, 1168, 1600, 80, 0, 0, 0, 0, 0, NULL, dk2::CButton_render_546150, 0x00000000, 0, 0x00000000, 0x00000000, 0
         },
-        {
+        {  // "Join"
             BT_CClickButton, 207, 0, dk2::CButton_handleLeftClick_changeMenu, NULL, 0, 0, 0x00000020, 0x00000021, 0,
             0, 1348, 792, 136, 0, 0, 792, 136, 0, NULL, dk2::CClickButton_render_532670, 0x00000000, 159, 0x00000000, 0x000B0002, 0
         },
-        {
+        {  // "Create"
             BT_CClickButton, 208, 0, dk2::CButton_handleLeftClick_changeMenu, NULL, 0, 0, 0x00000020, 0x00000020, 0,
             896, 1352, 632, 136, 0, 0, 632, 136, 0, NULL, dk2::CClickButton_render_532670, 0x00000000, 158, 0x00000001, 0x000B0002, 0
         },

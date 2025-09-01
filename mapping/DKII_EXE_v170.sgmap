@@ -4706,9 +4706,7 @@ struct: id=vtbl_0066EF3C,name=CFrontEndComponent,size=201210,vtable=instance_006
   field: name=f467_timestampMs
     type: kind=int,size=4,signed=True
   field: name=field_46B
-    type: kind=int,size=4,signed=True
-  field: name=field_46F
-    type: kind=int,size=4,signed=True
+    type: kind=struct,id=pos_xy
   field: name=field_473
     type: kind=int,size=4,signed=True
   field: name=f477_listItemToPlayerIdx
@@ -5124,7 +5122,7 @@ struct: id=vtbl_0066EF3C,name=CFrontEndComponent,size=201210,vtable=instance_006
     type: kind=int,size=4,signed=True
   field: name=f6604_mapsCount
     type: kind=int,size=4
-  field: name=f6608_mapIdx_6608
+  field: name=f6608_lobbySelectedMapIdx
     type: kind=int,size=4
   field: name=f660C_mapNameHash
     type: kind=int,size=4
@@ -5907,7 +5905,7 @@ struct: id=vtbl_0066ED54,path=dk2/button,name=CListBox,size=144,vtable=instance_
         ret: kind=ptr
           type: kind=int,size=2,winapi=wchar_t,fname=wchar_t
         arg: kind=int,size=4,signed=True
-  field: name=field_88
+  field: name=f88_hoveredIdx
     type: kind=int,size=4,signed=True
   field: name=f8C_itemHeight
     type: kind=int,size=4,signed=True
@@ -50781,7 +50779,7 @@ global: va=0053ED60,name=isMapPresent,size=222,member_of=vtbl_0066EF3C
       type: kind=struct,id=SessionMapInfo
     arg: kind=ptr
       type: kind=int,size=2,winapi=wchar_t,fname=wchar_t
-global: va=0053EE40,name=sub_53EE40,size=279,member_of=vtbl_0066EF3C
+global: va=0053EE40,name=randomizeMap,size=279,member_of=vtbl_0066EF3C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -50841,7 +50839,7 @@ global: va=0053F7D0,name=jpt_53F649,size=20
   type: kind=array,count=5
     type: kind=ptr
       type: kind=void
-global: va=0053F7F0,name=fun_53F7F0,size=191,member_of=vtbl_0066EF3C
+global: va=0053F7F0,name=loadMapThumbnail,size=191,member_of=vtbl_0066EF3C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
@@ -50860,7 +50858,7 @@ global: va=0053FAA0,name=sub_53FAA0,size=410,member_of=vtbl_0066EF3C
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066EF3C
     arg: kind=int,size=4,signed=True
-global: va=0053FC40,name=sub_53FC40,size=427,member_of=vtbl_0066EF3C
+global: va=0053FC40,name=lobbyMapWasChanged,size=427,member_of=vtbl_0066EF3C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=1,signed=True,winapi=char
     arg: kind=ptr
@@ -51303,7 +51301,7 @@ global: va=00546300,name=initMaxPlayers,size=95,member_of=vtbl_0066EF3C
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066EF3C
     arg: kind=int,size=1
-global: va=00546360,name=CButton_handleLeftClick_546360,size=75
+global: va=00546360,name=CButton_handleLeftClick_randomMap,size=75
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
@@ -52153,7 +52151,7 @@ global: va=0054D920,name=joinMultiplayerGame,size=502,member_of=vtbl_0066EF3C
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066EF3C
     arg: kind=int,size=4,signed=True
-global: va=0054DB20,name=fun_54DB20,size=490,member_of=vtbl_0066EF3C
+global: va=0054DB20,name=networkSelectService,size=490,member_of=vtbl_0066EF3C
   type: kind=function,declspec=thiscall
     ret: kind=int,size=1,signed=True,winapi=bool
     arg: kind=ptr
