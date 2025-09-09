@@ -57,9 +57,11 @@ which contains false positive references that caused new bugs. Due to problems w
 - Python 3 https://www.python.org/downloads/windows/
 
 ## How to build
+cmd (instructions is not for powershell):
 - `mkdir build && cd build`
 - `"D:\Program Files\Visual Studio Community\2022\VC\Auxiliary\Build\vcvars32.bat"`
-- `cmake -DCMAKE_BUILD_TYPE=Release -GNinja -DCMAKE_INSTALL_PREFIX=../install ..`
+- `cmake -DCMAKE_BUILD_TYPE=Debug -GNinja -DCMAKE_INSTALL_PREFIX=../install ..`
 - `cmake --build .`
 - `cmake --install .`
-- `copy "..\install\DKII-Flame-<version>.exe" "<Dungeon Keeper2 dir>/DKII-Flame.exe"`
+- `copy /Y "..\install\PATCH.dll" "<Dungeon Keeper2 dir>\PATCH.dll"`
+- `copy /Y "..\install\flame" "<Dungeon Keeper2 dir>\flame"`

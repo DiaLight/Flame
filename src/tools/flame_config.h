@@ -136,40 +136,34 @@ namespace flame_config {
         define_flame_option() = delete;
         define_flame_option(const char *path, const char *help, T defaultValue) : path(path) { _register_flame_option(path, help, flame_value(defaultValue), value); }
 
-
-        template<typename = std::enable_if<std::is_same<T, std::string>::value>::type>
-        void set(T &value) {
+        // n template: failed requirement
+        // 'std::is_same<bool, std::basic_string<char, std::char_traits<char>, std::allocator<char>>>::value'
+        // ; 'enable_if' cannot be used to disable this declaration
+        void set(T &value) requires std::is_same<T, std::string>::value {
             set_option(path, flame_value(value));
         }
-        template<typename = std::enable_if<!std::is_same<T, std::string>::value>::type>
-        void set(T value) {
+        void set(T value) requires (!std::is_same<T, std::string>::value) {
             set_option(path, flame_value(value));
         }
-        template<typename = std::enable_if<!std::is_same<T, std::string>::value>::type>
-        void set_tmp(T value) {
+        void set_tmp(T value) requires (!std::is_same<T, std::string>::value) {
             set_tmp_option(path, flame_value(value));
         }
 
-
-        template<typename = std::enable_if<std::is_same<T, std::string>::value>::type>
-        T &get() {
+        T &get() requires std::is_same<T, std::string>::value {
             if (value.ty != VT_String) {
                 printf("invalid option %s type. %d != %d\n", path, value.ty, VT_String);
                 exit(-1);
             }
             return value.str_value;
         }
-        template<typename = std::enable_if<std::is_same<T, std::string>::value>::type>
-        _NODISCARD _CONSTEXPR23 T &operator*() noexcept {
+        _NODISCARD _CONSTEXPR23 T &operator*() noexcept requires std::is_same<T, std::string>::value {
             return get();
         }
-        template<typename = std::enable_if<std::is_same<T, std::string>::value>::type>
-        _NODISCARD _CONSTEXPR23 T *operator->() noexcept {
+        _NODISCARD _CONSTEXPR23 T *operator->() noexcept requires std::is_same<T, std::string>::value {
             return &get();
         }
 
-        template<typename = std::enable_if<!std::is_same<T, std::string>::value>::type>
-        T get() const {
+        T get() const requires (!std::is_same<T, std::string>::value) {
             if constexpr (std::is_same_v<T, bool>) {
                 if (value.ty != VT_Boolean) return false;
                 return value.bool_value;
@@ -191,8 +185,7 @@ namespace flame_config {
             static_assert("invalid template type");
             return {};
         }
-        template<typename = std::enable_if<!std::is_same<T, std::string>::value>::type>
-        _NODISCARD _CONSTEXPR23 T operator*() const noexcept {
+        _NODISCARD _CONSTEXPR23 T operator*() const noexcept requires (!std::is_same<T, std::string>::value) {
             return get();
         }
 

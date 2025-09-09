@@ -48,8 +48,12 @@ void RedirectStandardIo() {
     std::ios::sync_with_stdio();
 }
 
+namespace {
+    bool g_consoleInitialized = false;
+}
 
 void initConsole() {
+    if(g_consoleInitialized) return;
     if (!AttachConsole(ATTACH_PARENT_PROCESS)) {
         DWORD lastError = GetLastError();
         if (lastError != ERROR_ACCESS_DENIED) {
@@ -69,4 +73,5 @@ void initConsole() {
     freopen_s((FILE**)stdin, "CONIN$", "r", stdin);
 
     RedirectStandardIo();
+    g_consoleInitialized = true;
 }

@@ -8,7 +8,7 @@
 
 bool patch::game_version_patch::enabled = true;
 
-extern "C" char Flame_version[64] = {'\0', '1'};
+EXTERN_C __declspec(dllexport) char Flame_version[64] = {'\0', '1'};
 
 char *patch::game_version_patch::getFileVersion() {
     if(!enabled) return nullptr;

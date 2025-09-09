@@ -13051,6 +13051,20 @@ struct: id=instance_00672348,name=FileStorageBase_vtbl,size=48
         arg: kind=ptr
           type: kind=void
         arg: kind=int,size=1,signed=True,winapi=char
+struct: id=arg3_005B3CE0,name=FindFileData,size=592
+  field: name=f0_findData
+    type: kind=winapi,name=_WIN32_FIND_DATAA,size=320
+  field: name=f140_hFind
+    type: kind=ptr
+      type: kind=void
+  field: name=f144_ignoreAttributes
+    type: kind=int,size=4
+  field: name=f148_path
+    type: kind=array,count=260
+      type: kind=int,size=1,signed=True,winapi=char
+  field: name=f24C_lastSlashPos
+    type: kind=ptr
+      type: kind=int,size=1,signed=True,winapi=char
 struct: id=constructor_00597400,name=FloatObjThing,size=4686
   field: name=field_0
     type: kind=int,size=2
@@ -31169,6 +31183,11 @@ global: va=0044F4B0,name=foadFromFile,size=208,member_of=vtbl_0066D3E4
     arg: kind=ptr
       type: kind=ptr
         type: kind=struct,id=vtbl_0066F24C
+global: va=0044F580,name=clear2,size=11,member_of=vtbl_0066D3E4
+  type: kind=function,declspec=thiscall
+    ret: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_0066D3E4
 global: va=0044F590,name=sub_44F590,size=59
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True,winapi=BOOL,fname=BOOL
@@ -62279,13 +62298,13 @@ global: va=005B3C80,name=sub_5B3C80,size=82
 global: va=005B3CE0,name=findFile,size=240
   type: kind=function,declspec=cdecl
     ret: kind=ptr
-      type: kind=int,size=4
+      type: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=int,size=4,signed=True
     arg: kind=ptr,is_const=True,winapi=LPCSTR
       type: kind=int,size=1,signed=True,winapi=CHAR,fname=CHAR
     arg: kind=ptr
-      type: kind=winapi,name=_WIN32_FIND_DATAA,size=320
+      type: kind=struct,id=arg3_005B3CE0
     arg: kind=int,size=4,signed=True
 global: va=005B3DD0,name=findNextFile,size=139
   type: kind=function,declspec=cdecl
@@ -69033,9 +69052,9 @@ global: va=005FFA90,name=MyArchiverBase_scalar_destructor_0,size=30
 global: va=005FFAB0,name=MyArchiverBase_scalar_destructor,size=32
   type: kind=function,declspec=thiscall
     ret: kind=ptr
-      type: kind=winapi,name=std::locale::facet,size=8
+      type: kind=void
     arg: kind=ptr
-      type: kind=winapi,name=std::locale::facet,size=8
+      type: kind=void
     arg: kind=int,size=1,signed=True,winapi=char
 global: va=005FFAD0,name=constructor,size=29,member_of=vtbl_00672F88
   type: kind=function,declspec=thiscall
@@ -69843,9 +69862,9 @@ global: va=00603A20,name=sub_603A20,size=7
 global: va=00603A30,name=MyArchiverFile_scalar_destructor,size=32
   type: kind=function,declspec=thiscall
     ret: kind=ptr
-      type: kind=winapi,name=std::locale::facet,size=8
+      type: kind=void
     arg: kind=ptr
-      type: kind=winapi,name=std::locale::facet,size=8
+      type: kind=void
     arg: kind=int,size=1,signed=True,winapi=char
 global: va=00603A50,name=MyZlibArchiveFile_constructor,size=110
   type: kind=function,declspec=cdecl
@@ -71664,12 +71683,12 @@ global: va=0060DF70,name=sub_60DF70,size=97,member_of=vtbl_00673FD0
     arg: kind=ptr
       type: kind=struct,id=vtbl_00673FD0
     arg: kind=int,size=4,signed=True
-global: va=0060DFE0,name=std::locale::facet::_scalar_deleting_destructor_uint,size=32
+global: va=0060DFE0,name=scalar_destructor,size=32,member_of=vtbl_00673FD4
   type: kind=function,declspec=thiscall
     ret: kind=ptr
-      type: kind=winapi,name=std::locale::facet,size=8
+      type: kind=void
     arg: kind=ptr
-      type: kind=winapi,name=std::locale::facet,size=8
+      type: kind=void
     arg: kind=int,size=1,signed=True,winapi=char
 global: va=0060E000,name=constructor,size=18,member_of=vtbl_00673FD8
   type: kind=function,declspec=thiscall
@@ -73876,9 +73895,9 @@ global: va=006197B0,name=sub_6197B0,size=10
 global: va=006197C0,name=Obj674290Base_scalar_destructor,size=32
   type: kind=function,declspec=thiscall
     ret: kind=ptr
-      type: kind=winapi,name=std::locale::facet,size=8
+      type: kind=void
     arg: kind=ptr
-      type: kind=winapi,name=std::locale::facet,size=8
+      type: kind=void
     arg: kind=int,size=1,signed=True,winapi=char
 global: va=006197E0,name=sub_6197E0,size=279
   type: kind=function,declspec=stdcall
@@ -74316,9 +74335,9 @@ global: va=0061B0B0,name=func_38,size=155,member_of=instance_006742D0
 global: va=0061B150,name=scalar_destructor,size=32,member_of=vtbl_00674378
   type: kind=function,declspec=thiscall
     ret: kind=ptr
-      type: kind=winapi,name=std::locale::facet,size=8
+      type: kind=void
     arg: kind=ptr
-      type: kind=winapi,name=std::locale::facet,size=8
+      type: kind=void
     arg: kind=int,size=1,signed=True,winapi=char
 global: va=0061B170,name=func_32,size=61,member_of=instance_006742D0
   type: kind=function,declspec=thiscall
@@ -75247,6 +75266,13 @@ global: va=0061DFA0,name=sub_61DFA0,size=8
       type: kind=int,size=4
     arg: kind=ptr
       type: kind=int,size=1,signed=True,winapi=char
+    arg: kind=int,size=1,signed=True,winapi=char
+global: va=0061DFB0,name=Obj674978_scalar_destructor,size=32
+  type: kind=function,declspec=thiscall
+    ret: kind=ptr
+      type: kind=void
+    arg: kind=ptr
+      type: kind=void
     arg: kind=int,size=1,signed=True,winapi=char
 global: va=0061DFD0,name=sub_61DFD0,size=10
   type: kind=function,declspec=stdcall

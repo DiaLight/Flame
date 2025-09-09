@@ -10,6 +10,10 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [Release, Debug]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -40,15 +44,21 @@ jobs:
         run: mkdir build
       - name: "configure cmake"
         shell: cmd
-        run: cd build && cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DUSE_CONFIGURE_DATE=ON -DCMAKE_INSTALL_PREFIX=../install ..
+        run: cd build && cmake -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DNO_VCRUNTIME=ON -DUSE_CONFIGURE_DATE=ON -DCMAKE_INSTALL_PREFIX=../install -DGITHUB_ENV=$GITHUB_ENV ..
       - name: "cmake build"
         shell: cmd
         run: cd build && cmake --build .
       - name: "cmake install"
         shell: cmd
         run: cd build && cmake --install .
+      - name: "get artifact name"
+        shell: cmd
+        run: |
+          cd build && cmake --build . --target get_artifact_name
+          set /p artifact_name=<artifact_name.txt
+          echo artifact_name=%artifact_name% >> %GITHUB_ENV%
       - uses: actions/upload-artifact@v4
         with:
-          name: flame
+          name: ${{ env.artifact_name }}
           path: install/
           if-no-files-found: error

@@ -15,5 +15,5 @@ target_compile_definitions(${TARGET} PRIVATE DIRECTINPUT_VERSION=0x0500 DIRECT3D
 add_custom_command(TARGET ${TARGET} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:${TARGET}>
-        "${DEV_DK2_DIR}/devht.dll"
+        "${DK2_DIR}/devht.dll"
         )

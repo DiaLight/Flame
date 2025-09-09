@@ -462,7 +462,7 @@ def main(
         flame2merge_replace.append(ReplaceRefInfo(str_id, target_va, new_va))
   flame2merge_replace.append(ReplaceRefInfo('_fpomap_start', flame_map['__fpomap_start'], merged_pe['.fpomap'].VirtualAddress))
   flame2merge_replace.append(ReplaceRefInfo('_dkii_text_start', flame_map['__dkii_text_start'], merged_pe['.text'].VirtualAddress))
-  flame2merge_replace.append(ReplaceRefInfo('_dkii_text_start', flame_map['__dkii_text_end'], merged_pe['cseg'].VirtualAddress + merged_pe['cseg'].VirtualSize))
+  flame2merge_replace.append(ReplaceRefInfo('_dkii_text_end', flame_map['__dkii_text_end'], merged_pe['cseg'].VirtualAddress + merged_pe['cseg'].VirtualSize))
   flame2merge_replace.append(ReplaceRefInfo('_flame_text_start', flame_map['__flame_text_start'], merged_pe['.flame_x'].VirtualAddress))
   flame2merge_replace.append(ReplaceRefInfo('_flame_text_end', flame_map['__flame_text_end'], merged_pe['.flame_x'].VirtualAddress + merged_pe['.flame_x'].VirtualSize))
   fill_xrefs(flame2merge_replace, flame_xrefs)  # '1004B58C 007FF627'

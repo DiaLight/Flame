@@ -1,27 +1,18 @@
 //
 // Created by DiaLight on 19.06.2024.
 //
-#include <algorithm>
-
-#include <iostream>
-#include <patches/game_version_patch.h>
 #include <patches/logging.h>
 #include <patches/screen_resolution.h>
-#include <stdexcept>
 #include <thread>
-#include <tools/flame_config.h>
 #include "dk2/MyMutex.h"
 #include "dk2_functions.h"
 #include "dk2_globals.h"
-#include "gog_patch.h"
 #include "patches/inspect_tools.h"
 #include "patches/micro_patches.h"
 #include "patches/original_compatible.h"
-#include "tools/bug_hunter.h"
-#include "tools/command_line.h"
-#include "tools/console.h"
 
-#include "patches/protocol_dump.h"
+#include "dk2/FindFileData.h"
+#include "patches/flame_main.h"
 
 namespace dk2 {
 
@@ -106,6 +97,7 @@ bool dk2::dk2_main2() {
     }
     return true;
 }
+
 bool dk2::dk2_main1(int argc, LPCSTR *argv) {
     CoInitialize(0);
     int status_2;
@@ -122,10 +114,10 @@ bool dk2::dk2_main1(int argc, LPCSTR *argv) {
         g_fontType = 2;
     }
     int status;
-    struct _WIN32_FIND_DATAA FindFileData;
-    findFile(&status, *argv, &FindFileData, -1);
+    FindFileData findFileData;
+    findFile(&status, *argv, &findFileData, -1);
     if (status >= 0) {
-        g_fileChecksum = FindFileData.ftLastWriteTime.dwLowDateTime + FindFileData.ftLastWriteTime.dwHighDateTime;
+        g_fileChecksum = findFileData.findData.ftLastWriteTime.dwLowDateTime + findFileData.findData.ftLastWriteTime.dwHighDateTime;
         char *exeFilePath = (char *) argv[0];
         uint32_t hashsum_ = 0x5041554C;
         uint32_t hashsum = 0x5041554C;
@@ -168,7 +160,7 @@ bool dk2::dk2_main1(int argc, LPCSTR *argv) {
         }
         g_fileHashsum = hashsum_;  // 1.7=FF542FAC
         patch::original_compatible::patch_hashsum();
-        closeFindFile(&status_2, (int)&FindFileData);
+        closeFindFile(&status_2, (int)&findFileData);
     }
     MyResources_instance.readOrCreate();
     if (!parse_command_line(argc, argv)) {
@@ -238,13 +230,13 @@ int __cdecl dk2::dk2_main(int argc, LPCSTR *argv) {
     MyMutex mutex;
     mutex.constructor("DKII MUTEX");
     if (!mutex.alredyExists ) {
-        if(!dk2_main1(argc, argv)) {
+        patch::flameInit(argc, argv);
+        bool result = dk2_main1(argc, argv);
+        patch::flameCleanup();
+        if(!result) {
             if(patch::print_game_start_errors::enabled) {
                 MessageBoxA(NULL, "Game failed to start", "Flame", MB_OK);
             }
-            try_level = -1;
-            mutex.destroy();
-            return 0;
         }
     } else if(patch::notify_another_instance_is_running::enabled) {
         patch::log::err("another instance of DK2 is already running");
@@ -253,7 +245,7 @@ int __cdecl dk2::dk2_main(int argc, LPCSTR *argv) {
 
     try_level = -1;
     mutex.destroy();
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 int dk2::WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *lpCmdLine, int nShowCmd) {
@@ -261,7 +253,7 @@ int dk2::WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *lpCmdLine, 
     return dk2_main(g_argc, g_argv);
 }
 
-int __stdcall dk2::dk2_start() {
+int dk2::dk2_start() {
     DWORD Version = GetVersion();
     g_os_dwMinorVersion = Version >> 8;
     g_os_dwMajorVersion = Version;
@@ -308,134 +300,6 @@ int __stdcall dk2::dk2_start() {
         return result;
     }
     exit(result);
-}
-
-
-flame_config::define_flame_option<bool> o_console(
-    "flame:console",
-    "Show console window to see logs\n",
-    false
-);
-flame_config::define_flame_option<bool> o_windowed(
-    "flame:windowed",
-    "Open game in windowed mode\n",
-    false
-);
-flame_config::define_flame_option<bool> o_single_core(
-    "flame:single-core",
-    "Limit game threading to one core\n"
-    "This is what gog patches doing by default but in some cases they might be disabled\n"
-    "Added this option as duplicate of gog:misc:SingleCore, but it will work in all cases\n"
-    "",
-    true
-);
-flame_config::define_flame_option<bool> o_no_initial_size(
-    "flame:no-initial-size",
-    "Disable autoresize window\n"
-    "Used only in windowed mode\n",
-    false
-);
-
-int main(int argc, const char **argv) {
-    command_line_init(argc, argv);
-    bug_hunter::init();
-
-    if (cmdl::hasFlag("h") || cmdl::hasFlag("help") || cmdl::hasFlag("-help")) {
-#if !DEV_FORCE_CONSOLE
-        initConsole();
-#endif
-        flame_config::help();
-#if !DEV_FORCE_CONSOLE
-        std::cout << '\n' << "Press a key to continue...";
-        std::cin.get();
-#endif
-        return 0;
-    }
-    if (cmdl::hasFlag("v") || cmdl::hasFlag("version") || cmdl::hasFlag("-version")) {
-#if !DEV_FORCE_CONSOLE
-        initConsole();
-#endif
-        std::string version = patch::game_version_patch::getFileVersion();
-        std::replace(version.begin(), version.end(), '\n', ' ');
-        std::cout << "DKII" << version << std::endl;
-#if !DEV_FORCE_CONSOLE
-        std::cout << '\n' << "Press a key to continue...";
-        std::cin.get();
-#endif
-        return 0;
-    }
-
-    if (!CreateDirectory("flame", NULL) && GetLastError() != ERROR_ALREADY_EXISTS) {
-#if !DEV_FORCE_CONSOLE
-        initConsole();
-#endif
-        std::cerr << "unable to create flame directory" << std::endl;
-#if !DEV_FORCE_CONSOLE
-        std::cout << '\n' << "Press a key to continue...";
-        std::cin.get();
-#endif
-        return -1;
-    }
-    {
-        std::string config = "flame/config.toml";
-        auto it = cmdl::dict.find("c");
-        if (it == cmdl::dict.end()) it = cmdl::dict.find("-config");
-        if (it != cmdl::dict.end()) {
-            if (!it->second.empty()) config = it->second;
-        }
-        flame_config::load(config);
-    }
-
-    flame_config::save();
-#if !DEV_FORCE_CONSOLE
-    // in windowed mode we can attach console with flag
-    if(o_console.get()) {
-        initConsole();
-    }
-#endif
-
-    if (*o_single_core) {
-        HANDLE hProc = GetCurrentProcess();
-        SetProcessAffinityMask(hProc, 1);
-    }
-    if(o_windowed.get()) {
-        o_gog_enabled.set_tmp(false);  // gog is incompatible with windowed mode
-        patch::control_windowed_mode::enabled = true;
-        if(!o_no_initial_size.get()) {
-            // Finding the user's screen resolution
-            int screenWidth = GetSystemMetrics(SM_CXSCREEN);
-            int screenHeight = GetSystemMetrics(SM_CYSCREEN);
-            int height;
-            int width;
-            if(screenHeight < screenWidth) {
-                height = screenHeight * 5 / 6;
-                width = height * 12 / 9;
-            } else {
-                width = screenWidth * 5 / 6;
-                height = width * 9 / 12;
-            }
-            patch::remember_window_location_and_size::setInitialSize(width, height);
-        }
-    }
-
-    patch::inspect_tools::init();
-    patch::multi_interface_fix::init();
-    patch::original_compatible::init();
-    patch::protocol_dump::init();
-    patch::screen_resolution::init();
-
-    HANDLE hThread = CreateThread(NULL, 0, [](void *) -> DWORD {
-        bug_hunter::keyWatcher();
-        return 0;
-    }, NULL, 0, NULL);
-    // call entry point of DKII.EXE,
-    if(*o_gog_enabled) gog::patch_init();
-    // initialize its runtime and call dk2::WinMain
-    int result = dk2::dk2_start();
-    bug_hunter::stopped = true;
-    if (WaitForSingleObject(hThread, 500) == WAIT_TIMEOUT) TerminateThread(hThread, 0);
-    if (flame_config::changed()) flame_config::save();
-    return result;
 }
 
 

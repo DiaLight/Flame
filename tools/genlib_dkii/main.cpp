@@ -65,42 +65,49 @@ void show_help() {
     printf("  -replace_globals <path>\n");
     printf("  -exp_file <path>\n");
     printf("  -map_file <path>\n");
+    printf("  -asm_stub_file <path>\n");
 }
 
 int main(int argc, char * argv[]) {
     if (hasCmdOption(argv, argv + argc, "-h")) {
         show_help();
-        return 0;
+        return EXIT_SUCCESS;
     }
 
     char *sgmap_file = getCmdOption(argv, argv + argc, "-sgmap_file");
     if (sgmap_file == nullptr) {
         show_help();
-        return -1;
+        return EXIT_FAILURE;
     }
 
     char *def_file = getCmdOption(argv, argv + argc, "-def_file");
     if (def_file == nullptr) {
         show_help();
-        return -1;
+        return EXIT_FAILURE;
     }
 
     char *replace_globals = getCmdOption(argv, argv + argc, "-replace_globals");
     if (replace_globals == nullptr) {
         show_help();
-        return -1;
+        return EXIT_FAILURE;
     }
 
     char *exp_file = getCmdOption(argv, argv + argc, "-exp_file");
     if (exp_file == nullptr) {
         show_help();
-        return -1;
+        return EXIT_FAILURE;
     }
 
     char *map_file = getCmdOption(argv, argv + argc, "-map_file");
     if (map_file == nullptr) {
         show_help();
-        return -1;
+        return EXIT_FAILURE;
+    }
+
+    char *asm_stub_file = getCmdOption(argv, argv + argc, "-asm_stub_file");
+    if (asm_stub_file == nullptr) {
+        show_help();
+        return EXIT_FAILURE;
     }
 
     DWORD startMs = GetTickCount();
@@ -111,6 +118,7 @@ int main(int argc, char * argv[]) {
 //    printf("replace_globals %s\n", replace_globals);
 //    printf("exp_file %s\n", exp_file);
 //    printf("map_file %s\n", map_file);
+//    printf("asm_stub_file %s\n", asm_stub_file);
 
     SGMapArena sgArena;
     std::vector<Struct *> structs;
@@ -120,35 +128,52 @@ int main(int argc, char * argv[]) {
     {
         {
             std::ifstream is(sgmap_file);
-            if (!SGMap_deserialize(is, structs, globals, sgArena)) return -1;
-            if (!SGMap_link(structs, globals)) return -1;
+            if (!SGMap_deserialize(is, structs, globals, sgArena)) return EXIT_FAILURE;
+            if (!SGMap_link(structs, globals)) return EXIT_FAILURE;
         }
-        if (!getGlobalsToReplace(replace_globals, globalsToReplace)) return -1;
+        if (!getGlobalsToReplace(replace_globals, globalsToReplace)) return EXIT_FAILURE;
     }
 
     {
         std::ofstream def_os(def_file);
         if (!def_os.is_open()) {
             printf("[-] write def mapping failed %s\n", exp_file);
-            return -1;
+            return EXIT_FAILURE;
         }
         std::ofstream exp_os(exp_file);
         if (!exp_os.is_open()) {
             printf("[-] write exp mapping failed %s\n", exp_file);
-            return -1;
+            return EXIT_FAILURE;
         }
         std::ofstream map_os(map_file);
         if (!map_os.is_open()) {
             printf("[-] write symbol mapping failed %s\n", map_file);
-            return -1;
+            return EXIT_FAILURE;
+        }
+        std::ofstream asm_os(asm_stub_file);
+        if (!asm_os.is_open()) {
+            printf("[-] write asm stub failed %s\n", asm_stub_file);
+            return EXIT_FAILURE;
         }
         def_os << "LIBRARY DKII" << std::endl;
         def_os << "EXPORTS" << std::endl;
 //        exp_os << "LIBRARY DKII-Flame" << std::endl;
         exp_os << "EXPORTS" << std::endl;
+
+        asm_os << ".386" << std::endl;
+        asm_os << ".model flat" << std::endl;
+        asm_os << ".code" << std::endl;
+        asm_os << std::endl;
+
+        bool hasBadSymbols = false;
         for (auto *global: globals | std::views::reverse) {
             bool isReplace = globalsToReplace.contains(global->va);
             auto name = msvcMangleName(global);
+            if(name.contains(':')) {
+                printf("[-] symbol %s has ':' in name\n", name.c_str());
+                hasBadSymbols = true;
+            }
+
             std::ofstream &os = isReplace ? exp_os : def_os;
             os << "   " << name;
             if(global->type->kind != TK_Function) {
@@ -158,12 +183,21 @@ int main(int argc, char * argv[]) {
             map_os << fmtHex32(global->va) << " " << name;
             if(isReplace) map_os << " REPLACE";
             map_os << std::endl;
+
+            asm_os << name << " proc EXPORT\n";
+            asm_os << name << " endp\n";
         }
         def_os << std::endl;
         exp_os << std::endl;
         map_os << std::endl;
+
+        asm_os << "    xor eax,eax" << std::endl;
+        asm_os << "    ret" << std::endl;
+        asm_os << "end" << std::endl;
+
+        if(hasBadSymbols) return EXIT_FAILURE;
     }
 
     printf("finished in %lu ms\n", GetTickCount() - startMs);
-    return 0;
+    return EXIT_SUCCESS;
 }

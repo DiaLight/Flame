@@ -183,11 +183,11 @@ struct MyFpoFun {
     }
 };
 
-extern "C" void *_fpomap_start = nullptr;
-extern "C" void *_dkii_text_start = nullptr;
-extern "C" void *_dkii_text_end = nullptr;
-extern "C" void *_flame_text_start = nullptr;
-extern "C" void *_flame_text_end = nullptr;
+EXTERN_C __declspec(dllexport) void *_fpomap_start = nullptr;
+EXTERN_C __declspec(dllexport) void *_dkii_text_start = nullptr;
+EXTERN_C __declspec(dllexport) void *_dkii_text_end = nullptr;
+EXTERN_C __declspec(dllexport) void *_flame_text_start = nullptr;
+EXTERN_C __declspec(dllexport) void *_flame_text_end = nullptr;
 namespace bughunter {
     uintptr_t base = 0;
     uintptr_t end = 0;
@@ -247,11 +247,17 @@ void resolveLocs() {
         bughunter::entry = bughunter::base + header->OptionalHeader.AddressOfEntryPoint;
     }
     // dirty hack to locate .fpomap section
-    bughunter::fpomap_start = base + (uint32_t) (uint8_t *) &_fpomap_start;
-    bughunter::dkii_text_start = base + (uint32_t) (uint8_t *) &_dkii_text_start;
-    bughunter::dkii_text_end = base + (uint32_t) (uint8_t *) &_dkii_text_end;
-    bughunter::flame_text_start = base + (uint32_t) (uint8_t *) &_flame_text_start;
-    bughunter::flame_text_end = base + (uint32_t) (uint8_t *) &_flame_text_end;
+//    bughunter::fpomap_start = base + (uint32_t) (uint8_t *) &_fpomap_start;
+//    bughunter::dkii_text_start = base + (uint32_t) (uint8_t *) &_dkii_text_start;
+//    bughunter::dkii_text_end = base + (uint32_t) (uint8_t *) &_dkii_text_end;
+//    bughunter::flame_text_start = base + (uint32_t) (uint8_t *) &_flame_text_start;
+//    bughunter::flame_text_end = base + (uint32_t) (uint8_t *) &_flame_text_end;
+
+    bughunter::fpomap_start = (uintptr_t) _fpomap_start;
+    bughunter::dkii_text_start = (uintptr_t) _dkii_text_start;
+    bughunter::dkii_text_end = (uintptr_t) _dkii_text_end;
+    bughunter::flame_text_start = (uintptr_t) _flame_text_start;
+    bughunter::flame_text_end = (uintptr_t) _flame_text_end;
 
     LoadedModules modules;
     modules.update();
@@ -728,7 +734,8 @@ void formatHeader(std::stringstream &ss, FILETIME &timestamp) {
                  stime.wHour, stime.wMinute, stime.wSecond, stime.wMilliseconds);
         ss << " (" << timeStr << ")" << std::endl;
     }
-    std::string version = patch::game_version_patch::getFileVersion();
+    std::string version = "<unknown>";
+    if(auto *ver = patch::game_version_patch::getFileVersion()) version = ver;
     std::replace(version.begin(), version.end(), '\n', ' ');
     ss << "version: " << version << std::endl;
     std::string commandLine = wide_string_to_string(GetCommandLineW());
@@ -816,14 +823,10 @@ void buildFileName(FILETIME &timestamp, const char *namePart, char *reportFile, 
     strcat(curDir, namePart);
 
     if (!CreateDirectory(curDir, NULL) && GetLastError() != ERROR_ALREADY_EXISTS) {
-#if !DEV_FORCE_CONSOLE
         initConsole();
-#endif
         std::cerr << "unable to create " << curDir << " directory" << std::endl;
-#if !DEV_FORCE_CONSOLE
         std::cout << '\n' << "Press a key to continue...";
         std::cin.get();
-#endif
         exit(-1);
         return;
     }

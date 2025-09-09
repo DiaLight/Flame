@@ -21,52 +21,70 @@ std::ostream &operator<< (std::ostream &os, const VaReloc& r) {
     return os1 << "<unk>";
 }
 
-std::istream& operator>>(std::istream &is, VaReloc& data) {
-    std::string line;
-    while(true) {
-        if (std::getline(is, line)) {
-            if(line.starts_with("#")) continue;
-            if(line.empty()) continue;
-            std::stringstream iss(line);
-            std::string vaFr;
-            std::string value;
-            std::string vaTo;
-            std::string ty;
-            if ( std::getline(iss, vaFr, ' ') &&
-                 std::getline(iss, value, ' ') &&
-                 std::getline(iss, vaTo, ' ') &&
-                 std::getline(iss, ty)) {
-                data.from = std::stoul(vaFr, nullptr, 16);
-                data.value = std::stoul(value, nullptr, 16);
-                data.to = std::stoul(vaTo, nullptr, 16);
-                if(ty == "VA32") {
-                    data.ty = VaReloc::RT_VA32;
-                } else if(ty == "REL32") {
-                    data.ty = VaReloc::RT_REL32;
-                } else if(ty == "!VA32") {
-//                    std::cout << vaFr << " -> " << vaTo << " " << ty << std::endl;
-                    continue;
-                } else {
-                    std::cout << "failed" << std::endl;
-                    is.setstate(std::ios::failbit);
-                }
-            } else {
-                std::cout << "failed" << std::endl;
-                is.setstate(std::ios::failbit);
-            }
+namespace {
+    bool getlineOpt(std::istream &is, std::string &line) {
+        if(is.fail()) return false;
+        if(!std::getline(is, line)) {
+            is.clear(is.rdstate() & ~std::ios::failbit);
+            return false;
         }
-        return is;
+        return true;
     }
 }
 
-bool parseRelocs(const std::string &path, std::vector<VaReloc> &relocs) {
-    std::ifstream is(path);
-    while(true) {
+std::istream& operator>>(std::istream &is, VaReloc& data) {
+    std::string vaFr;
+    std::string value;
+    std::string vaTo;
+    std::string ty;
+    if (!std::getline(is, vaFr, ' ')
+        || !std::getline(is, value, ' ')
+        || !std::getline(is, vaTo, ' ')
+        || !std::getline(is, ty)) {
+        std::cout << "failed" << std::endl;
+        return is;
+    }
+    data.from = std::stoul(vaFr, nullptr, 16);
+    data.value = std::stoul(value, nullptr, 16);
+    data.to = std::stoul(vaTo, nullptr, 16);
+    if (ty == "VA32") {
+        data.ty = VaReloc::RT_VA32;
+    } else if (ty == "REL32") {
+        data.ty = VaReloc::RT_REL32;
+    } else if (ty == "!VA32") {
+//            std::cout << vaFr << " -> " << vaTo << " " << ty << std::endl;
+        return is;
+    } else {
+        std::cout << "failed" << std::endl;
+        is.setstate(std::ios::failbit);
+    }
+    return is;
+}
+
+void parseRelocs(std::istream &is, std::vector<VaReloc> &relocs) {
+    std::string line;
+    while(!is.eof()) {
+        while(getlineOpt(is, line)) {
+            if(line.starts_with("#")) continue;
+            if(line.ends_with("\n")) line.resize(line.size() - 1);
+            if(line.ends_with("\r")) line.resize(line.size() - 1);
+            if(line.empty()) continue;
+            break;
+        }
+        if(line.empty()) break;
+        std::stringstream iss(line);
         VaReloc r;
-        is >> r;
-        if(!is) break;
+        iss >> r;
+        if(!iss) {
+            is.setstate(iss.rdstate() & (std::ios::badbit | std::ios::failbit));
+            break;
+        }
         relocs.push_back(r);
     }
+}
+bool parseRelocs(const std::string &path, std::vector<VaReloc> &relocs) {
+    std::ifstream is(path);
+    parseRelocs(is, relocs);
     return is.eof();
 }
 

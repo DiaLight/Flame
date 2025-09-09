@@ -10,6 +10,16 @@
 
 
 
+void replaceAll(std::string &str, const std::string &from, const std::string &to) {
+    if (from.empty())
+        return;
+    size_t start_pos = 0;
+    while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+    }
+}
+
 
 struct TypeRef {
     Type *ty;
@@ -370,7 +380,9 @@ std::string msvcMangleName(Global *global) {
         if(global->member_of != nullptr) {
             names.emplace_back(global->member_of->name);  // class
         }
-        names.emplace_back(global->name);  // global name
+        std::string name = global->name;
+        replaceAll(name, "::", "_");
+        names.emplace_back(name);  // global name
     }
 
     std::stringstream ss;

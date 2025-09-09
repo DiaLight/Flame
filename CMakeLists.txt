@@ -3,7 +3,13 @@ project(flame)
 
 set(CMAKE_CXX_STANDARD 23)
 
+option(NO_VCRUNTIME "Will remove dependency on VCRUNTIME*.dll")
+if(NO_VCRUNTIME)
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
+
 option(USE_CONFIGURE_DATE "Add configure date marker in output build")
+option(DK2_DIR "Dungeon Keeper 2 directory (for comfortable development)")
 
 # generate pdb to use debuggers with release builds
 string(APPEND CMAKE_EXE_LINKER_FLAGS_RELEASE " /debug")
@@ -65,10 +71,6 @@ message(STATUS "GIT_SHA1: ${GIT_SHA1}")
 message(STATUS "GIT_DATE: ${GIT_DATE}")
 message(STATUS "GIT_COMMIT_SUBJECT: ${GIT_COMMIT_SUBJECT}")
 
-add_subdirectory(mapping)
-add_subdirectory(tools)
-add_subdirectory(libs)
-
 define_property(
         TARGET
         PROPERTY TARGET_MAP_FILE
@@ -81,9 +83,51 @@ endif ()
 
 include(resources/CMakeLists.txt)
 
-set(OUTPUT_SUFFIX "-${VER_PRODUCT_NUMBER}.${VER_PRODUCT_VERSION}.${VER_BUILD_NUMBER}")
+set(OUTPUT_VERSION "${VER_PRODUCT_NUMBER}.${VER_PRODUCT_VERSION}.${VER_BUILD_NUMBER}")
 if(CONFIGURE_DATE)
-  string(APPEND OUTPUT_SUFFIX "-${CONFIGURE_DATE}")
+  string(APPEND OUTPUT_VERSION "-${CONFIGURE_DATE}")
 endif ()
+
+add_subdirectory(mapping)
+add_subdirectory(tools)
+add_subdirectory(libs)
 add_subdirectory(src)
 
+if(DK2_DIR)
+  message(STATUS "Dungeon Keeper 2 directory: ${DK2_DIR}")
+  if(NOT EXISTS "${DK2_DIR}/DKII-DX.EXE")
+    message(FATAL_ERROR "\"${DK2_DIR}/DKII-DX.EXE\" is not found")
+  endif()
+  set(PDB_COPY_COMMANDS)
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(PDB_COPY_COMMANDS
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_PDB_FILE:flame> "D:/Games/Dungeon Keeper 2/flame/Flame.pdb"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_PDB_FILE:dkii_dll_stub> "D:/Games/Dungeon Keeper 2/flame/DKII.pdb"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_PDB_FILE:flame_loader> "D:/Games/Dungeon Keeper 2/flame/PATCH.pdb"
+    )
+  endif()
+  add_custom_target(flame_dev
+          DEPENDS flame dkii_dll_stub flame_loader
+          COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:flame> "D:/Games/Dungeon Keeper 2/flame/Flame.dll"
+          COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:dkii_dll_stub> "D:/Games/Dungeon Keeper 2/flame/DKII.dll"
+          COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:flame_loader> "D:/Games/Dungeon Keeper 2/PATCH.dll"
+          ${PDB_COPY_COMMANDS}
+  )
+endif()
+
+set(OUTPUT_SUFFIX)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(OUTPUT_SUFFIX "-debug")
+endif ()
+add_custom_target(get_artifact_name
+        COMMAND ${CMAKE_COMMAND} -E echo "Flame-${OUTPUT_VERSION}${OUTPUT_SUFFIX}" >> ${CMAKE_CURRENT_BINARY_DIR}/artifact_name.txt
+        WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}
+)
+
+set(Python_EXECUTABLE "")  # disable warning: Manually-specified variables were not used by the project

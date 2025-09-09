@@ -86,7 +86,7 @@ def read_espmap(dkii_espmap_file: pathlib.Path) -> list[MyFpoFun]:
       va, spd, kind, delta, *cmt = split
       if kind == 'jmp':
         target = int(delta, 16)
-        delta = 0
+        delta = '0'
       va, spd, delta = int(va, 16), int(spd), int(delta)
       if kind == 'sp':
         kind = 0

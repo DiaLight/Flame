@@ -2,12 +2,10 @@ Flame - partial Dungeon Keeper 2 recompilation with bug fixes
 source code: https://github.com/DiaLight/Flame
 
 How to install:
-- copy `DKII-Flame-1.7.0-*.exe` to game directory (no need rename to DKII-DX.exe or DKII.exe. exe name does not matter)
+- copy `PATCH.dll` file to the game directory with replace. Dont forget to backup existing PATCH.dll from GOG
+- copy `flame` directory to the game directory
 - (optional, but recommended) copy `Data` directory with replacement to the game directory
-- run `DKII-Flame-1.7.0-*.exe`
-
-The `DKII-Flame-1.7.0-*.map` file you dont need to copy.
-I need it if I suddenly need to debug an old build
+- run `DKII-DX.exe` as usual
 
 The `Date` folder contains patches for some campaign maps taken from the link https://keeperklan.com/downloads.php?do=file&id=141
 
