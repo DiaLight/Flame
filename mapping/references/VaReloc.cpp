@@ -52,8 +52,8 @@ std::istream& operator>>(std::istream &is, VaReloc& data) {
     } else if (ty == "REL32") {
         data.ty = VaReloc::RT_REL32;
     } else if (ty == "!VA32") {
+        data.ty = VaReloc::RT_NOT_VA32;
 //            std::cout << vaFr << " -> " << vaTo << " " << ty << std::endl;
-        return is;
     } else {
         std::cout << "failed" << std::endl;
         is.setstate(std::ios::failbit);

@@ -207,6 +207,7 @@ bool connectFlameAndDkii(
                 //                printf("%p %s\n", fptr, s.name.c_str());
                 std::vector<const VaReloc*> refs;
                 for (const auto& r : dkiiRelocs) {
+                    if(r.ty == VaReloc::RT_NOT_VA32) continue;
                     if(r.to != s.va) continue;
                     refs.push_back(&r);
                     DWORD p;

@@ -13,6 +13,7 @@ struct VaReloc {
     enum RelocType {
         RT_VA32,
         RT_REL32,
+        RT_NOT_VA32,
     };
 
     uint32_t from = 0;
