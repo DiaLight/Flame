@@ -227,10 +227,11 @@ bool connectFlameAndDkii(
             }
         } else {  // !s.replace
             if(const auto &it = flameImports.find(s.name); it != flameImports.end()) {
+                auto *fptr = it->second;
                 DWORD p;
-                VirtualProtect((LPVOID) it->second, 4, PAGE_EXECUTE_READWRITE, &p);
-                *(uint32_t *) it->second = (uint32_t) s.va;
-                VirtualProtect((LPVOID) it->second, 4, p, &p);
+                VirtualProtect((LPVOID) fptr, 4, PAGE_EXECUTE_READWRITE, &p);
+                *(uint32_t *) fptr = (uint32_t) s.va;
+                VirtualProtect((LPVOID) fptr, 4, p, &p);
             }
         }
     }
@@ -238,20 +239,7 @@ bool connectFlameAndDkii(
 }
 
 std::vector<std::byte> g_dkiiFpo;
-bool flameLoaderMain() {
-    if (!CreateDirectory("flame", NULL) && GetLastError() != ERROR_ALREADY_EXISTS) {
-        printf("[-] Failed to create flame directory\n");
-        return false;
-    }
-    SetDllDirectoryA("flame");
-    HMODULE flame = LoadLibraryA("Flame.dll");
-    SetDllDirectoryA(NULL);
-    if(flame == NULL) {
-        DWORD lastError = GetLastError();
-        printf("[-] Failed to load flame %08X\n", lastError);
-        return false;
-    }
-
+bool patchMain(HMODULE flame) {
     HMODULE dkii = GetModuleHandleA(NULL);
     if(dkii == NULL) {
         DWORD lastError = GetLastError();
@@ -345,6 +333,159 @@ bool flameLoaderMain() {
     } else {
         printf("[-] Failed to find flame .text\n");
         return false;
+    }
+    return true;
+}
+
+typedef bool (*CallbackProc)(HMODULE base);
+HMODULE HookedLoadLibraryA(_In_ LPCSTR lpLibFileName, CallbackProc onMapped) {
+    #ifndef _NTMMAPI_H
+    typedef enum _SECTION_INHERIT {
+        ViewShare = 1,
+        ViewUnmap = 2
+    } SECTION_INHERIT;
+    #endif
+    typedef NTSTATUS (WINAPI *NtMapViewOfSectionProc)(
+        _In_         HANDLE           SectionHandle,
+        _In_         HANDLE           ProcessHandle,
+        _Inout_      PVOID            *BaseAddress,
+        _In_         ULONG_PTR        ZeroBits,
+        _In_         SIZE_T           CommitSize,
+        _Inout_opt_  PLARGE_INTEGER   SectionOffset,
+        _Inout_      PSIZE_T          ViewSize,
+        _In_         SECTION_INHERIT  InheritDisposition,
+        _In_         ULONG            AllocationType,
+        _In_         ULONG            Win32Protect
+    );
+
+    auto pNtMapViewOfSection = (NtMapViewOfSectionProc) GetProcAddress(GetModuleHandleA("ntdll.dll"), "NtMapViewOfSection");
+    if(!pNtMapViewOfSection) {
+        printf("[-] Failed to find NtMapViewOfSection entry\n");
+        return nullptr;
+    }
+
+    // B8 ?? ?? ?? ??    mov eax, <imm32>
+    if(*(uint8_t *) pNtMapViewOfSection != 0xB8) {
+        printf("[-] Failed to find iat entry\n");
+        return nullptr;
+    }
+
+    static struct {
+        NtMapViewOfSectionProc pNtMapViewOfSection;
+        uint8_t savedCode[5];
+        CallbackProc onMapped;
+        bool hookResult;
+
+        void save() {
+            memcpy(savedCode, pNtMapViewOfSection, 5);
+        }
+        void patch(NtMapViewOfSectionProc fun) const {
+            DWORD p;
+            VirtualProtect((LPVOID) pNtMapViewOfSection, 5, PAGE_EXECUTE_READWRITE, &p);
+            auto *pos = (uint8_t *) pNtMapViewOfSection;
+            *pos++ = 0xE9;  // jmp <rel32>
+            *(uint32_t *) pos = (uint8_t *) fun - (pos + 4);  // rel32 = dst - src
+            VirtualProtect((LPVOID) pNtMapViewOfSection, 5, p, &p);
+        }
+        void restore() {
+            DWORD p;
+            VirtualProtect((LPVOID) pNtMapViewOfSection, 5, PAGE_EXECUTE_READWRITE, &p);
+            memcpy(pNtMapViewOfSection, savedCode, 5);
+            VirtualProtect((LPVOID) pNtMapViewOfSection, 5, p, &p);
+        }
+    } hookedFun {
+        .pNtMapViewOfSection = pNtMapViewOfSection,
+        .onMapped = onMapped,
+    };
+    hookedFun.save();
+
+    NtMapViewOfSectionProc NtMapViewOfSectionReplace = [](
+        auto SectionHandle, auto ProcessHandle, auto *BaseAddress,
+        auto ZeroBits, auto CommitSize, auto SectionOffset,
+        auto ViewSize, auto InheritDisposition, auto AllocationType,
+        auto Win32Protect
+    ) -> NTSTATUS {
+        // restore code
+        hookedFun.restore();
+        NTSTATUS status = hookedFun.pNtMapViewOfSection(SectionHandle, ProcessHandle, BaseAddress, ZeroBits, CommitSize, SectionOffset, ViewSize, InheritDisposition, AllocationType, Win32Protect);
+        if(SUCCEEDED(status)) hookedFun.hookResult = hookedFun.onMapped((HMODULE) *BaseAddress);
+        return status;
+    };
+    hookedFun.patch(NtMapViewOfSectionReplace);
+    HMODULE mod = LoadLibraryA(lpLibFileName);
+    hookedFun.restore();
+    if(!hookedFun.hookResult) return nullptr;
+    return mod;
+}
+
+typedef BOOL (WINAPI *DllEntryPointProc)(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved);
+struct entryHook_t {
+    DllEntryPointProc pDllEntryPoint;
+    bool called;
+    CallbackProc onEntry;
+    bool hookResult;
+
+    bool hook(HMODULE mod, CallbackProc onEntry);
+} g_entryHook {.called = false, .hookResult = false};
+
+BOOL DllEntryPointReplace(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved) {
+    if(!g_entryHook.called) {
+        g_entryHook.called = true;
+        g_entryHook.hookResult = g_entryHook.onEntry(hinstDLL);
+    }
+    return g_entryHook.pDllEntryPoint(hinstDLL, fdwReason, lpReserved);
+};
+
+bool entryHook_t::hook(HMODULE mod, CallbackProc onEntry) {
+    this->onEntry = onEntry;
+    auto *nt = (IMAGE_NT_HEADERS *) (((IMAGE_DOS_HEADER *) mod)->e_lfanew + (std::byte *) mod);
+    auto *entryPoint = nt->OptionalHeader.AddressOfEntryPoint + (uint8_t *) mod;
+    // follow jump if any
+    {
+        // E9 ?? ?? ?? ??    jmp <rel32>
+        auto *pos = (uint8_t *) entryPoint;
+        if(*pos++ == 0xE9) entryPoint = (*(uint32_t *) pos) + (pos + 4);
+    }
+    pDllEntryPoint = (DllEntryPointProc) entryPoint;
+    {
+        // at 32bit system RVA == 32bit value, void_p == 32bit value. And! ntdll does not check where AddressOfEntryPoint point
+        DWORD p;
+        VirtualProtect((LPVOID) &nt->OptionalHeader.AddressOfEntryPoint, 4, PAGE_EXECUTE_READWRITE, &p);
+        nt->OptionalHeader.AddressOfEntryPoint = (uint8_t *) DllEntryPointReplace - (uint8_t *) mod;
+        VirtualProtect((LPVOID) &nt->OptionalHeader.AddressOfEntryPoint, 4, p, &p);
+    }
+    return true;
+}
+
+
+bool flameLoaderMain() {
+    if (!CreateDirectory("flame", NULL) && GetLastError() != ERROR_ALREADY_EXISTS) {
+        printf("[-] Failed to create flame directory\n");
+        return false;
+    }
+
+    // I need to patch Flame.dll before dll entry call. Only way I see for now is to hook NtMapViewOfSection while calling LoadLibraryA
+    SetDllDirectoryA("flame");
+    HMODULE flame = HookedLoadLibraryA("Flame.dll", [](auto flame) -> bool {
+        // Ok, I have a mapped dll and the entry point still hasn't been called
+        // I still cant replace links because ntdll hasn't done the relocations yet
+        // Relocate process will erase my links if I replace them now
+        // I need to patch entry point and continue at the entry point begin
+        return g_entryHook.hook(flame, [](auto flame) -> bool {
+            // Finally! Relocations already applied and entry is not called in both PEs
+            // we can now link Flame.dll and DKII-DX.exe together
+            return patchMain(flame);
+        });
+    });
+    SetDllDirectoryA(NULL);
+
+    if(flame == NULL) {
+        DWORD lastError = GetLastError();
+        printf("[-] Failed to load flame %08X\n", lastError);
+        return false;
+    }
+    if(!g_entryHook.hookResult) {
+        printf("[-] Entry hook failed\n");
     }
     return true;
 }
