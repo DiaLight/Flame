@@ -44,7 +44,7 @@ jobs:
         run: mkdir build
       - name: "configure cmake"
         shell: cmd
-        run: cd build && cmake -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DNO_VCRUNTIME=ON -DUSE_CONFIGURE_DATE=ON -DCMAKE_INSTALL_PREFIX=../install -DGITHUB_ENV=$GITHUB_ENV ..
+        run: cd build && cmake -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DNO_VCRUNTIME=ON -DUSE_CONFIGURE_DATE=ON -DCMAKE_INSTALL_PREFIX=../install ..
       - name: "cmake build"
         shell: cmd
         run: cd build && cmake --build .
