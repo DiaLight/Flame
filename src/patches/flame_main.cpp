@@ -56,6 +56,7 @@ HANDLE keyWatcher_hThread = NULL;
 
 void patch::flameInit(int argc, const char **argv) {
     command_line_init(argc, argv);
+    initConsole(false);
     bug_hunter::init();
 
     if (cmdl::hasFlag("h") || cmdl::hasFlag("help") || cmdl::hasFlag("-help")) {

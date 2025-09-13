@@ -52,8 +52,7 @@ namespace {
     bool g_consoleInitialized = false;
 }
 
-void initConsole() {
-    if(g_consoleInitialized) return;
+bool attachConsole() {
     if (!AttachConsole(ATTACH_PARENT_PROCESS)) {
         DWORD lastError = GetLastError();
         if (lastError != ERROR_ACCESS_DENIED) {
@@ -62,11 +61,20 @@ void initConsole() {
                 lastError = GetLastError();
                 if (lastError != ERROR_ACCESS_DENIED) {
                     // ERROR_INVALID_HANDLE if current proc does not have a console
-                    AllocConsole();
+                    return false;
                 }  // else already attached to current proc
             }  // else attached current proc
         }  // else already attached to parent proc
     }  // else attached parent proc
+    return true;
+}
+
+bool initConsole(bool alloc) {
+    if(g_consoleInitialized) return true;
+    if(!attachConsole()) {
+        if(!alloc) return false;
+        AllocConsole();
+    }
 
     freopen_s((FILE**)stdout, "CONOUT$", "w", stdout);
     freopen_s((FILE**)stderr, "CONOUT$", "w", stderr);
@@ -74,4 +82,5 @@ void initConsole() {
 
     RedirectStandardIo();
     g_consoleInitialized = true;
+    return true;
 }

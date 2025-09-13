@@ -3,6 +3,10 @@
 
 # User-specific stuff
 .idea/
+.vscode/
+.vs/
+CMakeSettings.json
+launch.vs.json
 
 # CMake
 cmake-build-*/

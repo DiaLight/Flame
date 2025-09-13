@@ -6,7 +6,7 @@
 #define FLAME_CONSOLE_H
 
 
-void initConsole();
+bool initConsole(bool alloc = true);
 
 
 #endif //FLAME_CONSOLE_H

@@ -257,22 +257,22 @@ class MyPdbDebugStream(MyBytes):
     #
     # "File Info"
     file_info_end = stream.pos + self.header.filinfSize
-    fileIndex: pdb_types.SstFileIndex = stream.read(pdb_types.SstFileIndex)
-    modStart = list(stream.read(wintypes.WORD * fileIndex.cMod))  # ModiCount,NumModules
-    cRefCnt = list(stream.read(wintypes.WORD * fileIndex.cMod))  # FileCount,NumSourceFiles
-    NameRef = list(stream.read(wintypes.DWORD * fileIndex.cRef))  # Mod Indices
-    self.modules = []  # array of arrays of files
-    self.files = []  # array of files (non unique)
-    namesPos = stream.pos
-    # Names = stream.read(end - stream.pos)
-    for i in range(0, fileIndex.cMod):
-      these = []
-      for j in range(modStart[i], modStart[i] + cRefCnt[i]):
-        ms = MyStream(namesPos + NameRef[j])
-        name = ms.read_str()
-        self.files.append(name)
-        these.append(name)
-      self.modules.append(these)
+    # fileIndex: pdb_types.SstFileIndex = stream.read(pdb_types.SstFileIndex)
+    # modStart = list(stream.read(wintypes.WORD * fileIndex.cMod))  # ModiCount,NumModules
+    # cRefCnt = list(stream.read(wintypes.WORD * fileIndex.cMod))  # FileCount,NumSourceFiles
+    # NameRef = list(stream.read(wintypes.DWORD * fileIndex.cRef))  # Mod Indices
+    # self.modules = []  # array of arrays of files
+    # self.files = []  # array of files (non unique)
+    # namesPos = stream.pos
+    # # Names = stream.read(end - stream.pos)
+    # for i in range(0, fileIndex.cMod):
+    #   these = []
+    #   for j in range(modStart[i], modStart[i] + cRefCnt[i]):
+    #     ms = MyStream(namesPos + NameRef[j])
+    #     name = ms.read_str()
+    #     self.files.append(name)
+    #     these.append(name)
+    #   self.modules.append(these)
     stream.pos = file_info_end
 
     # "TSM - type server map"  related somehow to the usage of /Zi and mspdbsrv.exe.
@@ -477,6 +477,7 @@ class MyPdb(MyBytes):
     self.names = MyPdbNamesStream(self, self.pdb_info['/names'])
     # source_link: bytes = self.pdb_info['sourcelink$1']
 
+    print(self.pdb_info.present)
     self.debug = MyPdbDebugStream(self, self.root[3])  # DBI Stream
 
     # symbol_records = MyBytes(self.root[self.debug.header.symrecStream])

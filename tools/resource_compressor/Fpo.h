@@ -35,6 +35,11 @@ struct FpoFun {
 
     FpoFun() = default;
     FpoFun(uint32_t va, std::string name, size_t size) : va(va), name(std::move(name)), size(size) {}
+
+    void _update_size(size_t size) {
+        if(size > this->size) this->size = size;
+    }
+
 };
 
 void parseStack(std::istream &is, std::vector<FpoFun> &syms);

@@ -19,6 +19,7 @@
 
 #include "Symbol.h"
 #include "VaReloc.h"
+#include "logging.h"
 
 
 struct DecompressorDeleter {
@@ -31,7 +32,7 @@ std::vector<std::byte> decompress(
     const DWORD algorithm, const std::span<const std::byte> compressed) {
     std::unique_ptr<std::remove_pointer_t<DECOMPRESSOR_HANDLE>, DecompressorDeleter> decompressor {};
     if(!CreateDecompressor(algorithm, nullptr, std::out_ptr(decompressor))) {
-        std::cerr << "failed to CreateDecompressor" << std::endl;
+        log_err("failed to CreateDecompressor");
         return {};
     }
     SIZE_T bufferSize {};
@@ -44,7 +45,7 @@ std::vector<std::byte> decompress(
         &bufferSize)) {
         DWORD lastError = GetLastError();
         if(lastError != ERROR_INSUFFICIENT_BUFFER) {
-            std::cerr << "failed to Decompress " << lastError << std::endl;
+            log_err("failed to Decompress. lastError: %08X", lastError);
             return {};
         }
     }
@@ -67,21 +68,21 @@ std::vector<std::byte> decompress(
 
 #define IDR_RCDATA1 101
 
-std::map<std::string, std::vector<std::byte>> unpackResources(HMODULE flame) {
+std::map<std::string, std::vector<std::byte>> unpackResources(HMODULE mod) {
     std::vector<std::byte> packedResources;
-    HRSRC myResource = ::FindResource(flame, MAKEINTRESOURCE(IDR_RCDATA1), RT_RCDATA);
-    if(HGLOBAL myResourceData = ::LoadResource(flame, myResource)) {
-        DWORD size = SizeofResource(flame, myResource);
+    HRSRC myResource = ::FindResource(mod, MAKEINTRESOURCE(IDR_RCDATA1), RT_RCDATA);
+    if(HGLOBAL myResourceData = ::LoadResource(mod, myResource)) {
+        DWORD size = SizeofResource(mod, myResource);
         if(void *data = ::LockResource(myResourceData)) {
-//            printf("compressed %d\n", size);
+//            log_inf("compressed %d", size);
             packedResources = decompress(COMPRESS_ALGORITHM_LZMS, std::span{(std::byte *) data, size});
-//            printf("decompressed %d\n", packedResources.size());
+//            log_inf("decompressed %d", packedResources.size());
             UnlockResource(data);
         }
         FreeResource(myResourceData);
     }
     if(packedResources.empty()) {
-        printf("Failed to decompress Flame resources\n");
+        log_err("Failed to decompress Flame resources");
         return {};
     }
     std::map<std::string, std::vector<std::byte>> resources;
@@ -107,7 +108,7 @@ std::vector<std::byte> pop(std::map<std::string, std::vector<std::byte>> &resour
     if(const auto &it = resources.find(key); it != resources.end()) {
         return std::move(it->second);
     }
-    printf("[-] key %s is not found in resources\n", key.c_str());
+    log_err("[-] key %s is not found in resources", key.c_str());
     return {};
 }
 
@@ -124,21 +125,57 @@ bool parseResource(std::map<std::string, std::vector<std::byte>> &resources, con
                    void (*parse)(std::istream &is, std::vector<T> &vec), std::vector<T> &vec) {
     std::string s = popString(resources, key);
     if(s.empty()) {
-        printf("[-] Failed to read %s\n", key.c_str());
+        log_err("[-] Failed to read %s", key.c_str());
         return false;
     }
     std::istringstream is(s);
     parse(is, vec);
     if(!is.eof() || is.fail()) {
-        printf("[-] Failed to parse %s. eof=%d, fail=%d\n", key.c_str(), is.eof(), is.fail());
+        log_err("[-] Failed to parse %s. eof=%d, fail=%d", key.c_str(), is.eof(), is.fail());
         return false;
     }
     if(vec.empty()) {
-        printf("[-] Parsed empty vec %s. eof=%d, fail=%d\n", key.c_str(), is.eof(), is.fail());
+        log_err("[-] Parsed empty vec %s. eof=%d, fail=%d", key.c_str(), is.eof(), is.fail());
         return false;
     }
     return true;
 }
+
+struct Resources {
+
+    std::vector<Symbol> dkiiSyms;
+    std::vector<VaReloc> dkiiRelocs;
+    std::vector<std::byte> dkiiFpo;
+    std::vector<std::byte> flameFpo;
+    std::string version;
+
+    bool load(HMODULE mod) {
+        std::map<std::string, std::vector<std::byte>> resources = unpackResources(mod);
+//        for(auto &e : resources) {
+//            log_info("%s %d", e.first.c_str(), e.second.size());
+//        }
+        if(!parseResource(resources, "symmap", parseSymbols, dkiiSyms)) return false;
+        if(!parseResource(resources, "refmap", parseRelocs, dkiiRelocs)) return false;
+        dkiiFpo = pop(resources, "dkii_fpo");
+        if(dkiiFpo.empty()) {
+            log_err("[-] Failed to read dkii_fpo");
+            return false;
+        }
+        flameFpo = pop(resources, "flame_fpo");
+        if(flameFpo.empty()) {
+            log_err("[-] Failed to read flame_fpo");
+            return false;
+        }
+
+        version = popString(resources, "version");
+        if(version.empty()) {
+            log_err("[-] Failed to read version");
+            return false;
+        }
+        return true;
+    }
+
+} g_resources;
 
 void *findText(HMODULE mod, size_t &size) {
     auto *nt = (IMAGE_NT_HEADERS *) (((IMAGE_DOS_HEADER *) mod)->e_lfanew + (std::byte *) mod);
@@ -170,7 +207,7 @@ bool collectImportsExports(HMODULE flame, std::map<std::string, void *> &flameIm
             thunk++, othunk++
         ) {
             if(othunk->u1.AddressOfData & IMAGE_ORDINAL_FLAG) {
-                printf("[-] Flame has ordinal import\n");
+                log_err("[-] Flame has ordinal import");
                 return false;
             }
             auto *byName = (IMAGE_IMPORT_BY_NAME *) (othunk->u1.AddressOfData + (std::byte *) flame);
@@ -184,11 +221,11 @@ bool collectImportsExports(HMODULE flame, std::map<std::string, void *> &flameIm
         flameExports.insert(std::make_pair(name, fun));
     }
     if(flameImports.empty()) {
-        printf("[-] Flame has no imports\n");
+        log_err("[-] Flame has no imports");
         return false;
     }
     if(flameExports.empty()) {
-        printf("[-] Flame has no exports\n");
+        log_err("[-] Flame has no exports");
         return false;
     }
     return true;
@@ -204,7 +241,7 @@ bool connectFlameAndDkii(
         if(s.replace) {
             if(const auto &it = flameExports.find(s.name); it != flameExports.end()) {
                 auto *fptr = it->second;
-                //                printf("%p %s\n", fptr, s.name.c_str());
+//                log_inf("%p %s", fptr, s.name.c_str());
                 std::vector<const VaReloc*> refs;
                 for (const auto& r : dkiiRelocs) {
                     if(r.ty == VaReloc::RT_NOT_VA32) continue;
@@ -219,10 +256,10 @@ bool connectFlameAndDkii(
                     VirtualProtect((LPVOID) r.from, 4, p, &p);
                 }
                 if(refs.empty()) {
-                    printf("[-] nothing to replace for symbol %s in DKII\n", s.name.c_str());
+                    log_err("[-] nothing to replace for symbol %s in DKII", s.name.c_str());
                 }
             } else {
-                printf("[-] replace sym %s is not found in Flame\n", s.name.c_str());
+                log_err("[-] replace sym %s is not found in Flame", s.name.c_str());
                 return false;
             }
         } else {  // !s.replace
@@ -238,37 +275,18 @@ bool connectFlameAndDkii(
     return true;
 }
 
-std::vector<std::byte> g_dkiiFpo;
 bool patchMain(HMODULE flame) {
     HMODULE dkii = GetModuleHandleA(NULL);
     if(dkii == NULL) {
         DWORD lastError = GetLastError();
-        printf("[-] Failed to find dkii %08X\n", lastError);
+        log_err("[-] Failed to find dkii %08X", lastError);
         return false;
     }
 
     HMODULE dkiiStub = LoadLibraryA("DKII.dll");
     if(dkiiStub == NULL) {
         DWORD lastError = GetLastError();
-        printf("[-] Failed to load dkii stub %08X\n", lastError);
-        return false;
-    }
-    std::map<std::string, std::vector<std::byte>> resources = unpackResources(flame);
-//    for(auto &e : resources) {
-//        printf("%s %d\n", e.first.c_str(), e.second.size());
-//    }
-    std::vector<Symbol> dkiiSyms;
-    if(!parseResource(resources, "symmap", parseSymbols, dkiiSyms)) return false;
-    std::vector<VaReloc> dkiiRelocs;
-    if(!parseResource(resources, "refmap", parseRelocs, dkiiRelocs)) return false;
-    g_dkiiFpo = pop(resources, "fpo");
-    if(g_dkiiFpo.empty()) {
-        printf("[-] Failed to read fpo\n");
-        return false;
-    }
-    std::string version = popString(resources, "version");
-    if(version.empty()) {
-        printf("[-] Failed to read version\n");
+        log_err("[-] Failed to load dkii stub %08X", lastError);
         return false;
     }
 
@@ -276,26 +294,33 @@ bool patchMain(HMODULE flame) {
     std::map<std::string, void *> flameExports;
     if(!collectImportsExports(flame, flameImports, flameExports)) return false;
 
-    if(!connectFlameAndDkii(dkiiSyms, dkiiRelocs, flameImports, flameExports)) return false;
+    if(!connectFlameAndDkii(g_resources.dkiiSyms, g_resources.dkiiRelocs, flameImports, flameExports)) return false;
 
-    if(auto it = flameExports.find("_fpomap_start"); it != flameExports.end()) {
-        *(void **) it->second = g_dkiiFpo.data();
+    if(auto it = flameExports.find("_dkii_fpomap_start"); it != flameExports.end()) {
+        *(void **) it->second = g_resources.dkiiFpo.data();
     } else {
-        printf("[-] Failed to patch _fpomap_start\n");
+        log_err("[-] Failed to patch _dkii_fpomap_start");
+        return false;
+    }
+
+    if(auto it = flameExports.find("_flame_fpomap_start"); it != flameExports.end()) {
+        *(void **) it->second = g_resources.flameFpo.data();
+    } else {
+        log_err("[-] Failed to patch _flame_fpomap_start");
         return false;
     }
 
     if(auto it = flameExports.find("Flame_version"); it != flameExports.end()) {
-        auto pos = version.find("build");
+        auto pos = g_resources.version.find("build");
         if(pos != -1) {
-            version = " V" + version.substr(0, pos - 1) + "\n " + version.substr(pos);
+            g_resources.version = " V" + g_resources.version.substr(0, pos - 1) + "\n " + g_resources.version.substr(pos);
         }
         DWORD p;
         VirtualProtect((LPVOID) it->second, 64, PAGE_EXECUTE_READWRITE, &p);
-        strncpy_s((char *) it->second, 64, version.data(), 63);
+        strncpy_s((char *) it->second, 64, g_resources.version.data(), 63);
         VirtualProtect((LPVOID) it->second, 64, p, &p);
     } else {
-        printf("[-] Failed to patch Flame_version\n");
+        log_err("[-] Failed to patch Flame_version");
         return false;
     }
 
@@ -304,34 +329,40 @@ bool patchMain(HMODULE flame) {
         if(auto it = flameExports.find("_dkii_text_start"); it != flameExports.end()) {
             *(void **) it->second = text;
         } else {
-            printf("[-] Failed to patch _dkii_text_start\n");
+            log_err("[-] Failed to patch _dkii_text_start");
             return false;
         }
         if(auto it = flameExports.find("_dkii_text_end"); it != flameExports.end()) {
             *(void **) it->second = (std::byte *) text + size;
         } else {
-            printf("[-] Failed to patch _dkii_text_end\n");
+            log_err("[-] Failed to patch _dkii_text_end");
             return false;
         }
     } else {
-        printf("[-] Failed to find dkii .text\n");
+        log_err("[-] Failed to find dkii .text");
+        return false;
+    }
+    if(auto it = flameExports.find("_flame_base"); it != flameExports.end()) {
+        *(void **) it->second = flame;
+    } else {
+        log_err("[-] Failed to patch _flame_base");
         return false;
     }
     if(auto *text = findText(flame, size)) {
         if(auto it = flameExports.find("_flame_text_start"); it != flameExports.end()) {
             *(void **) it->second = text;
         } else {
-            printf("[-] Failed to patch _flame_text_start\n");
+            log_err("[-] Failed to patch _flame_text_start");
             return false;
         }
         if(auto it = flameExports.find("_flame_text_end"); it != flameExports.end()) {
             *(void **) it->second = (std::byte *) text + size;
         } else {
-            printf("[-] Failed to patch _flame_text_end\n");
+            log_err("[-] Failed to patch _flame_text_end");
             return false;
         }
     } else {
-        printf("[-] Failed to find flame .text\n");
+        log_err("[-] Failed to find flame .text");
         return false;
     }
     return true;
@@ -360,13 +391,13 @@ HMODULE HookedLoadLibraryA(_In_ LPCSTR lpLibFileName, CallbackProc onMapped) {
 
     auto pNtMapViewOfSection = (NtMapViewOfSectionProc) GetProcAddress(GetModuleHandleA("ntdll.dll"), "NtMapViewOfSection");
     if(!pNtMapViewOfSection) {
-        printf("[-] Failed to find NtMapViewOfSection entry\n");
+        log_err("[-] Failed to find NtMapViewOfSection entry");
         return nullptr;
     }
 
     // B8 ?? ?? ?? ??    mov eax, <imm32>
     if(*(uint8_t *) pNtMapViewOfSection != 0xB8) {
-        printf("[-] Failed to find iat entry\n");
+        log_err("[-] Failed to find iat entry");
         return nullptr;
     }
 
@@ -458,11 +489,12 @@ bool entryHook_t::hook(HMODULE mod, CallbackProc onEntry) {
 }
 
 
-bool flameLoaderMain() {
-    if (!CreateDirectory("flame", NULL) && GetLastError() != ERROR_ALREADY_EXISTS) {
-        printf("[-] Failed to create flame directory\n");
+bool flameLoaderMain(HMODULE loader) {
+    if(!g_resources.load(loader)) {
+        log_err("[-] Failed to load resources");
         return false;
     }
+    log_inf("Flame resources loaded v%s", g_resources.version.c_str());
 
     // I need to patch Flame.dll before dll entry call. Only way I see for now is to hook NtMapViewOfSection while calling LoadLibraryA
     SetDllDirectoryA("flame");
@@ -481,11 +513,11 @@ bool flameLoaderMain() {
 
     if(flame == NULL) {
         DWORD lastError = GetLastError();
-        printf("[-] Failed to load flame %08X\n", lastError);
+        log_err("[-] Failed to load flame dll. lastError: %08X", lastError);
         return false;
     }
     if(!g_entryHook.hookResult) {
-        printf("[-] Entry hook failed\n");
+        log_err("[-] Entry hook failed");
     }
     return true;
 }
@@ -494,12 +526,18 @@ bool flameLoaderMain() {
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     switch(fdwReason) {
     case DLL_PROCESS_ATTACH:
+        if (!CreateDirectory("flame", NULL) && GetLastError() != ERROR_ALREADY_EXISTS) {
+            MessageBoxA(NULL, "Failed to create flame directory", "Flame loader error", MB_OK);
+            return false;
+        }
+        loader::log::init();
         initDependency();
-        if(!flameLoaderMain()) {
+        if(!flameLoaderMain(hinstDLL)) {
             fflush(stdout);
             MessageBoxA(NULL, "Load Flame failed", "Flame loader error", MB_OK);
             return FALSE;
         }
+        log_inf("Flame loader succeeded");
         return TRUE;
         break;
     case DLL_THREAD_ATTACH:

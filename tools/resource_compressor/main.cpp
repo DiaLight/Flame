@@ -30,31 +30,6 @@ bool hasCmdOption(char **begin, char **end, const std::string &option) {
     return std::find(begin, end, option) != end;
 }
 
-EXTERN_C NTSTATUS RtlGetCompressionWorkSpaceSize(
-    USHORT CompressionFormatAndEngine,
-    PULONG CompressBufferWorkSpaceSize,
-    PULONG CompressFragmentWorkSpaceSize
-);
-
-EXTERN_C NTSTATUS RtlCompressBuffer(
-    USHORT CompressionFormatAndEngine,
-    PUCHAR UncompressedBuffer,
-    ULONG  UncompressedBufferSize,
-    PUCHAR CompressedBuffer,
-    ULONG  CompressedBufferSize,
-    ULONG  UncompressedChunkSize,
-    PULONG FinalCompressedSize,
-    PVOID  WorkSpace
-);
-EXTERN_C NTSTATUS RtlDecompressBuffer(
-    USHORT CompressionFormat,
-    PUCHAR UncompressedBuffer,
-    ULONG  UncompressedBufferSize,
-    PUCHAR CompressedBuffer,
-    ULONG  CompressedBufferSize,
-    PULONG FinalUncompressedSize
-);
-
 struct StoredResource {
     std::string_view mName;
     std::size_t mOffset {};
@@ -132,62 +107,6 @@ StoredResources compress(
     result.mCompressed.resize(compressedSize);
     return result;
 }
-
-//StoredResources compress2(
-//    const DWORD algorithm, const std::span<InputResource> input) {
-//    StoredResources result;
-//    std::vector<std::byte> inputBlob;
-//    result.mUncompressedBufferSize = std::ranges::fold_left(input, 0, [](auto acc, const auto& resource) {
-//        return acc + sizeof(uint16_t) + resource.mKey.size() + sizeof(uint32_t) + resource.mData.size();
-//    });
-//    inputBlob.reserve(result.mUncompressedBufferSize);
-//    for (auto&& resource: input) {
-//        result.mResources.emplace_back(resource.mKey, inputBlob.size(), resource.mData.size());
-//
-//        uint16_t keySize = resource.mKey.size();
-//        inputBlob.append_range(std::span{(std::byte *) &keySize, sizeof(keySize)});
-//        inputBlob.append_range(std::span{(std::byte *) resource.mKey.data(), resource.mKey.size()});
-//
-//        uint32_t size = resource.mData.size();
-//        inputBlob.append_range(std::span{(std::byte *) &size, sizeof(size)});
-//        inputBlob.append_range(resource.mData);
-//    }
-//
-//    ULONG wsSz {};
-//    ULONG fwsSz {};
-//    RtlGetCompressionWorkSpaceSize(COMPRESSION_FORMAT_LZNT1 | COMPRESSION_ENGINE_STANDARD, &wsSz, &fwsSz);
-//    std::vector<std::byte> ws(wsSz);
-//
-//    SIZE_T bufferSize {};
-//    if(!RtlCompressBuffer(
-//            COMPRESSION_FORMAT_LZNT1 | COMPRESSION_ENGINE_STANDARD,
-//            (PUCHAR) inputBlob.data(),
-//            inputBlob.size(),
-//            nullptr,
-//            0, 4096, &bufferSize, ws.data()
-//    )) {
-//        DWORD lastError = GetLastError();
-//        if(lastError != ERROR_INSUFFICIENT_BUFFER) {
-//            std::cerr << "failed to Compress " << lastError << std::endl;
-//            return {};
-//        }
-//    }
-//    result.mCompressed.resize(bufferSize);
-//    SIZE_T compressedSize {};
-//    if(!RtlCompressBuffer(
-//            COMPRESSION_FORMAT_LZNT1 | COMPRESSION_ENGINE_STANDARD,
-//            (PUCHAR) inputBlob.data(),
-//            inputBlob.size(),
-//            (PUCHAR) result.mCompressed.data(),
-//            bufferSize, 4096,
-//            &compressedSize, ws.data()
-//    )) {
-//        std::cerr << "failed to Compress2" << std::endl;
-//        return {};
-//    }
-//    result.mCompressed.resize(compressedSize);
-//    return result;
-//}
 
 struct DecompressorDeleter {
     static void operator()(const DECOMPRESSOR_HANDLE handle) {
@@ -291,7 +210,8 @@ void show_help() {
     printf("resource_compressor\n");
     printf("  -symmap_file <path>\n");
     printf("  -refmap_file <path>\n");
-    printf("  -espmap_file <path>\n");
+    printf("  -dkii_fpobin_file <path>\n");
+    printf("  -flame_fpobin_file <path>\n");
     printf("  -res_file <path>\n");
     printf("  -version <str>\n");
 }
@@ -314,8 +234,14 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    char *espmap_file = getCmdOption(argv, argv + argc, "-espmap_file");
-    if (espmap_file == nullptr) {
+    char *dkii_fpobin_file = getCmdOption(argv, argv + argc, "-dkii_fpobin_file");
+    if (dkii_fpobin_file == nullptr) {
+        show_help();
+        return EXIT_FAILURE;
+    }
+
+    char *flame_fpobin_file = getCmdOption(argv, argv + argc, "-flame_fpobin_file");
+    if (flame_fpobin_file == nullptr) {
         show_help();
         return EXIT_FAILURE;
     }
@@ -336,52 +262,24 @@ int main(int argc, char** argv) {
     if(symmap.empty()) return EXIT_FAILURE;
     std::vector<std::byte> refmap = get_contents(refmap_file);
     if(refmap.empty()) return EXIT_FAILURE;
-    std::vector<std::byte> espmap = get_contents(espmap_file);
-    if(espmap.empty()) return EXIT_FAILURE;
-
-    std::vector<FpoFun> dkiiFpomap;
-    {
-        std::string s;
-        s.assign((char *) espmap.data(), espmap.size());  // copy
-        std::istringstream is(s);
-        parseStack(is, dkiiFpomap);
-        if(!is.eof() || is.fail()) {
-            printf("[-] Failed to parse espmap. eof=%d, fail=%d\n", is.eof(), is.fail());
-            return false;
-        }
-        if(dkiiFpomap.empty()) {
-            printf("[-] Parsed empty vec espmap. eof=%d, fail=%d\n", is.eof(), is.fail());
-            return false;
-        }
-    }
-    std::vector<std::byte> binFpo = buildBinFpo(dkiiFpomap);
-
+    std::vector<std::byte> dkiiFpoBin = get_contents(dkii_fpobin_file);
+    if(dkiiFpoBin.empty()) return EXIT_FAILURE;
+    std::vector<std::byte> flameFpoBin = get_contents(flame_fpobin_file);
+    if(flameFpoBin.empty()) return EXIT_FAILURE;
 
     InputResource resources[] {
         {"symmap", {(std::byte *) symmap.data(), symmap.size()}},
         {"refmap", {(std::byte *) refmap.data(), refmap.size()}},
-        {"fpo", {(std::byte *) binFpo.data(), binFpo.size()}},
+        {"dkii_fpo", {(std::byte *) dkiiFpoBin.data(), dkiiFpoBin.size()}},
+        {"flame_fpo", {(std::byte *) flameFpoBin.data(), flameFpoBin.size()}},
         {"version", {(std::byte *) version, strlen(version)}},
     };
-
-    printf("symmap %d\n", symmap.size());
-    printf("refmap %d\n", refmap.size());
-    printf("espmap %d\n", espmap.size());
-    printf("binFpo %d\n", binFpo.size());
-
-    //    compressed 549140
-    //    decompressed 4402344
-    //    refmap 3883412
-    //    symmap 518908
 
     // COMPRESS_ALGORITHM_LZMS
     // COMPRESS_ALGORITHM_MSZIP
     StoredResources compressed = compress(COMPRESS_ALGORITHM_LZMS, resources);
     printf("compressed: %d\n", compressed.mCompressed.size());
     printf("UncompressedBufferSize: %d\n", compressed.mUncompressedBufferSize);
-
-//    std::vector<std::byte> decompressed = decompress(COMPRESS_ALGORITHM_LZMS, compressed.mCompressed);
-//    printf("decompressed: %d\n", decompressed.size());
 
     {
         std::ofstream f{ res_file, std::ios::binary };

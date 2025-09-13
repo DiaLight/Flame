@@ -13,6 +13,7 @@
 
 #include "dk2/FindFileData.h"
 #include "patches/flame_main.h"
+#include "tools/bug_hunter.h"
 
 namespace dk2 {
 
@@ -226,10 +227,11 @@ bool dk2::dk2_main1(int argc, LPCSTR *argv) {
 }
 
 int __cdecl dk2::dk2_main(int argc, LPCSTR *argv) {
+    bug_hunter::displayCrash();
     uint32_t try_level = 0;
     MyMutex mutex;
     mutex.constructor("DKII MUTEX");
-    if (!mutex.alredyExists ) {
+    if (!mutex.alredyExists) {
         patch::flameInit(argc, argv);
         bool result = dk2_main1(argc, argv);
         patch::flameCleanup();

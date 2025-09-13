@@ -183,48 +183,64 @@ struct MyFpoFun {
     }
 };
 
-EXTERN_C __declspec(dllexport) void *_fpomap_start = nullptr;
+EXTERN_C __declspec(dllexport) void *_dkii_fpomap_start = nullptr;
 EXTERN_C __declspec(dllexport) void *_dkii_text_start = nullptr;
 EXTERN_C __declspec(dllexport) void *_dkii_text_end = nullptr;
+
+EXTERN_C __declspec(dllexport) void *_flame_base = nullptr;
+EXTERN_C __declspec(dllexport) void *_flame_fpomap_start = nullptr;
 EXTERN_C __declspec(dllexport) void *_flame_text_start = nullptr;
 EXTERN_C __declspec(dllexport) void *_flame_text_end = nullptr;
-namespace bughunter {
-    uintptr_t base = 0;
-    uintptr_t end = 0;
-    uintptr_t entry = 0;
-    uint32_t imageBase = 0;
-    uintptr_t fpomap_start = 0;
-    uintptr_t dkii_text_start = 0;
-    uintptr_t dkii_text_end = 0;
-    uintptr_t flame_text_start = 0;
-    uintptr_t flame_text_end = 0;
 
+namespace bughunter {
     uintptr_t weanetr_base = 0;
     uintptr_t qmixer_base = 0;
 
-    std::vector<MyFpoFun> fpomap;
+    uintptr_t dkii_base = 0;
+    uintptr_t dkii_end = 0;
+    uintptr_t dkii_entry = 0;
+    uint32_t dkii_imageBase = 0;
+    uintptr_t dkii_fpomap_start = 0;
+    uintptr_t dkii_text_start = 0;
+    uintptr_t dkii_text_end = 0;
+    std::vector<MyFpoFun> dkii_fpomap;
 
     bool isDkiiCode(DWORD p) noexcept {
         return dkii_text_start <= p && p < dkii_text_end;
     }
-    bool isFlameCode(DWORD p) noexcept {
-        return flame_text_start <= p && p < flame_text_end;
-    }
-    bool isAppCode(DWORD p) noexcept {
-        if(isDkiiCode(p)) return true;
-        if(isFlameCode(p)) return true;
-        return false;
-    }
 
-    std::vector<MyFpoFun>::iterator find_gt(DWORD ptr) {
-        return std::upper_bound(fpomap.begin(), fpomap.end(), ptr, [](DWORD ptr, MyFpoFun &bl) {
+    std::vector<MyFpoFun>::iterator dkii_find_gt(DWORD ptr) {
+        return std::upper_bound(dkii_fpomap.begin(), dkii_fpomap.end(), ptr, [](DWORD ptr, MyFpoFun &bl) {
             return ptr < bl.ptr;
         });
     }
 
-    std::vector<MyFpoFun>::iterator find_le(DWORD ptr) {
-        auto it = find_gt(ptr);
-        if (it == fpomap.begin()) return fpomap.end();
+    std::vector<MyFpoFun>::iterator dkii_find_le(DWORD ptr) {
+        auto it = dkii_find_gt(ptr);
+        if (it == dkii_fpomap.begin()) return dkii_fpomap.end();
+        return it - 1;
+    }
+
+    uintptr_t flame_base = 0;
+    uint32_t flame_imageBase = 0;
+    uintptr_t flame_fpomap_start = 0;
+    uintptr_t flame_text_start = 0;
+    uintptr_t flame_text_end = 0;
+    std::vector<MyFpoFun> flame_fpomap;
+
+    bool isFlameCode(DWORD p) noexcept {
+        return flame_text_start <= p && p < flame_text_end;
+    }
+
+    std::vector<MyFpoFun>::iterator flame_find_gt(DWORD ptr) {
+        return std::upper_bound(flame_fpomap.begin(), flame_fpomap.end(), ptr, [](DWORD ptr, MyFpoFun &bl) {
+            return ptr < bl.ptr;
+        });
+    }
+
+    std::vector<MyFpoFun>::iterator flame_find_le(DWORD ptr) {
+        auto it = flame_find_gt(ptr);
+        if (it == flame_fpomap.begin()) return flame_fpomap.end();
         return it - 1;
     }
 }
@@ -237,25 +253,32 @@ bool iequals(const std::string& a, const std::string& b) {
 }
 
 void resolveLocs() {
-    uintptr_t base = (uintptr_t) GetModuleHandleA(NULL);
-    bughunter::base = (uintptr_t) base;
-    auto *pHeader = (PIMAGE_DOS_HEADER) base;
-    if (pHeader->e_magic == IMAGE_DOS_SIGNATURE) {
-        auto *header = (PIMAGE_NT_HEADERS) ((BYTE *) base + ((PIMAGE_DOS_HEADER) base)->e_lfanew);
-        bughunter::imageBase = header->OptionalHeader.ImageBase;
-        bughunter::end = bughunter::base + header->OptionalHeader.SizeOfImage;
-        bughunter::entry = bughunter::base + header->OptionalHeader.AddressOfEntryPoint;
+    bughunter::dkii_base = (uintptr_t) GetModuleHandleA(NULL);
+    {
+        auto *pHeader = (PIMAGE_DOS_HEADER) bughunter::dkii_base;
+        if (pHeader->e_magic == IMAGE_DOS_SIGNATURE) {
+            auto *header = (PIMAGE_NT_HEADERS) ((BYTE *) bughunter::dkii_base + ((PIMAGE_DOS_HEADER) bughunter::dkii_base)->e_lfanew);
+            bughunter::dkii_imageBase = header->OptionalHeader.ImageBase;
+            bughunter::dkii_end = bughunter::dkii_base + header->OptionalHeader.SizeOfImage;
+            bughunter::dkii_entry = bughunter::dkii_base + header->OptionalHeader.AddressOfEntryPoint;
+        }
     }
-    // dirty hack to locate .fpomap section
-//    bughunter::fpomap_start = base + (uint32_t) (uint8_t *) &_fpomap_start;
-//    bughunter::dkii_text_start = base + (uint32_t) (uint8_t *) &_dkii_text_start;
-//    bughunter::dkii_text_end = base + (uint32_t) (uint8_t *) &_dkii_text_end;
-//    bughunter::flame_text_start = base + (uint32_t) (uint8_t *) &_flame_text_start;
-//    bughunter::flame_text_end = base + (uint32_t) (uint8_t *) &_flame_text_end;
 
-    bughunter::fpomap_start = (uintptr_t) _fpomap_start;
+    bughunter::dkii_fpomap_start = (uintptr_t) _dkii_fpomap_start;
     bughunter::dkii_text_start = (uintptr_t) _dkii_text_start;
     bughunter::dkii_text_end = (uintptr_t) _dkii_text_end;
+
+    bughunter::flame_base = (uintptr_t) _flame_base;
+    {
+        auto *pHeader = (PIMAGE_DOS_HEADER) bughunter::flame_base;
+        if (pHeader->e_magic == IMAGE_DOS_SIGNATURE) {
+            auto *header = (PIMAGE_NT_HEADERS) ((BYTE *) bughunter::flame_base + ((PIMAGE_DOS_HEADER) bughunter::flame_base)->e_lfanew);
+            bughunter::flame_imageBase = header->OptionalHeader.ImageBase;
+//            bughunter::flame_end = bughunter::flame_base + header->OptionalHeader.SizeOfImage;
+//            bughunter::flame_entry = bughunter::flame_base + header->OptionalHeader.AddressOfEntryPoint;
+        }
+    }
+    bughunter::flame_fpomap_start = (uintptr_t) _flame_fpomap_start;
     bughunter::flame_text_start = (uintptr_t) _flame_text_start;
     bughunter::flame_text_end = (uintptr_t) _flame_text_end;
 
@@ -267,9 +290,9 @@ void resolveLocs() {
     }
 }
 
-void parseFpomap() {
-    bughunter::fpomap.clear();
-    auto *p = (uint8_t *) bughunter::fpomap_start;
+void parseFpomap(uintptr_t fpomap_start, std::vector<MyFpoFun> &fpomap, uint32_t imageBase, uintptr_t base) {
+    fpomap.clear();
+    auto *p = (uint8_t *) fpomap_start;
     size_t fposCount = decodeVarint(p);
 //    printf("fposCount = %d\n", fposCount);
     DWORD va = 0;
@@ -278,8 +301,8 @@ void parseFpomap() {
         size_t sz = decodeVarint(p);
         const char *name = (const char *) p;
         p += strlen(name) + 1;
-        auto &fpoFun = bughunter::fpomap.emplace_back();
-        fpoFun.ptr = (DWORD) (va - bughunter::imageBase + bughunter::base);
+        auto &fpoFun = fpomap.emplace_back();
+        fpoFun.ptr = (DWORD) (va - imageBase + base);
         fpoFun.end = fpoFun.ptr + sz;
         fpoFun.name = name;
 //        printf("%08X-%08X %s\n", va, va + sz, name);
@@ -450,12 +473,12 @@ void dumpStackPart(StackLimits &limits, LoadedModules &modules, DWORD esp) {
             }
             if(appCode) {
                 ss << " " << appCode;
-                auto it = bughunter::find_le(val);
-                if (it != bughunter::fpomap.end() && val < it->end) {
+                auto it = bughunter::dkii_find_le(val);
+                if (it != bughunter::dkii_fpomap.end() && val < it->end) {
                     auto &fpo = *it;
                     ss << ":" << fpo.name << "+" << fmtHex(val - fpo.ptr);
                 } else {
-                    ss << "+" << fmtHex(val - bughunter::base);
+                    ss << "+" << fmtHex(val - bughunter::dkii_base);
                 }
             } else if (auto *mod = modules.find(val)) {
                 ss << " " << mod->name;
@@ -525,13 +548,13 @@ struct StackWalkerState {
         }
         Esp = (DWORD) p;
     }
-    bool stackEndCondition() const {
+    [[nodiscard]] bool stackEndCondition() const {
         if(BaseThreadInitThunk) {
             if(BaseThreadInitThunk < frame.eip && frame.eip < (BaseThreadInitThunk + 0x40)) return true;
         } else {
             if(frame.libName == "KERNEL32.DLL" && frame.symName == "BaseThreadInitThunk") return true;
         }
-        if(frame.symAddr == bughunter::entry) return true;
+        if(frame.symAddr == bughunter::dkii_entry) return true;
         return false;
     }
     void tryStep() {
@@ -560,23 +583,34 @@ struct StackWalkerState {
 
         bool isAppCode = false;
         if(bughunter::isDkiiCode(Eip)) {
-            frame.libBase = bughunter::base;
+            frame.libBase = bughunter::dkii_base;
             frame.libName = "DKII";
             isAppCode = true;
         }
         if(bughunter::isFlameCode(Eip)) {
-            frame.libBase = bughunter::base;
+            frame.libBase = bughunter::dkii_base;
             frame.libName = "Flame";
             isAppCode = true;
         }
         if(isAppCode) {
-            auto it = bughunter::find_le(Eip);
-            if(it != bughunter::fpomap.end() && Eip < it->end) {
-                auto &fpo = *it;
-                frame.symAddr = fpo.ptr;
-                frame.symName = fpo.name;
-                auto it2 = fpo.find_ge(Eip - fpo.ptr);
-                if (it2 != fpo.spds.end()) {
+            MyFpoFun *fpo = nullptr;
+            if(bughunter::isDkiiCode(Eip)) {
+                auto it = bughunter::dkii_find_le(Eip);
+                if(it != bughunter::dkii_fpomap.end() && Eip < it->end) {
+                    fpo = &*it;
+                }
+            }
+            if(bughunter::isFlameCode(Eip)) {
+                auto it = bughunter::flame_find_le(Eip);
+                if(it != bughunter::flame_fpomap.end() && Eip < it->end) {
+                    fpo = &*it;
+                }
+            }
+            if(fpo) {
+                frame.symAddr = fpo->ptr;
+                frame.symName = fpo->name;
+                auto it2 = fpo->find_ge(Eip - fpo->ptr);
+                if (it2 != fpo->spds.end()) {
                     auto &spd = *it2;
                     const char *ty = "";
                     if(spd.ty == MST_Ida) {
@@ -671,7 +705,7 @@ StackWalkerIter &StackWalkerIter::operator++() noexcept {
 void onlyImportantFrames(StackWalkerIter &&it, std::deque<StackFrame> &frames, WalkerError &err) {
     // walk until dkII code
     for(; it != StackWalker::end(); ++it) {
-        if(it->libBase == bughunter::base) break;
+        if(it->libBase == bughunter::dkii_base) break;
         frames.push_back(*it);
         if(frames.size() > 2) frames.pop_front();
     }
@@ -842,7 +876,7 @@ void buildFileName(FILETIME &timestamp, const char *namePart, char *reportFile, 
 }
 
 bool isGameFrame(StackFrame &frame) {
-    if(frame.libBase == bughunter::base) return true;
+    if(frame.libBase == bughunter::dkii_base) return true;
     if(bughunter::weanetr_base && frame.libBase == bughunter::weanetr_base) return true;
     if(bughunter::qmixer_base && frame.libBase == bughunter::qmixer_base) return true;
     return false;
@@ -863,7 +897,7 @@ LONG WINAPI TopLevelExceptionFilter(_In_ struct _EXCEPTION_POINTERS *ExceptionIn
     ss << std::endl;
     ss << "caught exception " << fmtHex32(ExceptionInfo->ExceptionRecord->ExceptionCode) << " at " << fmtHex32(ExceptionInfo->ExceptionRecord->ExceptionAddress) << std::endl;
     ss << "tid: " << GetCurrentThreadId() << "(0x" << fmtHex(GetCurrentThreadId()) << ")" << std::endl;
-    ss << "exe base: " << fmtHex32(bughunter::base) << std::endl;
+    ss << "exe base: " << fmtHex32(bughunter::dkii_base) << std::endl;
     auto &R = *ExceptionInfo->ContextRecord;
     ss << "eax=" << fmtHex32(R.Eax) << " ebx=" << fmtHex32(R.Ebx) << " ecx=" << fmtHex32(R.Ecx) << " edx=" << fmtHex32(R.Edx) << std::endl;
     ss << "esi=" << fmtHex32(R.Esi) << " edi=" << fmtHex32(R.Edi) << " esp=" << fmtHex32(R.Esp) << " ebp=" << fmtHex32(R.Ebp) << std::endl;
@@ -1067,14 +1101,16 @@ void displayCrashMessage() {
 }
 
 bool bug_hunter::stopped = false;
-void bug_hunter::init() {
+void bug_hunter::displayCrash() {
     if(wcsstr(GetCommandLineW(), L" -display_crash_message") != NULL) {
         displayCrashMessage();
         ExitProcess(0);
     }
-
+}
+void bug_hunter::init() {
     resolveLocs();
-    parseFpomap();
+    parseFpomap(bughunter::dkii_fpomap_start, bughunter::dkii_fpomap, bughunter::dkii_imageBase, bughunter::dkii_base);
+    parseFpomap(bughunter::flame_fpomap_start, bughunter::flame_fpomap, bughunter::flame_imageBase, bughunter::flame_base);
     g_prev = SetUnhandledExceptionFilter(TopLevelExceptionFilter);
 }
 

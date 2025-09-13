@@ -214,22 +214,26 @@ int dk2::MyGame::init() {
     if (!this->createWindow(1)) {
         return 0;
     }
-    if (!this->prepareScreenEx(
-            MyResources_instance.video_settings.display_width,
-            MyResources_instance.video_settings.display_height,
-            MyResources_instance.video_settings.display_bitnes,
-            MyResources_instance.video_settings.isWindowed,
-            MyResources_instance.video_settings.screen_swap,
-            MyResources_instance.video_settings.screen_hardware3D)
-        && !this->prepareScreenEx(
+    bool winCreated = this->prepareScreenEx(
+        MyResources_instance.video_settings.display_width,
+        MyResources_instance.video_settings.display_height,
+        MyResources_instance.video_settings.display_bitnes,
+        MyResources_instance.video_settings.isWindowed,
+        MyResources_instance.video_settings.screen_swap,
+        MyResources_instance.video_settings.screen_hardware3D);
+    if (!winCreated) {
+        patch::log::dbg("failed to prepare screen. falling back to 640x480");
+        winCreated = !this->prepareScreenEx(
             640,
             480,
             MyResources_instance.video_settings.display_bitnes,
             MyResources_instance.video_settings.isWindowed,
             MyResources_instance.video_settings.screen_swap,
-            MyResources_instance.video_settings.screen_hardware3D)) {
-        patch::log::err("failed to prepare screen");
-        return 0;
+            MyResources_instance.video_settings.screen_hardware3D);
+        if (!winCreated) {
+            patch::log::err("failed to prepare screen");
+            return 0;
+        }
     }
     setCustomDefWindowProcA((int) myCustomDefWindowProcA);
     WinEventHandlers_instance.addHandler(

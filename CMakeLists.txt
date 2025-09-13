@@ -99,21 +99,21 @@ if(DK2_DIR)
   if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(PDB_COPY_COMMANDS
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_PDB_FILE:flame> "D:/Games/Dungeon Keeper 2/flame/Flame.pdb"
+            $<TARGET_PDB_FILE:flame> "${DK2_DIR}/flame/Flame.pdb"
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_PDB_FILE:dkii_dll_stub> "D:/Games/Dungeon Keeper 2/flame/DKII.pdb"
+            $<TARGET_PDB_FILE:dkii_dll_stub> "${DK2_DIR}/flame/DKII.pdb"
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_PDB_FILE:flame_loader> "D:/Games/Dungeon Keeper 2/flame/PATCH.pdb"
+            $<TARGET_PDB_FILE:flame_loader> "${DK2_DIR}/flame/PATCH.pdb"
     )
   endif()
   add_custom_target(flame_dev
           DEPENDS flame dkii_dll_stub flame_loader
           COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          $<TARGET_FILE:flame> "D:/Games/Dungeon Keeper 2/flame/Flame.dll"
+          $<TARGET_FILE:flame> "${DK2_DIR}/flame/Flame.dll"
           COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          $<TARGET_FILE:dkii_dll_stub> "D:/Games/Dungeon Keeper 2/flame/DKII.dll"
+          $<TARGET_FILE:dkii_dll_stub> "${DK2_DIR}/flame/DKII.dll"
           COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          $<TARGET_FILE:flame_loader> "D:/Games/Dungeon Keeper 2/PATCH.dll"
+          $<TARGET_FILE:flame_loader> "${DK2_DIR}/PATCH.dll"
           ${PDB_COPY_COMMANDS}
   )
 endif()

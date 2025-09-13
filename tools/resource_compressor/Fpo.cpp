@@ -86,7 +86,7 @@ void parseStack(std::istream &is, std::vector<FpoFun> &vec) {
             }
             uint32_t va_ = std::stoul(va, nullptr, 16);
             int offs = va_ - fpo->va;
-//            self._update_size(offs + 1)
+            fpo->_update_size(offs + 1);
             fpo->spds.emplace_back(
                 offs,
                 -std::stol(spd),

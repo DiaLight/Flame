@@ -1,23 +1,5 @@
 set(TARGET flame)
 
-
-set(FLAME_RESOURCES_BIN ${CMAKE_CURRENT_BINARY_DIR}/resources.bin)
-add_custom_command(
-        OUTPUT ${FLAME_RESOURCES_BIN}
-        COMMAND $<TARGET_FILE:resource_compressor>
-        -refmap_file ${CMAKE_HOME_DIRECTORY}/mapping/DKII_EXE_v170.refmap
-        -espmap_file ${CMAKE_HOME_DIRECTORY}/mapping/DKII_EXE_v170.espmap
-        -symmap_file ${CMAKE_HOME_DIRECTORY}/libs/dkii_exe/genlib/dkii.symmap
-        -version "${VER_PRODUCT_NUMBER}.${VER_PRODUCT_VERSION}${VER_FILE_SUFFIX}"
-        -res_file ${FLAME_RESOURCES_BIN}
-        DEPENDS
-        resource_compressor
-        ${CMAKE_HOME_DIRECTORY}/mapping/DKII_EXE_v170.refmap
-        ${CMAKE_HOME_DIRECTORY}/mapping/DKII_EXE_v170.espmap
-        ${CMAKE_HOME_DIRECTORY}/libs/dkii_exe/genlib/dkii.symmap
-        COMMENT "pack Flame resources"
-)
-
 set(RESOURCES_FILE ${CMAKE_CURRENT_BINARY_DIR}/resources.rc)
 set(VER_PRODUCT_NAME "DKII Flame")
 set(VER_DESCRIPTION "DKII Flame unofficial patches v${OUTPUT_VERSION}")
@@ -133,7 +115,6 @@ add_library(${TARGET} SHARED
 
         ${RESOURCES_FILE}
         )
-set_source_files_properties(${RESOURCES_FILE} OBJECT_DEPENDS ${FLAME_RESOURCES_BIN})
 target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_LIST_DIR} gog_patch_dll)
 target_compile_definitions(${TARGET} PRIVATE
         DIRECTINPUT_VERSION=0x0500
@@ -181,6 +162,7 @@ target_link_options(${TARGET} PRIVATE /DEF:${CMAKE_HOME_DIRECTORY}/libs/dkii_exe
 set(OUTPUT_NAME "Flame")
 set_target_properties(${TARGET} PROPERTIES OUTPUT_NAME "${OUTPUT_NAME}")
 
+target_link_options(${TARGET} PRIVATE /debug)  # generate pdb to extract FPO with release builds
 target_link_options(${TARGET} PRIVATE /MAP)  # generate msvc mapping file for exe
 set_target_properties(${TARGET} PROPERTIES TARGET_MAP_FILE "${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_NAME}.map")
 
