@@ -395,12 +395,6 @@ HMODULE HookedLoadLibraryA(_In_ LPCSTR lpLibFileName, CallbackProc onMapped) {
         return nullptr;
     }
 
-    // B8 ?? ?? ?? ??    mov eax, <imm32>
-    if(*(uint8_t *) pNtMapViewOfSection != 0xB8) {
-        log_err("[-] Failed to find iat entry");
-        return nullptr;
-    }
-
     static struct {
         NtMapViewOfSectionProc pNtMapViewOfSection;
         uint8_t savedCode[5];
@@ -528,7 +522,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     case DLL_PROCESS_ATTACH:
         if (!CreateDirectory("flame", NULL) && GetLastError() != ERROR_ALREADY_EXISTS) {
             MessageBoxA(NULL, "Failed to create flame directory", "Flame loader error", MB_OK);
-            return false;
+            return FALSE;
         }
         loader::log::init();
         initDependency();
