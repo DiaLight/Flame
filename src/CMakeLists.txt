@@ -78,7 +78,6 @@ add_library(${TARGET} SHARED
         dk2/gui/visual_debug.cpp
         dk2/gui/button_render.cpp
 
-        tools/bug_hunter.cpp
         tools/StackLimits.cpp
         tools/LoadedModules.cpp
         tools/win32_gui_layout.cpp
@@ -87,6 +86,13 @@ add_library(${TARGET} SHARED
         tools/console.cpp
         tools/last_error.cpp
         tools/flame_config.cpp
+
+        tools/bug_hunter.cpp
+        tools/bug_hunter/StackWalker.cpp
+        tools/bug_hunter/StackWalkerState.cpp
+        tools/bug_hunter/StackWalkerIter.cpp
+        tools/bug_hunter/WalkerError.cpp
+        tools/bug_hunter/StackFrame.cpp
 
         patches/flame_main.cpp
         patches/replace_mouse_dinput_to_user32.cpp
@@ -162,9 +168,7 @@ target_link_options(${TARGET} PRIVATE /DEF:${CMAKE_HOME_DIRECTORY}/libs/dkii_exe
 set(OUTPUT_NAME "Flame")
 set_target_properties(${TARGET} PROPERTIES OUTPUT_NAME "${OUTPUT_NAME}")
 
-target_link_options(${TARGET} PRIVATE /debug)  # generate pdb to extract FPO with release builds
-target_link_options(${TARGET} PRIVATE /MAP)  # generate msvc mapping file for exe
-set_target_properties(${TARGET} PROPERTIES TARGET_MAP_FILE "${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_NAME}.map")
+target_link_options(${TARGET} PRIVATE /debug)  # generate pdb to extract FPO and mapping with release builds
 
 install(FILES $<TARGET_FILE:${TARGET}> DESTINATION "flame")
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")

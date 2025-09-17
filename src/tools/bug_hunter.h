@@ -9,6 +9,9 @@
 #include <memory>
 #include "LoadedModules.h"
 #include "StackLimits.h"
+#include "tools/bug_hunter/MyFpoFun.h"
+#include "tools/bug_hunter/StackFrame.h"
+#include "tools/bug_hunter/WalkerError.h"
 
 namespace bug_hunter {
     extern bool stopped;
@@ -18,69 +21,31 @@ namespace bug_hunter {
     void keyWatcher();
 }
 
-class WalkerError {
-    std::string error;
-public:
-    WalkerError() = default;
+namespace bughunter {
+    extern LoadedModule *weanetr_base;
+    extern LoadedModule *qmixer_base;
 
-    inline bool operator ! () const { return error.empty(); }
-    inline explicit operator bool() const { return !error.empty(); }
+    std::vector<MyFpoFun>::iterator find_gt(std::vector<MyFpoFun> &fpos, DWORD rva);
+    std::vector<MyFpoFun>::iterator find_le(std::vector<MyFpoFun> &fpos, DWORD rva);
 
-    std::string str() { return error; }
-    const char *c_str() { return error.c_str(); }
+    extern uintptr_t dkii_base;
+    extern uintptr_t dkii_entry;
+    extern uintptr_t dkii_fpomap_start;
+    extern uintptr_t dkii_text_start;
+    extern uintptr_t dkii_text_end;
+    extern std::vector<MyFpoFun> dkii_fpomap;
 
-private:
-    friend struct StackWalkerState;
-    void set(const char *err) { this->error = err; }
-    void set(const std::string &err) { this->error = err; }
+    bool isDkiiCode(DWORD ptr) noexcept;
 
-};
+    extern uintptr_t flame_base;
+    extern uintptr_t flame_fpomap_start;
+    extern uintptr_t flame_text_start;
+    extern uintptr_t flame_text_end;
+    extern std::vector<MyFpoFun> flame_fpomap;
 
-struct StackFrame {
+    bool isFlameCode(DWORD ptr) noexcept;
+}
 
-    DWORD eip = 0;
-    DWORD esp = 0;
-    DWORD ebp = 0;
-
-    std::string libName;
-    DWORD libBase = 0;
-    std::string symName;
-    DWORD symAddr = 0;
-
-    friend std::ostream &operator<<(std::ostream &os, const StackFrame &frame);
-
-};
-
-class StackWalkerEnd {};
-class StackWalkerIter {
-
-    StackWalkerState &state;
-public:
-    explicit StackWalkerIter(StackWalkerState &state);
-
-    StackFrame &operator*() const noexcept;
-    StackFrame *operator->() const noexcept;
-
-    bool operator!=(const StackWalkerEnd &) const noexcept;
-
-    StackWalkerIter &operator++() noexcept;
-
-};
-
-class StackWalkerState;
-class StackWalker {
-
-    std::unique_ptr<StackWalkerState> state;
-public:
-    explicit StackWalker(LoadedModules &modules, StackLimits &limits, CONTEXT &ctx, WalkerError &err);
-
-    StackWalker(const StackWalker& R) noexcept = delete;
-    StackWalker& operator=(const StackWalker& R) noexcept = delete;
-
-    StackWalkerIter begin() { return StackWalkerIter(*state); }
-    static StackWalkerEnd end() { return {}; }
-
-};
 
 void dumpCurrentStack(int numFrames=-1);
 void traceCurrentStack(std::vector<StackFrame> &frames, WalkerError &err);

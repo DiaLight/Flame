@@ -6,7 +6,6 @@
 #include "dk2_globals.h"
 #include "StackLimits.h"
 #include "LoadedModules.h"
-#include "ExceptionWindow.h"
 #include "win32_gui_layout.h"
 #include "patches/game_version_patch.h"
 #include <Windows.h>
@@ -28,6 +27,9 @@
 #include "console.h"
 #include "flame_config.h"
 #include "sha1.hpp"
+#include "tools/bug_hunter/MyFpoFun.h"
+#include "tools/bug_hunter/StackWalker.h"
+#include "tools/bug_hunter/StackWalkerState.h"
 
 namespace fs = std::filesystem;
 
@@ -157,32 +159,6 @@ int32_t decodeSignedVarint(uint8_t *&p) {
     return v >> 1;
 }
 
-enum MySpdType {
-    MST_Ida = 0,
-    MST_Fpo = 1,
-    MST_Frm = 2
-};
-struct MySpd {
-    size_t offs;
-    int spd;
-    DWORD ty;
-    DWORD kind;
-};
-
-struct MyFpoFun {
-    DWORD ptr;
-    DWORD end;
-    const char *name;
-    std::vector<MySpd> spds;
-
-
-    std::vector<MySpd>::iterator find_ge(DWORD offs) {
-        return std::lower_bound(spds.begin(), spds.end(), offs, [](MySpd &bl, DWORD offs) {  // <=
-            return bl.offs < offs;
-        });
-    }
-};
-
 EXTERN_C __declspec(dllexport) void *_dkii_fpomap_start = nullptr;
 EXTERN_C __declspec(dllexport) void *_dkii_text_start = nullptr;
 EXTERN_C __declspec(dllexport) void *_dkii_text_end = nullptr;
@@ -192,58 +168,43 @@ EXTERN_C __declspec(dllexport) void *_flame_fpomap_start = nullptr;
 EXTERN_C __declspec(dllexport) void *_flame_text_start = nullptr;
 EXTERN_C __declspec(dllexport) void *_flame_text_end = nullptr;
 
-namespace bughunter {
-    uintptr_t weanetr_base = 0;
-    uintptr_t qmixer_base = 0;
+LoadedModule *bughunter::weanetr_base = nullptr;
+LoadedModule *bughunter::qmixer_base = nullptr;
 
-    uintptr_t dkii_base = 0;
-    uintptr_t dkii_end = 0;
-    uintptr_t dkii_entry = 0;
-    uint32_t dkii_imageBase = 0;
-    uintptr_t dkii_fpomap_start = 0;
-    uintptr_t dkii_text_start = 0;
-    uintptr_t dkii_text_end = 0;
-    std::vector<MyFpoFun> dkii_fpomap;
 
-    bool isDkiiCode(DWORD p) noexcept {
-        return dkii_text_start <= p && p < dkii_text_end;
-    }
-
-    std::vector<MyFpoFun>::iterator dkii_find_gt(DWORD ptr) {
-        return std::upper_bound(dkii_fpomap.begin(), dkii_fpomap.end(), ptr, [](DWORD ptr, MyFpoFun &bl) {
-            return ptr < bl.ptr;
-        });
-    }
-
-    std::vector<MyFpoFun>::iterator dkii_find_le(DWORD ptr) {
-        auto it = dkii_find_gt(ptr);
-        if (it == dkii_fpomap.begin()) return dkii_fpomap.end();
-        return it - 1;
-    }
-
-    uintptr_t flame_base = 0;
-    uint32_t flame_imageBase = 0;
-    uintptr_t flame_fpomap_start = 0;
-    uintptr_t flame_text_start = 0;
-    uintptr_t flame_text_end = 0;
-    std::vector<MyFpoFun> flame_fpomap;
-
-    bool isFlameCode(DWORD p) noexcept {
-        return flame_text_start <= p && p < flame_text_end;
-    }
-
-    std::vector<MyFpoFun>::iterator flame_find_gt(DWORD ptr) {
-        return std::upper_bound(flame_fpomap.begin(), flame_fpomap.end(), ptr, [](DWORD ptr, MyFpoFun &bl) {
-            return ptr < bl.ptr;
-        });
-    }
-
-    std::vector<MyFpoFun>::iterator flame_find_le(DWORD ptr) {
-        auto it = flame_find_gt(ptr);
-        if (it == flame_fpomap.begin()) return flame_fpomap.end();
-        return it - 1;
-    }
+std::vector<MyFpoFun>::iterator bughunter::find_gt(std::vector<MyFpoFun> &fpos, DWORD rva) {
+    return std::upper_bound(fpos.begin(), fpos.end(), rva, [](DWORD rva, MyFpoFun &bl) {
+        return rva < bl.rva;
+    });
 }
+
+std::vector<MyFpoFun>::iterator bughunter::find_le(std::vector<MyFpoFun> &fpos, DWORD rva) {
+    auto it = find_gt(fpos, rva);
+    if (it == fpos.begin()) return fpos.end();
+    return it - 1;
+}
+
+uintptr_t bughunter::dkii_base = 0;
+uintptr_t bughunter::dkii_entry = 0;
+uintptr_t bughunter::dkii_fpomap_start = 0;
+uintptr_t bughunter::dkii_text_start = 0;
+uintptr_t bughunter::dkii_text_end = 0;
+std::vector<MyFpoFun> bughunter::dkii_fpomap;
+
+bool bughunter::isDkiiCode(DWORD ptr) noexcept {
+    return dkii_text_start <= ptr && ptr < dkii_text_end;
+}
+
+uintptr_t bughunter::flame_base = 0;
+uintptr_t bughunter::flame_fpomap_start = 0;
+uintptr_t bughunter::flame_text_start = 0;
+uintptr_t bughunter::flame_text_end = 0;
+std::vector<MyFpoFun> bughunter::flame_fpomap;
+
+bool bughunter::isFlameCode(DWORD ptr) noexcept {
+    return flame_text_start <= ptr && ptr < flame_text_end;
+}
+
 bool ichar_equals(char a, char b) {
     return std::tolower(static_cast<unsigned char>(a)) ==
            std::tolower(static_cast<unsigned char>(b));
@@ -258,8 +219,6 @@ void resolveLocs() {
         auto *pHeader = (PIMAGE_DOS_HEADER) bughunter::dkii_base;
         if (pHeader->e_magic == IMAGE_DOS_SIGNATURE) {
             auto *header = (PIMAGE_NT_HEADERS) ((BYTE *) bughunter::dkii_base + ((PIMAGE_DOS_HEADER) bughunter::dkii_base)->e_lfanew);
-            bughunter::dkii_imageBase = header->OptionalHeader.ImageBase;
-            bughunter::dkii_end = bughunter::dkii_base + header->OptionalHeader.SizeOfImage;
             bughunter::dkii_entry = bughunter::dkii_base + header->OptionalHeader.AddressOfEntryPoint;
         }
     }
@@ -269,15 +228,6 @@ void resolveLocs() {
     bughunter::dkii_text_end = (uintptr_t) _dkii_text_end;
 
     bughunter::flame_base = (uintptr_t) _flame_base;
-    {
-        auto *pHeader = (PIMAGE_DOS_HEADER) bughunter::flame_base;
-        if (pHeader->e_magic == IMAGE_DOS_SIGNATURE) {
-            auto *header = (PIMAGE_NT_HEADERS) ((BYTE *) bughunter::flame_base + ((PIMAGE_DOS_HEADER) bughunter::flame_base)->e_lfanew);
-            bughunter::flame_imageBase = header->OptionalHeader.ImageBase;
-//            bughunter::flame_end = bughunter::flame_base + header->OptionalHeader.SizeOfImage;
-//            bughunter::flame_entry = bughunter::flame_base + header->OptionalHeader.AddressOfEntryPoint;
-        }
-    }
     bughunter::flame_fpomap_start = (uintptr_t) _flame_fpomap_start;
     bughunter::flame_text_start = (uintptr_t) _flame_text_start;
     bughunter::flame_text_end = (uintptr_t) _flame_text_end;
@@ -285,25 +235,25 @@ void resolveLocs() {
     LoadedModules modules;
     modules.update();
     for(auto &mod : modules) {
-        if(iequals(mod->name, "weanetr.dll")) bughunter::weanetr_base = mod->base;
-        if(iequals(mod->name, "QMIXER.dll")) bughunter::qmixer_base = mod->base;
+        if(iequals(mod->name, "weanetr.dll")) bughunter::weanetr_base = &*mod;
+        if(iequals(mod->name, "QMIXER.dll")) bughunter::qmixer_base = &*mod;
     }
 }
 
-void parseFpomap(uintptr_t fpomap_start, std::vector<MyFpoFun> &fpomap, uint32_t imageBase, uintptr_t base) {
+void parseFpomap(uintptr_t fpomap_start, std::vector<MyFpoFun> &fpomap) {
     fpomap.clear();
     auto *p = (uint8_t *) fpomap_start;
     size_t fposCount = decodeVarint(p);
 //    printf("fposCount = %d\n", fposCount);
-    DWORD va = 0;
+    DWORD rva = 0;
     for (int i = 0; i < fposCount; ++i) {
-        va += decodeVarint(p);
+        rva += decodeVarint(p);
         size_t sz = decodeVarint(p);
         const char *name = (const char *) p;
         p += strlen(name) + 1;
         auto &fpoFun = fpomap.emplace_back();
-        fpoFun.ptr = (DWORD) (va - imageBase + base);
-        fpoFun.end = fpoFun.ptr + sz;
+        fpoFun.rva = rva;
+        fpoFun.rva_end = fpoFun.rva + sz;
         fpoFun.name = name;
 //        printf("%08X-%08X %s\n", va, va + sz, name);
         size_t spdsCount = decodeVarint(p);
@@ -389,335 +339,6 @@ std::vector<AppThread> collectAppThreadsExceptCurrent() {
     }
     CloseHandle(h);
     return states;
-}
-
-void StackFrame_reset(StackFrame &frame) {
-    frame.eip = 0;
-    frame.esp = 0;
-    frame.ebp = 0;
-    frame.libName.clear();
-    frame.libBase = 0;
-    frame.symName.clear();
-    frame.symAddr = 0;
-}
-
-std::string StackFrame_getReadableSymName(const std::string &symName) {
-    if(symName.starts_with('?')) {
-        std::vector<std::pair<size_t, size_t>> parts;
-        std::pair<size_t, size_t> suffix(0, 0);
-        size_t offs = 1;
-        while(true) {
-            size_t pos = symName.find('@', offs);
-            if(pos == std::string::npos) break;
-            if(pos == offs) {
-                suffix = {offs + 2, symName.size() - offs};
-                break;
-            }
-            parts.emplace_back(offs, pos - offs);
-            offs = pos + 1;
-        }
-        std::stringstream ss;
-        for(auto &part : parts | std::views::reverse) {
-            if(ss.tellp()) ss << "::";
-            ss << symName.substr(part.first, part.second);
-        }
-//        if(suffix.first) {
-//            ss << "(";
-//            ss << symName.substr(suffix.first, suffix.second);
-//            ss << ")";
-//        }
-        return ss.str();
-    }
-    return symName;
-}
-
-std::ostream &operator<<(std::ostream &os, const StackFrame &frame) {
-    os << "ebp=" << fmtHex32(frame.ebp);
-    os << " esp=" << fmtHex32(frame.esp);
-    os << " eip=" << fmtHex32(frame.eip);
-    os << " ";
-    if(!frame.libName.empty()) {
-        os << std::right << std::setw(16) << std::setfill(' ') << frame.libName << ":";
-    } else if(frame.libBase) {
-        os << std::right << std::setw(16) << std::setfill(' ') << fmtHex32(frame.libBase) << ":";
-    }
-    if(!frame.symName.empty()) {
-        os << StackFrame_getReadableSymName(frame.symName);
-        os << "+" << fmtHex(frame.eip - frame.symAddr);
-    } else {
-        os << "base";
-        os << "+" << fmtHex(frame.eip - frame.libBase);
-    }
-    if(frame.symName.starts_with('?')) {
-        os << " (" << frame.symName << ")";
-    }
-    return os;
-}
-
-void dumpStackPart(StackLimits &limits, LoadedModules &modules, DWORD esp) {
-    DWORD *p = (DWORD *) esp;
-    for (; (DWORD) p < limits.high; ++p) {
-        DWORD val = *p;
-        std::stringstream ss;
-        ss << fmtHex(limits.high - (DWORD) p) << "->" << fmtHex32(val);
-        if(limits.contains(val)) {
-            ss << " " << "stack";
-            ss << "+" << fmtHex(limits.high - val);
-        } else {
-            const char *appCode = nullptr;
-            if(bughunter::isDkiiCode(val)) {
-                appCode = "DKII";
-            }
-            if(bughunter::isFlameCode(val)) {
-                appCode = "Flame";
-            }
-            if(appCode) {
-                ss << " " << appCode;
-                auto it = bughunter::dkii_find_le(val);
-                if (it != bughunter::dkii_fpomap.end() && val < it->end) {
-                    auto &fpo = *it;
-                    ss << ":" << fpo.name << "+" << fmtHex(val - fpo.ptr);
-                } else {
-                    ss << "+" << fmtHex(val - bughunter::dkii_base);
-                }
-            } else if (auto *mod = modules.find(val)) {
-                ss << " " << mod->name;
-                if (auto *exp = mod->find_export_le(val)) {
-                    ss << ":" << exp->name << "+" << fmtHex(val - exp->addr);
-                } else {
-                    ss << "+" << fmtHex(val - mod->base);
-                }
-            } else {
-                continue;
-            }
-        }
-//        if (auto *mod = modules.find(val)) {
-//            DWORD ebpCand = p[-1];
-//            if(ebpCand && ebpCand >= (DWORD) p && limits.contains(ebpCand)) {
-//                if (auto *mod2 = modules.find(((DWORD *) ebpCand)[1])) {
-//                    DWORD ebp = ebpCand;
-//                }
-//            }
-//            DWORD eip = *p++;
-//            break;
-//        }
-        std::cout << ss.str() << std::endl;
-    }
-}
-
-struct StackWalkerState {
-    LoadedModules &modules;
-    StackLimits &limits;
-    DWORD Ebp;
-    DWORD Esp;
-    DWORD Eip;
-    WalkerError &err;
-    StackFrame frame;
-    ULONG_PTR BaseThreadInitThunk = 0;
-    explicit StackWalkerState(LoadedModules &modules, StackLimits &limits, CONTEXT &ctx, WalkerError &err)
-    : modules(modules), limits(limits), Ebp(ctx.Ebp), Esp(ctx.Esp), Eip(ctx.Eip), err(err) {
-        if(!err) {
-            BaseThreadInitThunk = modules.findBaseThreadInitThunk();
-        }
-//        dumpStackPart(limits, modules, ctx.Esp);
-    }
-
-    bool isAnyCode(DWORD eip) {
-        if(eip == 0) return false;
-        if (auto *mod = modules.find(eip)) return true;
-        return false;
-    }
-
-    void setEbp(DWORD ebpCand) {
-        Ebp = 0;
-        if(ebpCand && ebpCand >= Esp && limits.contains(ebpCand)) {
-            if (auto *mod2 = modules.find(((DWORD *) ebpCand)[1])) {
-                Ebp = ebpCand;
-            }
-        }
-    }
-    void stepEmpirical() {
-        Eip = 0;
-        DWORD *p = (DWORD *) Esp;
-        for(; (DWORD) p < limits.high; p++) {
-            if (auto *mod = modules.find(*p)) {
-                setEbp(p[-1]);
-                Eip = *p++;
-                break;
-            }
-        }
-        Esp = (DWORD) p;
-    }
-    [[nodiscard]] bool stackEndCondition() const {
-        if(BaseThreadInitThunk) {
-            if(BaseThreadInitThunk < frame.eip && frame.eip < (BaseThreadInitThunk + 0x40)) return true;
-        } else {
-            if(frame.libName == "KERNEL32.DLL" && frame.symName == "BaseThreadInitThunk") return true;
-        }
-        if(frame.symAddr == bughunter::dkii_entry) return true;
-        return false;
-    }
-    void tryStep() {
-        if(err) return;
-        if(stackEndCondition()) {
-            // stack end
-            Esp = limits.high;
-            StackFrame_reset(frame);
-            return;
-        }
-        StackFrame_reset(frame);
-        if(!(limits.low <= Esp && Esp < (limits.high + 0x1000))) {
-            std::stringstream ss;
-            ss << "invalid esp";
-            err.set(ss.str());
-            return;
-        }
-        if(Esp >= limits.high) {
-            std::stringstream ss;
-            ss << "stack limit reached";
-            err.set(ss.str());
-        }
-        frame.eip = Eip;
-        frame.esp = Esp;
-        if(Ebp && Ebp >= Esp) frame.ebp = Ebp;
-
-        bool isAppCode = false;
-        if(bughunter::isDkiiCode(Eip)) {
-            frame.libBase = bughunter::dkii_base;
-            frame.libName = "DKII";
-            isAppCode = true;
-        }
-        if(bughunter::isFlameCode(Eip)) {
-            frame.libBase = bughunter::dkii_base;
-            frame.libName = "Flame";
-            isAppCode = true;
-        }
-        if(isAppCode) {
-            MyFpoFun *fpo = nullptr;
-            if(bughunter::isDkiiCode(Eip)) {
-                auto it = bughunter::dkii_find_le(Eip);
-                if(it != bughunter::dkii_fpomap.end() && Eip < it->end) {
-                    fpo = &*it;
-                }
-            }
-            if(bughunter::isFlameCode(Eip)) {
-                auto it = bughunter::flame_find_le(Eip);
-                if(it != bughunter::flame_fpomap.end() && Eip < it->end) {
-                    fpo = &*it;
-                }
-            }
-            if(fpo) {
-                frame.symAddr = fpo->ptr;
-                frame.symName = fpo->name;
-                auto it2 = fpo->find_ge(Eip - fpo->ptr);
-                if (it2 != fpo->spds.end()) {
-                    auto &spd = *it2;
-                    const char *ty = "";
-                    if(spd.ty == MST_Ida) {
-                        ty = "ida";
-                    } else if(spd.ty == MST_Fpo) {
-                        ty = "fpo";
-                    } else if(spd.ty == MST_Frm) {
-                        ty = "frm";
-                    }
-//                    std::cout << " " << fmtHex32(fpo.ptr) << " " << fmtHex32(fpo.ptr + spd.offs) << " spd=" << fmtHex(spd.spd) << " " << ty << " kind=" << fmtHex(spd.kind) << std::endl;
-                    if(spd.spd > 0) {
-                        Esp += spd.spd;
-                    }
-                }
-            }
-        } else {
-            // identify
-            if(Eip) {
-                if (auto *mod = modules.find(Eip)) {
-                    frame.libName = mod->name;
-                    frame.libBase = mod->base;
-                    if (auto *exp = mod->find_export_le(Eip)) {
-                        frame.symName = exp->name;
-                        frame.symAddr = exp->addr;
-//                        printf("unwind lib %s:%s+%X\n", frame.libName.c_str(), frame.symName.c_str(), Eip - frame.symAddr);
-                    } else {
-//                        printf("unwind lib %s+%X\n", frame.libName.c_str(), Eip - frame.libBase);
-                    }
-                } else {
-                    std::stringstream ss;
-                    ss << "unwind lib unk eip=" << fmtHex32(Eip);
-                    err.set(ss.str());
-                }
-            }
-        }
-        // step
-        if(Esp <= Ebp && Ebp < limits.high) {
-            Esp = Ebp;
-            auto *bp = (uint32_t *) Esp;
-            setEbp(*bp++);
-            Eip = *bp++;
-            Esp = (uint32_t) bp;
-            if(!isAnyCode(Eip)) {
-                stepEmpirical();
-            }
-        } else {
-            stepEmpirical();
-        }
-    }
-    void step() {
-//        __try {
-            tryStep();
-//        } __except(EXCEPTION_EXECUTE_HANDLER) {
-//            onException();
-//        }
-    }
-    void onException() {
-        std::stringstream ss;
-        ss << "exception caught while tracing stack";
-        err.set(ss.str());
-    }
-
-    static void setError(WalkerError &err, const std::string &str) {
-        err.set(str);
-    }
-
-};
-
-StackWalker::StackWalker(LoadedModules &modules, StackLimits &limits, CONTEXT &ctx, WalkerError &err)
-    : state(std::make_unique<StackWalkerState>(modules, limits, ctx, err)) {}
-
-
-StackWalkerIter::StackWalkerIter(StackWalkerState &state) : state(state) {
-    state.step();
-}
-
-StackFrame &StackWalkerIter::operator*() const noexcept { return state.frame; }
-
-StackFrame *StackWalkerIter::operator->() const noexcept { return &state.frame; }
-
-bool StackWalkerIter::operator!=(const StackWalkerEnd &) const noexcept {
-    if(state.frame.esp == 0) return false;
-    if(state.err) return false;
-    return true;
-}
-
-StackWalkerIter &StackWalkerIter::operator++() noexcept {
-    state.step();
-    return *this;
-}
-
-void onlyImportantFrames(StackWalkerIter &&it, std::deque<StackFrame> &frames, WalkerError &err) {
-    // walk until dkII code
-    for(; it != StackWalker::end(); ++it) {
-        if(it->libBase == bughunter::dkii_base) break;
-        frames.push_back(*it);
-        if(frames.size() > 2) frames.pop_front();
-    }
-    // and walk until dk2 namespace appear
-    for(; it != StackWalker::end(); ++it) {
-        if(it->symName.find("@dk2@@") != std::string::npos) break;
-        frames.push_back(*it);
-    }
-    // and 4 frames more
-    for (int i = 0; i < 4 && it != StackWalker::end(); ++i, ++it) {
-        frames.push_back(*it);
-    }
 }
 
 
@@ -877,8 +498,8 @@ void buildFileName(FILETIME &timestamp, const char *namePart, char *reportFile, 
 
 bool isGameFrame(StackFrame &frame) {
     if(frame.libBase == bughunter::dkii_base) return true;
-    if(bughunter::weanetr_base && frame.libBase == bughunter::weanetr_base) return true;
-    if(bughunter::qmixer_base && frame.libBase == bughunter::qmixer_base) return true;
+    if(bughunter::weanetr_base && frame.libBase == bughunter::weanetr_base->base) return true;
+    if(bughunter::qmixer_base && frame.libBase == bughunter::qmixer_base->base) return true;
     return false;
 }
 
@@ -923,8 +544,6 @@ LONG WINAPI TopLevelExceptionFilter(_In_ struct _EXCEPTION_POINTERS *ExceptionIn
         }
         if(err) {
             ss << "[StackWalker ERROR]: " << err.str() << std::endl;
-            std::cout << ss.str() << std::endl;
-            MessageBoxA(NULL, "err", "err", MB_OK);
         }
     }
     for(auto &ts : states) {
@@ -985,6 +604,7 @@ LONG WINAPI TopLevelExceptionFilter(_In_ struct _EXCEPTION_POINTERS *ExceptionIn
         std::ofstream os(reportFile);
         os << text;
     }
+    std::cerr << text << std::endl;
 
     SetEnvironmentVariableA("FLAME_CRASH_FILE", reportFile);
 
@@ -1109,8 +729,8 @@ void bug_hunter::displayCrash() {
 }
 void bug_hunter::init() {
     resolveLocs();
-    parseFpomap(bughunter::dkii_fpomap_start, bughunter::dkii_fpomap, bughunter::dkii_imageBase, bughunter::dkii_base);
-    parseFpomap(bughunter::flame_fpomap_start, bughunter::flame_fpomap, bughunter::flame_imageBase, bughunter::flame_base);
+    parseFpomap(bughunter::dkii_fpomap_start, bughunter::dkii_fpomap);
+    parseFpomap(bughunter::flame_fpomap_start, bughunter::flame_fpomap);
     g_prev = SetUnhandledExceptionFilter(TopLevelExceptionFilter);
 }
 

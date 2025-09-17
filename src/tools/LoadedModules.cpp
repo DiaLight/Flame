@@ -151,7 +151,7 @@ std::vector<std::shared_ptr<LoadedModule>>::iterator LoadedModules::_find_le(ULO
     return it - 1;
 }
 
-LoadedModule *LoadedModules::find(ULONG_PTR addr) {
+LoadedModule *LoadedModules::findByCodePtr(ULONG_PTR addr) {
     auto it = _find_le(addr);
     if (it != modules.end()) {
         if ((*it)->codeContains(addr)) return &**it;

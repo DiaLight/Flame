@@ -5,12 +5,12 @@
 
 #include <patches/logging.h>
 
-#include "dk2/utils/Pos2i.h"
-#include "dk2/utils/AABB.h"
 #include "dk2/DxDeviceInfo.h"
 #include "dk2/DxModeInfo.h"
-#include "dk2_globals.h"
+#include "dk2/utils/AABB.h"
+#include "dk2/utils/Pos2i.h"
 #include "dk2_functions.h"
+#include "dk2_globals.h"
 #include "patches/micro_patches.h"
 
 int dk2::MyGame::prepareScreenEx(

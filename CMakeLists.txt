@@ -68,12 +68,6 @@ message(STATUS "GIT_SHA1: ${GIT_SHA1}")
 message(STATUS "GIT_DATE: ${GIT_DATE}")
 message(STATUS "GIT_COMMIT_SUBJECT: ${GIT_COMMIT_SUBJECT}")
 
-define_property(
-        TARGET
-        PROPERTY TARGET_MAP_FILE
-        BRIEF_DOCS "Mapping file name"
-        FULL_DOCS "...")
-
 if(USE_CONFIGURE_DATE)
   string(TIMESTAMP CONFIGURE_DATE "%y%m%d")
 endif ()

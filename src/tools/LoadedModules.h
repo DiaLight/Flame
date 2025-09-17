@@ -61,7 +61,7 @@ public:
     std::vector<std::shared_ptr<LoadedModule>>::iterator _find_ge(ULONG_PTR addr);
     std::vector<std::shared_ptr<LoadedModule>>::iterator _find_lt(ULONG_PTR addr);
     std::vector<std::shared_ptr<LoadedModule>>::iterator _find_le(ULONG_PTR addr);
-    LoadedModule *find(ULONG_PTR addr);
+    LoadedModule *findByCodePtr(ULONG_PTR addr);
     ULONG_PTR findBaseThreadInitThunk();
 
     iterator begin() { return modules.begin(); }

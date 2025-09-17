@@ -156,7 +156,7 @@ class MyPdbInfoStream(MyBytes):
     return self.pdb.root[page_num]
 
 
-class ModInfo:
+class DbiModuleDescriptor:
 
   def __init__(self, stream: MyStream):
     self.header: pdb_types.ModuleInfoHeader = stream.read(pdb_types.ModuleInfoHeader)
@@ -212,10 +212,11 @@ class SectionContrib:
 class SectionMap:
 
   def __init__(self, stream: MyStream, end):
-    self.Count = stream.read(ctypes.c_uint16).value
-    self.LogCount = stream.read(ctypes.c_uint16).value
+    # llvm: DbiStream::initializeSectionMapData
+    SecCount = stream.read(ctypes.c_uint16).value  # Number of segment descriptors in table
+    self.SecCountLog = stream.read(ctypes.c_uint16).value  # Number of logical segment descriptors
     self.sections: list[pdb_types.SecMapEntry] = []
-    for i in range(self.Count):
+    for i in range(SecCount):
       entry: pdb_types.SecMapEntry = stream.read(pdb_types.SecMapEntry)
       self.sections.append(entry)
     assert stream.pos == end
@@ -232,14 +233,15 @@ class MyPdbDebugStream(MyBytes):
     self.pdb._stream_names[self.header.pssymStream] = f'PublicSymbolStreamIndex'
     self.pdb._stream_names[self.header.symrecStream] = f'SymRecordStreamIndex'
 
-    self.ModInfos: list[ModInfo] = []
+    # Mod Info  # llvm: DbiModuleList::initializeModInfo
+    self.mod_infos: list[DbiModuleDescriptor] = []
     dbiexhdr_end = stream.pos + self.header.module_size - ctypes.sizeof(pdb_types.ModuleInfoHeader)
     while stream.pos < dbiexhdr_end:
-      info = ModInfo(stream)
+      info = DbiModuleDescriptor(stream)
       # info.parse_symbols(pdb)
       if info.header.ModuleSymStream > 0:  # .debug$S aka $$SYMBOLS
         self.pdb._stream_names[info.header.ModuleSymStream] = f'ModuleSymStream_{pathlib.Path(info.modName).name}'
-      self.ModInfos.append(info)
+      self.mod_infos.append(info)
       stream.align(self.base, 4)
 
     # "Section Contribution"
@@ -255,24 +257,38 @@ class MyPdbDebugStream(MyBytes):
     # see: http://pierrelib.pagesperso-orange.fr/exec_formats/MS_Symbol_Type_v1.0.pdf
     # the contents of the filinfSize section is a 'sstFileIndex'
     #
-    # "File Info"
+    # "File Info"  # llvm.read: DbiModuleList::initializeFileInfo
     file_info_end = stream.pos + self.header.filinfSize
-    # fileIndex: pdb_types.SstFileIndex = stream.read(pdb_types.SstFileIndex)
-    # modStart = list(stream.read(wintypes.WORD * fileIndex.cMod))  # ModiCount,NumModules
-    # cRefCnt = list(stream.read(wintypes.WORD * fileIndex.cMod))  # FileCount,NumSourceFiles
-    # NameRef = list(stream.read(wintypes.DWORD * fileIndex.cRef))  # Mod Indices
-    # self.modules = []  # array of arrays of files
-    # self.files = []  # array of files (non unique)
-    # namesPos = stream.pos
-    # # Names = stream.read(end - stream.pos)
-    # for i in range(0, fileIndex.cMod):
-    #   these = []
-    #   for j in range(modStart[i], modStart[i] + cRefCnt[i]):
-    #     ms = MyStream(namesPos + NameRef[j])
-    #     name = ms.read_str()
-    #     self.files.append(name)
-    #     these.append(name)
-    #   self.modules.append(these)
+    fi_header: pdb_types.SstFileIndex = stream.read(pdb_types.SstFileIndex)  # llvm: FileInfoSubstreamHeader
+    module_indices = list(stream.read(wintypes.WORD * fi_header.num_modules))
+    mod_file_counts = list(stream.read(wintypes.WORD * fi_header.num_modules))
+
+    num_source_files = sum(mod_file_counts)
+    # assert num_source_files == fi_header.num_source_files
+
+    file_name_offsets = list(stream.read(wintypes.DWORD * num_source_files))
+    names_buffer_pos = stream.pos
+    # names_buffer = bytes(stream.read(wintypes.BYTE * (file_info_end - stream.pos)))
+
+    if False:  # slow read all source names
+      self.modules = []  # array of arrays of files
+      self.src_files = []  # array of files (non unique)
+      next_file_index = 0
+      name_cache = {}
+      for i in range(0, fi_header.num_modules):
+        mod_src_files = []
+        # for j in range(next_file_index, next_file_index + mod_file_counts[i]):
+        for j in range(module_indices[i], module_indices[i] + mod_file_counts[i]):
+          name_offs = file_name_offsets[j]
+          name = name_cache.get(name_offs)
+          if name is None:
+            ms = MyStream(names_buffer_pos + name_offs)
+            name = ms.read_str()
+            name_cache[name_offs] = name
+            self.src_files.append(name)
+          mod_src_files.append(name)
+        self.modules.append(mod_src_files)
+        next_file_index += mod_file_counts[i]
     stream.pos = file_info_end
 
     # "TSM - type server map"  related somehow to the usage of /Zi and mspdbsrv.exe.
@@ -359,6 +375,9 @@ class FrameData:
     # Note that the program string is specific to the CPU and to the calling convention set up for
     # the function represented by the current stack frame.
     self.program: str or None = program
+
+  def __repr__(self):
+    return f'va:{self.code_start:04X}-{self.code_start + self.code_size:04X} ty:{self.ty.name}'
 
 
 class MyPdbFPOStream(MyBytes):
@@ -453,6 +472,138 @@ class MySectionHeadersStream(MyBytes):
     #         f' chars={sec.Characteristics:08X}')
 
 
+class MyModuleDebugStream(MyBytes):
+
+  def __init__(self, pdb, modi, data: bytes):
+    self.pdb: MyPdb = pdb
+    self.modi: DbiModuleDescriptor = modi
+    super().__init__(data)
+
+    SymbolSize = self.modi.header.SymByteSize
+    C11Size = self.modi.header.oldLineSize
+    C13Size = self.modi.header.lineSize
+    assert C11Size == 0 or C13Size == 0
+
+    stream = MyStream(self.base)
+    self.signature = stream.read(wintypes.DWORD).value
+    symbols_end = stream.pos + SymbolSize
+    self.symbols: list[CVSymbol] = []
+    while stream.pos < symbols_end - 4:
+      left = symbols_end - stream.pos
+      record_len = stream.read(wintypes.WORD).value
+      record_kind = stream.read(wintypes.WORD).value
+      record_data = bytes(stream.read(wintypes.BYTE * min(record_len - 2, left - 2)))
+      assert record_len <= left
+      try:
+        record_kind = pdb_types.SymbolType(int(record_kind))
+      except ValueError:
+        record_kind = {record_kind, f'  S_UNK_{record_kind:04x} = 0x{record_kind:04x}'}
+      self.symbols.append(CVSymbol.create(record_kind, record_data))
+      # stream.align(self.base, 4)
+    assert stream.pos == symbols_end - 4
+    stream.pos = symbols_end
+    c11_end = stream.pos + C11Size
+    # todo: C11Lines
+    stream.pos = c11_end
+    c13_end = stream.pos + C13Size
+    # todo: C13Lines
+    stream.pos = c13_end
+    global_refs_size = stream.read(wintypes.DWORD).value
+    global_refs_end = stream.pos + global_refs_size
+    # todo: global_refs
+    stream.pos = global_refs_end
+
+
+class CVSymbol(MyBytes):
+
+  def __init__(self, ty: pdb_types.SymbolType, data: bytes):
+    self.ty = ty
+    super().__init__(data)
+
+  @classmethod
+  def create(cls, ty: pdb_types.SymbolType, data: bytes):
+    for ecls in (CV_DataSym, CV_ProcSym, CV_Thunk32Sym):
+      if ecls.match(ty):
+        return ecls(ty, data)
+    return cls(ty, data)
+
+
+class CV_DataSym(CVSymbol):
+
+  def __init__(self, ty: pdb_types.SymbolType, data: bytes):
+    super().__init__(ty, data)
+    stream = MyStream(self.base)
+    end = stream.pos + self.size
+    self.type = stream.read(wintypes.DWORD).value  # TypeIndex
+    self.data_offset = stream.read(wintypes.DWORD).value
+    self.segment = stream.read(wintypes.WORD).value
+    self.name = stream.read_str()
+    data_left = bytes(stream.read(wintypes.BYTE * (end - stream.pos)))
+    data_left = data_left.strip(b'\x00')
+    assert not data_left
+
+  @staticmethod
+  def match(ty: pdb_types.SymbolType):
+    return ty in (
+      pdb_types.SymbolType.S_LDATA32, pdb_types.SymbolType.S_GDATA32,
+      pdb_types.SymbolType.S_LMANDATA, pdb_types.SymbolType.S_GMANDATA
+    )
+
+
+class CV_ProcSym(CVSymbol):
+
+  def __init__(self, ty: pdb_types.SymbolType, data: bytes):
+    super().__init__(ty, data)
+    stream = MyStream(self.base)
+    end = stream.pos + self.size
+    self.parent = stream.read(wintypes.DWORD).value
+    self.end = stream.read(wintypes.DWORD).value
+    self.next = stream.read(wintypes.DWORD).value
+    self.code_size = stream.read(wintypes.DWORD).value
+    self.dbg_start = stream.read(wintypes.DWORD).value
+    self.dbg_end = stream.read(wintypes.DWORD).value
+    self.function_type = stream.read(wintypes.DWORD).value  # llvm: TypeIndex
+    self.code_offset = stream.read(wintypes.DWORD).value
+    self.segment = stream.read(wintypes.WORD).value
+    self.flags = stream.read(wintypes.BYTE).value  # llvm: ProcSymFlags
+    self.name = stream.read_str()
+    data_left = bytes(stream.read(wintypes.BYTE * (end - stream.pos)))
+    data_left = data_left.strip(b'\x00')
+    assert not data_left
+
+  @staticmethod
+  def match(ty: pdb_types.SymbolType):
+    return ty in (
+      pdb_types.SymbolType.S_GPROC32, pdb_types.SymbolType.S_LPROC32,
+      pdb_types.SymbolType.S_GPROC32_ID, pdb_types.SymbolType.S_LPROC32_ID,
+      pdb_types.SymbolType.S_LPROC32_DPC, pdb_types.SymbolType.S_LPROC32_DPC_ID
+    )
+
+
+class CV_Thunk32Sym(CVSymbol):
+
+  def __init__(self, ty: pdb_types.SymbolType, data: bytes):
+    super().__init__(ty, data)
+    stream = MyStream(self.base)
+    end = stream.pos + self.size
+    self.parent = stream.read(wintypes.DWORD).value
+    self.end = stream.read(wintypes.DWORD).value
+    self.next = stream.read(wintypes.DWORD).value
+    self.offset = stream.read(wintypes.DWORD).value
+    self.segment = stream.read(wintypes.WORD).value
+    self.length = stream.read(wintypes.WORD).value
+    self.thunk = stream.read(wintypes.BYTE).value  # llvm: ThunkOrdinal
+    self.name = stream.read_str()
+    data_left = bytes(stream.read(wintypes.BYTE * (end - stream.pos)))
+    data_left = data_left.strip(b'\x00')
+    assert not data_left
+
+  @staticmethod
+  def match(ty: pdb_types.SymbolType):
+    return ty is pdb_types.SymbolType.S_THUNK32
+
+
+
 class MyPdb(MyBytes):
 
   def __init__(self, data: bytes):
@@ -468,6 +619,7 @@ class MyPdb(MyBytes):
 
     # probably contains changed pages from previous linking. maybe you can recover all the pdb streams from previous linking
     self.prev_root_delta = MyRootStream(self, self.root[0])
+    # llvm: DbiStream::reload
     self.pdb_info = MyPdbInfoStream(self, self.root[1])
 
     # udt_src_line_undone: bytes = self.pdb_info['/UDTSRCLINEUNDONE']
@@ -486,6 +638,14 @@ class MyPdb(MyBytes):
     self.fpo = MyPdbFPOStream(self, self.root[self.debug.DBIDbgHeader.snFPO])  # .debug$F
     self.new_fpo = MyPdbNewFPOStream(self, self.root[self.debug.DBIDbgHeader.snNewFPO])
     self.section_headers = MySectionHeadersStream(self, self.root[self.debug.DBIDbgHeader.snSectionHdr])
+
+    self.mod_symbols: list[MyModuleDebugStream] = []
+    for mod_info in self.debug.mod_infos:
+      # llvm: ModuleDebugStreamRef::reloadSerialize
+      modi_stream = mod_info.header.ModuleSymStream
+      assert modi_stream >= 0 and modi_stream != 0xFFFF
+      self.mod_symbols.append(MyModuleDebugStream(self, mod_info, self.root[modi_stream]))
+
 
   def read_stream_data(self, indexes: list[int]) -> bytes:
     block_size = self.header.BlockSize

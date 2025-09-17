@@ -5,7 +5,6 @@ add_custom_command(
         COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${CMAKE_HOME_DIRECTORY}/mapping/ida
         ${Python3_EXECUTABLE} ${CMAKE_HOME_DIRECTORY}/tools/extract_fpo/for_flame.py
         -pdb_file $<TARGET_PDB_FILE:flame>
-        -map_file $<TARGET_PROPERTY:flame,TARGET_MAP_FILE>
         -fpo_file ${CMAKE_CURRENT_BINARY_DIR}/flame.fpo
         DEPENDS
         flame
