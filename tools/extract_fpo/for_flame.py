@@ -67,26 +67,6 @@ def pdb_extract_espmap(flame_pdb_file: pathlib.Path) -> list[MyFpoFun]:
     fpos: list[my_pdb.FrameData] = pdb.fpo.fpos + pdb.new_fpo.fpos
     fpos.sort(key=lambda fd: fd.code_start)
 
-    # with open(flame_pdb_file.parent / f'frames.map', 'w') as f:
-    #   for fpo in fpos:
-    #     spd = fpo.locals_size + fpo.saved_regs_size
-    #     e = find_le(symbols_map, fpo.code_start + delta)
-    #     fun_va, fun_name = (0, '') if e is None else e
-    #     fpo_va = fpo.code_start + delta
-    #     flags = [
-    #       'F' if fpo.is_function_start else ' ',
-    #       'S' if fpo.has_structured_eh else ' ',
-    #       'C' if fpo.has_cpp_eh else ' ',
-    #       'B' if fpo.uses_base_pointer else ' ',
-    #     ]
-    #     flags = ''.join(flags)
-    #     max_stack = fpo.max_stack_size if fpo.max_stack_size is not None else 'N'
-    #     f.write(f'{fun_va:08X} {fpo_va:08X}-{fpo_va + fpo.code_size:08X}'
-    #           f'  {fpo_va-fun_va:04X}-{fpo_va + fpo.code_size-fun_va:04X}'
-    #           f'  spd={spd:04X} {flags} {fpo.ty.name:<10s}'
-    #           f' msx_stack={max_stack}'
-    #           f' "{fun_name}"\n')
-
     fpo_fun: MyFpoFun = None
     last_rva = None
     for fpo in fpos:

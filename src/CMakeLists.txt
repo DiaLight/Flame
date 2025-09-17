@@ -162,13 +162,14 @@ target_compile_options(${TARGET} PRIVATE
         /wd4624  # Suppress warning destructor was implicitly defined as deleted
         /Zc:threadSafeInit-
 #        /Oy  # Frame-Pointer Omission
+        /Zi  # Produces a separate PDB file that contains all the symbolic debugging information
 )
+target_link_options(${TARGET} PRIVATE /debug)  # generate pdb to extract FPO and mapping with release builds
 target_link_options(${TARGET} PRIVATE /OPT:NOREF)
 target_link_options(${TARGET} PRIVATE /DEF:${CMAKE_HOME_DIRECTORY}/libs/dkii_exe/genlib/dkii_exp.def)
 set(OUTPUT_NAME "Flame")
 set_target_properties(${TARGET} PROPERTIES OUTPUT_NAME "${OUTPUT_NAME}")
 
-target_link_options(${TARGET} PRIVATE /debug)  # generate pdb to extract FPO and mapping with release builds
 
 install(FILES $<TARGET_FILE:${TARGET}> DESTINATION "flame")
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")

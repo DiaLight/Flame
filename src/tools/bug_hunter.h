@@ -22,8 +22,8 @@ namespace bug_hunter {
 }
 
 namespace bughunter {
-    extern LoadedModule *weanetr_base;
-    extern LoadedModule *qmixer_base;
+    extern std::shared_ptr<LoadedModule> weanetr;
+    extern std::shared_ptr<LoadedModule> qmixer;
 
     std::vector<MyFpoFun>::iterator find_gt(std::vector<MyFpoFun> &fpos, DWORD rva);
     std::vector<MyFpoFun>::iterator find_le(std::vector<MyFpoFun> &fpos, DWORD rva);

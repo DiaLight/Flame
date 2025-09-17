@@ -74,7 +74,7 @@ void StackWalkerState::tryStep() {
         frame.libBase = bughunter::flame_base;
         frame.libName = "Flame";
         fpos = &bughunter::flame_fpomap;
-    } else if(bughunter::qmixer_base && bughunter::qmixer_base->codeContains(ctx.Eip)) {
+    } else if(bughunter::qmixer && bughunter::qmixer->codeContains(ctx.Eip)) {
         willEbpBeValid = false;
     }
 //    std::cout << " ip=" << fmtHex32(ctx.Eip) << " sp=" << fmtHex32(ctx.Esp) << " bp=" << fmtHex32(ctx.Ebp) << std::endl;

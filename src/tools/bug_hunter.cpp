@@ -168,8 +168,8 @@ EXTERN_C __declspec(dllexport) void *_flame_fpomap_start = nullptr;
 EXTERN_C __declspec(dllexport) void *_flame_text_start = nullptr;
 EXTERN_C __declspec(dllexport) void *_flame_text_end = nullptr;
 
-LoadedModule *bughunter::weanetr_base = nullptr;
-LoadedModule *bughunter::qmixer_base = nullptr;
+std::shared_ptr<LoadedModule> bughunter::weanetr;
+std::shared_ptr<LoadedModule> bughunter::qmixer;
 
 
 std::vector<MyFpoFun>::iterator bughunter::find_gt(std::vector<MyFpoFun> &fpos, DWORD rva) {
@@ -235,8 +235,8 @@ void resolveLocs() {
     LoadedModules modules;
     modules.update();
     for(auto &mod : modules) {
-        if(iequals(mod->name, "weanetr.dll")) bughunter::weanetr_base = &*mod;
-        if(iequals(mod->name, "QMIXER.dll")) bughunter::qmixer_base = &*mod;
+        if(iequals(mod->name, "weanetr.dll")) bughunter::weanetr = mod;
+        if(iequals(mod->name, "QMIXER.dll")) bughunter::qmixer = mod;
     }
 }
 
@@ -498,8 +498,8 @@ void buildFileName(FILETIME &timestamp, const char *namePart, char *reportFile, 
 
 bool isGameFrame(StackFrame &frame) {
     if(frame.libBase == bughunter::dkii_base) return true;
-    if(bughunter::weanetr_base && frame.libBase == bughunter::weanetr_base->base) return true;
-    if(bughunter::qmixer_base && frame.libBase == bughunter::qmixer_base->base) return true;
+    if(bughunter::weanetr && frame.libBase == bughunter::weanetr->base) return true;
+    if(bughunter::qmixer && frame.libBase == bughunter::qmixer->base) return true;
     return false;
 }
 
