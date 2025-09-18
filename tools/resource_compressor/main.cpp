@@ -278,8 +278,8 @@ int main(int argc, char** argv) {
     // COMPRESS_ALGORITHM_LZMS
     // COMPRESS_ALGORITHM_MSZIP
     StoredResources compressed = compress(COMPRESS_ALGORITHM_LZMS, resources);
-    printf("compressed: %d\n", compressed.mCompressed.size());
-    printf("UncompressedBufferSize: %d\n", compressed.mUncompressedBufferSize);
+//    printf("compressed: %d\n", compressed.mCompressed.size());
+//    printf("UncompressedBufferSize: %d\n", compressed.mUncompressedBufferSize);
 
     {
         std::ofstream f{ res_file, std::ios::binary };

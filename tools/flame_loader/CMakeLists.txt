@@ -40,7 +40,7 @@ add_custom_command(
         ${CMAKE_HOME_DIRECTORY}/libs/dkii_exe/genlib/dkii.symmap
         ${CMAKE_CURRENT_BINARY_DIR}/dkii.fpo
         ${CMAKE_CURRENT_BINARY_DIR}/flame.fpo
-        COMMENT "pack Flame resources"
+        COMMENT "Pack Flame resources"
 )
 
 set(RESOURCES_FILE ${CMAKE_CURRENT_BINARY_DIR}/resources.rc)

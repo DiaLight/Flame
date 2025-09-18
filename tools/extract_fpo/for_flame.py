@@ -126,7 +126,6 @@ def pdb_extract_espmap(flame_pdb_file: pathlib.Path) -> list[MyFpoFun]:
 
     # print('root.streams', len(pdb.root.streams), list(pdb.root.streams.keys()))
     # print('prev_root_delta', len(pdb.prev_root_delta.streams), list(pdb.prev_root_delta.streams.keys()))
-    print('present', len(pdb.pdb_info.present), pdb.pdb_info.present)
 
     # section_hdr = pdb.root[pdb.debug.DBIDbgHeader.snSectionHdr]
 
@@ -193,7 +192,7 @@ def start():
     # out
     parser.add_argument('-fpo_file', type=str, required=True)
     args = parser.parse_args()
-    print(' '.join(sys.argv))
+    # print(' '.join(sys.argv))
     main(
         pathlib.Path(args.pdb_file),
         pathlib.Path(args.fpo_file),

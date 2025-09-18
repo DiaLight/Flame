@@ -629,7 +629,6 @@ class MyPdb(MyBytes):
     self.names = MyPdbNamesStream(self, self.pdb_info['/names'])
     # source_link: bytes = self.pdb_info['sourcelink$1']
 
-    print(self.pdb_info.present)
     self.debug = MyPdbDebugStream(self, self.root[3])  # DBI Stream
 
     # symbol_records = MyBytes(self.root[self.debug.header.symrecStream])

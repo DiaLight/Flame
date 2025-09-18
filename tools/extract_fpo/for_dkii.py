@@ -54,7 +54,7 @@ def start():
     # out
     parser.add_argument('-fpo_file', type=str, required=True)
     args = parser.parse_args()
-    print(' '.join(sys.argv))
+    # print(' '.join(sys.argv))
     main(
         pathlib.Path(args.espmap_file),
         pathlib.Path(args.fpo_file),
