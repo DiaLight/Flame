@@ -19,6 +19,22 @@
 00557980 BOOL collect_displayModes_DDEnumCB(_GUID *, CHAR *, CHAR *, HWND);  /* auto */
 005B4DE0 int *__cdecl createDirectDrawObject(int *, _GUID *, IDirectDraw **);  /* auto */
 005578E0 int getDevIdxSupportsLinearPerspective();      /* auto */
+00573ED0 int __cdecl mydd_scene_init(IDirectDraw *, IDirectDrawSurface *, IDirectDrawSurface *, _GUID *, int16_t, int);  /* auto */
+00592EA0 int __cdecl mydd_devTexture_init(MyDirectDraw *);  /* auto */
+00575780 bool __cdecl engine_drawScene(char);  // ----  /* auto */
+00571910 void __cdecl engine_set_g2_screenArea(int, int, int, int);  /* auto */
+
+# SurfaceHolder
+00591ED0 int calcWeight();  // -----------------------  /* auto */
+
+# SurfHashList
+//*00592890*/ SurfHashList *clear();  // ------------------  /* auto */
+00592DB0 void constructor(MyCEngineSurfDesc *, int);    /* auto */
+//*005935C0*/ void markAndDeleteP1of4_recursive();  // ----  /* auto */
+00594170 void putNode(SurfHashListItem *);  // -------  /* auto */
+005941B0 void expandPut(MyCESurfHandle *, SurfHashListItem *);  /* auto */
+00594790 void deleteItem(SurfHashListItem *);  // ----  /* auto */
+005948D0 int _probablySort();  // --------------------  /* auto */
 
 # CFrontEndComponent.h
 005340F0 void showTitleScreen();  // -----------------  /* auto */
@@ -37,6 +53,9 @@
 
 # CGameComponent.h
 00525370 CGameComponent *mainGuiLoop();  // ----------  /* auto */
+
+# CWindowTest.h
+00556030 void createBackSurface();  // ---------------  /* auto */
 
 # CDefaultPlayerInterface.h
 00406DF0 int tickKeyboard2();  // --------------------  /* auto */

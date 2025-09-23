@@ -26,12 +26,13 @@ void parseCommandLine(int argc, const char **argv, std::map<std::string, std::st
                 flags.push_back(key);
                 key.clear();
             }
+            arg += 1;
             const char *eq = strchr(arg, '=');
             if (eq) {  // arg contains value
-                key.assign(arg + 1, eq - arg);
+                key.assign(arg, eq - arg);
                 value = eq + 1;
             } else {
-                key.assign(arg + 1);
+                key.assign(arg);
             }
             toLowerCase(key);
             if (!value) continue;

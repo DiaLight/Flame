@@ -98,6 +98,10 @@ namespace display_incompatible_reason {
     extern bool enabled;
 }
 
+namespace big_resolution_fix {
+    extern bool enabled;
+}
+
 namespace null_surf_fix {
     extern bool enabled;
     extern dk2::MySurface emptySurf;

@@ -30,6 +30,8 @@ add_library(${TARGET} SHARED
         dk2/CFrontEndComponent.cpp
         dk2/CGameComponent.cpp
         dk2/CDefaultPlayerInterface.cpp
+        dk2/CPCEngineInterface.cpp
+        dk2/CWindowTest.cpp
         dk2/PlayerCfg.cpp
         dk2/RegKey.cpp
         dk2/MyComputerPlayer.cpp
@@ -75,7 +77,6 @@ add_library(${TARGET} SHARED
         dk2/gui/main_gui.cpp
         dk2/gui/CDefaultPlayerInterface_game_gui.cpp
         dk2/gui/CGuiManager.cpp
-        dk2/gui/visual_debug.cpp
         dk2/gui/button_render.cpp
 
         tools/StackLimits.cpp
@@ -86,6 +87,7 @@ add_library(${TARGET} SHARED
         tools/console.cpp
         tools/last_error.cpp
         tools/flame_config.cpp
+        tools/visual_debug.cpp
 
         tools/bug_hunter.cpp
         tools/bug_hunter/StackWalker.cpp
@@ -164,6 +166,7 @@ target_compile_options(${TARGET} PRIVATE
 #        /Oy  # Frame-Pointer Omission
         /Zi  # Produces a separate PDB file that contains all the symbolic debugging information
 )
+target_link_options(${TARGET} PRIVATE /MAP)
 target_link_options(${TARGET} PRIVATE /debug)  # generate pdb to extract FPO and mapping with release builds
 target_link_options(${TARGET} PRIVATE /OPT:NOREF)
 target_link_options(${TARGET} PRIVATE /DEF:${CMAKE_HOME_DIRECTORY}/libs/dkii_exe/genlib/dkii_exp.def)

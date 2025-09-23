@@ -13,7 +13,6 @@
 #include <dk2_globals.h>
 #include <patches/auto_network.h>
 #include <patches/gui/main/single_player/win_custom_campaign.h>
-#include "visual_debug.h"
 
 
 typedef char (__cdecl *CButton_render_t)(dk2::CButton *btn, dk2::CFrontEndComponent *front);

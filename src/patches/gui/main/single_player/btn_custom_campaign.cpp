@@ -5,7 +5,6 @@
 #include <dk2/button/CButton.h>
 #include <dk2/button/button_types.h>
 #include <dk2/gui/main/main_layout.h>
-#include <dk2/gui/visual_debug.h>
 #include <dk2_functions.h>
 #include <dk2_globals.h>
 #include <patches/gui/button_id.h>

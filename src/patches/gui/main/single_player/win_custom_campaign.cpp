@@ -9,10 +9,10 @@
 #include <dk2/gui/ButtonCfg.h>
 #include <dk2/gui/WindowCfg.h>
 #include <dk2/gui/main/main_layout.h>
-#include <dk2/gui/visual_debug.h>
 #include <dk2_functions.h>
 #include <dk2_globals.h>
 #include <memory>
+#include <vector>
 #include <patches/gui/button_id.h>
 
 bool patch::custom_campaign::enabled = false;

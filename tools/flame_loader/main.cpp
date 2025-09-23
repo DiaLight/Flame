@@ -294,7 +294,10 @@ bool patchMain(HMODULE flame) {
     std::map<std::string, void *> flameExports;
     if(!collectImportsExports(flame, flameImports, flameExports)) return false;
 
-    if(!connectFlameAndDkii(g_resources.dkiiSyms, g_resources.dkiiRelocs, flameImports, flameExports)) return false;
+    if(!connectFlameAndDkii(g_resources.dkiiSyms, g_resources.dkiiRelocs, flameImports, flameExports)) {
+        log_err("[-] Failed to connectFlameAndDkii");
+        return false;
+    }
 
     if(auto it = flameExports.find("_dkii_fpomap_start"); it != flameExports.end()) {
         *(void **) it->second = g_resources.dkiiFpo.data();
@@ -512,6 +515,7 @@ bool flameLoaderMain(HMODULE loader) {
     }
     if(!g_entryHook.hookResult) {
         log_err("[-] Entry hook failed");
+        return false;
     }
     return true;
 }

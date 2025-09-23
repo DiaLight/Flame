@@ -10,8 +10,6 @@
 #include <dk2_globals.h>
 #include <patches/micro_patches.h>
 
-#include "visual_debug.h"
-
 
 namespace dk2 {
     void calcBounds(

@@ -478,11 +478,9 @@ struct: id=vtbl_0066CC94,name=CBridge,size=9855,vtable=instance_0066CC94,super=v
     type: kind=int,size=4
   field: name=f2631_timeMs
     type: kind=int,size=4
-  field: name=f2635_str
-    type: kind=int,size=1
-  field: name=f2636_gap
-    type: kind=array,count=31
-      type: kind=int,size=1
+  field: name=f2635_pngPrefix_2635
+    type: kind=array,count=32
+      type: kind=int,size=1,signed=True,winapi=char
   field: name=field_2655
     type: kind=int,size=4,signed=True
   field: name=field_2659
@@ -54203,10 +54201,9 @@ global: va=00555FF0,name=getClientRect,size=55,member_of=vtbl_0066F20C
       type: kind=struct,id=vtbl_0066F20C
     arg: kind=ptr
       type: kind=struct,id=constructor_00404DB0
-global: va=00556030,name=createBackSurface,size=313,member_of=vtbl_0066F20C
+global: va=00556030,name=reallocBackSurfaceToWindowSize,size=313,member_of=vtbl_0066F20C
   type: kind=function,declspec=thiscall
-    ret: kind=ptr
-      type: kind=int,size=4,signed=True
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066F20C
 global: va=00556170,name=nullsub_9,size=1
@@ -57537,9 +57534,9 @@ global: va=005716E0,name=TbDiscFile_parseVariables,size=559
         type: kind=struct,id=vtbl_0066F24C
     arg: kind=ptr
       type: kind=struct,id=constructor_0056C940
-global: va=00571910,name=set_g2_screenArea,size=39
+global: va=00571910,name=engine_set_g2_screenArea,size=39
   type: kind=function,declspec=cdecl
-    ret: kind=int,size=4,signed=True
+    ret: kind=void
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
@@ -57868,7 +57865,7 @@ global: va=005754D0,name=MyLLVec3f_toMyDLVec2i,size=548
 global: va=00575700,name=sub_575700,size=113
   type: kind=function,declspec=stdcall
     ret: kind=void
-global: va=00575780,name=drawScene,size=627
+global: va=00575780,name=engine_drawScene,size=627
   type: kind=function,declspec=cdecl
     ret: kind=int,size=1,signed=True,winapi=bool
     arg: kind=int,size=1,signed=True,winapi=char
@@ -58358,7 +58355,7 @@ global: va=0057A3E0,name=readString,size=66,member_of=vtbl_0066FB34
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066FB34
     arg: kind=ptr
-      type: kind=int,size=1
+      type: kind=int,size=1,signed=True,winapi=char
 global: va=0057A430,name=seekTo,size=23,member_of=vtbl_0066FB34
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
@@ -58389,8 +58386,8 @@ global: va=0057A560,name=open,size=398,member_of=vtbl_0066FB34
       type: kind=struct,id=vtbl_0066FB34
     arg: kind=ptr
       type: kind=int,size=1,signed=True,winapi=char
-    arg: kind=ptr
-      type: kind=int,size=4
+    arg: kind=ptr,is_const=True
+      type: kind=int,size=1,signed=True,winapi=char
     arg: kind=ptr
       type: kind=void
 global: va=0057A6F0,name=sub_57A6F0,size=168,member_of=vtbl_0066FB34
@@ -59631,13 +59628,13 @@ global: va=005899F0,name=mydd_triangles_init,size=657
       type: kind=struct,id=construct_00588CDE
     arg: kind=ptr
       type: kind=struct,id=instance_00764B90
-global: va=00589C90,name=sub_589C90,size=211
+global: va=00589C90,name=engine_setViewport,size=211
   type: kind=function,declspec=cdecl
-    ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4
-    arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4
-    arg: kind=int,size=4,signed=True
+    ret: kind=int,size=4,fname=DWORD
+    arg: kind=int,size=4,fname=DWORD
+    arg: kind=int,size=4,fname=DWORD
+    arg: kind=int,size=4,fname=DWORD
+    arg: kind=int,size=4,fname=DWORD
 global: va=00589D70,name=sub_589D70,size=18
   type: kind=function,declspec=stdcall
     ret: kind=int,size=4,signed=True
@@ -60232,7 +60229,8 @@ global: va=005909E0,name=destructor,size=96,member_of=vtbl_006703C4
 global: va=00590A40,name=paintSurf,size=118,member_of=vtbl_006703C4
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
+    arg: kind=ptr
+      type: kind=struct,id=vtbl_006703C4
     arg: kind=ptr
       type: kind=int,size=4
     arg: kind=int,size=4,signed=True
@@ -60453,8 +60451,7 @@ global: va=00592D40,name=sub_592D40,size=99
       type: kind=int,size=4
 global: va=00592DB0,name=constructor,size=226,member_of=constructor_00592DB0
   type: kind=function,declspec=thiscall
-    ret: kind=ptr
-      type: kind=struct,id=call_new_0059425F
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_00592DB0
     arg: kind=ptr
@@ -60495,9 +60492,9 @@ global: va=00593640,name=sub_593640,size=41
     ret: kind=ptr
       type: kind=struct,id=call_new_00591E8D
     arg: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
     arg: kind=float,size=4
-    arg: kind=int,size=4,signed=True
+    arg: kind=float,size=4
+    arg: kind=float,size=4
     arg: kind=float,size=4
 global: va=00593670,name=sub_593670,size=175,member_of=constructor_00592BD0
   type: kind=function,declspec=thiscall
@@ -60549,18 +60546,16 @@ global: va=00593F50,name=_probablySort,size=535,member_of=constructor_00592BD0
     ret: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=constructor_00592BD0
-global: va=00594170,name=putItem,size=59,member_of=constructor_00592DB0
+global: va=00594170,name=putNode,size=59,member_of=constructor_00592DB0
   type: kind=function,declspec=thiscall
-    ret: kind=ptr
-      type: kind=ptr
-        type: kind=struct,id=call_new_0059425F
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_00592DB0
     arg: kind=ptr
       type: kind=struct,id=call_new_0059425F
-global: va=005941B0,name=addSurfhAndPaint,size=1497,member_of=constructor_00592DB0
+global: va=005941B0,name=expandPut,size=1497,member_of=constructor_00592DB0
   type: kind=function,declspec=thiscall
-    ret: kind=int,size=2,signed=True
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_00592DB0
     arg: kind=ptr
@@ -60569,9 +60564,7 @@ global: va=005941B0,name=addSurfhAndPaint,size=1497,member_of=constructor_00592D
       type: kind=struct,id=call_new_0059425F
 global: va=00594790,name=deleteItem,size=315,member_of=constructor_00592DB0
   type: kind=function,declspec=thiscall
-    ret: kind=ptr
-      type: kind=ptr
-        type: kind=struct,id=call_new_0059425F
+    ret: kind=void
     arg: kind=ptr
       type: kind=struct,id=constructor_00592DB0
     arg: kind=ptr
@@ -61884,7 +61877,7 @@ global: va=005A7100,name=drawToSurface32bit,size=272
       type: kind=int,size=2
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=1,signed=True,winapi=char
-    arg: kind=int,size=8,signed=True
+    arg: kind=int,size=4
 global: va=005A7210,name=render_clearBuffers,size=81
   type: kind=function,declspec=cdecl
     ret: kind=void
@@ -63161,7 +63154,7 @@ global: va=005B3490,name=sub_5B3490,size=54
       type: kind=struct,id=constructor_00404DB0
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=1,signed=True,winapi=char
-global: va=005B34D0,name=sub_5B34D0,size=49
+global: va=005B34D0,name=static_MyNBitTexture_sub_5B34D0,size=49
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
@@ -84130,6 +84123,8 @@ global: va=006BCE48,name=g_value2,size=1
 global: va=006BD048,name=g_keyMap,size=960
   type: kind=array,count=120
     type: kind=struct,id=arr_instance_006BD048
+global: va=006BDEB8,name=g_unk_6BDEB8,size=4
+  type: kind=int,size=4,signed=True
 global: va=006BE930,name=mpeg2::zig_zag_scan,size=256
   type: kind=array,count=64
     type: kind=int,size=4,signed=True
@@ -84815,6 +84810,8 @@ global: va=00742070,name=TbTQILoader_instance,size=1072
     type: kind=int,size=4
 global: va=007428A0,name=ProbablyConsole_instance,size=16412
   type: kind=struct,id=instance_007428A0
+global: va=00756EC0,name=client_rect_initialized,size=1
+  type: kind=int,size=1,signed=True,winapi=char
 global: va=00756EC8,name=client_rect,size=16
   type: kind=winapi,name=tagRECT,size=16
 global: va=00756ED8,name=g_isNeedBlt_fullscr,size=4
@@ -84858,6 +84855,8 @@ global: va=0075CA68,name=g2_sceneWidth,size=4
   type: kind=int,size=4,signed=True
 global: va=0075CA6C,name=g_scMin,size=4
   type: kind=float,size=4
+global: va=0075CA88,name=g_unk_75CA88,size=4
+  type: kind=int,size=4,signed=True
 global: va=00760A98,name=g_vec_760A98,size=12
   type: kind=struct,id=vecf_xyz
 global: va=00760AA8,name=g_cullFrom,size=4
@@ -84926,6 +84925,10 @@ global: va=007651FC,name=is3dInitialized,size=4
   type: kind=int,size=4,signed=True
 global: va=00765200,name=mgsr_initialized,size=4
   type: kind=int,size=4,signed=True
+global: va=00765204,name=g_unk_765204,size=4
+  type: kind=int,size=4,signed=True
+global: va=0076520C,name=g_drawSceneCount_76520C,size=4
+  type: kind=int,size=4,signed=True
 global: va=00765214,name=static_765214,size=4
   type: kind=float,size=4
 global: va=00765218,name=g_viewPos_765218,size=8
@@ -84950,6 +84953,8 @@ global: va=007656E8,name=MyStringHashMap_MyScaledSurface_instance,size=1040
 global: va=00765AF8,name=MyEntryBuf_MyScaledSurface_instance,size=16
   type: kind=struct,id=instance_00765AF8
 global: va=00765B08,name=MyHeap_increaseCount,size=4
+  type: kind=int,size=4,signed=True
+global: va=00765B10,name=g_unk_765B10,size=4
   type: kind=int,size=4,signed=True
 global: va=00765B14,name=MyHeap_size,size=4
   type: kind=int,size=4,signed=True
@@ -85203,7 +85208,7 @@ global: va=00792DFD,name=g_surfDesc_8a8r8g8b_0,size=101
   type: kind=struct,id=constructor_00590360
 global: va=00792E62,name=MyCEngineSurfDesc_unk16_instance,size=101
   type: kind=struct,id=constructor_00590360
-global: va=00792EC8,name=sizeHashTable_257,size=1028
+global: va=00792EC8,name=SurfQuadTree_size257_to_bucket5,size=1028
   type: kind=array,count=257
     type: kind=int,size=4,signed=True
 global: va=007932CC,name=g_surfh_last,size=4
@@ -85646,13 +85651,13 @@ global: va=007A7000,name=mgsr_qword_7A7000,size=8
   type: kind=int,size=8,signed=True
 global: va=007A7008,name=mgsr_qword_7A7008,size=8
   type: kind=int,size=8,signed=True
-global: va=007A7010,name=grpoly_dword_7A7010,size=4
+global: va=007A7010,name=grpoly_dword_frX,size=4
   type: kind=int,size=4,signed=True
-global: va=007A7014,name=grpoly_dword_7A7014,size=4
+global: va=007A7014,name=grpoly_dword_frY,size=4
   type: kind=int,size=4,signed=True
-global: va=007A7018,name=grpoly_dword_7A7018,size=4
+global: va=007A7018,name=grpoly_dword_toX,size=4
   type: kind=int,size=4,signed=True
-global: va=007A701C,name=grpoly_dword_7A701C,size=4
+global: va=007A701C,name=grpoly_dword_toY,size=4
   type: kind=int,size=4,signed=True
 global: va=007A7020,name=grpoly_mydd_buf,size=4
   type: kind=ptr
