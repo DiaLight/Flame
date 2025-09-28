@@ -37,32 +37,32 @@ FakeDevice3::FakeDevice3() {
     viewport.dvMaxZ = 1.0;
     HRESULT hr = orig::pIDirect3DDevice3->AddViewport(orig::pIDirect3DViewport3);
     if (FAILED(hr)) {
-        gog_debugf("Assertion failed: FakeDevice3::FakeDevice3:742 with HRESULT 0x%x", hr);
+        gog_assert_failed_hr("FakeDevice3::FakeDevice3:742", hr);
     }
     hr = orig::pIDirect3DViewport3->SetViewport2(&viewport);
     if (FAILED(hr)) {
-        gog_debugf("Assertion failed: FakeDevice3::FakeDevice3:744 with HRESULT 0x%x", hr);
+        gog_assert_failed_hr("FakeDevice3::FakeDevice3:744", hr);
     }
     hr = orig::pIDirect3DDevice3->SetCurrentViewport(orig::pIDirect3DViewport3);
     if (FAILED(hr)) {
-        gog_debugf("Assertion failed: FakeDevice3::FakeDevice3:746 with HRESULT 0x%x", hr);
+        gog_assert_failed_hr("FakeDevice3::FakeDevice3:746", hr);
     }
     if (cfg::iExtraAntialias) {
         hr = orig::pIDirect3DDevice3->SetRenderState((D3DRENDERSTATETYPE) 2, 2);
         if (FAILED(hr)) {
-            gog_debugf("Assertion failed: FakeDevice3::FakeDevice3:750 with HRESULT 0x%x", hr);
+            gog_assert_failed_hr("FakeDevice3::FakeDevice3:750", hr);
         }
     }
     if (!cfg::iAnisotropy) {
         hr = orig::pIDirect3DDevice3->SetTextureStageState(0, D3DTSS_MAXANISOTROPY, 16);
         if (FAILED(hr)) {
-            gog_debugf("Assertion failed: FakeDevice3::FakeDevice3:755 with HRESULT 0x%x", hr);
+            gog_assert_failed_hr("FakeDevice3::FakeDevice3:755", hr);
         }
     }
 }
 
 HRESULT FakeDevice3::QueryInterface(REFIID riid, LPVOID *ppvObj) {
-    gog_debug("Unused function called: FakeDevice3::QueryInterface");
+    gog_unused_function_called("FakeDevice3::QueryInterface");
     return DDERR_GENERIC;
 }
 
@@ -172,7 +172,7 @@ HRESULT FakeDevice3::GetCaps(LPD3DDEVICEDESC hwDesc, LPD3DDEVICEDESC halDesc) {
 }
 
 HRESULT FakeDevice3::GetStats(LPD3DSTATS) {
-    gog_debug("Unused function called: FakeDevice3::GetStats");
+    gog_unused_function_called("FakeDevice3::GetStats");
     return DDERR_GENERIC;
 }
 
@@ -181,12 +181,12 @@ HRESULT FakeDevice3::AddViewport(LPDIRECT3DVIEWPORT3) {
 }
 
 HRESULT FakeDevice3::DeleteViewport(LPDIRECT3DVIEWPORT3) {
-    gog_debug("Unused function called: FakeDevice3::DeleteViewport");
+    gog_unused_function_called("FakeDevice3::DeleteViewport");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDevice3::NextViewport(LPDIRECT3DVIEWPORT3, LPDIRECT3DVIEWPORT3 *, DWORD) {
-    gog_debug("Unused function called: FakeDevice3::NextViewport");
+    gog_unused_function_called("FakeDevice3::NextViewport");
     return DDERR_GENERIC;
 }
 
@@ -227,7 +227,7 @@ HRESULT FakeDevice3::BeginScene(void) {
             rect.y2 = gog::g_dwHeight * cfg::iAntialias;
         }
         hr = orig::pIDirect3DViewport3->Clear2(1, &rect, 2, 0xFF00FF00, 1.0, 0);
-        if (FAILED(hr)) gog_debug("Assertion failed: FakeDevice3::BeginScene:837");
+        if (FAILED(hr)) gog_assert_failed("FakeDevice3::BeginScene:837");
         g_isFlip = false;
     }
     if (orig::pIDirectDrawSurface4_zbuf) {
@@ -243,7 +243,7 @@ HRESULT FakeDevice3::BeginScene(void) {
     g_isSceneDrawing = true;
     hr = orig::pIDirect3DDevice3->BeginScene();
     if (FAILED(hr)) {
-        gog_debugf("Assertion failed: FakeDevice3::BeginScene:849 with HRESULT 0x%x", hr);
+        gog_assert_failed_hr("FakeDevice3::BeginScene:849", hr);
         return hr;
     }
     return hr;
@@ -254,7 +254,7 @@ HRESULT FakeDevice3::EndScene(void) {
     g_isSceneDrawing = false;
     hr = orig::pIDirect3DDevice3->EndScene();
     if (FAILED(hr)) {
-        gog_debugf("Assertion failed: FakeDevice3::EndScene:855 with HRESULT 0x%x", hr);
+        gog_assert_failed_hr("FakeDevice3::EndScene:855", hr);
     }
     if (!orig::pIDirectDrawSurface4_zbuf)
         return hr;
@@ -268,7 +268,7 @@ HRESULT FakeDevice3::EndScene(void) {
 }
 
 HRESULT FakeDevice3::GetDirect3D(LPDIRECT3D3 *) {
-    gog_debug("Unused function called: FakeDevice3::GetDirect3D");
+    gog_unused_function_called("FakeDevice3::GetDirect3D");
     return DDERR_GENERIC;
 }
 
@@ -277,47 +277,47 @@ HRESULT FakeDevice3::SetCurrentViewport(LPDIRECT3DVIEWPORT3) {
 }
 
 HRESULT FakeDevice3::GetCurrentViewport(LPDIRECT3DVIEWPORT3 *) {
-    gog_debug("Unused function called: FakeDevice3::GetCurrentViewport");
+    gog_unused_function_called("FakeDevice3::GetCurrentViewport");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDevice3::SetRenderTarget(LPDIRECTDRAWSURFACE4, DWORD) {
-    gog_debug("Unused function called: FakeDevice3::SetRenderTarget");
+    gog_unused_function_called("FakeDevice3::SetRenderTarget");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDevice3::GetRenderTarget(LPDIRECTDRAWSURFACE4 *) {
-    gog_debug("Unused function called: FakeDevice3::GetRenderTarget");
+    gog_unused_function_called("FakeDevice3::GetRenderTarget");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDevice3::Begin(D3DPRIMITIVETYPE, DWORD, DWORD) {
-    gog_debug("Unused function called: FakeDevice3::Begin");
+    gog_unused_function_called("FakeDevice3::Begin");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDevice3::BeginIndexed(D3DPRIMITIVETYPE, DWORD, LPVOID, DWORD, DWORD) {
-    gog_debug("Unused function called: FakeDevice3::BeginIndexed");
+    gog_unused_function_called("FakeDevice3::BeginIndexed");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDevice3::Vertex(LPVOID) {
-    gog_debug("Unused function called: FakeDevice3::Vertex");
+    gog_unused_function_called("FakeDevice3::Vertex");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDevice3::Index(WORD) {
-    gog_debug("Unused function called: FakeDevice3::Index");
+    gog_unused_function_called("FakeDevice3::Index");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDevice3::End(DWORD) {
-    gog_debug("Unused function called: FakeDevice3::End");
+    gog_unused_function_called("FakeDevice3::End");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDevice3::GetRenderState(D3DRENDERSTATETYPE, LPDWORD) {
-    gog_debug("Unused function called: FakeDevice3::GetRenderState");
+    gog_unused_function_called("FakeDevice3::GetRenderState");
     return DDERR_GENERIC;
 }
 
@@ -328,41 +328,41 @@ HRESULT FakeDevice3::SetRenderState(D3DRENDERSTATETYPE stateType, DWORD a3) {
             stateType == D3DRENDERSTATE_FOGENABLE
             )
         return 0;
-    if (stateType == D3DRENDERSTATE_ANTIALIAS) gog_debug("Assertion failed: FakeDevice3::SetRenderState:879");
+    if (stateType == D3DRENDERSTATE_ANTIALIAS) gog_assert_failed("FakeDevice3::SetRenderState:879");
     HRESULT hr = orig::pIDirect3DDevice3->SetRenderState(stateType, a3);
     if (FAILED(hr)) {
-        gog_debugf("Assertion failed: FakeDevice3::SetRenderState:887 with HRESULT 0x%x", hr);
+        gog_assert_failed_hr("FakeDevice3::SetRenderState:887", hr);
     }
     return hr;
 }
 
 HRESULT FakeDevice3::GetLightState(D3DLIGHTSTATETYPE, LPDWORD) {
-    gog_debug("Unused function called: FakeDevice3::GetLightState");
+    gog_unused_function_called("FakeDevice3::GetLightState");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDevice3::SetLightState(D3DLIGHTSTATETYPE, DWORD) {
-    gog_debug("Unused function called: FakeDevice3::SetLightState");
+    gog_unused_function_called("FakeDevice3::SetLightState");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDevice3::SetTransform(D3DTRANSFORMSTATETYPE, LPD3DMATRIX) {
-    gog_debug("Unused function called: FakeDevice3::SetTransform");
+    gog_unused_function_called("FakeDevice3::SetTransform");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDevice3::GetTransform(D3DTRANSFORMSTATETYPE, LPD3DMATRIX) {
-    gog_debug("Unused function called: FakeDevice3::GetTransform");
+    gog_unused_function_called("FakeDevice3::GetTransform");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDevice3::MultiplyTransform(D3DTRANSFORMSTATETYPE, LPD3DMATRIX) {
-    gog_debug("Unused function called: FakeDevice3::MultiplyTransform");
+    gog_unused_function_called("FakeDevice3::MultiplyTransform");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDevice3::DrawPrimitive(D3DPRIMITIVETYPE, DWORD, LPVOID, DWORD, DWORD) {
-    gog_debug("Unused function called: FakeDevice3::DrawPrimitive");
+    gog_unused_function_called("FakeDevice3::DrawPrimitive");
     return DDERR_GENERIC;
 }
 
@@ -386,26 +386,25 @@ namespace dk2 {
 HRESULT
 FakeDevice3::DrawIndexedPrimitive(D3DPRIMITIVETYPE primitive_type, DWORD fvf, LPVOID vertices, DWORD vertex_count,
                                   LPWORD indices, DWORD index_count, DWORD flags) {
-    if (!g_isSceneDrawing) gog_debug("Assertion failed: FakeDevice3::DrawIndexedPrimitive:914");
-    if (primitive_type != D3DPT_TRIANGLELIST) gog_debug("Assertion failed: FakeDevice3::DrawIndexedPrimitive:915");
+    if (!g_isSceneDrawing) gog_assert_failed("FakeDevice3::DrawIndexedPrimitive:914");
+    if (primitive_type != D3DPT_TRIANGLELIST) gog_assert_failed("FakeDevice3::DrawIndexedPrimitive:915");
     if (cfg::iBumpmap) {
-        if (fvf != Vertex1C_TypeDesc && fvf != Vertex2C_TypeDesc) gog_debug(
-                "Assertion failed: FakeDevice3::DrawIndexedPrimitive:917");
+        if (fvf != Vertex1C_TypeDesc && fvf != Vertex2C_TypeDesc) gog_assert_failed("FakeDevice3::DrawIndexedPrimitive:917");
     } else if (fvf != Vertex1C_TypeDesc) {
-        gog_debug("Assertion failed: FakeDevice3::DrawIndexedPrimitive:919");
+        gog_assert_failed("FakeDevice3::DrawIndexedPrimitive:919");
     }
-    if (!vertices) gog_debug("Assertion failed: FakeDevice3::DrawIndexedPrimitive:921");
-    if (!vertex_count) gog_debug("Assertion failed: FakeDevice3::DrawIndexedPrimitive:922");
-    if (!indices) gog_debug("Assertion failed: FakeDevice3::DrawIndexedPrimitive:923");
-    if (!index_count) gog_debug("Assertion failed: FakeDevice3::DrawIndexedPrimitive:924");
-    if (flags != 0x1C) gog_debug("Assertion failed: FakeDevice3::DrawIndexedPrimitive:925");
+    if (!vertices) gog_assert_failed("FakeDevice3::DrawIndexedPrimitive:921");
+    if (!vertex_count) gog_assert_failed("FakeDevice3::DrawIndexedPrimitive:922");
+    if (!indices) gog_assert_failed("FakeDevice3::DrawIndexedPrimitive:923");
+    if (!index_count) gog_assert_failed("FakeDevice3::DrawIndexedPrimitive:924");
+    if (flags != 0x1C) gog_assert_failed("FakeDevice3::DrawIndexedPrimitive:925");
 
     if (fvf == Vertex1C_TypeDesc) {
         if (vertex_count) {
             dk2::Vertex1C *pos = (dk2::Vertex1C *) vertices;
             int vertex_left = vertex_count;
             do {
-                if (pos->z < 0.0 || pos->z > 1.0) gog_debug("Assertion failed: FakeDevice3::DrawIndexedPrimitive:929");
+                if (pos->z < 0.0 || pos->z > 1.0) gog_assert_failed("FakeDevice3::DrawIndexedPrimitive:929");
                 ++pos;
                 --vertex_left;
             } while (vertex_left);
@@ -479,51 +478,51 @@ FakeDevice3::DrawIndexedPrimitive(D3DPRIMITIVETYPE primitive_type, DWORD fvf, LP
             primitive_type, fvf, vertices, vertex_count, indices, index_count, 0x15
     );
     if (FAILED(hr)) {
-        gog_debugf("Assertion failed: FakeDevice3::DrawIndexedPrimitive:951 with HRESULT 0x%x", hr);
+        gog_assert_failed_hr("FakeDevice3::DrawIndexedPrimitive:951", hr);
         return hr;
     }
     return hr;
 }
 
 HRESULT FakeDevice3::SetClipStatus(LPD3DCLIPSTATUS) {
-    gog_debug("Unused function called: FakeDevice3::SetClipStatus");
+    gog_unused_function_called("FakeDevice3::SetClipStatus");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDevice3::GetClipStatus(LPD3DCLIPSTATUS) {
-    gog_debug("Unused function called: FakeDevice3::GetClipStatus");
+    gog_unused_function_called("FakeDevice3::GetClipStatus");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDevice3::DrawPrimitiveStrided(D3DPRIMITIVETYPE, DWORD, LPD3DDRAWPRIMITIVESTRIDEDDATA, DWORD, DWORD) {
-    gog_debug("Unused function called: FakeDevice3::DrawPrimitiveStrided");
+    gog_unused_function_called("FakeDevice3::DrawPrimitiveStrided");
     return DDERR_GENERIC;
 }
 
 HRESULT
 FakeDevice3::DrawIndexedPrimitiveStrided(D3DPRIMITIVETYPE, DWORD, LPD3DDRAWPRIMITIVESTRIDEDDATA, DWORD, LPWORD, DWORD,
                                          DWORD) {
-    gog_debug("Unused function called: FakeDevice3::DrawIndexedPrimitiveStrided");
+    gog_unused_function_called("FakeDevice3::DrawIndexedPrimitiveStrided");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDevice3::DrawPrimitiveVB(D3DPRIMITIVETYPE, LPDIRECT3DVERTEXBUFFER, DWORD, DWORD, DWORD) {
-    gog_debug("Unused function called: FakeDevice3::DrawPrimitiveVB");
+    gog_unused_function_called("FakeDevice3::DrawPrimitiveVB");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDevice3::DrawIndexedPrimitiveVB(D3DPRIMITIVETYPE, LPDIRECT3DVERTEXBUFFER, LPWORD, DWORD, DWORD) {
-    gog_debug("Unused function called: FakeDevice3::DrawIndexedPrimitiveVB");
+    gog_unused_function_called("FakeDevice3::DrawIndexedPrimitiveVB");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDevice3::ComputeSphereVisibility(LPD3DVECTOR, LPD3DVALUE, DWORD, DWORD, LPDWORD) {
-    gog_debug("Unused function called: FakeDevice3::ComputeSphereVisibility");
+    gog_unused_function_called("FakeDevice3::ComputeSphereVisibility");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDevice3::GetTexture(DWORD, LPDIRECT3DTEXTURE2 *) {
-    gog_debug("Unused function called: FakeDevice3::GetTexture");
+    gog_unused_function_called("FakeDevice3::GetTexture");
     return DDERR_GENERIC;
 }
 
@@ -533,26 +532,25 @@ HRESULT FakeDevice3::SetTexture(DWORD a3, LPDIRECT3DTEXTURE2 tex_) {
     if (tex) orig_tex = tex->orig();
     HRESULT hr = orig::pIDirect3DDevice3->SetTexture(a3, orig_tex);
     if (FAILED(hr)) {
-        gog_debugf("Assertion failed: FakeDevice3::SetTexture:964 with HRESULT 0x%x", hr);
+        gog_assert_failed_hr("FakeDevice3::SetTexture:964", hr);
         return hr;
     }
     return hr;
 }
 
 HRESULT FakeDevice3::GetTextureStageState(DWORD, D3DTEXTURESTAGESTATETYPE, LPDWORD) {
-    gog_debug("Unused function called: FakeDevice3::GetTextureStageState");
+    gog_unused_function_called("FakeDevice3::GetTextureStageState");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDevice3::SetTextureStageState(DWORD Stage, D3DTEXTURESTAGESTATETYPE Type, DWORD Value) {
     if (cfg::iBumpmap) {
-        if (Stage != 0 && Stage != 1 && Stage != 2) gog_debug(
-                "Assertion failed: FakeDevice3::SetTextureStageState:970");
+        if (Stage != 0 && Stage != 1 && Stage != 2) gog_assert_failed("FakeDevice3::SetTextureStageState:970");
     } else if (Stage != 0) {
-        gog_debug("Assertion failed: FakeDevice3::SetTextureStageState:972");
+        gog_assert_failed("FakeDevice3::SetTextureStageState:972");
     }
     switch (Type) {
-        case D3DTSS_MAXANISOTROPY: gog_debug("Assertion failed: FakeDevice3::SetTextureStageState:975");
+        case D3DTSS_MAXANISOTROPY: gog_assert_failed("FakeDevice3::SetTextureStageState:975");
             break;
         case D3DTSS_MAGFILTER:
             if (Value == 2) Value = 5;
@@ -565,14 +563,14 @@ HRESULT FakeDevice3::SetTextureStageState(DWORD Stage, D3DTEXTURESTAGESTATETYPE 
     }
     HRESULT hr = orig::pIDirect3DDevice3->SetTextureStageState(Stage, Type, Value);
     if (FAILED(hr)) {
-        gog_debugf("Assertion failed: FakeDevice3::SetTextureStageState:984 with HRESULT 0x%x", hr);
+        gog_assert_failed_hr("FakeDevice3::SetTextureStageState:984", hr);
         return hr;
     }
     return hr;
 }
 
 HRESULT FakeDevice3::ValidateDevice(LPDWORD) {
-    gog_debug("Unused function called: FakeDevice3::ValidateDevice");
+    gog_unused_function_called("FakeDevice3::ValidateDevice");
     return DDERR_GENERIC;
 }
 

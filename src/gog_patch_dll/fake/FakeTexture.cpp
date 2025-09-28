@@ -9,7 +9,7 @@ using namespace gog;
 FakeTexture::FakeTexture(IDirect3DTexture2 *orig_tex) : f8_orig_tex(orig_tex) {}
 
 HRESULT FakeTexture::QueryInterface(const IID &riid, LPVOID *ppvObj) {
-    gog_debug("Unused function called: FakeTexture::QueryInterface");
+    gog_unused_function_called("FakeTexture::QueryInterface");
     return DDERR_GENERIC;
 }
 
@@ -25,17 +25,17 @@ ULONG FakeTexture::Release(void) {
 }
 
 HRESULT FakeTexture::GetHandle(LPDIRECT3DDEVICE2, LPD3DTEXTUREHANDLE) {
-    gog_debug("Unused function called: FakeTexture::GetHandle");
+    gog_unused_function_called("FakeTexture::GetHandle");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeTexture::PaletteChanged(DWORD, DWORD) {
-    gog_debug("Unused function called: FakeTexture::PaletteChanged");
+    gog_unused_function_called("FakeTexture::PaletteChanged");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeTexture::Load(LPDIRECT3DTEXTURE2) {
-    gog_debug("Unused function called: FakeTexture::Load");
+    gog_unused_function_called("FakeTexture::Load");
     return DDERR_GENERIC;
 }
 

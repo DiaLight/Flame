@@ -14,8 +14,8 @@ using namespace gog;
 //#pragma comment(linker, "/EXPORT:DirectDrawCreate@12=DirectDrawCreate")
 extern "C" HRESULT WINAPI fake_DirectDrawCreate(GUID FAR *lpGUID, LPDIRECTDRAW FAR *lplpDD, IUnknown FAR *pUnkOuter) {
     gog_debug("Creating DX device");
-    if (lpGUID != nullptr) gog_debug("Assertion failed: FakeDirectDrawCreate:1517");
-    if (lplpDD == nullptr) gog_debug("Assertion failed: FakeDirectDrawCreate:1518");
+    if (lpGUID != nullptr) gog_assert_failed("FakeDirectDrawCreate:1517");
+    if (lplpDD == nullptr) gog_assert_failed("FakeDirectDrawCreate:1518");
     if (!orig::pIDirectDraw4) {
         LPDIRECTDRAW lpDD;
         HRESULT hr = DirectDrawCreate(NULL, &lpDD, NULL);

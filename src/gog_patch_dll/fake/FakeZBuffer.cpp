@@ -10,112 +10,112 @@ using namespace gog;
 FakeZBuffer *FakeZBuffer::instance = nullptr;
 
 HRESULT FakeZBuffer::QueryInterface(REFIID riid, LPVOID FAR *ppvObj) {
-    gog_debug("Unused function called: FakeZBuffer::QueryInterface");
+    gog_unused_function_called("FakeZBuffer::QueryInterface");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeZBuffer::AddAttachedSurface(LPDIRECTDRAWSURFACE) {
-    gog_debug("Unused function called: FakeZBuffer::AddAttachedSurface");
+    gog_unused_function_called("FakeZBuffer::AddAttachedSurface");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeZBuffer::AddOverlayDirtyRect(LPRECT) {
-    gog_debug("Unused function called: FakeZBuffer::AddOverlayDirtyRect");
+    gog_unused_function_called("FakeZBuffer::AddOverlayDirtyRect");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeZBuffer::Blt(LPRECT, LPDIRECTDRAWSURFACE a3, LPRECT, DWORD, LPDDBLTFX) {
-    if (a3) gog_debug("Assertion failed: FakeZBuffer::Blt:24");
+    if (a3) gog_assert_failed("FakeZBuffer::Blt:24");
     return DD_OK;
 }
 
 HRESULT FakeZBuffer::BltBatch(LPDDBLTBATCH, DWORD, DWORD) {
-    gog_debug("Unused function called: FakeZBuffer::BltBatch");
+    gog_unused_function_called("FakeZBuffer::BltBatch");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeZBuffer::BltFast(DWORD, DWORD, LPDIRECTDRAWSURFACE, LPRECT, DWORD) {
-    gog_debug("Unused function called: FakeZBuffer::BltFast");
+    gog_unused_function_called("FakeZBuffer::BltFast");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeZBuffer::DeleteAttachedSurface(DWORD, LPDIRECTDRAWSURFACE) {
-    gog_debug("Unused function called: FakeZBuffer::DeleteAttachedSurface");
+    gog_unused_function_called("FakeZBuffer::DeleteAttachedSurface");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeZBuffer::EnumAttachedSurfaces(LPVOID, LPDDENUMSURFACESCALLBACK) {
-    gog_debug("Unused function called: FakeZBuffer::EnumAttachedSurfaces");
+    gog_unused_function_called("FakeZBuffer::EnumAttachedSurfaces");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeZBuffer::EnumOverlayZOrders(DWORD, LPVOID, LPDDENUMSURFACESCALLBACK) {
-    gog_debug("Unused function called: FakeZBuffer::EnumOverlayZOrders");
+    gog_unused_function_called("FakeZBuffer::EnumOverlayZOrders");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeZBuffer::Flip(LPDIRECTDRAWSURFACE, DWORD) {
-    gog_debug("Unused function called: FakeZBuffer::Flip");
+    gog_unused_function_called("FakeZBuffer::Flip");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeZBuffer::GetAttachedSurface(LPDDSCAPS, LPDIRECTDRAWSURFACE *) {
-    gog_debug("Unused function called: FakeZBuffer::GetAttachedSurface");
+    gog_unused_function_called("FakeZBuffer::GetAttachedSurface");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeZBuffer::GetBltStatus(DWORD) {
-    gog_debug("Unused function called: FakeZBuffer::GetBltStatus");
+    gog_unused_function_called("FakeZBuffer::GetBltStatus");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeZBuffer::GetCaps(LPDDSCAPS) {
-    gog_debug("Unused function called: FakeZBuffer::GetCaps");
+    gog_unused_function_called("FakeZBuffer::GetCaps");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeZBuffer::GetClipper(LPDIRECTDRAWCLIPPER *) {
-    gog_debug("Unused function called: FakeZBuffer::GetClipper");
+    gog_unused_function_called("FakeZBuffer::GetClipper");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeZBuffer::GetColorKey(DWORD, LPDDCOLORKEY) {
-    gog_debug("Unused function called: FakeZBuffer::GetColorKey");
+    gog_unused_function_called("FakeZBuffer::GetColorKey");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeZBuffer::GetDC(HDC *) {
-    gog_debug("Unused function called: FakeZBuffer::GetDC");
+    gog_unused_function_called("FakeZBuffer::GetDC");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeZBuffer::GetFlipStatus(DWORD) {
-    gog_debug("Unused function called: FakeZBuffer::GetFlipStatus");
+    gog_unused_function_called("FakeZBuffer::GetFlipStatus");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeZBuffer::GetOverlayPosition(LPLONG, LPLONG) {
-    gog_debug("Unused function called: FakeZBuffer::GetOverlayPosition");
+    gog_unused_function_called("FakeZBuffer::GetOverlayPosition");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeZBuffer::GetPalette(LPDIRECTDRAWPALETTE *) {
-    gog_debug("Unused function called: FakeZBuffer::GetPalette");
+    gog_unused_function_called("FakeZBuffer::GetPalette");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeZBuffer::GetPixelFormat(LPDDPIXELFORMAT) {
-    gog_debug("Unused function called: FakeZBuffer::GetPixelFormat");
+    gog_unused_function_called("FakeZBuffer::GetPixelFormat");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeZBuffer::GetSurfaceDesc(LPDDSURFACEDESC) {
-    gog_debug("Unused function called: FakeZBuffer::GetSurfaceDesc");
+    gog_unused_function_called("FakeZBuffer::GetSurfaceDesc");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeZBuffer::Initialize(LPDIRECTDRAW, LPDDSURFACEDESC) {
-    gog_debug("Unused function called: FakeZBuffer::Initialize");
+    gog_unused_function_called("FakeZBuffer::Initialize");
     return DDERR_GENERIC;
 }
 
@@ -124,12 +124,12 @@ HRESULT FakeZBuffer::IsLost(void) {
 }
 
 HRESULT FakeZBuffer::Lock(LPRECT, LPDDSURFACEDESC, DWORD, HANDLE) {
-    gog_debug("Unused function called: FakeZBuffer::Lock");
+    gog_unused_function_called("FakeZBuffer::Lock");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeZBuffer::ReleaseDC(HDC) {
-    gog_debug("Unused function called: FakeZBuffer::ReleaseDC");
+    gog_unused_function_called("FakeZBuffer::ReleaseDC");
     return DDERR_GENERIC;
 }
 
@@ -142,37 +142,37 @@ HRESULT FakeZBuffer::SetClipper(LPDIRECTDRAWCLIPPER) {
 }
 
 HRESULT FakeZBuffer::SetColorKey(DWORD, LPDDCOLORKEY) {
-    gog_debug("Unused function called: FakeZBuffer::SetColorKey");
+    gog_unused_function_called("FakeZBuffer::SetColorKey");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeZBuffer::SetOverlayPosition(LONG, LONG) {
-    gog_debug("Unused function called: FakeZBuffer::SetOverlayPosition");
+    gog_unused_function_called("FakeZBuffer::SetOverlayPosition");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeZBuffer::SetPalette(LPDIRECTDRAWPALETTE) {
-    gog_debug("Unused function called: FakeZBuffer::SetPalette");
+    gog_unused_function_called("FakeZBuffer::SetPalette");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeZBuffer::Unlock(LPVOID) {
-    gog_debug("Unused function called: FakeZBuffer::Unlock");
+    gog_unused_function_called("FakeZBuffer::Unlock");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeZBuffer::UpdateOverlay(LPRECT, LPDIRECTDRAWSURFACE, LPRECT, DWORD, LPDDOVERLAYFX) {
-    gog_debug("Unused function called: FakeZBuffer::UpdateOverlay");
+    gog_unused_function_called("FakeZBuffer::UpdateOverlay");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeZBuffer::UpdateOverlayDisplay(DWORD) {
-    gog_debug("Unused function called: FakeZBuffer::UpdateOverlayDisplay");
+    gog_unused_function_called("FakeZBuffer::UpdateOverlayDisplay");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeZBuffer::UpdateOverlayZOrder(DWORD, LPDIRECTDRAWSURFACE) {
-    gog_debug("Unused function called: FakeZBuffer::UpdateOverlayZOrder");
+    gog_unused_function_called("FakeZBuffer::UpdateOverlayZOrder");
     return DDERR_GENERIC;
 }
 

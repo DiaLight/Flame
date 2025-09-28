@@ -12,22 +12,22 @@ using namespace gog;
 FakeDirectDraw2 *FakeDirectDraw2::instance = nullptr;
 
 HRESULT FakeDirectDraw2::QueryInterface(REFIID riid, LPVOID FAR *ppvObj) {
-    gog_debug("Unused function called: FakeDirectDraw2::QueryInterface");
+    gog_unused_function_called("FakeDirectDraw2::QueryInterface");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw2::Compact(void) {
-    gog_debug("Unused function called: FakeDirectDraw2::Compact");
+    gog_unused_function_called("FakeDirectDraw2::Compact");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw2::CreateClipper(DWORD, LPDIRECTDRAWCLIPPER *, IUnknown *) {
-    gog_debug("Unused function called: FakeDirectDraw2::CreateClipper");
+    gog_unused_function_called("FakeDirectDraw2::CreateClipper");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw2::CreatePalette(DWORD, LPPALETTEENTRY, LPDIRECTDRAWPALETTE *, IUnknown *) {
-    gog_debug("Unused function called: FakeDirectDraw2::CreatePalette");
+    gog_unused_function_called("FakeDirectDraw2::CreatePalette");
     return DDERR_GENERIC;
 }
 
@@ -40,7 +40,7 @@ HRESULT FakeDirectDraw2::CreateSurface(LPDDSURFACEDESC pDesc, LPDIRECTDRAWSURFAC
             }
         }
     }
-    if (pDesc->ddpfPixelFormat.dwFlags != 4) gog_debug("Assertion failed: FakeDirectDraw2::CreateSurface:1161");
+    if (pDesc->ddpfPixelFormat.dwFlags != 4) gog_assert_failed("FakeDirectDraw2::CreateSurface:1161");
     if (cfg::iDisableFourCC)
         return DDERR_INVALIDPIXELFORMAT;
     *(LPDIRECTDRAWSURFACE2 *) ppSurf = new FakeSurface((LPDDSURFACEDESC2) pDesc);
@@ -48,22 +48,22 @@ HRESULT FakeDirectDraw2::CreateSurface(LPDDSURFACEDESC pDesc, LPDIRECTDRAWSURFAC
 }
 
 HRESULT FakeDirectDraw2::DuplicateSurface(LPDIRECTDRAWSURFACE, LPDIRECTDRAWSURFACE *) {
-    gog_debug("Unused function called: FakeDirectDraw2::DuplicateSurface");
+    gog_unused_function_called("FakeDirectDraw2::DuplicateSurface");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw2::EnumDisplayModes(DWORD, LPDDSURFACEDESC, LPVOID, LPDDENUMMODESCALLBACK) {
-    gog_debug("Unused function called: FakeDirectDraw2::EnumDisplayModes");
+    gog_unused_function_called("FakeDirectDraw2::EnumDisplayModes");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw2::EnumSurfaces(DWORD, LPDDSURFACEDESC, LPVOID, LPDDENUMSURFACESCALLBACK) {
-    gog_debug("Unused function called: FakeDirectDraw2::EnumSurfaces");
+    gog_unused_function_called("FakeDirectDraw2::EnumSurfaces");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw2::FlipToGDISurface(void) {
-    gog_debug("Unused function called: FakeDirectDraw2::FlipToGDISurface");
+    gog_unused_function_called("FakeDirectDraw2::FlipToGDISurface");
     return DDERR_GENERIC;
 }
 
@@ -115,7 +115,7 @@ HRESULT FakeDirectDraw2::GetCaps(LPDDCAPS hwCaps, LPDDCAPS halCaps) {
 }
 
 HRESULT FakeDirectDraw2::GetDisplayMode(LPDDSURFACEDESC) {
-    gog_debug("Unused function called: FakeDirectDraw2::GetDisplayMode");
+    gog_unused_function_called("FakeDirectDraw2::GetDisplayMode");
     return DDERR_GENERIC;
 }
 
@@ -127,47 +127,47 @@ HRESULT FakeDirectDraw2::GetFourCCCodes(LPDWORD a2, LPDWORD a3) {
 }
 
 HRESULT FakeDirectDraw2::GetGDISurface(LPDIRECTDRAWSURFACE *) {
-    gog_debug("Unused function called: FakeDirectDraw2::GetGDISurface");
+    gog_unused_function_called("FakeDirectDraw2::GetGDISurface");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw2::GetMonitorFrequency(LPDWORD) {
-    gog_debug("Unused function called: FakeDirectDraw2::GetMonitorFrequency");
+    gog_unused_function_called("FakeDirectDraw2::GetMonitorFrequency");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw2::GetScanLine(LPDWORD) {
-    gog_debug("Unused function called: FakeDirectDraw2::GetScanLine");
+    gog_unused_function_called("FakeDirectDraw2::GetScanLine");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw2::GetVerticalBlankStatus(LPBOOL) {
-    gog_debug("Unused function called: FakeDirectDraw2::GetVerticalBlankStatus");
+    gog_unused_function_called("FakeDirectDraw2::GetVerticalBlankStatus");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw2::Initialize(GUID *) {
-    gog_debug("Unused function called: FakeDirectDraw2::Initialize");
+    gog_unused_function_called("FakeDirectDraw2::Initialize");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw2::RestoreDisplayMode(void) {
-    gog_debug("Unused function called: FakeDirectDraw2::RestoreDisplayMode");
+    gog_unused_function_called("FakeDirectDraw2::RestoreDisplayMode");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw2::SetCooperativeLevel(HWND, DWORD) {
-    gog_debug("Unused function called: FakeDirectDraw2::SetCooperativeLevel");
+    gog_unused_function_called("FakeDirectDraw2::SetCooperativeLevel");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw2::SetDisplayMode(DWORD, DWORD, DWORD, DWORD, DWORD) {
-    gog_debug("Unused function called: FakeDirectDraw2::SetDisplayMode");
+    gog_unused_function_called("FakeDirectDraw2::SetDisplayMode");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw2::WaitForVerticalBlank(DWORD, HANDLE) {
-    gog_debug("Unused function called: FakeDirectDraw2::WaitForVerticalBlank");
+    gog_unused_function_called("FakeDirectDraw2::WaitForVerticalBlank");
     return DDERR_GENERIC;
 }
 

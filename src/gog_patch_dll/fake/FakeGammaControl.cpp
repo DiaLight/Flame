@@ -9,12 +9,12 @@ using namespace gog;
 FakeGammaControl *FakeGammaControl::instance = nullptr;
 
 HRESULT FakeGammaControl::QueryInterface(REFIID riid, LPVOID FAR *ppvObj) {
-    gog_debug("Unused function called: FakeGammaControl::QueryInterface");
+    gog_unused_function_called("FakeGammaControl::QueryInterface");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeGammaControl::GetGammaRamp(DWORD, LPDDGAMMARAMP) {
-    gog_debug("Unused function called: FakeGammaControl::GetGammaRamp");
+    gog_unused_function_called("FakeGammaControl::GetGammaRamp");
     return DDERR_GENERIC;
 }
 

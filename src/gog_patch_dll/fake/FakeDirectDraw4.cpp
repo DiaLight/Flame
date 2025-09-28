@@ -15,57 +15,57 @@ HRESULT FakeDirectDraw4::QueryInterface(REFIID riid, LPVOID FAR *ppvObj) {
         *ppvObj = FakeD3D3::instance;
         return DD_OK;
     }
-    gog_debug("Unused function called: FakeDirectDraw4::QueryInterface");
+    gog_unused_function_called("FakeDirectDraw4::QueryInterface");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw4::Compact(void) {
-    gog_debug("Unused function called: FakeDirectDraw4::Compact");
+    gog_unused_function_called("FakeDirectDraw4::Compact");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw4::CreateClipper(DWORD, LPDIRECTDRAWCLIPPER *, IUnknown *) {
-    gog_debug("Unused function called: FakeDirectDraw4::CreateClipper");
+    gog_unused_function_called("FakeDirectDraw4::CreateClipper");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw4::CreatePalette(DWORD, LPPALETTEENTRY, LPDIRECTDRAWPALETTE *, IUnknown *) {
-    gog_debug("Unused function called: FakeDirectDraw4::CreatePalette");
+    gog_unused_function_called("FakeDirectDraw4::CreatePalette");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw4::CreateSurface(LPDDSURFACEDESC2 pDesc, LPDIRECTDRAWSURFACE4 *ppSurf, IUnknown *a4) {
-    if (!pDesc) gog_debug("Assertion failed: FakeDirectDraw4::CreateSurface:1053");
-    if (a4) gog_debug("Assertion failed: FakeDirectDraw4::CreateSurface:1054");
+    if (!pDesc) gog_assert_failed("FakeDirectDraw4::CreateSurface:1053");
+    if (a4) gog_assert_failed("FakeDirectDraw4::CreateSurface:1054");
     auto *surf = new FakeSurface4(pDesc);
-    if (!surf->orig()) gog_debug("Assertion failed: FakeDirectDraw4::CreateSurface:1056");
+    if (!surf->orig()) gog_assert_failed("FakeDirectDraw4::CreateSurface:1056");
     *ppSurf = surf;
     return DD_OK;
 }
 
 HRESULT FakeDirectDraw4::DuplicateSurface(LPDIRECTDRAWSURFACE4, LPDIRECTDRAWSURFACE4 *) {
-    gog_debug("Unused function called: FakeDirectDraw4::DuplicateSurface");
+    gog_unused_function_called("FakeDirectDraw4::DuplicateSurface");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw4::EnumDisplayModes(DWORD, LPDDSURFACEDESC2, LPVOID, LPDDENUMMODESCALLBACK2) {
-    gog_debug("Unused function called: FakeDirectDraw4::EnumDisplayModes");
+    gog_unused_function_called("FakeDirectDraw4::EnumDisplayModes");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw4::EnumSurfaces(DWORD, LPDDSURFACEDESC2, LPVOID, LPDDENUMSURFACESCALLBACK2) {
-    gog_debug("Unused function called: FakeDirectDraw4::EnumSurfaces");
+    gog_unused_function_called("FakeDirectDraw4::EnumSurfaces");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw4::FlipToGDISurface(void) {
-    gog_debug("Unused function called: FakeDirectDraw4::FlipToGDISurface");
+    gog_unused_function_called("FakeDirectDraw4::FlipToGDISurface");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw4::GetCaps(LPDDCAPS hwCaps, LPDDCAPS halCaps) {
-    if (!hwCaps) gog_debug("Assertion failed: FakeDirectDraw4::GetCaps:1065");
-    if (halCaps) gog_debug("Assertion failed: FakeDirectDraw4::GetCaps:1066");
+    if (!hwCaps) gog_assert_failed("FakeDirectDraw4::GetCaps:1065");
+    if (halCaps) gog_assert_failed("FakeDirectDraw4::GetCaps:1066");
     DDCAPS hwCaps_;
     hwCaps_.dwSize = sizeof(DDCAPS);
     static_assert(sizeof(DDCAPS) == 380);
@@ -111,83 +111,83 @@ HRESULT FakeDirectDraw4::GetCaps(LPDDCAPS hwCaps, LPDDCAPS halCaps) {
 }
 
 HRESULT FakeDirectDraw4::GetDisplayMode(LPDDSURFACEDESC2) {
-    gog_debug("Unused function called: FakeDirectDraw4::GetDisplayMode");
+    gog_unused_function_called("FakeDirectDraw4::GetDisplayMode");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw4::GetFourCCCodes(LPDWORD, LPDWORD) {
-    gog_debug("Unused function called: FakeDirectDraw4::GetFourCCCodes");
+    gog_unused_function_called("FakeDirectDraw4::GetFourCCCodes");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw4::GetGDISurface(LPDIRECTDRAWSURFACE4 *) {
-    gog_debug("Unused function called: FakeDirectDraw4::GetGDISurface");
+    gog_unused_function_called("FakeDirectDraw4::GetGDISurface");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw4::GetMonitorFrequency(LPDWORD) {
-    gog_debug("Unused function called: FakeDirectDraw4::GetMonitorFrequency");
+    gog_unused_function_called("FakeDirectDraw4::GetMonitorFrequency");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw4::GetScanLine(LPDWORD) {
-    gog_debug("Unused function called: FakeDirectDraw4::GetScanLine");
+    gog_unused_function_called("FakeDirectDraw4::GetScanLine");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw4::GetVerticalBlankStatus(LPBOOL) {
-    gog_debug("Unused function called: FakeDirectDraw4::GetVerticalBlankStatus");
+    gog_unused_function_called("FakeDirectDraw4::GetVerticalBlankStatus");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw4::Initialize(GUID *) {
-    gog_debug("Unused function called: FakeDirectDraw4::Initialize");
+    gog_unused_function_called("FakeDirectDraw4::Initialize");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw4::RestoreDisplayMode(void) {
-    gog_debug("Unused function called: FakeDirectDraw4::RestoreDisplayMode");
+    gog_unused_function_called("FakeDirectDraw4::RestoreDisplayMode");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw4::SetCooperativeLevel(HWND, DWORD) {
-    gog_debug("Unused function called: FakeDirectDraw4::SetCooperativeLevel");
+    gog_unused_function_called("FakeDirectDraw4::SetCooperativeLevel");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw4::SetDisplayMode(DWORD, DWORD, DWORD, DWORD, DWORD) {
-    gog_debug("Unused function called: FakeDirectDraw4::SetDisplayMode");
+    gog_unused_function_called("FakeDirectDraw4::SetDisplayMode");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw4::WaitForVerticalBlank(DWORD, HANDLE) {
-    gog_debug("Unused function called: FakeDirectDraw4::WaitForVerticalBlank");
+    gog_unused_function_called("FakeDirectDraw4::WaitForVerticalBlank");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw4::GetAvailableVidMem(LPDDSCAPS2, LPDWORD, LPDWORD) {
-    gog_debug("Unused function called: FakeDirectDraw4::GetAvailableVidMem");
+    gog_unused_function_called("FakeDirectDraw4::GetAvailableVidMem");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw4::GetSurfaceFromDC(HDC, LPDIRECTDRAWSURFACE4 *) {
-    gog_debug("Unused function called: FakeDirectDraw4::GetSurfaceFromDC");
+    gog_unused_function_called("FakeDirectDraw4::GetSurfaceFromDC");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw4::RestoreAllSurfaces(void) {
-    gog_debug("Unused function called: FakeDirectDraw4::RestoreAllSurfaces");
+    gog_unused_function_called("FakeDirectDraw4::RestoreAllSurfaces");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw4::TestCooperativeLevel(void) {
-    gog_debug("Unused function called: FakeDirectDraw4::TestCooperativeLevel");
+    gog_unused_function_called("FakeDirectDraw4::TestCooperativeLevel");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeDirectDraw4::GetDeviceIdentifier(LPDDDEVICEIDENTIFIER pDevId, DWORD) {
     DDDEVICEIDENTIFIER devId;
-    if (!pDevId) gog_debug("Assertion failed: FakeDirectDraw4::GetDeviceIdentifier:1126");
+    if (!pDevId) gog_assert_failed("FakeDirectDraw4::GetDeviceIdentifier:1126");
     memset(&devId, 0, sizeof(devId));
     devId.guidDeviceIdentifier = IID_IDirectDraw7;
     strcpy_s(devId.szDriver, 0x200u, "RandomFakeDriver");

@@ -51,7 +51,7 @@ LPDIRECTDRAWSURFACE4 gog::Fake_CreateZBuf(DWORD width, DWORD height) {
     hr = orig::pIDirectDraw4->CreateSurface(&desc, &surf, NULL);
     if (SUCCEEDED(hr))
         return surf;
-    gog_debugf("Assertion failed: CreateZBuf:146 with HRESULT 0x%x", hr);
+    gog_assert_failed_hr("CreateZBuf:146", hr);
     gog_debugf("Width = %d\nHeight = %d\nCaps = 0x%x\npfType = 0x%x",
                desc.dwWidth,
                desc.dwHeight,
@@ -62,7 +62,7 @@ LPDIRECTDRAWSURFACE4 gog::Fake_CreateZBuf(DWORD width, DWORD height) {
 
 void gog::Fake_Redraw() {
     if (orig::pIDirectDrawSurface4_coop == nullptr) {
-        gog_debug("Assertion failed: Redraw:51");
+        gog_assert_failed("Redraw:51");
     }
     if (g_isRendererPaused) return;
     HRESULT hr = orig::pIDirectDrawSurface4_coop->Blt(

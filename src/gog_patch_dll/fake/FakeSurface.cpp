@@ -25,7 +25,7 @@ FakeSurface::FakeSurface(IDirectDrawSurface4 *orig_surf) {
     this->f8_surfDesc.dwSize = 124;
     HRESULT hr = this->f88_orig_surf->GetSurfaceDesc(&this->f8_surfDesc);
     if (FAILED(hr)) {
-        gog_debugf("Assertion failed: FakeSurface::FakeSurface:364 with HRESULT 0x%x", hr);
+        gog_assert_failed_hr("FakeSurface::FakeSurface:364", hr);
     }
     this->f88_orig_surf->AddRef();
 }
@@ -47,13 +47,13 @@ FakeSurface::FakeSurface(DDSURFACEDESC2 *desc) {
             (descCpy.dwFlags & 4) == 0
             ) {
         if (FakeSurface::instance_mod) {
-            gog_debug("Assertion failed: FakeSurface::FakeSurface:377");
+            gog_assert_failed("FakeSurface::FakeSurface:377");
             dwFlags = descCpy.dwFlags;
         }
         static_assert(8 == DDSCAPS_COMPLEX);
         static_assert(0x10 == DDSCAPS_FLIP);
         if ((descCpy.ddsCaps.dwCaps & DDSCAPS_COMPLEX) == 0 || (descCpy.ddsCaps.dwCaps & DDSCAPS_FLIP) == 0) {
-            gog_debug("Assertion failed: FakeSurface::FakeSurface:379");
+            gog_assert_failed("FakeSurface::FakeSurface:379");
             dwFlags = descCpy.dwFlags;
         }
         DWORD v4 = gog::g_dwWidth;
@@ -79,7 +79,7 @@ FakeSurface::FakeSurface(DDSURFACEDESC2 *desc) {
     } else {
         this->f84_isModSurf = false;
         if ((dwFlags & 0x1000) != 0 && descCpy.ddpfPixelFormat.dwFlags != 4) {
-            gog_debug("Assertion failed: FakeSurface::FakeSurface:413");
+            gog_assert_failed("FakeSurface::FakeSurface:413");
             dwFlags = descCpy.dwFlags;
         }
     }
@@ -95,18 +95,17 @@ FakeSurface::FakeSurface(DDSURFACEDESC2 *desc) {
         descCpy.ddpfPixelFormat.dwBBitMask = 0xFF;
         descCpy.ddpfPixelFormat.dwRGBAlphaBitMask = 0;
     }
-    if ((dwFlags & 0x40) != 0 || (descCpy.ddsCaps.dwCaps & 0x20000) != 0) gog_debug(
-            "Assertion failed: FakeSurface::FakeSurface:437");
+    if ((dwFlags & 0x40) != 0 || (descCpy.ddsCaps.dwCaps & 0x20000) != 0) gog_assert_failed("FakeSurface::FakeSurface:437");
     memcpy(&this->f8_surfDesc, &descCpy, sizeof(this->f8_surfDesc));
-    if (!this->f8_surfDesc.dwWidth) gog_debug("Assertion failed: FakeSurface::FakeSurface:441");
-    if (!this->f8_surfDesc.dwHeight) gog_debug("Assertion failed: FakeSurface::FakeSurface:442");
+    if (!this->f8_surfDesc.dwWidth) gog_assert_failed("FakeSurface::FakeSurface:441");
+    if (!this->f8_surfDesc.dwHeight) gog_assert_failed("FakeSurface::FakeSurface:442");
 
     static_assert(0x88760064 == DDERR_INVALIDCAPS);
     LPDIRECTDRAWSURFACE4 *p_f88_orig_surf = &this->f88_orig_surf;
     this->f88_orig_surf = nullptr;
     HRESULT v6 = orig::pIDirectDraw4->CreateSurface(&this->f8_surfDesc, &this->f88_orig_surf, NULL);
     if (FAILED(v6)) {
-        gog_debugf("Assertion failed: FakeSurface::FakeSurface:446 with HRESULT 0x%x", v6);
+        gog_assert_failed_hr("FakeSurface::FakeSurface:446", v6);
         gog_debugf("Width = %d\nHeight = %d\nCaps = 0x%x\npfType = 0x%x",
                    this->f8_surfDesc.dwWidth,
                    this->f8_surfDesc.dwHeight,
@@ -117,7 +116,7 @@ FakeSurface::FakeSurface(DDSURFACEDESC2 *desc) {
     }
     if (!this->f84_isModSurf) return;
     if (FakeSurface::instance_cpy) {
-        gog_debug("Assertion failed: FakeSurface::FakeSurface:456");
+        gog_assert_failed("FakeSurface::FakeSurface:456");
     }
     orig::pIDirectDrawSurface4_last = *p_f88_orig_surf;
 
@@ -128,7 +127,7 @@ FakeSurface::FakeSurface(DDSURFACEDESC2 *desc) {
     IDirectDrawSurface4 *orig_surf;
     HRESULT v8 = orig::pIDirectDraw4->CreateSurface(&surfDesc, &orig_surf, NULL);
     if (FAILED(v8)) {
-        gog_debugf("Assertion failed: FakeSurface::FakeSurface:467 with HRESULT 0x%x", v8);
+        gog_assert_failed_hr("FakeSurface::FakeSurface:467", v8);
         gog_debugf("Width = %d\nHeight = %d\nCaps = 0x%x\npfType = 0x%x",
                    surfDesc.dwWidth,
                    surfDesc.dwHeight,
@@ -155,7 +154,7 @@ FakeSurface::FakeSurface(DDSURFACEDESC2 *desc) {
                 NULL
         );
         if (FAILED(v11)) {
-            gog_debugf("Assertion failed: FakeSurface::FakeSurface:489 with HRESULT 0x%x", v11);
+            gog_assert_failed_hr("FakeSurface::FakeSurface:489", v11);
             gog_debugf("Width = %d\nHeight = %d\nCaps = 0x%x\npfType = 0x%x",
                        desc3.dwWidth,
                        desc3.dwHeight,
@@ -168,14 +167,14 @@ FakeSurface::FakeSurface(DDSURFACEDESC2 *desc) {
                                                                             g_dwHeight * cfg::iAntialias);
         HRESULT v13 = orig::pIDirectDrawSurface4_zbuf->AddAttachedSurface(ZBuf);
         if (FAILED(v13)) {
-            gog_debugf("Assertion failed: FakeSurface::FakeSurface:500 with HRESULT 0x%x", v13);
+            gog_assert_failed_hr("FakeSurface::FakeSurface:500", v13);
         }
         ZBuf->Release();
     } else {
         IDirectDrawSurface4 *ZBuf = (IDirectDrawSurface4 *) Fake_CreateZBuf(g_dwWidth, g_dwHeight);
         HRESULT v14 = orig_surf->AddAttachedSurface(ZBuf);
         if (FAILED(v14)) {
-            gog_debugf("Assertion failed: FakeSurface::FakeSurface:504 with HRESULT 0x%x", v14);
+            gog_assert_failed_hr("FakeSurface::FakeSurface:504", v14);
         }
         ZBuf->Release();
     }
@@ -190,7 +189,7 @@ HRESULT FakeSurface::QueryInterface(REFIID riid, LPVOID FAR *ppvObj) {
         *ppvObj = new FakeSurface4(this->f88_orig_surf, this->f84_isModSurf);
         return DD_OK;
     } else {
-        gog_debug("Unused function called: FakeSurface::QueryInterface");
+        gog_unused_function_called("FakeSurface::QueryInterface");
         return DDERR_GENERIC;
     }
 }
@@ -220,13 +219,13 @@ ULONG FakeSurface::Release(void) {
 }
 
 HRESULT FakeSurface::AddAttachedSurface(LPDIRECTDRAWSURFACE2 a2) {
-    if (!a2) gog_debug("Assertion failed: FakeSurface::AddAttachedSurface:539");
-    if (this != FakeSurface::instance_cpy) gog_debug("Assertion failed: FakeSurface::AddAttachedSurface:540");
+    if (!a2) gog_assert_failed("FakeSurface::AddAttachedSurface:539");
+    if (this != FakeSurface::instance_cpy) gog_assert_failed("FakeSurface::AddAttachedSurface:540");
     return 0;
 }
 
 HRESULT FakeSurface::AddOverlayDirtyRect(LPRECT) {
-    gog_debug("Unused function called: FakeSurface::AddOverlayDirtyRect");
+    gog_unused_function_called("FakeSurface::AddOverlayDirtyRect");
     return DDERR_GENERIC;
 }
 
@@ -249,12 +248,12 @@ HRESULT FakeSurface::Blt(LPRECT dstRect, LPDIRECTDRAWSURFACE2 srcSurf_, LPRECT s
     }
     hr = orig::pIDirectDrawSurface4_640x480->Blt(dstRect, srcSurf->f88_orig_surf, srcRect, flags, bitblt);
     if (FAILED(hr)) {
-        gog_debugf("Assertion failed: FakeSurface::Blt:564 with HRESULT 0x%x", hr);
+        gog_assert_failed_hr("FakeSurface::Blt:564", hr);
         return hr;
     }
     hr = this->f88_orig_surf->Blt(NULL, orig::pIDirectDrawSurface4_640x480, NULL, 0x1000000, NULL);
     if (FAILED(hr)) {
-        gog_debugf("Assertion failed: FakeSurface::Blt:567 with HRESULT 0x%x", hr);
+        gog_assert_failed_hr("FakeSurface::Blt:567", hr);
         return hr;
     }
     if (this->f84_isModSurf) Fake_Redraw();
@@ -262,7 +261,7 @@ HRESULT FakeSurface::Blt(LPRECT dstRect, LPDIRECTDRAWSURFACE2 srcSurf_, LPRECT s
 }
 
 HRESULT FakeSurface::BltBatch(LPDDBLTBATCH, DWORD, DWORD) {
-    gog_debug("Unused function called: FakeSurface::BltBatch");
+    gog_unused_function_called("FakeSurface::BltBatch");
     return DDERR_GENERIC;
 }
 
@@ -275,7 +274,7 @@ HRESULT FakeSurface::BltFast(DWORD x, DWORD y, LPDIRECTDRAWSURFACE2 srcSurf_, LP
     if (srcSurf) {
         f88_orig_surf = srcSurf->f88_orig_surf;
     } else {
-        gog_debug("Assertion failed: FakeSurface::BltFast:580");
+        gog_assert_failed("FakeSurface::BltFast:580");
         f88_orig_surf = nullptr;
     }
     hr = this->f88_orig_surf->BltFast(x, y, f88_orig_surf, srcRect, type);
@@ -285,25 +284,25 @@ HRESULT FakeSurface::BltFast(DWORD x, DWORD y, LPDIRECTDRAWSURFACE2 srcSurf_, LP
 }
 
 HRESULT FakeSurface::DeleteAttachedSurface(DWORD, LPDIRECTDRAWSURFACE2) {
-    gog_debug("Unused function called: FakeSurface::DeleteAttachedSurface");
+    gog_unused_function_called("FakeSurface::DeleteAttachedSurface");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeSurface::EnumAttachedSurfaces(LPVOID, LPDDENUMSURFACESCALLBACK) {
-    gog_debug("Unused function called: FakeSurface::EnumAttachedSurfaces");
+    gog_unused_function_called("FakeSurface::EnumAttachedSurfaces");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeSurface::EnumOverlayZOrders(DWORD, LPVOID, LPDDENUMSURFACESCALLBACK) {
-    gog_debug("Unused function called: FakeSurface::EnumOverlayZOrders");
+    gog_unused_function_called("FakeSurface::EnumOverlayZOrders");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeSurface::Flip(LPDIRECTDRAWSURFACE2 a2, DWORD flags) {
-    if (!this->f84_isModSurf) gog_debug("Assertion failed: FakeSurface::Flip:606");
-    if (!orig::pIDirectDrawSurface4_coop) gog_debug("Assertion failed: FakeSurface::Flip:607");
-    if (a2 && a2 != FakeSurface::instance_cpy) gog_debug("Assertion failed: FakeSurface::Flip:608");
-    if (gog::g_isSceneDrawing) gog_debug("Assertion failed: FakeSurface::Flip:609");
+    if (!this->f84_isModSurf) gog_assert_failed("FakeSurface::Flip:606");
+    if (!orig::pIDirectDrawSurface4_coop) gog_assert_failed("FakeSurface::Flip:607");
+    if (a2 && a2 != FakeSurface::instance_cpy) gog_assert_failed("FakeSurface::Flip:608");
+    if (gog::g_isSceneDrawing) gog_assert_failed("FakeSurface::Flip:609");
     if (cfg::iCpuIdle)
         Sleep(cfg::iCpuIdle);
     this->f88_orig_surf->Blt(NULL, FakeSurface::instance_cpy->f88_orig_surf, NULL, 0x1000000, NULL);
@@ -319,50 +318,50 @@ HRESULT FakeSurface::Flip(LPDIRECTDRAWSURFACE2 a2, DWORD flags) {
 }
 
 HRESULT FakeSurface::GetAttachedSurface(LPDDSCAPS a2, LPDIRECTDRAWSURFACE2 *a3) {
-    if (!this->f84_isModSurf) gog_debug("Assertion failed: FakeSurface::GetAttachedSurface:635");
-    if ((a2->dwCaps & 4) == 0) gog_debug("Assertion failed: FakeSurface::GetAttachedSurface:636");
+    if (!this->f84_isModSurf) gog_assert_failed("FakeSurface::GetAttachedSurface:635");
+    if ((a2->dwCaps & 4) == 0) gog_assert_failed("FakeSurface::GetAttachedSurface:636");
     *a3 = FakeSurface::instance_cpy;
     FakeSurface::instance_cpy->AddRef();
     return DD_OK;
 }
 
 HRESULT FakeSurface::GetBltStatus(DWORD) {
-    gog_debug("Unused function called: FakeSurface::GetBltStatus");
+    gog_unused_function_called("FakeSurface::GetBltStatus");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeSurface::GetCaps(LPDDSCAPS) {
-    gog_debug("Unused function called: FakeSurface::GetCaps");
+    gog_unused_function_called("FakeSurface::GetCaps");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeSurface::GetClipper(LPDIRECTDRAWCLIPPER *) {
-    gog_debug("Unused function called: FakeSurface::GetClipper");
+    gog_unused_function_called("FakeSurface::GetClipper");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeSurface::GetColorKey(DWORD, LPDDCOLORKEY) {
-    gog_debug("Unused function called: FakeSurface::GetColorKey");
+    gog_unused_function_called("FakeSurface::GetColorKey");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeSurface::GetDC(HDC *) {
-    gog_debug("Unused function called: FakeSurface::GetDC");
+    gog_unused_function_called("FakeSurface::GetDC");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeSurface::GetFlipStatus(DWORD) {
-    gog_debug("Unused function called: FakeSurface::GetFlipStatus");
+    gog_unused_function_called("FakeSurface::GetFlipStatus");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeSurface::GetOverlayPosition(LPLONG, LPLONG) {
-    gog_debug("Unused function called: FakeSurface::GetOverlayPosition");
+    gog_unused_function_called("FakeSurface::GetOverlayPosition");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeSurface::GetPalette(LPDIRECTDRAWPALETTE *) {
-    gog_debug("Unused function called: FakeSurface::GetPalette");
+    gog_unused_function_called("FakeSurface::GetPalette");
     return DDERR_GENERIC;
 }
 
@@ -385,7 +384,7 @@ HRESULT FakeSurface::GetSurfaceDesc(LPDDSURFACEDESC pDesc) {
 }
 
 HRESULT FakeSurface::Initialize(LPDIRECTDRAW, LPDDSURFACEDESC) {
-    gog_debug("Unused function called: FakeSurface::Initialize");
+    gog_unused_function_called("FakeSurface::Initialize");
     return DDERR_GENERIC;
 }
 
@@ -396,7 +395,7 @@ HRESULT FakeSurface::IsLost(void) {
 HRESULT FakeSurface::Lock(LPRECT pRect, LPDDSURFACEDESC pDesc, DWORD a4, HANDLE a5) {
     if (g_isSmth_noRef && (this == FakeSurface::instance_mod || this == FakeSurface::instance_cpy))
         return DDERR_GENERIC;
-    if (this->f9C_pLockedRect) gog_debug("Assertion failed: FakeSurface::Lock:672");
+    if (this->f9C_pLockedRect) gog_assert_failed("FakeSurface::Lock:672");
     DDSURFACEDESC2 desc;
     memset(&desc, 0, sizeof(desc));
     desc.dwSize = sizeof(DDSURFACEDESC2);
@@ -416,7 +415,7 @@ HRESULT FakeSurface::Lock(LPRECT pRect, LPDDSURFACEDESC pDesc, DWORD a4, HANDLE 
 }
 
 HRESULT FakeSurface::ReleaseDC(HDC) {
-    gog_debug("Unused function called: FakeSurface::ReleaseDC");
+    gog_unused_function_called("FakeSurface::ReleaseDC");
     return DDERR_GENERIC;
 }
 
@@ -433,12 +432,12 @@ HRESULT FakeSurface::SetColorKey(DWORD a2, LPDDCOLORKEY a3) {
 }
 
 HRESULT FakeSurface::SetOverlayPosition(LONG, LONG) {
-    gog_debug("Unused function called: FakeSurface::SetOverlayPosition");
+    gog_unused_function_called("FakeSurface::SetOverlayPosition");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeSurface::SetPalette(LPDIRECTDRAWPALETTE) {
-    gog_debug("Unused function called: FakeSurface::SetPalette");
+    gog_unused_function_called("FakeSurface::SetPalette");
     return DDERR_GENERIC;
 }
 
@@ -450,32 +449,32 @@ HRESULT FakeSurface::Unlock(LPVOID) {
 }
 
 HRESULT FakeSurface::UpdateOverlay(LPRECT, LPDIRECTDRAWSURFACE2, LPRECT, DWORD, LPDDOVERLAYFX) {
-    gog_debug("Unused function called: FakeSurface::UpdateOverlay");
+    gog_unused_function_called("FakeSurface::UpdateOverlay");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeSurface::UpdateOverlayDisplay(DWORD) {
-    gog_debug("Unused function called: FakeSurface::UpdateOverlayDisplay");
+    gog_unused_function_called("FakeSurface::UpdateOverlayDisplay");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeSurface::UpdateOverlayZOrder(DWORD, LPDIRECTDRAWSURFACE2) {
-    gog_debug("Unused function called: FakeSurface::UpdateOverlayZOrder");
+    gog_unused_function_called("FakeSurface::UpdateOverlayZOrder");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeSurface::GetDDInterface(LPVOID *) {
-    gog_debug("Unused function called: FakeSurface::GetDDInterface");
+    gog_unused_function_called("FakeSurface::GetDDInterface");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeSurface::PageLock(DWORD) {
-    gog_debug("Unused function called: FakeSurface::PageLock");
+    gog_unused_function_called("FakeSurface::PageLock");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeSurface::PageUnlock(DWORD) {
-    gog_debug("Unused function called: FakeSurface::PageUnlock");
+    gog_unused_function_called("FakeSurface::PageUnlock");
     return DDERR_GENERIC;
 }
 

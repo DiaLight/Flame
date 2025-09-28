@@ -9,12 +9,12 @@ using namespace gog;
 FakeD3D *FakeD3D::instance = nullptr;
 
 HRESULT FakeD3D::QueryInterface(REFIID riid, LPVOID *ppvObj) {
-    gog_debug("Unused function called: FakeD3D::QueryInterface");
+    gog_unused_function_called("FakeD3D::QueryInterface");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeD3D::Initialize(REFCLSID) {
-    gog_debug("Unused function called: FakeD3D::Initialize");
+    gog_unused_function_called("FakeD3D::Initialize");
     return DDERR_GENERIC;
 }
 
@@ -247,21 +247,21 @@ HRESULT FakeD3D::EnumDevices(LPD3DENUMDEVICESCALLBACK cb, LPVOID a3) {
 }
 
 HRESULT FakeD3D::CreateLight(LPDIRECT3DLIGHT *, IUnknown *) {
-    gog_debug("Unused function called: FakeD3D::CreateLight");
+    gog_unused_function_called("FakeD3D::CreateLight");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeD3D::CreateMaterial(LPDIRECT3DMATERIAL *, IUnknown *) {
-    gog_debug("Unused function called: FakeD3D::CreateMaterial");
+    gog_unused_function_called("FakeD3D::CreateMaterial");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeD3D::CreateViewport(LPDIRECT3DVIEWPORT *, IUnknown *) {
-    gog_debug("Unused function called: FakeD3D::CreateViewport");
+    gog_unused_function_called("FakeD3D::CreateViewport");
     return DDERR_GENERIC;
 }
 
 HRESULT FakeD3D::FindDevice(LPD3DFINDDEVICESEARCH, LPD3DFINDDEVICERESULT) {
-    gog_debug("Unused function called: FakeD3D::FindDevice");
+    gog_unused_function_called("FakeD3D::FindDevice");
     return DDERR_GENERIC;
 }
