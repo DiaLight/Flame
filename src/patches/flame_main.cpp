@@ -9,7 +9,7 @@
 #include <iostream>
 #include <patches/game_version_patch.h>
 #include <patches/logging.h>
-#include <patches/screen_resolution.h>
+#include <patches/big_resolution_fix/screen_resolution.h>
 #include <stdexcept>
 #include <thread>
 #include <tools/flame_config.h>
@@ -21,9 +21,10 @@
 #include "tools/command_line.h"
 #include "tools/console.h"
 
-#include "dk2/FindFileData.h"
+#if __has_include(<dk2_research.h>)
+#include "dk2_research.h"
+#endif
 #include "patches/protocol_dump.h"
-
 
 
 flame_config::define_flame_option<bool> o_console(
@@ -51,8 +52,6 @@ flame_config::define_flame_option<bool> o_no_initial_size(
     false
 );
 
-
-HANDLE keyWatcher_hThread = NULL;
 
 void patch::flameInit(int argc, const char **argv) {
     command_line_init(argc, argv);
@@ -123,16 +122,17 @@ void patch::flameInit(int argc, const char **argv) {
     patch::protocol_dump::init();
     patch::screen_resolution::init();
 
-    keyWatcher_hThread = CreateThread(NULL, 0, [](void*) -> DWORD {
-        bug_hunter::keyWatcher();
-        return 0; }, NULL, 0, NULL);
+#if __has_include(<dk2_research.h>)
+    bug_hunter::init_keyWatcher();
+#endif
     // call entry point of DKII.EXE,
     if(*o_gog_enabled) gog::patch_init();
 }
 
 void patch::flameCleanup() {
-    bug_hunter::stopped = true;
-    if (keyWatcher_hThread && WaitForSingleObject(keyWatcher_hThread, 500) == WAIT_TIMEOUT) TerminateThread(keyWatcher_hThread, 0);
+#if __has_include(<dk2_research.h>)
+    bug_hunter::stop_keyWatcher();
+#endif
     if (flame_config::changed()) flame_config::save();
 }
 

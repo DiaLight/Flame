@@ -14,11 +14,9 @@
 #include "tools/bug_hunter/WalkerError.h"
 
 namespace bug_hunter {
-    extern bool stopped;
     void init();
     void displayCrash();
     void collectStackInfo();
-    void keyWatcher();
 }
 
 namespace bughunter {

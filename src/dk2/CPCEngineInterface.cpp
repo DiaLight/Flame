@@ -7,14 +7,12 @@
 #include "dk2/MyCESurfHandle.h"
 #include "dk2/MyDblNamedSurface.h"
 #include "dk2/SurfHashList.h"
+#include "dk2/SurfHashList2.h"
 #include "dk2/SurfHashListItem.h"
 #include "dk2/SurfaceHolder.h"
-#include "dk2/SurfHashList2.h"
 #include "dk2_functions.h"
 #include "dk2_globals.h"
-#include "patches/micro_patches.h"
-#include "patches/screen_resolution.h"
-#include "tools/visual_debug.h"
+#include "patches/big_resolution_fix/big_resolution_fix.h"
 #include "patches/logging.h"
 
 

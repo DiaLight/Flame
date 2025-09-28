@@ -98,7 +98,7 @@ namespace display_incompatible_reason {
     extern bool enabled;
 }
 
-namespace big_resolution_fix {
+namespace buffer_overrun_fix {
     extern bool enabled;
 }
 

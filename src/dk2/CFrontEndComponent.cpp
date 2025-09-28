@@ -10,7 +10,7 @@
 #include <dk2/network/MLDPLAY_SESSIONDESC.h>
 #include <dk2/network/protocol/NetMessage_65.h>
 #include <patches/auto_network.h>
-#include <patches/screen_resolution.h>
+#include <patches/big_resolution_fix/screen_resolution.h>
 #include <weanetr_dll/MLDPlay.h>
 #include "dk2/CListBox_ItemHeightCfg.h"
 #include "dk2_functions.h"

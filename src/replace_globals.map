@@ -1,5 +1,6 @@
 # va comment
 
+00634860 void *___onexitinit();  // ------------------  /* auto */
 006477F0 int WinMain(HINSTANCE, HINSTANCE, CHAR *, int);  /* auto */
 005A5DA0 int __cdecl dk2_main(int, const CHAR **);      /* auto */
 005B74A0 void resolveDk2HomeDir();  // ---------------  /* auto */
@@ -68,6 +69,9 @@
 0040D8F0 BOOL checkAllowToDrop(CThing *, int, int);     /* auto */
 00402D00 int fun_402D00(uint16_t);  // ---------------  /* auto */
 004098D0 int fun_4098D0();  // -----------------------  /* auto */
+0042C7D0 int sub_42C7D0(int, int, int, const char *, RtGuiView *);  /* auto */
+0042CEE0 void sub_42CEE0(RtGuiView *, int, int, int);   /* auto */
+0042CDF0 void createSurfacesForView_42CDF0(RtGuiView *);  /* auto */
 
 # MyDxMouse.h
 005BC760 int *__cdecl MyDxMouse_create(int *, MyDxMouse **);  /* auto */
@@ -225,4 +229,16 @@
 
 # MyUnk673FD0
 0060D630 void destructor();  // ----------------------  /* auto */
+
+# memory_debug
+00637BB0 void *__cdecl _malloc_1(size_t);  // --------  /* auto */
+00637BD0 uint32_t *__cdecl __nh_malloc(size_t, int);    /* auto */
+00638350 void __cdecl _free(void *);  // -------------  /* auto */
+00637A00 void *__cdecl _realloc(void *, size_t);  // -  /* auto */
+00638650 void *__cdecl _calloc(size_t, size_t);  // --  /* auto */
+006393F0 size_t __cdecl __msize(void *);  // ---------  /* auto */
+
+# MyHeap
+0057CEB0 void *__cdecl MyHeap_alloc(int);  // --------  /* auto */
+0057D0B0 void __cdecl MyHeap_free(void *);  // -------  /* auto */
 

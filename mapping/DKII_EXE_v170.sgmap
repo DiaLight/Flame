@@ -3467,7 +3467,8 @@ struct: id=instance_0066D1D4,name=CEngineInterface_vtbl,size=272
         ret: kind=int,size=4,signed=True
         arg: kind=ptr
           type: kind=void
-        arg: kind=int,size=4,signed=True
+        arg: kind=ptr
+          type: kind=int,size=1,signed=True,winapi=char
         arg: kind=int,size=4,signed=True
         arg: kind=int,size=4,signed=True
         arg: kind=int,size=4,signed=True
@@ -3482,7 +3483,8 @@ struct: id=instance_0066D1D4,name=CEngineInterface_vtbl,size=272
         arg: kind=int,size=4,signed=True
         arg: kind=int,size=4,signed=True
         arg: kind=int,size=4,signed=True
-        arg: kind=int,size=4,signed=True
+        arg: kind=ptr
+          type: kind=struct,id=vtbl_0066D454
   field: name=f60
     type: kind=ptr
       type: kind=function,declspec=thiscall
@@ -16881,9 +16883,9 @@ struct: id=constructor_00557B70,name=MyGame,size=3923
   field: name=field_0
     type: kind=int,size=4
   field: name=dwWidth
-    type: kind=int,size=4,signed=True
+    type: kind=int,size=4
   field: name=dwHeight
-    type: kind=int,size=4,signed=True
+    type: kind=int,size=4
   field: name=dwRGBBitCount
     type: kind=int,size=4,signed=True
   field: name=isWindowed
@@ -17127,6 +17129,24 @@ struct: id=use_0052814C,path=dk2/network,name=MyGuaranteedData,size=13
     type: kind=ptr
       type: kind=int,size=4
   field: name=fC_gdTy
+    type: kind=int,size=1,signed=True,winapi=char
+struct: id=init_0057D04D,name=MyHeapEntry,size=20
+  field: name=field_0
+    type: kind=ptr
+      type: kind=struct,id=init_0057D04D
+  field: name=field_4
+    type: kind=ptr
+      type: kind=struct,id=init_0057D04D
+  field: name=field_8
+    type: kind=ptr
+      type: kind=struct,id=init_0057D04D
+  field: name=field_C
+    type: kind=int,size=4,signed=True
+  field: name=field_10
+    type: kind=int,size=2
+  field: name=field_12
+    type: kind=int,size=1,signed=True,winapi=char
+  field: name=field_13
     type: kind=int,size=1,signed=True,winapi=char
 struct: id=init_0053E344,name=MyHighScore,size=132
   field: name=f0_score
@@ -26456,7 +26476,7 @@ global: va=0040CFA4,name=jpt_40CB86,size=44
   type: kind=array,count=11
     type: kind=ptr
       type: kind=void
-global: va=0040CFD0,name=unknown_libname_3,size=11
+global: va=0040CFD0,name=__setValue,size=11
   type: kind=function,declspec=thiscall
     ret: kind=ptr
       type: kind=int,size=4
@@ -28579,8 +28599,7 @@ global: va=0042CEE0,name=sub_42CEE0,size=431,member_of=vtbl_0066C4A4
     arg: kind=ptr
       type: kind=struct,id=construct_00402752
     arg: kind=int,size=4,signed=True
-    arg: kind=ptr
-      type: kind=struct,id=construct_00402752
+    arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
 global: va=0042D090,name=CTextIconDraw_fun_42D090,size=297,member_of=vtbl_0066C4A4
   type: kind=function,declspec=thiscall
@@ -53453,7 +53472,7 @@ global: va=00550D90,name=CButton_render_550D90,size=1718
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066ECA4
     arg: kind=ptr
-      type: kind=struct,id=vtbl_0066C4A4
+      type: kind=struct,id=vtbl_0066EF3C
 global: va=00551448,name=jpt_550E7C,size=16
   type: kind=array,count=4
     type: kind=ptr
@@ -60444,11 +60463,11 @@ global: va=00592BD0,name=constructor,size=362,member_of=constructor_00592BD0
       type: kind=struct,id=constructor_00590360
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=00592D40,name=sub_592D40,size=99
+global: va=00592D40,name=free,size=99,member_of=call_new_0059425F
   type: kind=function,declspec=thiscall
     ret: kind=void
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=call_new_0059425F
 global: va=00592DB0,name=constructor,size=226,member_of=constructor_00592DB0
   type: kind=function,declspec=thiscall
     ret: kind=void
@@ -70437,13 +70456,13 @@ global: va=00600990,name=sub_600990,size=937
       type: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=int,size=4,signed=True
-global: va=00600D40,name=sub_600D40,size=90
+global: va=00600D40,name=eq,size=90,member_of=constructor_0052D3E0
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True,winapi=BOOL,fname=BOOL
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=constructor_0052D3E0
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=struct,id=constructor_0052D3E0
 global: va=00600DA0,name=sub_600DA0,size=314
   type: kind=function,declspec=thiscall
     ret: kind=int,size=4,signed=True
@@ -80253,7 +80272,7 @@ global: va=00637BB0,name=_malloc_1,size=20
 global: va=00637BD0,name=__nh_malloc,size=68
   type: kind=function,declspec=cdecl
     ret: kind=ptr
-      type: kind=int,size=4
+      type: kind=void
     arg: kind=int,size=4,winapi=size_t,fname=size_t
     arg: kind=int,size=4,signed=True
 global: va=00637C20,name=__heap_alloc,size=85
@@ -80999,7 +81018,7 @@ global: va=0063E360,name=___loctotime_t,size=226
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
     arg: kind=int,size=4,signed=True
-global: va=0063E450,name=__callnewh,size=32
+global: va=0063E450,name=__callnewh_,size=32
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
     arg: kind=int,size=4,winapi=size_t,fname=size_t
@@ -81025,7 +81044,7 @@ global: va=0063E750,name=___sbh_find_block,size=89
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4
     arg: kind=ptr
-      type: kind=struct,id=call_new_006367F8
+      type: kind=void
     arg: kind=ptr
       type: kind=ptr
         type: kind=ptr
@@ -81035,11 +81054,12 @@ global: va=0063E750,name=___sbh_find_block,size=89
 global: va=0063E7B0,name=___sbh_free_block,size=83
   type: kind=function,declspec=cdecl
     ret: kind=void
-    arg: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=struct,id=call_new_006367F8
+      type: kind=void
     arg: kind=ptr
-      type: kind=int,size=1
+      type: kind=void
+    arg: kind=ptr
+      type: kind=void
 global: va=0063E810,name=___sbh_alloc_block,size=563
   type: kind=function,declspec=cdecl
     ret: kind=ptr
@@ -81054,11 +81074,12 @@ global: va=0063EA50,name=___sbh_alloc_block_from_page,size=370
 global: va=0063EBD0,name=___sbh_resize_block,size=196
   type: kind=function,declspec=cdecl
     ret: kind=int,size=4,signed=True
-    arg: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=void
     arg: kind=ptr
-      type: kind=int,size=1
+      type: kind=void
+    arg: kind=ptr
+      type: kind=void
     arg: kind=int,size=4
 global: va=0063ECA0,name=__input,size=3193
   type: kind=function,declspec=cdecl
@@ -84298,6 +84319,8 @@ global: va=006C9AB4,name=lpMem,size=4
     type: kind=void
 global: va=006C9AC0,name=__sbh_var,size=4
   type: kind=int,size=4,signed=True
+global: va=006CBAD4,name=g_sbh_size,size=4
+  type: kind=int,size=4,signed=True
 global: va=006CBC0C,name=lpBuffer,size=140
   type: kind=array,count=35
     type: kind=ptr,is_const=True
@@ -84954,6 +84977,8 @@ global: va=00765AF8,name=MyEntryBuf_MyScaledSurface_instance,size=16
   type: kind=struct,id=instance_00765AF8
 global: va=00765B08,name=MyHeap_increaseCount,size=4
   type: kind=int,size=4,signed=True
+global: va=00765B0C,name=MyHeap__blockIdx,size=4
+  type: kind=int,size=4,signed=True
 global: va=00765B10,name=g_unk_765B10,size=4
   type: kind=int,size=4,signed=True
 global: va=00765B14,name=MyHeap_size,size=4
@@ -84961,7 +84986,11 @@ global: va=00765B14,name=MyHeap_size,size=4
 global: va=00765B18,name=MyHeap_increaseBlocks,size=128
   type: kind=array,count=32
     type: kind=ptr
-      type: kind=void
+      type: kind=struct,id=init_0057D04D
+global: va=00765BA0,name=MyHeap__blockArr,size=512
+  type: kind=array,count=128
+    type: kind=ptr
+      type: kind=struct,id=init_0057D04D
 global: va=00765DA0,name=MyHeap_bufArr,size=128
   type: kind=array,count=32
     type: kind=ptr
@@ -85583,6 +85612,8 @@ global: va=007A56B4,name=g_modFileName,size=4
 global: va=007A5708,name=g_environmentStrings,size=4
   type: kind=ptr
     type: kind=int,size=1,signed=True,winapi=char
+global: va=007A57BC,name=g_nhUnk_7A57BC,size=4
+  type: kind=int,size=4,signed=True
 global: va=007A57C8,name=Filename,size=264
   type: kind=array,count=264
     type: kind=int,size=1,signed=True,winapi=CHAR,fname=CHAR

@@ -2,7 +2,7 @@
 // Created by DiaLight on 19.06.2024.
 //
 #include <patches/logging.h>
-#include <patches/screen_resolution.h>
+#include <patches/big_resolution_fix/screen_resolution.h>
 #include <thread>
 #include "dk2/MyMutex.h"
 #include "dk2_functions.h"

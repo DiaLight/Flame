@@ -5,8 +5,7 @@
 #include "dk2_functions.h"
 #include "dk2_globals.h"
 #include "patches/logging.h"
-#include "patches/micro_patches.h"
-#include "patches/screen_resolution.h"
+#include "patches/big_resolution_fix/big_resolution_fix.h"
 
 
 void dk2::CWindowTest::reallocBackSurfaceToWindowSize() {
@@ -20,6 +19,19 @@ void dk2::CWindowTest::reallocBackSurfaceToWindowSize() {
     }
     RECT Rect;
     GetClientRect(this->hWnd, &Rect);
+    if(patch::big_resolution_fix::enabled) {  // patch from Ember project
+//        int width = Rect.right - Rect.left;
+//        int height = Rect.bottom - Rect.top;
+//        if (width != api::g_width || height != api::g_height) {
+//            printf("FIX: GetClientRect: l=%d, t=%d, r=%d, b=%d => create surf %dx%d but game expect to work with buffers %dx%d\n",
+//                   Rect.left, Rect.top, Rect.right, Rect.bottom,
+//                   width, height,
+//                   api::g_width, api::g_height
+//            );
+//            Rect.right = Rect.left + api::g_width;
+//            Rect.bottom = Rect.top + api::g_height;
+//        }
+    }
     if (client_rect.left != Rect.left
         || client_rect.right != Rect.right
         || client_rect.top != Rect.top
@@ -43,13 +55,6 @@ void dk2::CWindowTest::reallocBackSurfaceToWindowSize() {
                 DDSCAPS_VIDEOMEMORY | DDSCAPS_3DDEVICE,
                 &this->offScreenSurf.dd_surf) < 0)
             return;
-        if(patch::big_resolution_fix::enabled) {  // log buf allocation
-            patch::log::dbg("alloc %dx%d  ?buf=%p",
-                   Rect.right - Rect.left,
-                   Rect.bottom - Rect.top,
-                   this->offScreenSurf.surf.lpSurface
-            );
-        }
         this->pCurOffScreenSurf = &this->offScreenSurf;
         setCurOffScreen(&this->offScreenSurf);
     }

@@ -25,6 +25,7 @@ add_library(${TARGET} SHARED
         dkii_exe_functions.cpp
         dk2/MyResources.cpp
         dk2/MyGame.cpp
+        dk2/MyHeap.cpp
         dk2/MyDxMouse.cpp
         dk2/MyDxKeyboard.cpp
         dk2/CFrontEndComponent.cpp
@@ -105,11 +106,15 @@ add_library(${TARGET} SHARED
         patches/inspect_tools.cpp
         patches/original_compatible.cpp
         patches/protocol_dump.cpp
-        patches/screen_resolution.cpp
         patches/registry_to_config.cpp
         patches/limit_tps.cpp
         patches/auto_network.cpp
         patches/scheduler.cpp
+        patches/replace_heap.cpp
+
+        patches/big_resolution_fix/expand_surf_idx_array.cpp
+        patches/big_resolution_fix/big_resolution_fix.cpp
+        patches/big_resolution_fix/screen_resolution.cpp
 
         patches/gui/main/main_layout.cpp
         patches/gui/main/single_player/btn_custom_campaign.cpp

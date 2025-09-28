@@ -720,7 +720,6 @@ void displayCrashMessage() {
     }
 }
 
-bool bug_hunter::stopped = false;
 void bug_hunter::displayCrash() {
     if(wcsstr(GetCommandLineW(), L" -display_crash_message") != NULL) {
         displayCrashMessage();
@@ -782,16 +781,3 @@ void bug_hunter::collectStackInfo() {
     }
 }
 
-void bug_hunter::keyWatcher() {
-    DWORD last = GetTickCount();
-    while(!bug_hunter::stopped) {
-        if(GetAsyncKeyState(VK_F12) & 0x8000) {
-            DWORD cur = GetTickCount();
-            if((cur - last) > 1000) {
-                last = cur;
-                collectStackInfo();
-            }
-        }
-        SleepEx(50, TRUE);
-    }
-}

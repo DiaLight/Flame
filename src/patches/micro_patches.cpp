@@ -41,7 +41,7 @@ bool patch::drop_thing_from_hand_fix::enabled = true;  // incompatible with 1.7
 bool patch::sleeping_possession_fix::enabled = true;
 bool patch::while_without_syscall_fix::enabled = true;
 bool patch::display_incompatible_reason::enabled = true;
-bool patch::big_resolution_fix::enabled = true;
+bool patch::buffer_overrun_fix::enabled = true;
 
 
 void draw_missing_argb32(dk2::MySurface &surf, int scale) {

@@ -2,20 +2,22 @@
 // Created by DiaLight on 10.09.2024.
 //
 #include "dk2/CDefaultPlayerInterface.h"
-#include "dk2/network/MessageData.h"
-#include "dk2/entities/CPlayer.h"
 #include "dk2/entities/CCreature.h"
-#include "dk2/entities/CObject.h"
-#include "dk2/entities/CTrap.h"
 #include "dk2/entities/CDeadBody.h"
+#include "dk2/entities/CObject.h"
+#include "dk2/entities/CPlayer.h"
+#include "dk2/entities/CTrap.h"
+#include "dk2/entities/data/MyCreatureDataObj.h"
 #include "dk2/entities/data/MyObjectDataObj.h"
 #include "dk2/entities/data/MyTrapDataObj.h"
-#include "dk2/entities/data/MyCreatureDataObj.h"
+#include "dk2/network/MessageData.h"
 #include "dk2/world/map/MyMapElement.h"
 #include "dk2_functions.h"
 #include "dk2_globals.h"
-#include "patches/micro_patches.h"
+#include "dk2_memory.h"
 #include "gog_patch.h"
+#include "patches/big_resolution_fix/expand_surf_idx_array.h"
+#include "patches/micro_patches.h"
 #include "tools/bug_hunter.h"
 #if __has_include(<dk2_research.h>)
    #include <dk2_research.h>
@@ -108,22 +110,29 @@ void dk2::CDefaultPlayerInterface::createSurfacesForView_42CDF0(RtGuiView *view)
     int v4_bytesPerPix = view->dwRGBBitCount / 8;
     int v13_lineSize = 32 * view->surf.lPitch;
     char *v10__allyWindowText = (char *) view->surf.lpSurface;
-    for (unsigned int y = 0; y < view->height_32blocks; ++y) {
+    for (unsigned int _y = 0; _y < view->height_32blocks; ++_y) {
         char *linePos = rowPos;
-        for (unsigned int x = 0; x < view->width_128blocks; ++x) {
+        for (unsigned int _x = 0; _x < view->width_128blocks; ++_x) {
             int lPitch = view->surf.lPitch;
             Size2i v14_size;
             v14_size.w = 128;
             v14_size.h = 32;
             MySurface v15_surf;
             v15_surf.constructor(&v14_size, &view->surf.desc, linePos, lPitch);
-            int _idx = x + view->width_128blocks * y;
+            int _idx = _x + view->width_128blocks * _y;
             if (gog::RtGuiView_fix::isEnabled()) {
                 if (_idx >= 93 && view == &dk2::CDefaultPlayerInterface_instance._allyWindowText) {
                     _idx = 0;
                 }
             }
-            int _id = view->Arrp31x400_ids[_idx];
+            int _id;
+            if(patch::expand_surf_idx_array::enabled) {
+                int *newArrp31x400_ids = (int *) view->Arrp31x400_ids[0];
+                _id = newArrp31x400_ids[_idx];
+            } else {
+                _id = view->Arrp31x400_ids[_idx];
+            }
+
             f10_c_bridge->v_f68(_id, &v15_surf, 1);
             linePos += v4_bytesPerPix * 128;
         }
@@ -670,4 +679,107 @@ void dk2::CDefaultPlayerInterface::pushDropThingFromHandAction(CThing *a2_thing,
     this->f12DA.sub_40ABC0(8, 0);
 }
 
+int dk2::CDefaultPlayerInterface::sub_42C7D0(int a2_width, int a3_height, int a4, const char *a5_name, RtGuiView *rtGuiView) {
+    if(patch::expand_surf_idx_array::enabled) {
+        patch::expand_surf_idx_array::allocate(rtGuiView);
+    }
+    MySurfDesc v21_desc = MyCEngineSurfDesc_argb32_instance.desc;
+
+    rtGuiView->height = a3_height;
+    unsigned int v8_height_32blocks = (unsigned int)(a3_height + 31) >> 5;
+    rtGuiView->height_32blocks = v8_height_32blocks;
+    v8_height_32blocks *= 32;
+    rtGuiView->height_32align = v8_height_32blocks;
+
+    rtGuiView->width = a2_width;
+    unsigned int v9_width_128blocks = (unsigned int)(a2_width + 127) >> 7;
+    rtGuiView->width_128blocks = v9_width_128blocks;
+    v9_width_128blocks <<= 7;
+    rtGuiView->width_128align = v9_width_128blocks;
+
+    unsigned int dwRGBBitCount = v21_desc.dwRGBBitCount;
+    rtGuiView->dwRGBBitCount = dwRGBBitCount;
+    size_t v19_blocksCount_bytes = v9_width_128blocks * v8_height_32blocks * (dwRGBBitCount >> 3);
+    rtGuiView->blocksCount_bytes = v19_blocksCount_bytes;
+    rtGuiView->blocksBuf = dk2::operator_new(v19_blocksCount_bytes);
+    if (!rtGuiView->blocksBuf) return 0;
+    
+    CBridge * bridge = this->profiler->c_bridge;
+    for (unsigned int _y = 0; _y < rtGuiView->height_32blocks; ++_y) {
+        for (unsigned int _x = 0; _x < rtGuiView->width_128blocks; ++_x) {
+            sprintf(temp_string, "%s Page%d_%d", a5_name, _x, _y);
+            int* pInt;
+            if(patch::expand_surf_idx_array::enabled) {
+                pInt = patch::expand_surf_idx_array::getPIdx(rtGuiView, _x, _y);
+            } else {
+                pInt = &rtGuiView->Arrp31x400_ids[_x + rtGuiView->width_128blocks * _y];
+            }
+            if (!bridge->v_createMyScaledSurface(temp_string, 128, 32, 257, pInt)) {
+                operator delete(rtGuiView->blocksBuf);
+                rtGuiView->blocksBuf = NULL;
+                return FALSE;
+            }
+        }
+    }
+    int v14_lPitch = rtGuiView->width_128align * (rtGuiView->dwRGBBitCount >> 3);
+    Size2i v20_size {rtGuiView->width, rtGuiView->height};
+    MySurface v20_size_surf;
+    v20_size_surf.constructor(&v20_size, &v21_desc, rtGuiView->blocksBuf, v14_lPitch);
+    rtGuiView->surf = v20_size_surf;
+    rtGuiView->f297 = 1;
+    return TRUE;
+}
+
+void dk2::CDefaultPlayerInterface::sub_42CEE0(RtGuiView *view, int a3_x, int a4_y, int a5) {
+    CBridge *f10_c_bridge = this->profiler->c_bridge;
+    CWorldEntry v19_worldEntry;
+    v19_worldEntry.constructor();
+    char v21_renderInfo_buf[sizeof(CRenderInfo)];
+    CRenderInfo &v21_renderInfo = *(CRenderInfo *) v21_renderInfo_buf;
+    v21_renderInfo.constructor();
+    int v22_tryLevel = 0;
+    MyRenderInit_Sprite v18_init;
+    v18_init.typeA = 2;
+    unsigned int v17_v4096 = 4096;
+    v18_init.randRange = 0;
+    v18_init.weB_flags = 0;
+    for(unsigned int blockY = 0; blockY < view->height_32blocks; ++blockY) {
+        int _y = a4_y + blockY * 32;
+        for (unsigned int blockX = 0; blockX < view->width_128blocks; ++blockX){
+            int _x = a3_x + blockX * 128;
+            unsigned int v10_v4096 = v17_v4096;
+            int v14 = 1;
+            int v13 = 0;
+            unsigned int idx = blockX + view->width_128blocks * blockY;
+            int _id;
+            if(patch::expand_surf_idx_array::enabled) {
+                int *newArrp31x400_ids = (int *) view->Arrp31x400_ids[0];
+                _id = newArrp31x400_ids[idx];
+            } else {
+                _id = view->Arrp31x400_ids[idx];
+            }
+            v19_worldEntry.idx = _id;
+            v19_worldEntry._height.value = v17_v4096;
+            v19_worldEntry._width.value = 4096;
+            int v12_v4096 = v10_v4096 | HIBYTE(v18_init.weB_flags);
+            int *p_v12_v4096 = &v12_v4096;
+            *(DWORD *)&v19_worldEntry.u.randRange = *(DWORD *)&v18_init.randRange;
+            v19_worldEntry.u.weB_flags = 1;
+//            __setValue(&v12_v4096, 0);
+            v12_v4096 = 0;
+            v21_renderInfo.fun_4B37D0(&v19_worldEntry, v12_v4096, v13, v14);
+            v21_renderInfo._widthScale = 128;
+            v21_renderInfo._heightScale = 32;
+            v21_renderInfo.f14 = 0;
+            v21_renderInfo.f18 = 0;
+            v21_renderInfo.f48 = -1;
+            v21_renderInfo.f49 = -1;
+            v21_renderInfo.f4A = -1;
+            v21_renderInfo.f4B = -1;
+            f10_c_bridge->v_f5C(_x, _y, a5, &v21_renderInfo);
+        }
+    }
+    v22_tryLevel = -1;
+    v21_renderInfo.destructor();
+}
 

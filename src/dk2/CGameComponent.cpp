@@ -81,19 +81,35 @@ dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
     }
 
     if (MyResources_instance.gameCfg.hasSaveFile) {
-        char *SavFile = MyResources_instance.gameCfg.getSavFile();
-        wchar_t Buffer[64];
-        swprintf(Buffer, L"%s", SavFile);
-        CHAR MultiByteStr[64];
-        unicodeToUtf8(Buffer, MultiByteStr, 64);
-        char v41[64];
-        _sprintf(v41, "%s%s", MyResources_instance.savesDir, MultiByteStr);
-        CWorld_instance.showLoadingScreen();
-        CWorld_instance.releaseSurface();
-        CWorld_instance.fun_511180();
-        int v4 = CWorld_instance._loadSaveFile((int)v41);
-        CWorld_instance.fun_5111E0();
-        if ( !v4 ) return 0;
+        if(patch::buffer_overrun_fix::enabled) {
+            char *SavFile = MyResources_instance.gameCfg.getSavFile();
+            wchar_t Buffer[MAX_PATH];
+            swprintf(Buffer, L"%s", SavFile);
+            CHAR MultiByteStr[MAX_PATH];
+            unicodeToUtf8(Buffer, MultiByteStr, MAX_PATH);
+            char v41[MAX_PATH];
+            _sprintf(v41, "%s%s", MyResources_instance.savesDir, MultiByteStr);
+            CWorld_instance.showLoadingScreen();
+            CWorld_instance.releaseSurface();
+            CWorld_instance.fun_511180();
+            int v4 = CWorld_instance._loadSaveFile((int)v41);
+            CWorld_instance.fun_5111E0();
+            if ( !v4 ) return 0;
+        } else {
+            char *SavFile = MyResources_instance.gameCfg.getSavFile();
+            wchar_t Buffer[64];
+            swprintf(Buffer, L"%s", SavFile);
+            CHAR MultiByteStr[64];
+            unicodeToUtf8(Buffer, MultiByteStr, 64);
+            char v41[64];
+            _sprintf(v41, "%s%s", MyResources_instance.savesDir, MultiByteStr);
+            CWorld_instance.showLoadingScreen();
+            CWorld_instance.releaseSurface();
+            CWorld_instance.fun_511180();
+            int v4 = CWorld_instance._loadSaveFile((int)v41);
+            CWorld_instance.fun_5111E0();
+            if ( !v4 ) return 0;
+        }
     } else if(!MyResources_instance.gameCfg.useFe2d_unk1) {
         CHAR MultiByteStr[64];
         if(!unicodeToUtf8(MyResources_instance.gameCfg.levelName, MultiByteStr, 64)) return 0;
