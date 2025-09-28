@@ -55,7 +55,9 @@ configure_file(
 add_library(${TARGET} SHARED
         dkii_stub.cpp
         dkii_stub.asm
-        ${RESOURCES_FILE}
+        # bug: MSVC compiler 19.44.35217.0 sometimes cant handle resource file in this target debug build
+        # log: LINK : fatal error LNK1000: unknown error at 00BD059D; consult documentation for technical support options
+        #${RESOURCES_FILE}
 )
 set_target_properties(${TARGET} PROPERTIES LINK_FLAGS "/NODEFAULTLIB")
 

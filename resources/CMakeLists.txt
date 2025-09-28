@@ -21,6 +21,12 @@ if(GIT_SHA1)
     string(APPEND VER_FILE_SUFFIX " ${GIT_SHORT_SHA1}")
 endif ()
 
+string(LENGTH "${VER_COMMENTS}" VER_COMMENTS_LEN)
+if(VER_COMMENTS_LEN GREATER_EQUAL 255)
+    string(SUBSTRING "${VER_COMMENTS}" 0 252 VER_COMMENTS)
+    string(APPEND VER_COMMENTS "...")
+endif ()
+
 # https://keeperklan.com/downloads.php?do=file&id=141
 install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/PatchLevels170/ DESTINATION Data/editor/maps)
 
