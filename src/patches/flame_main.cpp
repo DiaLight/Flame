@@ -25,31 +25,26 @@
 #include "dk2_research.h"
 #endif
 #include "patches/protocol_dump.h"
+#include "patches/wine_support.h"
 
 
 flame_config::define_flame_option<bool> o_console(
-    "flame:console",
+    "flame:console", flame_config::OG_Config,
     "Show console window to see logs\n",
     false
 );
 flame_config::define_flame_option<bool> o_windowed(
-    "flame:windowed",
+    "flame:windowed", flame_config::OG_Config,
     "Open game in windowed mode\n",
     false
 );
 flame_config::define_flame_option<bool> o_single_core(
-    "flame:single-core",
+    "flame:single-core", flame_config::OG_Config,
     "Limit game threading to one core\n"
     "This is what gog patches doing by default but in some cases they might be disabled\n"
     "Added this option as duplicate of gog:misc:SingleCore, but it will work in all cases\n"
     "",
     true
-);
-flame_config::define_flame_option<bool> o_no_initial_size(
-    "flame:no-initial-size",
-    "Disable autoresize window\n"
-    "Used only in windowed mode\n",
-    false
 );
 
 
@@ -99,23 +94,9 @@ void patch::flameInit(int argc, const char **argv) {
     if(o_windowed.get()) {
         o_gog_enabled.set_tmp(false);  // gog is incompatible with windowed mode
         patch::control_windowed_mode::enabled = true;
-        if(!o_no_initial_size.get()) {
-            // Finding the user's screen resolution
-            int screenWidth = GetSystemMetrics(SM_CXSCREEN);
-            int screenHeight = GetSystemMetrics(SM_CYSCREEN);
-            int height;
-            int width;
-            if(screenHeight < screenWidth) {
-                height = screenHeight * 5 / 6;
-                width = height * 12 / 9;
-            } else {
-                width = screenWidth * 5 / 6;
-                height = width * 9 / 12;
-            }
-            patch::remember_window_location_and_size::setInitialSize(width, height);
-        }
     }
 
+    patch::wine_support::init();
     patch::inspect_tools::init();
     patch::multi_interface_fix::init();
     patch::original_compatible::init();

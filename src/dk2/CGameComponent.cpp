@@ -168,16 +168,16 @@ dk2::CGameComponent *dk2::CGameComponent::mainGuiLoop() {
     }
     Bgra v22;
     Bgra *v27 = &v22;
-    v22.red = palleteEntries[0].peRed;
-    v22.green = palleteEntries[0].peGreen;
-    v22.blue = palleteEntries[0].peBlue;
+    v22.red = g_palleteEntries[0].peRed;
+    v22.green = g_palleteEntries[0].peGreen;
+    v22.blue = g_palleteEntries[0].peBlue;
     v22.alpha = -1;
     initCurOffScreenSurf(v22, 0);
     Bgra v23;
     Bgra *v28 = &v23;
-    v23.red = palleteEntries[0].peRed;
-    v23.green = palleteEntries[0].peGreen;
-    v23.blue = palleteEntries[0].peBlue;
+    v23.red = g_palleteEntries[0].peRed;
+    v23.green = g_palleteEntries[0].peGreen;
+    v23.blue = g_palleteEntries[0].peBlue;
     v23.alpha = -1;
     initCurOffScreenSurf(v23, 0);
     patch::autosave::updateLastAutoSaveTime();

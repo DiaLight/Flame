@@ -34,73 +34,73 @@ extern flame_config::define_flame_option<bool> o_dk2_enableBumpMapping;
 extern flame_config::define_flame_option<bool> o_dk2_enableBumpLuminance;
 
 flame_config::define_flame_option<int> o_gog_Video_antialias(
-    "gog:video:antialias",
+    "gog:video:antialias", flame_config::OG_Config,
     "",
     11
 );
 
 flame_config::define_flame_option<bool> o_gog_Video_ExtraAntialias(
-     "gog:video:ExtraAntialias",
+     "gog:video:ExtraAntialias", flame_config::OG_Config,
      "",
      false
 );
 flame_config::define_flame_option<bool> o_gog_Video_HighRes(
-     "gog:video:HighRes",
+     "gog:video:HighRes", flame_config::OG_Config,
      "",
      false
 );
 flame_config::define_flame_option<bool> o_gog_Video_Anisotropy(
-     "gog:video:Anisotropy",
+     "gog:video:Anisotropy", flame_config::OG_Config,
      "",
      false
 );
 flame_config::define_flame_option<int> o_gog_Video_Vwait(
-     "gog:video:Vwait",
+     "gog:video:Vwait", flame_config::OG_Config,
      "",
      1
 );
 flame_config::define_flame_option<int> o_gog_Video_ScaleMode(
-     "gog:video:ScaleMode",
+     "gog:video:ScaleMode", flame_config::OG_Config,
      "",
      1
 );
 flame_config::define_flame_option<bool> o_gog_Video_DisableFourCC(
-     "gog:video:DisableFourCC",
+     "gog:video:DisableFourCC", flame_config::OG_Config,
      "",
      false
 );
 flame_config::define_flame_option<bool> o_gog_Video_Bumpmap(
-     "gog:video:Bumpmap",
+     "gog:video:Bumpmap", flame_config::OG_Config,
      "",
      false
 );
 flame_config::define_flame_option<bool> o_gog_Video_RealFullscreen(
-     "gog:video:RealFullscreen",
+     "gog:video:RealFullscreen", flame_config::OG_Config,
      "",
      true
 );
 flame_config::define_flame_option<int> o_gog_Misc_CpuIdle(
-     "gog:misc:CpuIdle",
+     "gog:misc:CpuIdle", flame_config::OG_Config,
      "",
      0
 );
 flame_config::define_flame_option<bool> o_gog_Misc_SingleCore(
-     "gog:misc:SingleCore",
+     "gog:misc:SingleCore", flame_config::OG_Config,
      "",
      true
 );
 flame_config::define_flame_option<bool> o_gog_Misc_DisableDEP(
-     "gog:misc:DisableDEP",
+     "gog:misc:DisableDEP", flame_config::OG_Config,
      "",
      true
 );
 flame_config::define_flame_option<int> o_gog_Misc_RestoreMode(
-     "gog:misc:RestoreMode",
+     "gog:misc:RestoreMode", flame_config::OG_Config,
      "",
      0
 );
 flame_config::define_flame_option<bool> o_gog_Misc_NotOnTop(
-     "gog:misc:NotOnTop",
+     "gog:misc:NotOnTop", flame_config::OG_Config,
      "",
      false
 );

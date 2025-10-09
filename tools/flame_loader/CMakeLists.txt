@@ -60,7 +60,7 @@ add_library(${TARGET} SHARED
         ${RESOURCES_FILE}
 )
 set_source_files_properties(${RESOURCES_FILE} OBJECT_DEPENDS ${FLAME_RESOURCES_BIN})
-target_link_libraries(${TARGET} PRIVATE Cabinet references)
+target_link_libraries(${TARGET} PRIVATE lzma2 references)
 
 set(OUTPUT_NAME "PATCH")
 target_compile_definitions(${TARGET} PRIVATE BELIKE_DDRAW=1)  # aka PATCH.dll
@@ -77,4 +77,7 @@ install(FILES $<TARGET_FILE:${TARGET}> DESTINATION ".")
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_link_options(${TARGET} PRIVATE /PDBALTPATH:flame/${OUTPUT_NAME}.pdb)
     install(FILES $<TARGET_PDB_FILE:${TARGET}> DESTINATION "flame")
+    set_target_properties(${TARGET} PROPERTIES PDB_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/flame")  # put PATCH.pdb to flame dir
+    target_link_options(${TARGET} PRIVATE /ILK:${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_NAME}.ilk)  # dont put ilk to bin dir
 endif()
+set_target_properties(${TARGET} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")

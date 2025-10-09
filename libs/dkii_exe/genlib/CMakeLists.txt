@@ -68,4 +68,6 @@ install(FILES $<TARGET_FILE:${TARGET}> DESTINATION "flame")
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_link_options(${TARGET} PRIVATE /PDBALTPATH:${OUTPUT_NAME}.pdb)
     install(FILES $<TARGET_PDB_FILE:${TARGET}> DESTINATION "flame")
+    target_link_options(${TARGET} PRIVATE /ILK:${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_NAME}.ilk)  # dont put ilk to bin dir
 endif()
+set_target_properties(${TARGET} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/flame")

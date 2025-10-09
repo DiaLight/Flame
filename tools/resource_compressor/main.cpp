@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#include "compressapi.h"
+#include "Lzma2.h"
 #include "Fpo.h"
 
 #define fmtHex32(val) std::hex << std::setw(8) << std::setfill('0') << std::uppercase << val << std::dec
@@ -37,7 +37,7 @@ struct StoredResource {
 };
 
 struct StoredResources {
-    std::vector<std::byte> mCompressed;
+    std::vector<std::byte> mPacked;
     std::vector<StoredResource> mResources;
     std::size_t mUncompressedBufferSize {};
 };
@@ -47,14 +47,7 @@ struct InputResource {
     std::span<std::byte> mData;
 };
 
-struct CompressorDeleter {
-    static void operator()(const COMPRESSOR_HANDLE handle) {
-        CloseCompressor(handle);
-    }
-};
-
-StoredResources compress(
-    const DWORD algorithm, const std::span<InputResource> input) {
+StoredResources compress(const std::span<InputResource> input) {
     StoredResources result;
     std::vector<std::byte> inputBlob;
     result.mUncompressedBufferSize = std::ranges::fold_left(input, 0, [](auto acc, const auto& resource) {
@@ -72,84 +65,8 @@ StoredResources compress(
         inputBlob.append_range(std::span{(std::byte *) &size, sizeof(size)});
         inputBlob.append_range(resource.mData);
     }
-
-    std::unique_ptr<std::remove_pointer_t<COMPRESSOR_HANDLE>, CompressorDeleter> compressor {};
-    if(!CreateCompressor(algorithm, nullptr, std::out_ptr(compressor))) {
-        std::cerr << "failed to CreateCompressor" << std::endl;
-        return {};
-    }
-    SIZE_T bufferSize {};
-    if(!Compress(
-        compressor.get(),
-        inputBlob.data(),
-        inputBlob.size(),
-        nullptr,
-        0,
-        &bufferSize)) {
-        DWORD lastError = GetLastError();
-        if(lastError != ERROR_INSUFFICIENT_BUFFER) {
-            std::cerr << "failed to Compress " << lastError << std::endl;
-            return {};
-        }
-    }
-    result.mCompressed.resize(bufferSize);
-    SIZE_T compressedSize {};
-    if(!Compress(
-        compressor.get(),
-        inputBlob.data(),
-        inputBlob.size(),
-        result.mCompressed.data(),
-        bufferSize,
-        &compressedSize)) {
-        std::cerr << "failed to Compress2" << std::endl;
-        return {};
-    }
-    result.mCompressed.resize(compressedSize);
+    result.mPacked = inputBlob;
     return result;
-}
-
-struct DecompressorDeleter {
-    static void operator()(const DECOMPRESSOR_HANDLE handle) {
-        CloseDecompressor(handle);
-    }
-};
-
-std::vector<std::byte> decompress(
-    const DWORD algorithm, const std::span<const std::byte> compressed) {
-    std::unique_ptr<std::remove_pointer_t<DECOMPRESSOR_HANDLE>, DecompressorDeleter> decompressor {};
-    if(!CreateDecompressor(algorithm, nullptr, std::out_ptr(decompressor))) {
-        std::cerr << "failed to CreateDecompressor" << std::endl;
-        return {};
-    }
-    SIZE_T bufferSize {};
-    if(!Decompress(
-        decompressor.get(),
-        compressed.data(),
-        compressed.size(),
-        nullptr,
-        0,
-        &bufferSize)) {
-        DWORD lastError = GetLastError();
-        if(lastError != ERROR_INSUFFICIENT_BUFFER) {
-            std::cerr << "failed to Decompress " << lastError << std::endl;
-            return {};
-        }
-    }
-    std::vector<std::byte> buffer;
-    buffer.resize(bufferSize);
-    SIZE_T actualSize {};
-    if(!Decompress(
-        decompressor.get(),
-        compressed.data(),
-        compressed.size(),
-        buffer.data(),
-        bufferSize,
-        &actualSize)) {
-        return {};
-    }
-    buffer.resize(actualSize);
-    buffer.shrink_to_fit();
-    return buffer;
 }
 
 std::vector<std::byte> get_contents(const std::string &path) {
@@ -275,11 +192,26 @@ int main(int argc, char** argv) {
         {"version", {(std::byte *) version, strlen(version)}},
     };
 
-    // COMPRESS_ALGORITHM_LZMS
-    // COMPRESS_ALGORITHM_MSZIP
-    StoredResources compressed = compress(COMPRESS_ALGORITHM_LZMS, resources);
-//    printf("compressed: %d\n", compressed.mCompressed.size());
-//    printf("UncompressedBufferSize: %d\n", compressed.mUncompressedBufferSize);
+    StoredResources sr = compress(resources);
+    auto compressed = lzma2_encode(sr.mPacked);
+    if(compressed.empty()) {
+        std::cerr << "failed to Compress" << std::endl;
+        return EXIT_FAILURE;
+    }
+    printf("uncompressed: %d\n", sr.mUncompressedBufferSize);
+    printf("compressed: %d (100%% -> %.1f%%)\n", compressed.size(), compressed.size() * 100.0 / sr.mUncompressedBufferSize);
+//    {  // decompress test
+//        auto decTest = lzma2_decode(compressed);
+//        if(decTest.empty()) {
+//            std::cerr << "failed to Decompress test" << std::endl;
+//            return EXIT_FAILURE;
+//        }
+//        printf("decompressed: %d\n", decTest.size());
+//        if(decTest != sr.mPacked) {
+//            std::cerr << "failed to Decompress compare" << std::endl;
+//            return EXIT_FAILURE;
+//        }
+//    }
 
     {
         std::ofstream f{ res_file, std::ios::binary };
@@ -287,7 +219,7 @@ int main(int argc, char** argv) {
             std::cerr << "failed open res file" << std::endl;
             return EXIT_FAILURE;
         }
-        f.write((const char *) compressed.mCompressed.data(), compressed.mCompressed.size());
+        f.write((const char *) compressed.data(), compressed.size());
     }
 
     return EXIT_SUCCESS;

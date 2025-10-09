@@ -51,6 +51,8 @@ add_library(${TARGET} SHARED
         dk2/MyComputerPlayer_drop_condition.h
         dk2/computer_player_flags.cpp
         dk2/computer_player_flags.h
+        dk2/MyCESurfHandle.cpp
+        dk2/MyScaledSurface.cpp
 
         dk2/math/int_float.cpp
 
@@ -111,6 +113,10 @@ add_library(${TARGET} SHARED
         patches/auto_network.cpp
         patches/scheduler.cpp
         patches/replace_heap.cpp
+        patches/remember_window_location_and_size.cpp
+        patches/wine_support.cpp
+        patches/external_textures.cpp
+        patches/show_wireframe.cpp
 
         patches/big_resolution_fix/expand_surf_idx_array.cpp
         patches/big_resolution_fix/big_resolution_fix.cpp
@@ -151,6 +157,7 @@ target_link_libraries(${TARGET} PRIVATE
         # 3rdparty
         cimg  # visual debug
         toml  # flame config
+        lodepng  # load/save png
 
         imm32
         # wsock32 is old link target
@@ -171,7 +178,6 @@ target_compile_options(${TARGET} PRIVATE
 #        /Oy  # Frame-Pointer Omission
         /Zi  # Produces a separate PDB file that contains all the symbolic debugging information
 )
-target_link_options(${TARGET} PRIVATE /MAP)
 target_link_options(${TARGET} PRIVATE /debug)  # generate pdb to extract FPO and mapping with release builds
 target_link_options(${TARGET} PRIVATE /OPT:NOREF)
 target_link_options(${TARGET} PRIVATE /DEF:${CMAKE_HOME_DIRECTORY}/libs/dkii_exe/genlib/dkii_exp.def)
@@ -183,7 +189,9 @@ install(FILES $<TARGET_FILE:${TARGET}> DESTINATION "flame")
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_link_options(${TARGET} PRIVATE /PDBALTPATH:${OUTPUT_NAME}.pdb)
     install(FILES $<TARGET_PDB_FILE:${TARGET}> DESTINATION "flame")
+    target_link_options(${TARGET} PRIVATE /ILK:${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_NAME}.ilk)  # dont put ilk to bin dir
 endif()
+set_target_properties(${TARGET} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/flame")
 
 if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/../dev")
     include(../dev/dev.cmake)

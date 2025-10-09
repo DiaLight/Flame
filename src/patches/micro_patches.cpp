@@ -77,7 +77,7 @@ void patch::null_surf_fix::init() {
 
 
 flame_config::define_flame_option<int> o_experimentalRoomsLimit(
-    "flame:experimental:rooms-limit",
+    "flame:experimental:rooms-limit", flame_config::OG_Config,
     "Extending rooms limit. DK2 1.7 value is 96. max value: 255\n",
     255
 );
@@ -167,50 +167,6 @@ bool patch::hide_mouse_cursor_in_window::window_proc(HWND hWnd, UINT Msg, WPARAM
     return false;
 }
 
-namespace {
-    POINT window_pos = {50, 50};
-    POINT window_size = {0, 0};
-    bool ignore_size = true;
-}
-void patch::remember_window_location_and_size::setInitialSize(int x, int y) {
-    window_size = {x, y};
-}
-
-bool patch::remember_window_location_and_size::window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
-    switch(Msg) {
-        case WM_DESTROY: {
-            ignore_size = true;
-            break;
-        }
-        case WM_MOVE: {
-            RECT winRect;
-            GetWindowRect(hWnd, &winRect);
-            window_pos = {winRect.left, winRect.top};
-
-            break;
-        }
-        case WM_SIZE: {
-            if(!ignore_size) {
-                RECT winRect;
-                GetWindowRect(hWnd, &winRect);
-                window_size = {winRect.right - winRect.left, winRect.bottom - winRect.top};
-            }
-            break;
-        }
-    }
-    return false;
-}
-void patch::remember_window_location_and_size::patchWinLoc(int &xPos, int &yPos) {
-    xPos = window_pos.x;
-    yPos = window_pos.y;
-}
-void patch::remember_window_location_and_size::resizeWindow(HWND hWnd) {
-    if(window_size.x != 0 && window_size.y != 0) {
-        SetWindowPos(hWnd, NULL, 0, 0, window_size.x, window_size.y, SWP_NOMOVE | SWP_NOZORDER);
-    }
-    ignore_size = false;
-}
-
 bool patch::skippable_title_screen::enabled = true;
 uint32_t patch::skippable_title_screen::waiting_time = 600;  // in milliseconds. by default 10 seconds
 bool patch::skippable_title_screen::skipKeyPressed() {
@@ -224,7 +180,7 @@ bool patch::skippable_title_screen::skipKeyPressed() {
 
 
 flame_config::define_flame_option<std::string> o_myip(
-    "flame:myip",
+    "flame:myip", flame_config::OG_Config,
     "force set local ip address in network sessions",
     ""
 );

@@ -22,6 +22,7 @@ namespace std {  // fix for toml.hpp std __cdecl -> __stdcall used in dk2 by def
 
 #include "toml.hpp"
 #include "console.h"
+#include <Windows.h>
 
 
 struct toml_type_config {
@@ -113,11 +114,11 @@ toml_location getOrCreateToml(toml_value &root, const std::string &path) {
     toml_value *cur = &root;
     for (int i = 0; i < parts.size() - 1; ++i) {
         const std::string& part = parts[i];
-        if (!cur->contains(part)) {
-            (*cur)[part] = toml_table{};
-        }
         if (!cur->is_table()) {
             printf("[warn] %s is not table in path %s\n", path.c_str(), path.c_str());
+            (*cur)[part] = toml_table{};
+        }
+        if (!cur->contains(part)) {
             (*cur)[part] = toml_table{};
         }
         cur = &cur->at(part);
@@ -210,8 +211,8 @@ void flame_config::set_tmp_option(const std::string &path, flame_value value) {
     }
 }
 
-void flame_config::_register_flame_option(const char *path, const char *help, flame_value &&defaultValue, flame_value &value) {
-    defined_options().add(std::make_unique<defined_flame_option>(path, help, std::move(defaultValue), value));
+void flame_config::_register_flame_option(const char *path, OptionGroup group, const char *help, flame_value &&defaultValue, flame_value &value) {
+    defined_options().add(std::make_unique<defined_flame_option>(path, group, help, std::move(defaultValue), value));
 }
 
 void updateDefinedComments(toml_value &root) {
@@ -357,12 +358,25 @@ void visitTable(const std::string &path, toml_value &cur, const std::function<vo
         }
     }
 }
-void removeUnusedEntries(toml_value &root) {
-    if (!root.is_table()) return;
+std::map<std::string, toml_location> flatten(toml_value &root) {
     std::map<std::string, toml_location> values;
     visitTable("", root, [&values](const std::string &path, toml_location &&loc) {
         values[path] = std::move(loc);
     });
+    return values;
+}
+void mergeOptions(toml_value &dst, toml_value &src) {
+    for (auto &e : defined_options().dict) {
+        auto &opt = e.second;
+        if (toml_value *cur = getOrNullToml(src, opt->path)) {
+            auto loc = getOrCreateToml(dst, opt->path);
+            loc.set(*cur);
+        }
+    }
+}
+void removeUnusedEntries(toml_value &root) {
+    if (!root.is_table()) return;
+    auto values = flatten(root);
     for (auto &e : defined_options().dict) {
         auto &opt = e.second;
         values.erase(opt->path);
@@ -375,10 +389,7 @@ void removeUnusedEntries(toml_value &root) {
 }
 void removeUnusedAndDefaultEntries(toml_value &root) {
     if (!root.is_table()) return;
-    std::map<std::string, toml_location> values;
-    visitTable("", root, [&values](const std::string &path, toml_location &&loc) {
-        values[path] = std::move(loc);
-    });
+    auto values = flatten(root);
     for (auto &e : defined_options().dict) {
         auto &opt = e.second;
 
@@ -422,6 +433,24 @@ void removeEmptyNodes(toml_value &cur) {
     if (cur.is_table()) {
         removeEmptyNodes(cur.as_table());
     }
+}
+toml_value extractGameProgress(toml_value &root) {
+    toml_value out = toml_table();
+    auto values = flatten(root);
+    std::vector<toml_location> remove;
+    for (auto &e : defined_options().dict) {
+        auto& opt = e.second;
+        if(opt->group != flame_config::OG_GameProgress) continue;
+        auto it = values.find(opt->path);
+        if (it != values.end()) {
+            setToml(out, e.first, *it->second.get());
+            remove.push_back(it->second);
+        }
+    }
+    for (auto &loc : remove) {
+        loc.remove();
+    }
+    return out;
 }
 
 void flame_config::help() {
@@ -467,6 +496,35 @@ void flame_config::help() {
         std::cout << std::endl;
     }
 }
+std::string getGameProgressFile() {
+    char progressFile[MAX_PATH];
+    GetCurrentDirectoryA(MAX_PATH, progressFile);
+    // Steam syncs Data/Save/*.txt files to the cloud
+    strcat(progressFile, "\\Data\\Save\\Flame-GameProgress.txt");
+    return {progressFile};
+}
+toml_value loadGameProgress_impl() {
+    toml_value out;
+    try {
+        out = toml::parse<toml_type_config>(getGameProgressFile());
+        if (!out.contains("version")) {
+            out["version"] = LatestConfigVersion;
+            out.at("version").comments().push_back(" Config version");
+        }
+    } catch (const ::toml::file_io_error &e) {
+        std::cout << "failed to load game progress: " << e.what() << std::endl;
+        out = toml_table{};
+        out["version"] = LatestConfigVersion;
+        out.at("version").comments().push_back(" Config version");
+    } catch (const ::toml::exception &e) {
+        initConsole();
+        std::cout << "failed to parse game progress: " << e.what() << std::endl;
+        std::cout << "Press a key to continue...";
+        std::cin.get();
+        exit(-1);
+    }
+    return out;
+}
 void flame_config::load(std::string &file) {
     toml_config_file = file;
     try {
@@ -490,6 +548,8 @@ void flame_config::load(std::string &file) {
     if (toml_config_state.contains("version")) {
         config_version = toml_config_state.at("version").as_integer();
     }
+    toml_value gameProgress = loadGameProgress_impl();
+    mergeOptions(toml_config_state, gameProgress);
     applyDefaultsIfAbsent();
     cmdl_state = toml_table{};
     applyCommandLine();
@@ -498,21 +558,42 @@ void flame_config::load(std::string &file) {
 }
 
 flame_config::define_flame_option<bool> o_hide_docs(
-    "hide_docs",
+    "hide_docs", flame_config::OG_HiddenState,
     "Dont add documentation to keys in this config\n",
     false
 );
 
 flame_config::define_flame_option<bool> o_hide_defaults(
-    "hide_defaults",
+    "hide_defaults", flame_config::OG_HiddenState,
     "Dont add options with default values in this config\n",
     false
 );
+
+bool saveGameProgress_impl(toml_value &&root) {
+    removeEmptyNodes(root);
+    removeComments(root);
+    removeUnusedAndDefaultEntries(root);
+    removeEmptyNodes(root);
+
+    try {
+        auto config = toml::format<toml_type_config>(root);
+        {
+            std::ofstream fout;
+            fout.open(getGameProgressFile());
+            fout << config << "\n";
+        }
+        return true;
+    } catch (const ::toml::exception &e) {
+        std::cout << "failed to save game progress: " << e.what() << std::endl;
+    }
+    return false;
+}
 
 void flame_config::save() {
 //    std::cout << "[flame_config] save toml config" << std::endl;
     toml_value copy = toml_config_state;
     removeUnusedEntries(copy);
+    saveGameProgress_impl(extractGameProgress(copy));
     removeEmptyNodes(copy);
     if (*o_hide_docs) {
         removeComments(copy);
@@ -537,16 +618,6 @@ void flame_config::save() {
 }
 bool flame_config::changed() {
     return toml_changed;
-}
-
-void mergeOptions(toml_value &dst, toml_value &src) {
-    for (auto &e : defined_options().dict) {
-        auto &opt = e.second;
-        if (toml_value *cur = getOrNullToml(src, opt->path)) {
-            auto loc = getOrCreateToml(dst, opt->path);
-            loc.set(*cur);
-        }
-    }
 }
 
 

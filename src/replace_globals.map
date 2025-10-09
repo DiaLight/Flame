@@ -56,6 +56,8 @@
 00525370 CGameComponent *mainGuiLoop();  // ----------  /* auto */
 
 # CWindowTest.h
+00556330 int *probably_do_show_window_ev0_7(int *, AABB *);  /* auto */
+00555F30 int *recreateBullfrog(int *);  // -----------  /* auto */
 00556030 void createBackSurface();  // ---------------  /* auto */
 
 # CDefaultPlayerInterface.h
@@ -241,4 +243,11 @@
 # MyHeap
 0057CEB0 void *__cdecl MyHeap_alloc(int);  // --------  /* auto */
 0057D0B0 void __cdecl MyHeap_free(void *);  // -------  /* auto */
+
+# MyCESurfHandle
+00590EC0 void resolveSurface();  // ------------------  /* auto */
+
+# MyScaledSurface
+0057C420 void constructor(MyDblNamedSurface *, int);    /* auto */
+
 

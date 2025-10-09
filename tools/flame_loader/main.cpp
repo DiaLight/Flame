@@ -7,64 +7,18 @@
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
-#include <iostream>
 #include <map>
-#include <memory>
 #include <span>
 #include <string>
 #include <vector>
 
-#include "compressapi.h"
 #include "dependency_injection.h"
 
+#include "Lzma2.h"
 #include "Symbol.h"
 #include "VaReloc.h"
 #include "logging.h"
 
-
-struct DecompressorDeleter {
-    static void operator()(const DECOMPRESSOR_HANDLE handle) {
-        CloseDecompressor(handle);
-    }
-};
-
-std::vector<std::byte> decompress(
-    const DWORD algorithm, const std::span<const std::byte> compressed) {
-    std::unique_ptr<std::remove_pointer_t<DECOMPRESSOR_HANDLE>, DecompressorDeleter> decompressor {};
-    if(!CreateDecompressor(algorithm, nullptr, std::out_ptr(decompressor))) {
-        log_err("failed to CreateDecompressor");
-        return {};
-    }
-    SIZE_T bufferSize {};
-    if(!Decompress(
-        decompressor.get(),
-        compressed.data(),
-        compressed.size(),
-        nullptr,
-        0,
-        &bufferSize)) {
-        DWORD lastError = GetLastError();
-        if(lastError != ERROR_INSUFFICIENT_BUFFER) {
-            log_err("failed to Decompress. lastError: %08X", lastError);
-            return {};
-        }
-    }
-    std::vector<std::byte> buffer;
-    buffer.resize(bufferSize);
-    SIZE_T actualSize {};
-    if(!Decompress(
-        decompressor.get(),
-        compressed.data(),
-        compressed.size(),
-        buffer.data(),
-        bufferSize,
-        &actualSize)) {
-        return {};
-    }
-    buffer.resize(actualSize);
-    buffer.shrink_to_fit();
-    return buffer;
-}
 
 #define IDR_RCDATA1 101
 
@@ -74,9 +28,9 @@ std::map<std::string, std::vector<std::byte>> unpackResources(HMODULE mod) {
     if(HGLOBAL myResourceData = ::LoadResource(mod, myResource)) {
         DWORD size = SizeofResource(mod, myResource);
         if(void *data = ::LockResource(myResourceData)) {
-//            log_inf("compressed %d", size);
-            packedResources = decompress(COMPRESS_ALGORITHM_LZMS, std::span{(std::byte *) data, size});
-//            log_inf("decompressed %d", packedResources.size());
+            log_inf("compressed %d", size);
+            packedResources = lzma2_decode(std::span{(std::byte *) data, size});
+            log_inf("decompressed %d", packedResources.size());
             UnlockResource(data);
         }
         FreeResource(myResourceData);
@@ -151,6 +105,10 @@ struct Resources {
 
     bool load(HMODULE mod) {
         std::map<std::string, std::vector<std::byte>> resources = unpackResources(mod);
+        if(resources.empty()) {
+            log_err("Failed to unpack Flame resources");
+            return false;
+        }
 //        for(auto &e : resources) {
 //            log_info("%s %d", e.first.c_str(), e.second.size());
 //        }

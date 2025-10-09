@@ -15,7 +15,7 @@ BOOL dk2::collect_devices_DDEnumCB(GUID *lpGUID, const CHAR *driverName, const C
     DxDeviceInfo *devs;
     if ( ddraw_device_count ) {
         static_assert(sizeof(DxDeviceInfo) == 0x21A);
-        devs = (DxDeviceInfo *) realloc(ddraw_devices, sizeof(DxDeviceInfo) * (ddraw_device_count + 1));
+        devs = (DxDeviceInfo *) dk2::_realloc(ddraw_devices, sizeof(DxDeviceInfo) * (ddraw_device_count + 1));
     } else {
         devs = (DxDeviceInfo *)_malloc_1(538u);
     }
@@ -100,7 +100,7 @@ int *__cdecl dk2::createDirectDrawObject(int *pstatus, GUID *lpGUID, LPDIRECTDRA
         *pstatus = -1;
         return pstatus;
     }
-    if (hBullfrogWindow) setHWindow(hBullfrogWindow);
+    if (g_hBullfrogWindow) setHWindow(g_hBullfrogWindow);
     *pstatus = 0;
     return pstatus;
 }

@@ -15,7 +15,7 @@
 bool patch::inspect_tools::enable = false;
 
 flame_config::define_flame_option<bool> o_inspect(
-    "flame:inspect",
+    "flame:inspect", flame_config::OG_Config,
     "Some debug info. Used in development\n",
     false
 );

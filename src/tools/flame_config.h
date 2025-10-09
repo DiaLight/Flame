@@ -113,20 +113,26 @@ namespace flame_config {
     bool changed();
     std::string shortDump();
 
+    enum OptionGroup {
+        OG_Config,
+        OG_GameProgress,  // will be saved in separate file
+        OG_HiddenState,  // will not be shown in gui
+    };
 
     struct defined_flame_option {
         const char *path;
+        OptionGroup group;
         const char *help;
 
         flame_value defaultValue;
         flame_value &value;
 
-        defined_flame_option(const char *path, const char *help, flame_value &&defaultValue, flame_value &value)
-            : path(path), help(help), defaultValue(std::move(defaultValue)), value(value) {
+        defined_flame_option(const char *path, OptionGroup group, const char *help, flame_value &&defaultValue, flame_value &value)
+            : path(path), group(group), help(help), defaultValue(std::move(defaultValue)), value(value) {
         }
     };
 
-    void _register_flame_option(const char *path, const char *help, flame_value &&defaultValue, flame_value &value);
+    void _register_flame_option(const char *path, OptionGroup group, const char *help, flame_value &&defaultValue, flame_value &value);
 
     template <typename T>
     struct define_flame_option {
@@ -134,7 +140,7 @@ namespace flame_config {
         const char *path = NULL;
         flame_value value;  // cache for faster access
         define_flame_option() = delete;
-        define_flame_option(const char *path, const char *help, T defaultValue) : path(path) { _register_flame_option(path, help, flame_value(defaultValue), value); }
+        define_flame_option(const char *path, OptionGroup group, const char *help, T defaultValue) : path(path) { _register_flame_option(path, group, help, flame_value(defaultValue), value); }
 
         // n template: failed requirement
         // 'std::is_same<bool, std::basic_string<char, std::char_traits<char>, std::allocator<char>>>::value'

@@ -556,7 +556,7 @@ namespace {
 }
 
 flame_config::define_flame_option<bool> o_log_protocol(
-    "flame:logging:protocol",
+    "flame:logging:protocol", flame_config::OG_Config,
     "Try to parse DK2 packet content and dump\n",
     false
 );

@@ -16,7 +16,7 @@ namespace fs = std::filesystem;
 bool patch::autosave::enabled = true;
 
 flame_config::define_flame_option<int> o_autosave(
-    "flame:autosave",
+    "flame:autosave", flame_config::OG_Config,
     "Autosave map in minutes\n"
     "0 - disable autosave\n"
     "",
@@ -24,7 +24,7 @@ flame_config::define_flame_option<int> o_autosave(
 );
 
 flame_config::define_flame_option<int> o_keepLastAutosavesSwitch(
-    "flame:keep-last-autosaves",
+    "flame:keep-last-autosaves", flame_config::OG_Config,
     "Number of last autosaves to keep\n"
     "",
     3
@@ -149,7 +149,7 @@ namespace {
             tm *timeinfo;
             time (&rawtime);
             timeinfo = localtime (&rawtime);
-            strftime(timeStr,sizeof(timeStr),"%m%e-%H%M", timeinfo);
+            strftime(timeStr,sizeof(timeStr),"%m%d-%H%M", timeinfo);
         }
         dk2::CDefaultPlayerInterface *defplif = &dk2::CDefaultPlayerInterface_instance;
         sprintf(defplif->saveFilePath, "%sautosave-%s.SAV", dk2::MyResources_instance.savesDir, timeStr);

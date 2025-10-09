@@ -133,13 +133,6 @@ namespace hide_mouse_cursor_in_window {
     bool window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 }
 
-namespace remember_window_location_and_size {
-    void setInitialSize(int x, int y);
-    bool window_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
-    void patchWinLoc(int &xPos, int &yPos);
-    void resizeWindow(HWND hWnd);
-}
-
 namespace skippable_title_screen {
     extern bool enabled;
     extern uint32_t waiting_time;

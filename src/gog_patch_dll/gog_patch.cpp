@@ -9,7 +9,7 @@
 #include "gog_debug.h"
 
 flame_config::define_flame_option<bool> o_gog_enabled(
-    "gog:enabled",
+    "gog:enabled", flame_config::OG_Config,
     "Enable gog patches in fullscreen mode\n",
     true
 );

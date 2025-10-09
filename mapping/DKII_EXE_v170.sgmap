@@ -54211,7 +54211,7 @@ global: va=00555F30,name=recreateBullfrog,size=179,member_of=vtbl_0066F20C
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066F20C
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=int,size=4,signed=True
 global: va=00555FF0,name=getClientRect,size=55,member_of=vtbl_0066F20C
   type: kind=function,declspec=thiscall
     ret: kind=ptr
@@ -54251,10 +54251,10 @@ global: va=00556330,name=probably_do_show_window_ev0_7,size=559,member_of=vtbl_0
     arg: kind=ptr
       type: kind=struct,id=vtbl_0066F20C
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=constructor_00404DB0
-global: va=00556560,name=sub_556560,size=36
+global: va=00556560,name=init_color_32_8,size=36
   type: kind=function,declspec=thiscall
     ret: kind=ptr
       type: kind=int,size=1
@@ -58704,7 +58704,8 @@ global: va=0057C3B0,name=fun_57C3B0,size=109,member_of=constructor_0057C2D0
     arg: kind=int,size=4,signed=True
 global: va=0057C420,name=constructor,size=733,member_of=constructor_0057C420
   type: kind=function,declspec=thiscall
-    ret: kind=void
+    ret: kind=ptr
+      type: kind=struct,id=constructor_0057C420
     arg: kind=ptr
       type: kind=struct,id=constructor_0057C420
     arg: kind=ptr
@@ -60374,7 +60375,7 @@ global: va=00591BF0,name=constructor,size=43,member_of=vtbl_00670374
     arg: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=struct,id=constructor_00590360
-global: va=00591C20,name=CEngineSurface_create,size=194
+global: va=00591C20,name=create,size=194,member_of=constructor_00590BF0
   type: kind=function,declspec=thiscall
     ret: kind=void
     arg: kind=ptr
@@ -63457,9 +63458,9 @@ global: va=005B4230,name=dk2dd_destroy,size=47
 global: va=005B4260,name=BullfrogWindow_create,size=204
   type: kind=function,declspec=cdecl
     ret: kind=ptr
-      type: kind=int,size=4
+      type: kind=int,size=4,signed=True
     arg: kind=ptr
-      type: kind=int,size=4
+      type: kind=int,size=4,signed=True
     arg: kind=ptr
       type: kind=winapi,name=_GUID,size=16
     arg: kind=int,size=4,signed=True
@@ -85366,16 +85367,16 @@ global: va=0079D378,name=g_offScreen,size=80
 global: va=0079D3C8,name=g_hWnd,size=4
   type: kind=ptr,winapi=HWND
     type: kind=winapi,name=HWND__,size=4
-global: va=0079D3CC,name=hBullfrogWindow,size=4
+global: va=0079D3CC,name=g_hBullfrogWindow,size=4
   type: kind=ptr,winapi=HWND
     type: kind=winapi,name=HWND__,size=4
-global: va=0079D3D0,name=dk2dd,size=4
+global: va=0079D3D0,name=g_dk2dd,size=4
   type: kind=ptr
     type: kind=winapi,name=IDirectDraw,size=4
-global: va=0079D3D4,name=lpDDPalette,size=4
+global: va=0079D3D4,name=g_lpDDPalette,size=4
   type: kind=ptr
     type: kind=winapi,name=IDirectDrawPalette,size=4
-global: va=0079D3D8,name=lpDDClipper,size=4
+global: va=0079D3D8,name=g_lpDDClipper,size=4
   type: kind=ptr
     type: kind=winapi,name=IDirectDrawClipper,size=4
 global: va=0079D3DC,name=g_isNeedBlt,size=4
@@ -85392,7 +85393,7 @@ global: va=0079D3EC,name=isBullfrogWindowClassRegistered,size=4
 global: va=0079D3F0,name=lpSurfaceDD,size=4
   type: kind=ptr
     type: kind=winapi,name=IDirectDraw,size=4
-global: va=0079D418,name=palleteEntries,size=1024
+global: va=0079D418,name=g_palleteEntries,size=1024
   type: kind=array,count=256
     type: kind=winapi,name=tagPALETTEENTRY,size=4
 global: va=0079D818,name=g_confSurfDesc2,size=24

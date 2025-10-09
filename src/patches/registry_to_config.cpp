@@ -84,7 +84,7 @@ namespace registry {
     struct define_reg_int_option : define_reg_option {
         flame_config::define_flame_option<int> opt;
 
-        define_reg_int_option(const char *name, const char *path, const char *help, int defaultValue) : define_reg_option(name), opt(path, help, defaultValue) {}
+        define_reg_int_option(const char *name, const char *path, flame_config::OptionGroup group, const char *help, int defaultValue) : define_reg_option(name), opt(path, group, help, defaultValue) {}
 
         size_t size() override { return 4; }
         bool read(void *data, size_t size) override {
@@ -102,7 +102,7 @@ namespace registry {
     struct define_reg_bool_option : define_reg_option {
         flame_config::define_flame_option<bool> opt;
 
-        define_reg_bool_option(const char *name, const char *path, const char *help, bool defaultValue) : define_reg_option(name), opt(path, help, defaultValue) {}
+        define_reg_bool_option(const char *name, const char *path, flame_config::OptionGroup group, const char *help, bool defaultValue) : define_reg_option(name), opt(path, group, help, defaultValue) {}
 
         size_t size() override { return 4; }
         bool read(void *data, size_t size) override {
@@ -123,7 +123,7 @@ namespace registry {
         size_t sz;
         flame_config::define_flame_option<std::string> opt;
 
-        define_reg_bytes_option(const char *name, size_t size, const char *path, const char *help, std::string defaultValue) : define_reg_option(name), sz(size), opt(path, help, defaultValue) {}
+        define_reg_bytes_option(const char *name, size_t size, const char *path, flame_config::OptionGroup group, const char *help, std::string defaultValue) : define_reg_option(name), sz(size), opt(path, group, help, defaultValue) {}
 
         size_t size() override { return sz; }
         bool read(void *data, size_t size) override {
@@ -162,7 +162,7 @@ namespace registry {
     struct define_reg_string_option : define_reg_option {
         flame_config::define_flame_option<std::string> opt;
 
-        define_reg_string_option(const char *name, const char *path, const char *help, std::string defaultValue) : define_reg_option(name), opt(path, help, defaultValue) {}
+        define_reg_string_option(const char *name, const char *path, flame_config::OptionGroup group, const char *help, std::string defaultValue) : define_reg_option(name), opt(path, group, help, defaultValue) {}
 
         size_t size() override { return opt->size(); }
         bool read(void *data, size_t size) override {
@@ -181,7 +181,7 @@ namespace registry {
     struct define_reg_guid_option : define_reg_option {
         flame_config::define_flame_option<std::string> opt;
 
-        define_reg_guid_option(const char *name, const char *path, const char *help, std::string defaultValue) : define_reg_option(name), opt(path, help, defaultValue) {}
+        define_reg_guid_option(const char *name, const char *path, flame_config::OptionGroup group, const char *help, std::string defaultValue) : define_reg_option(name), opt(path, group, help, defaultValue) {}
 
         size_t size() override { return sizeof(GUID); }
         bool read(void *data, size_t size) override {
@@ -249,7 +249,7 @@ namespace registry::dk2::configuration::paths {
 
     define_reg_int_option o_version(
         "Version Number",
-        "registry:configuration:paths:Version_Number",
+        "registry:configuration:paths:Version_Number", flame_config::OG_HiddenState,
         "DKII registry paths config version\n",
         0
     );
@@ -267,161 +267,161 @@ namespace registry::dk2::configuration::video {
 
     define_reg_int_option o_version(
         "Version Number",
-        "registry:configuration:video:Version_Number",
+        "registry:configuration:video:Version_Number", flame_config::OG_HiddenState,
         "DKII registry video config version\n",
         4
     );
 
     define_reg_int_option o_guidIndex(
         "GUID Index",
-        "registry:configuration:video:GUID_Index",
+        "registry:configuration:video:GUID_Index", flame_config::OG_HiddenState,
         "",
         0
     );
 
     define_reg_bool_option o_guidIndexVerifiedWorking(
         "GUID Index Verified Working",
-        "registry:configuration:video:GUID_Index_Verified_Working",
+        "registry:configuration:video:GUID_Index_Verified_Working", flame_config::OG_HiddenState,
         "",
         false
     );
 
     define_reg_bool_option o_guidIndexIsDefault(
         "GUID Index Is Default",
-        "registry:configuration:video:GUID_Index_Is_Default",
+        "registry:configuration:video:GUID_Index_Is_Default", flame_config::OG_HiddenState,
         "",
         true
     );
 
     define_reg_int_option o_gammaLevel(
         "Gamma Level",
-        "registry:configuration:video:Gamma_Level",
+        "registry:configuration:video:Gamma_Level", flame_config::OG_Config,
         "",
         4096
     );
 
     define_reg_int_option o_ambientLight(
         "Ambient Light",
-        "registry:configuration:video:Ambient_Light",
+        "registry:configuration:video:Ambient_Light", flame_config::OG_Config,
         "",
         512
     );
 
     define_reg_bool_option o_highWalls(
         "HighWalls",
-        "registry:configuration:video:HighWalls",
+        "registry:configuration:video:HighWalls", flame_config::OG_Config,
         "",
         true
     );
 
     define_reg_bool_option o_tortureDetails(
         "Torture Details",
-        "registry:configuration:video:Torture_Details",
+        "registry:configuration:video:Torture_Details", flame_config::OG_Config,
         "if file Data\\TFile.tld exists, then dk2 will set value to false for some reason",
         true
     );
 
     define_reg_bool_option o_res1024_768Enabled(
         "Res 1024*768 Enabled",
-        "registry:configuration:video:Res_1024_768_Enabled",
+        "registry:configuration:video:Res_1024_768_Enabled", flame_config::OG_Config,
         "dk2 default value is false but I will set it to true",
         true
     );
 
     define_reg_bool_option o_res1280_1024Enable(
         "Res 1280*1024 Enable",
-        "registry:configuration:video:Res_1280_1024_Enable",
+        "registry:configuration:video:Res_1280_1024_Enable", flame_config::OG_Config,
         "",
         false
     );
 
     define_reg_bool_option o_res1600_1200Enable(
         "Res 1600*1200 Enable",
-        "registry:configuration:video:Res_1600_1200_Enable",
+        "registry:configuration:video:Res_1600_1200_Enable", flame_config::OG_Config,
         "",
         false
     );
 
     define_reg_int_option o_engineId(
         "Engine Id",
-        "registry:configuration:video:Engine_Id",
+        "registry:configuration:video:Engine_Id", flame_config::OG_HiddenState,
         "if video device support linear perspective then value eq 2 else 4",
         2
     );
 
     define_reg_bool_option o_cheapLighting(
         "Cheap Lighting",
-        "registry:configuration:video:Cheap_Lighting",
+        "registry:configuration:video:Cheap_Lighting", flame_config::OG_Config,
         "",
         false
     );
 
     define_reg_bool_option o_sineWaveWater(
         "Sine Wave Water",
-        "registry:configuration:video:Sine_Wave_Water",
+        "registry:configuration:video:Sine_Wave_Water", flame_config::OG_Config,
         "",
         false
     );
 
     define_reg_int_option o_viewDistance(
         "View Distance",
-        "registry:configuration:video:View_Distance",
+        "registry:configuration:video:View_Distance", flame_config::OG_Config,
         "",
         12
     );
 
     define_reg_int_option o_shadowLevel(
         "Shadow Level",
-        "registry:configuration:video:Shadow_Level",
+        "registry:configuration:video:Shadow_Level", flame_config::OG_Config,
         "",
         3
     );
 
     define_reg_bool_option o_environmentMapping(
         "EnvironmentMapping",
-        "registry:configuration:video:EnvironmentMapping",
+        "registry:configuration:video:EnvironmentMapping", flame_config::OG_Config,
         "",
         true
     );
 
     define_reg_bool_option o_translucentWater(
         "Translucent Water",
-        "registry:configuration:video:Translucent_Water",
+        "registry:configuration:video:Translucent_Water", flame_config::OG_Config,
         "",
         true
     );
 
     define_reg_int_option o_pMeshReductionLevel(
         "PMesh Reduction Level",
-        "registry:configuration:video:PMesh_Reduction_Level",
+        "registry:configuration:video:PMesh_Reduction_Level", flame_config::OG_Config,
         "",
         0
     );
 
     define_reg_int_option o_textureReductionLevel(
         "Texture Reduction Level",
-        "registry:configuration:video:Texture_Reduction_Level",
+        "registry:configuration:video:Texture_Reduction_Level", flame_config::OG_Config,
         "on slow cpu if video device support linear perspective then value 1 else 2",
         0
     );
 
     define_reg_bool_option o_solidBlueprints(
         "Solid Blueprints",
-        "registry:configuration:video:Solid_Blueprints",
+        "registry:configuration:video:Solid_Blueprints", flame_config::OG_Config,
         "on slow cpu if video device support linear perspective then value true",
         false
     );
 
     define_reg_bool_option o_shouldDrawOptBackgroundAlpha(
         "Should Draw Opt Background Alpha",
-        "registry:configuration:video:Should_Draw_Opt_Background_Alpha",
+        "registry:configuration:video:Should_Draw_Opt_Background_Alpha", flame_config::OG_Config,
         "",
         true
     );
 
     define_reg_int_option o_screenWidth(
         "Screen Width",
-        "registry:configuration:video:Screen_Width",
+        "registry:configuration:video:Screen_Width", flame_config::OG_Config,
         "in game rendering width\n"
         "dk2 default value is 800 but I will set it to 1024",
         1024
@@ -429,7 +429,7 @@ namespace registry::dk2::configuration::video {
 
     define_reg_int_option o_screenHeight(
         "Screen Height",
-        "registry:configuration:video:Screen_Height",
+        "registry:configuration:video:Screen_Height", flame_config::OG_Config,
         "in game rendering height\n"
         "dk2 default value is 600 but I will set it to 768",
         768
@@ -437,63 +437,63 @@ namespace registry::dk2::configuration::video {
 
     define_reg_int_option o_screenDepth(
         "Screen Depth",
-        "registry:configuration:video:Screen_Depth",
+        "registry:configuration:video:Screen_Depth", flame_config::OG_Config,
         "",
         16
     );
 
     define_reg_bool_option o_screenWindowed(
         "Screen Windowed",
-        "registry:configuration:video:Screen_Windowed",
+        "registry:configuration:video:Screen_Windowed", flame_config::OG_Config,
         "",
         false
     );
 
     define_reg_bool_option o_screenSwap(
         "Screen Swap",
-        "registry:configuration:video:Screen_Swap",
+        "registry:configuration:video:Screen_Swap", flame_config::OG_Config,
         "",
         false
     );
 
     define_reg_bool_option o_screenHardware3D(
         "Screen Hardware3D",
-        "registry:configuration:video:Screen_Hardware3D",
+        "registry:configuration:video:Screen_Hardware3D", flame_config::OG_Config,
         "",
         true
     );
 
     define_reg_int_option o_machineSpecLevel(
         "Machine Spec Level",
-        "registry:configuration:video:Machine_Spec_Level",
+        "registry:configuration:video:Machine_Spec_Level", flame_config::OG_HiddenState,
         "",
         10
     );
 
     define_reg_bool_option o_highResTextures(
         "High Res Textures",
-        "registry:configuration:video:High_Res_Textures",
+        "registry:configuration:video:High_Res_Textures", flame_config::OG_Config,
         "if RAM > 32mb then true",
         true
     );
 
     define_reg_bool_option o_bumpMappingConfig(
         "BumpMappingConfig",
-        "registry:configuration:video:BumpMappingConfig",
+        "registry:configuration:video:BumpMappingConfig", flame_config::OG_Config,
         "write only. Registry value is ignored. Use command line flag -EnableBumpMapping",
         false
     );
 
     define_reg_guid_option o_guidDeviceGuid(
         "D3D Device Guid",
-        "registry:configuration:video:D3D_Device_Guid",
+        "registry:configuration:video:D3D_Device_Guid", flame_config::OG_HiddenState,
         "last selected device",
         ""
     );
 
     define_reg_int_option o_screenModeType(
         "Screen Mode Type",
-        "registry:configuration:video:Screen_Mode_Type",
+        "registry:configuration:video:Screen_Mode_Type", flame_config::OG_Config,
         "keeps the last selected value\n"
         "0: 400x300\n"
         "1: 512x384\n"
@@ -509,7 +509,7 @@ namespace registry::dk2::configuration::video {
 
     define_reg_bool_option o_stippleAlpha(
         "StippleAlpha",
-        "registry:configuration:video:StippleAlpha",
+        "registry:configuration:video:StippleAlpha", flame_config::OG_Config,
         "Changes the alpha blending mode when copying one texture to another",
         false
     );
@@ -559,168 +559,168 @@ namespace registry::dk2::configuration::player {
 
     define_reg_int_option o_version(
         "Version Number",
-        "registry:configuration:player:Version_Number",
+        "registry:configuration:player:Version_Number", flame_config::OG_HiddenState,
         "DKII registry player config version\n",
         1
     );
 
     define_reg_int_option o_transferCreatureID(
         "Transfer Creature ID",
-        "registry:configuration:player:Transfer_Creature_ID",
+        "registry:configuration:player:Transfer_Creature_ID", flame_config::OG_GameProgress,
         "",
         0
     );
 
     define_reg_int_option o_transferCreatureLevel(
         "Transfer Creature Level",
-        "registry:configuration:player:Transfer_Creature_Level",
+        "registry:configuration:player:Transfer_Creature_Level", flame_config::OG_GameProgress,
         "",
         0
     );
 
     define_reg_int_option o_levelNumber(
         "Level Number",
-        "registry:configuration:player:Level_Number",
+        "registry:configuration:player:Level_Number", flame_config::OG_GameProgress,
         "",
         1
     );
 
     define_reg_int_option o_mpdLevelNumber(
         "MPD Level Number",
-        "registry:configuration:player:MPD_Level_Number",
+        "registry:configuration:player:MPD_Level_Number", flame_config::OG_GameProgress,
         "",
         1
     );
 
     define_reg_bool_option o_invertMouse(
         "Invert Mouse",
-        "registry:configuration:player:Invert_Mouse",
+        "registry:configuration:player:Invert_Mouse", flame_config::OG_Config,
         "",
         false
     );
 
     define_reg_int_option o_mouseSensitivity(
         "Mouse Sensitivity",
-        "registry:configuration:player:Mouse_Sensitivity",
+        "registry:configuration:player:Mouse_Sensitivity", flame_config::OG_Config,
         "",
         2
     );
 
     define_reg_int_option o_scrollSpeed(
         "ScrollSpeed",
-        "registry:configuration:player:ScrollSpeed",
+        "registry:configuration:player:ScrollSpeed", flame_config::OG_Config,
         "",
         10
     );
 
     define_reg_bool_option o_useBlood(
         "Use Blood",
-        "registry:configuration:player:Use_Blood",
+        "registry:configuration:player:Use_Blood", flame_config::OG_Config,
         "if file Data\\BFile.bld exists, then dk2 will set value to false for some reason",
         true
     );
 
     define_reg_bool_option o_messageTabsEnabled(
         "Message Tabs Enabled",
-        "registry:configuration:player:Message_Tabs_Enabled",
+        "registry:configuration:player:Message_Tabs_Enabled", flame_config::OG_Config,
         "",
         true
     );
 
     define_reg_bool_option o_worldTooltipsEnabled(
         "World Tooltips Enabled",
-        "registry:configuration:player:World_Tooltips_Enabled",
+        "registry:configuration:player:World_Tooltips_Enabled", flame_config::OG_Config,
         "",
         true
     );
 
     define_reg_bool_option o_alternativeScroll(
         "Alternative Scroll",
-        "registry:configuration:player:Alternative_Scroll",
+        "registry:configuration:player:Alternative_Scroll", flame_config::OG_Config,
         "",
         false
     );
 
     define_reg_bytes_option o_keyTable(
         "Key Table", 512,
-        "registry:configuration:player:Key_Table",
+        "registry:configuration:player:Key_Table", flame_config::OG_Config,
         "",
         ""
     );
 
     define_reg_bytes_option o_secretLevels(
         "Secret Levels", 64,
-        "registry:configuration:player:Secret_Levels",
+        "registry:configuration:player:Secret_Levels", flame_config::OG_GameProgress,
         "",
         ""
     );
 
     define_reg_bytes_option o_secretLevelsCompleted(
         "Secret Levels Completed", 64,
-        "registry:configuration:player:Secret_Levels_Completed",
+        "registry:configuration:player:Secret_Levels_Completed", flame_config::OG_GameProgress,
         "",
         ""
     );
 
     define_reg_bytes_option o_specialLevelsCompleted(
         "Special Levels Completed", 64,
-        "registry:configuration:player:Special_Levels_Completed",
+        "registry:configuration:player:Special_Levels_Completed", flame_config::OG_GameProgress,
         "",
         ""
     );
 
     define_reg_bytes_option o_petDungeonLevelsCompleted(
         "Pet Dungeon Levels Completed", 28,
-        "registry:configuration:player:Pet_Dungeon_Levels_Completed",
+        "registry:configuration:player:Pet_Dungeon_Levels_Completed", flame_config::OG_GameProgress,
         "",
         ""
     );
 
     define_reg_int_option o_secretLevelNumber(
         "Secret Level Number",
-        "registry:configuration:player:Secret_Level_Number",
+        "registry:configuration:player:Secret_Level_Number", flame_config::OG_GameProgress,
         "",
         0
     );
 
     define_reg_string_option o_multiplayerName(
         "Multiplayer Name",
-        "registry:configuration:player:Multiplayer_Name",
+        "registry:configuration:player:Multiplayer_Name", flame_config::OG_Config,
         "",
         ""
     );
 
     define_reg_bytes_option o_levelAttempts(
         "Level Attempts", 160,
-        "registry:configuration:player:Level_Attempts",
+        "registry:configuration:player:Level_Attempts", flame_config::OG_GameProgress,
         "",
         ""
     );
 
     define_reg_bytes_option o_playerLevelStatus(
         "Player Level Status", 160,
-        "registry:configuration:player:Player_Level_Status",
+        "registry:configuration:player:Player_Level_Status", flame_config::OG_GameProgress,
         "",
         ""
     );
 
     define_reg_bytes_option o_totalEvilRating(
         "Total Evil Rating", 160,
-        "registry:configuration:player:Total_Evil_Rating",
+        "registry:configuration:player:Total_Evil_Rating", flame_config::OG_GameProgress,
         "",
         ""
     );
 
     define_reg_bytes_option o_userCameras(
         "User Cameras", 30,
-        "registry:configuration:player:User_Cameras",
+        "registry:configuration:player:User_Cameras", flame_config::OG_GameProgress,
         "Write only. Didn't found any read usages",
         "00"
     );
 
     define_reg_string_option o_multiplayerGameName(
         "Multiplayer Game Name",
-        "registry:configuration:player:Multiplayer_Game_Name",
+        "registry:configuration:player:Multiplayer_Game_Name", flame_config::OG_Config,
         "",
         ""
     );
@@ -761,14 +761,14 @@ namespace registry::dk2::configuration::network {
 
     define_reg_int_option o_version(
         "Version Number",
-        "registry:configuration:network:Version_Number",
+        "registry:configuration:network:Version_Number", flame_config::OG_HiddenState,
         "DKII registry network config version\n",
         0
         );
 
     define_reg_string_option o_serverName(
         "Server Name",
-        "registry:configuration:network:Server_Name",
+        "registry:configuration:network:Server_Name", flame_config::OG_Config,
         "",
         "daphne.eagames.co.uk"
     );
@@ -787,105 +787,105 @@ namespace registry::dk2::configuration::sound {
 
     define_reg_int_option o_version(
         "Version Number",
-        "registry:configuration:sound:Version_Number",
+        "registry:configuration:sound:Version_Number", flame_config::OG_HiddenState,
         "DKII registry sound config version\n",
         2
     );
 
     define_reg_int_option o_speechVolume(
         "SpeechVolume",
-        "registry:configuration:sound:SpeechVolume",
+        "registry:configuration:sound:SpeechVolume", flame_config::OG_Config,
         "",
         100
     );
 
     define_reg_int_option o_soundEffectVolume(
         "SoundEffectVolume",
-        "registry:configuration:sound:SoundEffectVolume",
+        "registry:configuration:sound:SoundEffectVolume", flame_config::OG_Config,
         "",
         50
     );
 
     define_reg_int_option o_musicVolume(
         "MusicVolume",
-        "registry:configuration:sound:MusicVolume",
+        "registry:configuration:sound:MusicVolume", flame_config::OG_Config,
         "",
         50
     );
 
     define_reg_int_option o_masterVolume(
         "MasterVolume",
-        "registry:configuration:sound:MasterVolume",
+        "registry:configuration:sound:MasterVolume", flame_config::OG_Config,
         "",
         100
     );
 
     define_reg_int_option o_masterBalance(
         "MasterBalance",
-        "registry:configuration:sound:MasterBalance",
+        "registry:configuration:sound:MasterBalance", flame_config::OG_Config,
         "Didn't found any usages. Probably unused field",
         0
     );
 
     define_reg_bool_option o_headphones(
         "Headphones",
-        "registry:configuration:sound:Headphones",
+        "registry:configuration:sound:Headphones", flame_config::OG_Config,
         "",
         false
     );
 
     define_reg_bool_option o_flipSpeakers(
         "FlipSpeakers",
-        "registry:configuration:sound:FlipSpeakers",
+        "registry:configuration:sound:FlipSpeakers", flame_config::OG_Config,
         "",
         false
     );
 
     define_reg_bool_option o_musicSwitch(
         "MusicSwitch",
-        "registry:configuration:sound:MusicSwitch",
+        "registry:configuration:sound:MusicSwitch", flame_config::OG_Config,
         "",
         true
     );
 
     define_reg_bool_option o_speechSwitch(
         "SpeechSwitch",
-        "registry:configuration:sound:SpeechSwitch",
+        "registry:configuration:sound:SpeechSwitch", flame_config::OG_Config,
         "",
         true
     );
 
     define_reg_bool_option o_sfxSwtich(
         "SFXSwtich",
-        "registry:configuration:sound:SFXSwtich",
+        "registry:configuration:sound:SFXSwtich", flame_config::OG_Config,
         "",
         true
     );
 
     define_reg_int_option o_soundQuality(
         "SoundQuality",
-        "registry:configuration:sound:SoundQuality",
+        "registry:configuration:sound:SoundQuality", flame_config::OG_Config,
         "",
         3
     );
 
     define_reg_bool_option o_qSound(
         "QSound",
-        "registry:configuration:sound:QSound",
+        "registry:configuration:sound:QSound", flame_config::OG_Config,
         "",
         true
     );
 
     define_reg_int_option o_numberOfVoices(
         "NumberOfVoices",
-        "registry:configuration:sound:NumberOfVoices",
+        "registry:configuration:sound:NumberOfVoices", flame_config::OG_Config,
         "",
         12
     );
 
     define_reg_bool_option o_environmentalEffects(
         "EnvironmentalEffects",
-        "registry:configuration:sound:EnvironmentalEffects",
+        "registry:configuration:sound:EnvironmentalEffects", flame_config::OG_Config,
         "",
         true
     );
@@ -917,77 +917,77 @@ namespace registry::dk2::configuration::game {
 
     define_reg_int_option o_version(
         "Version Number",
-        "registry:configuration:game:Version_Number",
+        "registry:configuration:game:Version_Number", flame_config::OG_HiddenState,
         "DKII registry game config version\n",
         0
     );
 
     define_reg_int_option o_gameSpeed(
         "GameSpeed",
-        "registry:configuration:game:GameSpeed",
+        "registry:configuration:game:GameSpeed", flame_config::OG_Config,
         "",
         4
     );
 
     define_reg_bool_option o_fogOfWar(
         "FogOfWar",
-        "registry:configuration:game:FogOfWar",
+        "registry:configuration:game:FogOfWar", flame_config::OG_Config,
         "",
         true
     );
 
     define_reg_bool_option o_impenetrableWalls(
         "ImpenetrableWalls",
-        "registry:configuration:game:ImpenetrableWalls",
+        "registry:configuration:game:ImpenetrableWalls", flame_config::OG_Config,
         "",
         false
     );
 
     define_reg_int_option o_goldDensity(
         "GoldDensity",
-        "registry:configuration:game:GoldDensity",
+        "registry:configuration:game:GoldDensity", flame_config::OG_Config,
         "",
         1
     );
 
     define_reg_int_option o_gameDuration(
         "GameDuration",
-        "registry:configuration:game:GameDuration",
+        "registry:configuration:game:GameDuration", flame_config::OG_Config,
         "",
         0
     );
 
     define_reg_int_option o_loseHeartType(
         "LoseHeartType",
-        "registry:configuration:game:LoseHeartType",
+        "registry:configuration:game:LoseHeartType", flame_config::OG_Config,
         "",
         0
     );
 
     define_reg_int_option o_maxCreatures(
         "MaxCreatures",
-        "registry:configuration:game:MaxCreatures",
+        "registry:configuration:game:MaxCreatures", flame_config::OG_Config,
         "",
         32
     );
 
     define_reg_bool_option o_manaRegeneration(
         "ManaRegeneration",
-        "registry:configuration:game:ManaRegeneration",
+        "registry:configuration:game:ManaRegeneration", flame_config::OG_Config,
         "",
         true
     );
 
     define_reg_bool_option o_newCampaign(
         "NewCampaign",
-        "registry:configuration:game:NewCampaign",
+        "registry:configuration:game:NewCampaign", flame_config::OG_GameProgress,
         "",
         true
     );
 
     define_reg_bool_option o_showIntro(
         "ShowIntro",
-        "registry:configuration:game:ShowIntro",
+        "registry:configuration:game:ShowIntro", flame_config::OG_Config,
         "",
         true
     );
@@ -1015,7 +1015,7 @@ namespace registry::dk2::configuration {
 
     define_reg_int_option o_version(
         "Version Number",
-        "registry:configuration:Version_Number",
+        "registry:configuration:Version_Number", flame_config::OG_HiddenState,
         "DKII registry config version\n",
         11
     );
@@ -1035,21 +1035,21 @@ namespace registry::dk2 {
 
     define_reg_int_option o_language(
         "Language",
-        "registry:Language",
+        "registry:Language", flame_config::OG_Config,
         "DKII language\n",
         9
     );
 
     define_reg_int_option o_versionNumberMajor(
         "Version Number Major",
-        "registry:Version_Number_Major",
+        "registry:Version_Number_Major", flame_config::OG_HiddenState,
         "",
         1
     );
 
     define_reg_int_option o_versionNumberMinor(
         "Version Number Minor",
-        "registry:Version_Number_Minor",
+        "registry:Version_Number_Minor", flame_config::OG_HiddenState,
         "",
         7
     );

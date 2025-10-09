@@ -12,6 +12,7 @@
 #include "dk2_functions.h"
 #include "dk2_globals.h"
 #include "patches/micro_patches.h"
+#include "patches/remember_window_location_and_size.h"
 
 int dk2::MyGame::prepareScreenEx(
         uint32_t dwWidth,
@@ -122,11 +123,11 @@ int dk2::MyGame::prepareScreenEx(
         aabb.maxX = dwWidth + x;
         aabb.maxY = dwHeight + y;
         int status;
-        if (*this->c_window_test.probably_do_show_window_ev0_7((uint32_t *)&status, &aabb) < 0) {
+        if (*this->c_window_test.probably_do_show_window_ev0_7(&status, &aabb) < 0) {
             patch::log::err("Screen Mode %d*%d (%d bpp) show failed", dwWidth, dwHeight, dwRGBBitCount);
             return 0;
         }
-        patch::remember_window_location_and_size::resizeWindow(this->c_window_test.hWnd);
+        patch::remember_window_location_and_size::resizeWindow(this->c_window_test.hWnd, dwWidth, dwHeight);
         dwRGBBitCount_ = dwRGBBitCount;
     } else {
         dwRGBBitCount_ = dwRGBBitCount;

@@ -13,6 +13,7 @@
 #include "dk2_functions.h"
 #include "dk2_globals.h"
 #include "patches/big_resolution_fix/big_resolution_fix.h"
+#include "patches/external_textures.h"
 #include "patches/logging.h"
 
 
@@ -164,6 +165,7 @@ int __cdecl dk2::mydd_devTexture_init(MyDirectDraw *mydd) {
         v12 = NULL;
     }
     CEngineSurfaceScaler_instance.scaled_128x128_8a8r8g8b = v12;
+    patch::external_textures::dumpTextures();
     return 1;
 }
 

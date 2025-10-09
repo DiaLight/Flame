@@ -140,8 +140,8 @@ namespace {
 
 
 flame_config::define_flame_option<std::string> o_auto_network(
-    "flame:auto-network",
-    "Start game with selected gui\n"
+    "flame:auto-network", flame_config::OG_Config,
+    "Start game with selected network gui\n"
     "format: <service>[:<srv|cli>[:<map>]]\n"
     "\"mp\" - goto Multiplayer\n"
     "\"tcpip\" - goto 'WinSock TCP/IP Internet Connection'\n"

@@ -15,7 +15,7 @@ namespace {
 
 
 flame_config::define_flame_option<int> o_limitTps(
-    "flame:limit-tps",
+    "flame:limit-tps", flame_config::OG_Config,
     "For displays with high frequency you can limit game loop time\n"
     "I don't know what fps value the dk2 developers were adjusting to\n"
     "I was comfortable with 60 (frames/ticks) per second\n"
@@ -24,7 +24,7 @@ flame_config::define_flame_option<int> o_limitTps(
 );
 
 flame_config::define_flame_option<int> o_test1(
-    "flame:experimental:test",
+    "flame:experimental:test", flame_config::OG_Config,
     "",
     0
 );

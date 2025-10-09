@@ -14,7 +14,7 @@
 bool patch::original_compatible::enable = false;
 
 flame_config::define_flame_option<bool> o_original_compatible(
-    "flame:original-compatible",
+    "flame:original-compatible", flame_config::OG_Config,
     "Flame will try to be compatible with DKII-DX.EXE v1.7.0\n"
     "All patches that breaks network compatibility will be disabled\n"
     "[drop_thing_from_hand_fix, override_max_room_count, backstab_fix, workshop_manufacture_build_time_fix, wooden_bridge_burn_fix, sleeping_possession_fix] will be disabled\n",
