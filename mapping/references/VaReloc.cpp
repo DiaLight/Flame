@@ -61,9 +61,13 @@ std::istream& operator>>(std::istream &is, VaReloc& data) {
     return is;
 }
 
-void parseRelocs(std::istream &is, std::vector<VaReloc> &relocs) {
+void parseRelocs(std::istream &is, std::vector<VaReloc> &relocs, const std::function<void(int cur, int max)> &progress) {
+    is.seekg(0, std::ios::end);
+    auto end = is.tellg();
+    is.seekg(0, std::ios::beg);
     std::string line;
     while(!is.eof()) {
+        progress(is.tellg(), end);
         while(getlineOpt(is, line)) {
             if(line.starts_with("#")) continue;
             if(line.ends_with("\n")) line.resize(line.size() - 1);
@@ -81,11 +85,6 @@ void parseRelocs(std::istream &is, std::vector<VaReloc> &relocs) {
         }
         relocs.push_back(r);
     }
-}
-bool parseRelocs(const std::string &path, std::vector<VaReloc> &relocs) {
-    std::ifstream is(path);
-    parseRelocs(is, relocs);
-    return is.eof();
 }
 
 std::vector<VaReloc>::iterator find_gt(std::vector<VaReloc> &relocs, uint32_t offs) {

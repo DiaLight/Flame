@@ -9,6 +9,7 @@
 #include <utility>
 #include <vector>
 #include <string>
+#include <functional>
 
 
 struct Symbol {
@@ -20,8 +21,7 @@ struct Symbol {
     Symbol(uint32_t va, std::string name, bool replace) : va(va), name(std::move(name)), replace(replace) {}
 };
 
-void parseSymbols(std::istream &is, std::vector<Symbol> &syms);
-bool parseSymbols(const std::string &path, std::vector<Symbol> &syms);
+void parseSymbols(std::istream &is, std::vector<Symbol> &syms, const std::function<void(int cur, int max)> &progress);
 
 std::vector<Symbol>::iterator find_gt(std::vector<Symbol> &syms, uint32_t offs);
 std::vector<Symbol>::iterator find_ge(std::vector<Symbol> &syms, uint32_t offs);

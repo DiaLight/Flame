@@ -206,7 +206,11 @@ int main(int argc, char * argv[]) {
         }
 
         std::vector<VaReloc> relocs;
-        if (!parseRelocs(references_file, relocs)) return -1;
+        {
+            std::ifstream is(references_file);
+            parseRelocs(is, relocs, [](int cur, int max){});
+            if(!is.eof()) return -1;
+        }
 
         if (!buildChunks(std::move(sections), std::move(relocs), chunks, arena)) return -1;
         if (!getSizeForStdcallStackArgs(args_sizes, stdcallArgsSizes)) return -1;

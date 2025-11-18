@@ -1,6 +1,8 @@
 set(TARGET flame)
 
 set(RESOURCES_FILE ${CMAKE_CURRENT_BINARY_DIR}/resources.rc)
+set(WELCOME__HEADER ${CMAKE_CURRENT_LIST_DIR}/patches/welcome_window/resources/resources.h)
+set(WELCOME__MAIN_BACKGROUND ${CMAKE_CURRENT_LIST_DIR}/patches/welcome_window/resources/main_background.png)
 set(VER_PRODUCT_NAME "DKII Flame")
 set(VER_DESCRIPTION "DKII Flame unofficial patches v${OUTPUT_VERSION}")
 configure_file(
@@ -129,6 +131,14 @@ add_library(${TARGET} SHARED
         patches/gui/game/game_layout.cpp
         patches/gui/game/esc_options/btn_autosave.cpp
 
+        patches/welcome_window/main/imgui_main_dx9.cpp
+        patches/welcome_window/main/imgui_texture_dx9.cpp
+
+#        patches/welcome_window/main/imgui_main_opengl3.cpp
+#        patches/welcome_window/main/imgui_texture_opengl3.cpp
+
+        patches/welcome_window/welcome_window.cpp
+
         ${GOG_PATCH_SOURCES}
         ${WEANETR_SOURCES}
 
@@ -138,7 +148,14 @@ target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_LIST_DIR} gog_patch
 target_compile_definitions(${TARGET} PRIVATE
         DIRECTINPUT_VERSION=0x0500
         DIRECT3D_VERSION=0x0600
+        NOMINMAX=1
         )
+set_source_files_properties(
+        patches/welcome_window/main/imgui_main_dx9.cpp
+        patches/welcome_window/main/imgui_texture_dx9.cpp
+        PROPERTIES COMPILE_DEFINITIONS
+        DIRECT3D_VERSION=0x0900
+)
 target_link_libraries(${TARGET} PRIVATE
         dkii_genlib dkii_exe_api
 #        gog_patch_dll
@@ -158,6 +175,8 @@ target_link_libraries(${TARGET} PRIVATE
         cimg  # visual debug
         toml  # flame config
         lodepng  # load/save png
+        imgui D3DX9  # welcome window
+#        imgui opengl32 stb  # welcome window
 
         imm32
         # wsock32 is old link target

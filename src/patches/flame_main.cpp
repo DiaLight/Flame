@@ -25,6 +25,7 @@
 #include "dk2_research.h"
 #endif
 #include "patches/protocol_dump.h"
+#include "patches/welcome_window/welcome_window.h"
 #include "patches/wine_support.h"
 
 
@@ -79,6 +80,18 @@ void patch::flameInit(int argc, const char **argv) {
             if (!it->second.empty()) config = it->second;
         }
         flame_config::load(config);
+    }
+    {
+//        initConsole();
+        patch::welcome_window::welcome_data_t res;
+        res.win32_class_name = L"Flame_win32";
+        res.win32_title = L"DungeonKeeper 2 Flame";
+        res.win32_size = {400, 600};
+        patch::welcome_window::imgui_main(res);  // long blocking call
+        if(!res.play) {
+            flameCleanup();
+            ExitProcess(0);
+        }
     }
 
     flame_config::save();

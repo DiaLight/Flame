@@ -50,8 +50,12 @@ std::istream& operator>>(std::istream &is, Symbol& data) {
     return is;
 }
 
-void parseSymbols(std::istream &is, std::vector<Symbol> &vec) {
+void parseSymbols(std::istream &is, std::vector<Symbol> &vec, const std::function<void(int cur, int max)> &progress) {
+    is.seekg(0, std::ios::end);
+    auto end = is.tellg();
+    is.seekg(0, std::ios::beg);
     while(!is.eof()) {
+        progress(is.tellg(), end);
         std::string line;
         while(getlineOpt(is, line)) {
             if(line.starts_with("#")) continue;
@@ -70,11 +74,6 @@ void parseSymbols(std::istream &is, std::vector<Symbol> &vec) {
         }
         vec.push_back(r);
     }
-}
-bool parseSymbols(const std::string &path, std::vector<Symbol> &vec) {
-    std::ifstream is(path);
-    parseSymbols(is, vec);
-    return is.eof();
 }
 
 std::vector<Symbol>::iterator find_gt(std::vector<Symbol> &vec, uint32_t va) {

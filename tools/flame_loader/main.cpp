@@ -11,6 +11,9 @@
 #include <span>
 #include <string>
 #include <vector>
+#include <io.h>
+#include <fcntl.h>
+#include <CommCtrl.h>
 
 #include "dependency_injection.h"
 
@@ -22,14 +25,153 @@
 
 #define IDR_RCDATA1 101
 
-std::map<std::string, std::vector<std::byte>> unpackResources(HMODULE mod) {
+class ProgressWindow {
+    HWND hWnd = NULL;
+    HWND hwndST = NULL;
+    HWND hwndPB = NULL;
+    DWORD lastUpdate;
+public:
+    explicit ProgressWindow(const std::string &title) {
+        create(title);
+        lastUpdate = GetTickCount();
+    }
+    ~ProgressWindow() {
+        close();
+    }
+
+    bool create(const std::string &title) {
+        if(hWnd) return false;
+        WNDCLASSEX wcex;
+        wcex.cbSize = sizeof(WNDCLASSEX);
+        wcex.style = CS_HREDRAW | CS_VREDRAW;
+        wcex.lpfnWndProc = WndProc;
+        wcex.cbClsExtra = 0;
+        wcex.cbWndExtra = 0;
+        wcex.hInstance = GetModuleHandleA(NULL);
+        wcex.hIcon = NULL;
+        wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+        wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
+        wcex.lpszMenuName = NULL;
+        wcex.lpszClassName = "FlameProgressWindow";
+        wcex.hIconSm = NULL;
+        RegisterClassEx(&wcex);
+
+        // Perform application initialization:
+        hWnd = CreateWindowExA(
+            0L, wcex.lpszClassName, title.c_str(),
+            WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_VISIBLE,
+            CW_USEDEFAULT, CW_USEDEFAULT, 400, 80,
+            NULL, NULL, wcex.hInstance, this);
+        if (!hWnd) {
+            return false;
+        }
+        ShowWindow(hWnd, SW_NORMAL);
+        UpdateWindow(hWnd);
+
+
+        RECT rcClient;  // Client area of parent window.
+        GetClientRect(hWnd, &rcClient);
+
+        {  // center window
+            RECT rc;
+            GetWindowRect(hWnd, &rc);
+            int xPos = (GetSystemMetrics(SM_CXSCREEN) - rc.right)/2;
+            int yPos = (GetSystemMetrics(SM_CYSCREEN) - rc.bottom)/2;
+            SetWindowPos(hWnd, NULL, xPos, yPos, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
+        }
+
+        int cyVScroll = GetSystemMetrics(SM_CYVSCROLL);
+        hwndST = CreateWindowExA(
+            0, WC_EDIT, "",
+            WS_CHILD | WS_VISIBLE | WS_TABSTOP | SS_LEFT,
+            rcClient.left + cyVScroll / 2, (rcClient.bottom) / 2 - cyVScroll,
+            rcClient.right - cyVScroll, cyVScroll,
+            hWnd, (HMENU) 11, wcex.hInstance, NULL);
+        hwndPB = CreateWindowExA(
+            0, PROGRESS_CLASS, (LPTSTR) NULL,
+            WS_CHILD | WS_VISIBLE,
+            rcClient.left + cyVScroll / 2, (rcClient.bottom) / 2,
+            rcClient.right - cyVScroll, cyVScroll,
+            hWnd, (HMENU) 10, wcex.hInstance, NULL);
+        RedrawWindow(hWnd, NULL, NULL, RDW_UPDATENOW);
+
+        // Set the range and increment of the progress bar.
+#define Progress_MAX_VALUE 256
+        SendMessage(hwndPB, PBM_SETRANGE, 0, MAKELPARAM(0, Progress_MAX_VALUE));
+        SendMessage(hwndPB, PBM_SETSTEP, (WPARAM) 1, 0);
+
+        return true;
+    }
+
+    int close() {
+        SendMessage(hwndPB, PBM_SETPOS, Progress_MAX_VALUE, 0);
+        peekAll();
+        SleepEx(10, FALSE);
+        peekAll();
+        SleepEx(20, FALSE);
+
+        PostMessage(hWnd, WM_CLOSE, 0, 0);
+
+        MSG msg;
+        while (GetMessage(&msg, NULL, 0, 0)) {
+            if (!TranslateAccelerator(msg.hwnd, NULL, &msg)) {
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+            }
+        }
+        return (int) msg.wParam;
+    }
+    void peekAll() {
+        MSG msg = {};
+        while (PeekMessage(&msg, hWnd, 0, 0, PM_REMOVE)) {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+    }
+
+    void updateText(const char *text) {
+        SetWindowTextA(hwndST, text);
+        peekAll();
+    }
+    void update(float prog) {
+        DWORD now = GetTickCount();
+        if(now - lastUpdate > 30) {
+            lastUpdate = now;
+            SendMessage(hwndPB, PBM_SETPOS, (int) (prog * Progress_MAX_VALUE), 0);
+            peekAll();
+        }
+    }
+
+    LRESULT wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+        switch (message) {
+        case WM_DESTROY:
+            PostQuitMessage(0);
+            break;
+        default:
+            return DefWindowProc(hWnd, message, wParam, lParam);
+        }
+        return 0;
+    }
+    static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+        auto *this_ = (ProgressWindow *) GetWindowLongPtr(hWnd, GWL_USERDATA);
+        if(message == WM_CREATE) {
+            this_ = (ProgressWindow *) ((LPCREATESTRUCT)lParam)->lpCreateParams;
+            SetWindowLongPtr(hWnd, GWL_USERDATA, (LONG_PTR)this_);
+        }
+        if(this_) return this_->wndProc(hWnd, message, wParam, lParam);
+        return DefWindowProc(hWnd, message, wParam, lParam);
+    }
+};
+
+
+std::map<std::string, std::vector<std::byte>> unpackResources(HMODULE mod, const std::function<void(int cur, int max)> &progress) {
     std::vector<std::byte> packedResources;
     HRSRC myResource = ::FindResource(mod, MAKEINTRESOURCE(IDR_RCDATA1), RT_RCDATA);
     if(HGLOBAL myResourceData = ::LoadResource(mod, myResource)) {
         DWORD size = SizeofResource(mod, myResource);
         if(void *data = ::LockResource(myResourceData)) {
             log_inf("compressed %d", size);
-            packedResources = lzma2_decode(std::span{(std::byte *) data, size});
+            packedResources = lzma2_decode(std::span{(std::byte *) data, size}, progress);
             log_inf("decompressed %d", packedResources.size());
             UnlockResource(data);
         }
@@ -76,7 +218,7 @@ std::string popString(std::map<std::string, std::vector<std::byte>> &resources, 
 
 template<typename T>
 bool parseResource(std::map<std::string, std::vector<std::byte>> &resources, const std::string &key,
-                   void (*parse)(std::istream &is, std::vector<T> &vec), std::vector<T> &vec) {
+                   const std::function<void(std::istream &is, std::vector<T> &vec)> &parse, std::vector<T> &vec) {
     std::string s = popString(resources, key);
     if(s.empty()) {
         log_err("[-] Failed to read %s", key.c_str());
@@ -104,7 +246,15 @@ struct Resources {
     std::string version;
 
     bool load(HMODULE mod) {
-        std::map<std::string, std::vector<std::byte>> resources = unpackResources(mod);
+        ProgressWindow progress("Flame unpack and parse progress");
+        progress.updateText("unpack resources");
+        constexpr float parts = 20;
+        std::map<std::string, std::vector<std::byte>> resources;
+        {
+            resources = unpackResources(mod, [&progress](int cur, int max) {
+                progress.update(((float) cur / max) * (2.f/parts));
+            });
+        }
         if(resources.empty()) {
             log_err("Failed to unpack Flame resources");
             return false;
@@ -112,24 +262,40 @@ struct Resources {
 //        for(auto &e : resources) {
 //            log_info("%s %d", e.first.c_str(), e.second.size());
 //        }
-        if(!parseResource(resources, "symmap", parseSymbols, dkiiSyms)) return false;
-        if(!parseResource(resources, "refmap", parseRelocs, dkiiRelocs)) return false;
+        progress.updateText("parse symbols map");
+        if(!parseResource<Symbol>(resources, "symmap", [&progress](std::istream &is, std::vector<Symbol> &vec) {
+                parseSymbols(is, vec, [&progress](int cur, int max) {
+                    progress.update(((float) cur / max) * (2.f/parts) + (2.f/parts));
+                });
+        }, dkiiSyms)) return false;
+        progress.updateText("parse references map");
+        if(!parseResource<VaReloc>(resources, "refmap", [&progress](std::istream &is, std::vector<VaReloc> &vec) {
+                parseRelocs(is, vec, [&progress](int cur, int max) {
+                    progress.update(((float) cur / max) * (14.f/parts) + (4.f/parts));
+                });
+        }, dkiiRelocs)) return false;
+        progress.updateText("extract DK2 FPO buf");
         dkiiFpo = pop(resources, "dkii_fpo");
         if(dkiiFpo.empty()) {
             log_err("[-] Failed to read dkii_fpo");
             return false;
         }
+        progress.update((parts - 2)/parts);
+        progress.updateText("extract Flame FPO buf");
         flameFpo = pop(resources, "flame_fpo");
         if(flameFpo.empty()) {
             log_err("[-] Failed to read flame_fpo");
             return false;
         }
+        progress.update((parts - 1)/parts);
 
+        progress.updateText("extract version");
         version = popString(resources, "version");
         if(version.empty()) {
             log_err("[-] Failed to read version");
             return false;
         }
+        progress.update(1);
         return true;
     }
 

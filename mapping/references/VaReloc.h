@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <string>
+#include <functional>
 
 
 struct VaReloc {
@@ -25,8 +26,7 @@ struct VaReloc {
     VaReloc(uint32_t from, uint32_t value, uint32_t to, RelocType ty) : from(from), value(value), to(to), ty(ty) {}
 };
 
-void parseRelocs(std::istream &is, std::vector<VaReloc> &relocs);
-bool parseRelocs(const std::string &path, std::vector<VaReloc> &relocs);
+void parseRelocs(std::istream &is, std::vector<VaReloc> &relocs, const std::function<void(int cur, int max)> &progress);
 
 std::vector<VaReloc>::iterator find_gt(std::vector<VaReloc> &relocs, uint32_t offs);
 std::vector<VaReloc>::iterator find_ge(std::vector<VaReloc> &relocs, uint32_t offs);

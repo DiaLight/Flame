@@ -198,7 +198,8 @@ void flame_config::set_option(const std::string &path, flame_value value) {
     auto &options = defined_options();
     auto it = options.dict.find(path);
     if (it != options.dict.end()) {
-        it->second->value = value;
+        auto& opt = *it->second;
+        opt.value = value;
     }
 }
 
@@ -207,7 +208,15 @@ void flame_config::set_tmp_option(const std::string &path, flame_value value) {
     auto &options = defined_options();
     auto it = options.dict.find(path);
     if (it != options.dict.end()) {
-        it->second->value = value;
+        auto& opt = *it->second;
+        opt.value = value;
+    }
+}
+
+void flame_config::iterateDefinedOptions(const std::function<void(defined_flame_option&)> &cb) {
+    for (auto &e : defined_options().dict) {
+        auto& opt = e.second;
+        cb(*opt);
     }
 }
 
@@ -254,9 +263,10 @@ void updateDefinedComments(toml_value &root) {
     };
 }
 
-void set_cmdl_option(const std::string &path, flame_config::flame_value value) {
+void set_cmdl_option(flame_config::defined_flame_option &opt, flame_config::flame_value value) {
     toml_value toml_value = toTomlValue(value);
-    setToml(cmdl_state, path, toml_value);
+    setToml(cmdl_state, opt.path, toml_value);
+    opt.affected_by_command_line = true;
 }
 
 void applyDefaultsIfAbsent() {
@@ -285,7 +295,7 @@ bool parse_boolean(const std::string &val) {
 bool processCommandLine(std::map<std::string, std::string> &unused_dict, std::vector<std::string> &unused_flags, flame_config::defined_flame_option &opt, const std::string &key) {
     if (opt.defaultValue.ty == flame_config::VT_Boolean) {  // flag
         if (cmdl::hasFlag(key)) {
-            set_cmdl_option(opt.path, flame_config::flame_value(true));
+            set_cmdl_option(opt, flame_config::flame_value(true));
             vec_remove(unused_flags, key);
             return true;
         }
@@ -302,7 +312,7 @@ bool processCommandLine(std::map<std::string, std::string> &unused_dict, std::ve
         case flame_config::VT_Int: value = flame_config::flame_value(std::stoi(it->second)); break;
         case flame_config::VT_Float: value = flame_config::flame_value(std::stof(it->second)); break;
         }
-        set_cmdl_option(opt.path, value);
+        set_cmdl_option(opt, value);
     } catch (const std::exception &e) {
         std::cout << "error: failed to parse command line option " << opt.path << " " << e.what() << std::endl;
         exit(-1);

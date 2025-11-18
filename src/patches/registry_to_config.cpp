@@ -1136,7 +1136,7 @@ bool r2c_readBytes_impl(Reg2Cfg *r2c, const std::string &field, void *data, size
     auto it = gdata.find(r2c->path + ':' + field);
     if (it == gdata.end()) return false;
     if (size) {
-        memcpy(data, it->second.data(), min(it->second.size(), size));
+        memcpy(data, it->second.data(), std::min(it->second.size(), size));
     } else {
         memcpy(data, it->second.data(), it->second.size());
     }

@@ -52,28 +52,25 @@ int dk2::MyGame::prepareScreenEx(
             return 0;
         }
     }
-    int last_selected_dd_idx = this->last_selected_dd_idx;
-    int ddraw_idx;
-    DxDeviceInfo *v13;
-    int f1FE_modeListCount;
-    if (last_selected_dd_idx >= ddraw_device_count
-        || (ddraw_idx = 0,
-            v13 = &ddraw_devices[last_selected_dd_idx],
-            f1FE_modeListCount = v13->modeListCount,
-            f1FE_modeListCount <= 0)) {
-        LABEL_14:
-        patch::log::err("Screen Mode %d*%d (%d bpp) is not available", dwWidth, dwHeight, dwRGBBitCount);
-        MyGame_debugMsg(this, "Screen Mode %d*%d (%d bpp) is not available\n", dwWidth, dwHeight, dwRGBBitCount);
-        return 0;
-    }
-    DxModeInfo *f206_modeList = v13->modeList;
-    while (f206_modeList->dwWidth != dwWidth
-           || f206_modeList->dwHeight != dwHeight
-           || f206_modeList->dwRGBBitCount != dwRGBBitCount) {
-        ++ddraw_idx;
-        ++f206_modeList;
-        if (ddraw_idx >= f1FE_modeListCount)
-            goto LABEL_14;
+    if(this->last_selected_dd_idx < ddraw_device_count) {
+        DxDeviceInfo * dev = &ddraw_devices[this->last_selected_dd_idx];
+        bool found = false;
+        for (int ddraw_idx = 0; ddraw_idx < dev->modeListCount; ++ddraw_idx) {
+            DxModeInfo *cur = &dev->modeList[ddraw_idx];
+            if(cur->dwWidth == dwWidth && cur->dwHeight == dwHeight && cur->dwRGBBitCount == dwRGBBitCount) {
+                found = true;
+                break;
+            }
+        }
+        if(!found) {
+            patch::log::err("Screen Mode %d*%d (%d bpp) is not available", dwWidth, dwHeight, dwRGBBitCount);
+            MyGame_debugMsg(this, "Screen Mode %d*%d (%d bpp) is not available\n", dwWidth, dwHeight, dwRGBBitCount);
+            for (int ddraw_idx = 0; ddraw_idx < dev->modeListCount; ++ddraw_idx) {
+                DxModeInfo* cur = &dev->modeList[ddraw_idx];
+                patch::log::dbg("- %dx%d (%d bpp)", cur->dwWidth, cur->dwHeight, cur->dwRGBBitCount);
+            }
+            return 0;
+        }
     }
     void (__cdecl **fE89_WM_ACTIVATE_callbacks)(int, uint32_t, uint32_t, void *);
     fE89_WM_ACTIVATE_callbacks = this->WM_ACTIVATE_callbacks;

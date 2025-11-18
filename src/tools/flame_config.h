@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <type_traits>
+#include <functional>
 
 
 namespace flame_config {
@@ -127,10 +128,13 @@ namespace flame_config {
         flame_value defaultValue;
         flame_value &value;
 
+        bool affected_by_command_line = false;
+
         defined_flame_option(const char *path, OptionGroup group, const char *help, flame_value &&defaultValue, flame_value &value)
             : path(path), group(group), help(help), defaultValue(std::move(defaultValue)), value(value) {
         }
     };
+    void iterateDefinedOptions(const std::function<void(defined_flame_option&)> &cb);
 
     void _register_flame_option(const char *path, OptionGroup group, const char *help, flame_value &&defaultValue, flame_value &value);
 

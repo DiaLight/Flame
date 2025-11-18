@@ -59,8 +59,9 @@ struct Lzma2DecStateCxx : CLzma2Dec {
     }
 };
 
-std::vector<std::byte> lzma2_decode(std::span<const std::byte> data) {
-    Byte *d = (Byte *) data.data();
+std::vector<std::byte> lzma2_decode(std::span<const std::byte> data, const std::function<void(int cur, int max)> &progress) {
+    Byte *b = (Byte *) data.data();
+    Byte *d = b;
     Byte *e = d + data.size();
 
     Lzma2DecStateCxx _state;
@@ -75,6 +76,7 @@ std::vector<std::byte> lzma2_decode(std::span<const std::byte> data) {
     std::vector<std::byte> out;
     UInt64 outOffs = 0;
     while(d < e) {
+        progress(d - b, e - b);
         out.resize(outOffs + kInBufSize);  // extend
         SizeT inProcessed = e - d;
         SizeT outProcessed = kInBufSize;
