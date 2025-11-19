@@ -25,8 +25,7 @@ You can vote for an bug that you consider critical at your discretion by placing
 ## How to install
 1) Go to the [releases](https://github.com/DiaLight/Flame/releases) page and download the Flame-1.7.0-*.zip file of the newest release
 2) Extract the zip file into your Dungeon Keeper 2 game directory
-
-Now run `DKII-Flame-1.7.0-*.exe` to play. It is possible to rename the .exe file to play Multiplayer via GameRanger.
+3) That's it. Now you can run `DKII-DX.exe` as usual
 
 Note: It is possible to find newer test builds on [github actions](https://github.com/DiaLight/Flame/actions)
 
@@ -42,12 +41,18 @@ The `Data` folder in the zip file contains patches for some campaign maps taken 
 
 Flame is a new approach to modifying the compiled code of Dungeon Keeper 2
 
-Flame recompiles some functions of `DKII.EXE` into a separate `.exe` file.
-Then it merges this file with the original `.exe` file, replacing the references to
+Flame recompiles some functions of `DKII.EXE` into a separate `flame/Flame.dll` file.
+`DKII-DX.EXE` depends on `PATCH.dll`. I decompiled whole `PATCH.dll` functional and included it into `flame/Flame.dll`.
+Flame comes with its own `PATCH.dll` which handles loading `flame/Flame.dll` and replacing the references to
 the original functions with the references to recompiled functions.
-Recompiled functions are supplemented with switchable changes that fix some game bugs
+Recompiled functions are supplemented with switchable changes that fix some game bugs and add some functionality
 
-[Earlier](https://github.com/DiaLight/Flame/tree/46e5b0c1df93060bd01a83bb6d14d064e9c8c3dc "Full relinking approach"), this project implemented an approach to fully relinking `DKII.EXE`,
+### History
+
+[Earlier](https://github.com/DiaLight/Flame/tree/93e04efaba41bb3a574b33a0a8d91d2f63d4b31d "Exe merge approach"), this project implemented an approach to recompiles some functions of `DKII.EXE` into a separate `.exe` file.
+Then it merges this file with the original `.exe` file, replacing the references to the original functions with the references to recompiled functions. Due to development and debug complexity the exe merge method was replaced by the dll dynamic loading with function replacement.
+
+Also [Earlier](https://github.com/DiaLight/Flame/tree/46e5b0c1df93060bd01a83bb6d14d064e9c8c3dc "Full relinking approach"), this project implemented an approach to fully relinking `DKII.EXE`,
 which contains false positive references that caused new bugs. Due to problems with false positive references, the relinking method was replaced by the exe merge method.
 
 ## Build requirements
