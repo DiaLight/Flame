@@ -119,7 +119,6 @@ void patch::flameInit(int argc, const char **argv) {
 #if __has_include(<dk2_research.h>)
     bug_hunter::init_keyWatcher();
 #endif
-    // call entry point of DKII.EXE,
     if(*o_gog_enabled) gog::patch_init();
 }
 

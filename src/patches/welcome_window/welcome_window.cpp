@@ -2,13 +2,15 @@
 // Created by DiaLight on 10/12/2025.
 //
 
+#include <lodepng.h>
 #include <map>
 #include <thread>
 #include <tools/flame_config.h>
 #include <xutility>
 #include "patches/welcome_window/resources/resources.h"
+#include "tools/bug_hunter/MyVersionInfo.h"
+#include "tools/last_error.h"
 #include "welcome_window_imgui.h"
-#include <lodepng.h>
 
 static ImVec2 operator -(const ImVec2& l, const ImVec2& r) { return {l.x - r.x, l.y - r.y}; }
 static ImVec2 operator +(const ImVec2& l, const ImVec2& r) { return {l.x + r.x, l.y + r.y}; }
@@ -74,6 +76,25 @@ struct MyTimer {
 
 };
 
+int countCores(DWORD_PTR value) {
+    int count = 0;
+    while (value) {
+        count += value & 1;
+        value >>= 1;
+    }
+    return count;
+}
+
+DWORD_PTR selectNCores(DWORD_PTR systemMask, int n) {
+    DWORD_PTR result = 0;
+    for (int i = 0, c = 0; i < (sizeof(result) * 8) && c < n; ++i) {
+        if((systemMask & (1 << i)) == 0) continue;
+        result |= 1 << i;
+        ++c;
+    }
+    return result;
+}
+
 extern flame_config::define_flame_option<bool> o_console;
 extern flame_config::define_flame_option<bool> o_windowed;
 extern flame_config::define_flame_option<bool> o_single_core;
@@ -81,6 +102,7 @@ extern flame_config::define_flame_option<std::string> o_menuRes;
 extern flame_config::define_flame_option<std::string> o_gameRes;
 extern flame_config::define_flame_option<bool> o_gog_enabled;
 extern flame_config::define_flame_option<bool> o_gog_Video_HighRes;
+extern flame_config::define_flame_option<bool> o_gog_Misc_SingleCore;
 extern flame_config::define_flame_option<int> o_autosave;
 extern flame_config::define_flame_option<bool> o_external_textures;
 const char *op_Screen_Width = "registry:configuration:video:Screen_Width";
@@ -123,9 +145,13 @@ struct WelcomeWindow {
     std::vector<std::string> _data_modes;
     int _menuRes_current_data_mode = 0;
     int _gameRes_current_data_mode = 0;
+    bool DDrawCompat_detected = false;
 
     WelcomeWindow(ImGuiIO& io, ImVec4 &clear_color, bool &done, patch::welcome_window::welcome_data_t& data) :
         io(io), clear_color(clear_color), done(done), _data(data) {
+        // disable imgui creating files
+        io.IniFilename = NULL;
+        io.LogFilename = NULL;
 
         HMODULE mod = GetModuleHandle("flame.dll");
         if(mod) {
@@ -137,6 +163,14 @@ struct WelcomeWindow {
                     UnlockResource(data);
                 }
                 FreeResource(myResourceData);
+            }
+        }
+
+        if(HMODULE ddraw = GetModuleHandleA("ddraw.dll")) {
+            MyVersionInfo ver(ddraw);
+            if(ver.open()) {
+                auto desc = ver.queryValue("FileDescription");
+                DDrawCompat_detected = desc.contains("DDrawCompat");
             }
         }
     }
@@ -504,7 +538,35 @@ struct WelcomeWindow {
             update_changes();
         }
         ImGui::Text("Gog patch enabled: %s", _options[o_gog_enabled.path]->value.bool_value ? "true" : "false");
-//        {ImGui::SameLine(); HelpMarker(opt.help);}
+
+        if (ImGui::CollapsingHeader("I need multithreading", ImGuiTreeNodeFlags_None)) {
+            bool isSingleCore = false;
+            if(_options[o_single_core.path]->value.bool_value) {
+                isSingleCore = true;
+            } else if(_options[o_gog_enabled.path]->value.bool_value && _options[o_gog_Misc_SingleCore.path]->value.bool_value) {
+                isSingleCore = true;
+            } else {
+                DWORD_PTR affinity = 0;
+                DWORD_PTR sysAffinity = 0;
+                if(GetProcessAffinityMask(GetCurrentProcess(), &affinity, &sysAffinity)) {
+                    int processCores = countCores(affinity);
+                    int systemCores = countCores(sysAffinity);
+                    ImGui::Text("Affinity process: %d, system: %d", processCores, systemCores);
+                    if(processCores <= 1) isSingleCore = true;
+                    if(ImGui::SliderInt("affinity", &processCores, 1, systemCores)) {
+                        if(processCores != countCores(affinity)) {  // changed
+                            DWORD_PTR mask = selectNCores(sysAffinity, processCores);
+                            SetProcessAffinityMask(GetCurrentProcess(), mask);
+                        }
+                    }
+                    if(DDrawCompat_detected) {
+                        ImGui::TextWrapped("DDrawCompat detected! Use its config to control affinity or remove ddraw.dll from \"Dungeon Keeper 2\" directory");
+                    }
+                }
+            }
+            ImGui::Text("Single core: %s", isSingleCore ? "true" : "false");
+            {ImGui::SameLine(); HelpMarker("The Flame and Gog patches separately limit the number of cores. To try multithreading, disable single-core in both patches. The pre-configured Affinity mask also affects multithreading");}
+        }
     }
 
     bool isChanged() {

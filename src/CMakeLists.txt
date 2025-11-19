@@ -100,6 +100,7 @@ add_library(${TARGET} SHARED
         tools/bug_hunter/StackWalkerIter.cpp
         tools/bug_hunter/WalkerError.cpp
         tools/bug_hunter/StackFrame.cpp
+        tools/bug_hunter/MyVersionInfo.cpp
 
         patches/flame_main.cpp
         patches/replace_mouse_dinput_to_user32.cpp
