@@ -239,6 +239,7 @@ struct WelcomeWindow {
             }
         }
         {
+            _data_modes.clear();
             _data_modes.emplace_back("unset");
             for(auto& mode : _data.modes) {
                 auto& str = _data_modes.emplace_back();
@@ -263,7 +264,7 @@ struct WelcomeWindow {
             for (int i = 0; i < _data_modes.size(); ++i) {
                 if(i == 0) continue;  // skip unset
                 if(_data_modes[i] == menuRes) {
-                    _gameRes_current_data_mode = i;
+                    _menuRes_current_data_mode = i;
                     break;
                 }
             }

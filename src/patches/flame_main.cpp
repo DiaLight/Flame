@@ -82,7 +82,6 @@ void patch::flameInit(int argc, const char **argv) {
         flame_config::load(config);
     }
     {
-//        initConsole();
         patch::welcome_window::welcome_data_t res;
         res.win32_class_name = L"Flame_win32";
         res.win32_title = L"DungeonKeeper 2 Flame";
