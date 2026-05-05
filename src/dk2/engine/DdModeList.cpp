@@ -2,7 +2,7 @@
 // Created by DiaLight on 1/10/2026.
 //
 
-#include "DdModeList.h"
+#include "dk2/engine/DdModeList.h"
 #include "dk2/dk2_memory.h"
 #include "game_engine.h"
 

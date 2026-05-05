@@ -132,6 +132,38 @@ void dk2::MyDirectDraw_destroy() {
     g_sc_is3dInitialized = 0;
 }
 
+void dk2::MyDirectDraw_triangles_destroy() {
+    if ((MyDirectDraw_instance_triangles.flags & 1) != 0) {
+        if (MyEntryBuf_Vertex18_instance.maxCount) {
+            MyHeap_free(MyEntryBuf_Vertex18_instance.buf);
+            MyEntryBuf_Vertex18_instance.maxCount = 0;
+        }
+        for (int i = 0; i < 2; ++i) {
+            MyHeap_free(g_vertices[i].vertices18x2);
+            g_vertices[i].vertices18x2 = NULL;
+        }
+    } else {
+        if (MyEntryBuf_uint16_indices_instance.maxCount) {
+            MyHeap_free(MyEntryBuf_uint16_indices_instance.buf);
+            MyEntryBuf_uint16_indices_instance.maxCount = 0;
+        }
+        MyHeap_free(g_flexibleVertices);
+        g_flexibleVertices = NULL;
+        for (int i = 0; i < 2; ++i) {
+            MyHeap_free(g_vertices[i].verticies1C);
+            g_vertices[i].verticies1C = NULL;
+        }
+    }
+    if (MyEntryBuf_Triangle24_instance.maxCount) {
+        MyHeap_free(MyEntryBuf_Triangle24_instance.buf);
+        MyEntryBuf_Triangle24_instance.maxCount = 0;
+    }
+    if (MyEntryBuf_Triangle34_instance.maxCount) {
+        MyHeap_free(MyEntryBuf_Triangle34_instance.buf);
+        MyEntryBuf_Triangle34_instance.maxCount = 0;
+    }
+}
+
 
 int __cdecl dk2::static_MyDirectDraw_devTexture_init(MyDirectDraw *mydd) {
     MyDirectDraw_devTexture_destroy();
@@ -456,7 +488,7 @@ void dk2::MyDirectDraw_devTexture_destroy() {
 
 void __cdecl dk2::static_MyDirectDraw_triangles_init(MyDirectDraw *a1) {
     memcpy(&MyDirectDraw_instance_triangles, a1, sizeof(MyDirectDraw_instance_triangles));
-    mgsr_currentDrawFlags = 0;
+    g_mgsr_currentDrawFlags = 0;
     g_texStage = 1;
     if ( (MyDirectDraw_instance_triangles.flags & 1) != 0 ) {
         mgsr_pDrawFun = mgsr_drawFuns[48];
@@ -498,7 +530,7 @@ void __cdecl dk2::static_MyDirectDraw_triangles_init(MyDirectDraw *a1) {
             MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(i, D3DTSS_TEXCOORDINDEX, i);
             MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(i, D3DTSS_ADDRESS, 1);
         }
-        DirectDraw_prepareTexture(0);
+        MyDirectDraw_prepareTexture(0);
         g_flexibleVertices_maxCount = 512;
         g_flexibleVertices = MyHeap_alloc(g_flexibleVertex_size * 512);
         static_assert((sizeof(uint16_t) * 512) == 0x400);
@@ -523,5 +555,167 @@ void __cdecl dk2::static_MyDirectDraw_uvs_init(MyDirectDraw *a1) {
     memcpy(&MyDirectDraw_instance_uvs, a1, sizeof(MyDirectDraw_instance_uvs));
     static_assert((sizeof(Uv2f_arr1024) * 4) == 0x8000);
     Uv2f_arr_instance = (Uv2f_arr1024 *)MyHeap_alloc(sizeof(Uv2f_arr1024) * 4);
+}
+
+void __cdecl dk2::MyDirectDraw_prepareTexture(int flags) {
+    if (flags == g_mgsr_currentDrawFlags) return;
+    unsigned int texStage = g_texStage;
+    int v3_flags = g_mgsr_currentDrawFlags & ~flags;
+    if (v3_flags) {
+        if ((v3_flags & 0x18000) != 0) {
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(0, D3DTSS_COLORARG1, 2);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(0, D3DTSS_COLORARG2, 0);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(0, D3DTSS_COLOROP, 4);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, 2);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, 0);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, 4);
+            texStage = 1;
+        }
+        if ((v3_flags & 0x1023) != 0 && (flags & 0x1023) == 0) {
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, 1);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, 2);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, 0);
+        }
+        if ((v3_flags & 0x4000) != 0) {
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, 2);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, 1);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, 4);
+        }
+        if ((v3_flags & 0x80u) != 0)
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, 0);
+        if ((v3_flags & 0x100) != 0)
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetRenderState(D3DRENDERSTATE_ZENABLE, 0);
+        if ((v3_flags & 0x400) != 0) {
+            for (int i = 0; i < MyDirectDraw_instance_triangles.texturesCount; ++i) {
+                MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(i, D3DTSS_MAGFILTER, 1);
+                MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(i, D3DTSS_MINFILTER, 1);
+            }
+        }
+    }
+    int v5_flags = ~g_mgsr_currentDrawFlags & flags;
+    if (v5_flags) {
+        if ((v5_flags & 1) != 0) {
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, 2);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, 2);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, 1);
+        }
+        if ((v5_flags & 0x20) != 0) {
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, 5);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, 6);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, 1);
+        }
+        if ((v5_flags & 0x4000) != 0) {
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, 0);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, 1);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, 2);
+        }
+        if ((v5_flags & 0x1000) != 0) {
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, 1);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, 4);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, 1);
+        }
+        if ((v5_flags & 0x80u) != 0)
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, 1);
+        if ((v5_flags & 0x100) != 0)
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetRenderState(D3DRENDERSTATE_ZENABLE, 1);
+        if ((v5_flags & 0x400) != 0) {
+            for (int j = 0; j < MyDirectDraw_instance_triangles.texturesCount; ++j) {
+                MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(j, D3DTSS_MAGFILTER, 2);
+                MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(j, D3DTSS_MINFILTER, 2);
+            }
+        }
+        if ((v5_flags & 0x8000) != 0) {
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(0, D3DTSS_COLORARG1, 2);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(0, D3DTSS_COLORARG2, 0);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(0, D3DTSS_COLOROP, 4);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, 2);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, 0);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, 4);
+
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(1, D3DTSS_COLOROP, 22);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(1, D3DTSS_COLORARG1, 2);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(1, D3DTSS_COLORARG2, 1);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(1, D3DTSS_ALPHAOP, 1);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(1, D3DTSS_BUMPENVMAT00, 0x3F800000);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(1, D3DTSS_BUMPENVMAT01, 0);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(1, D3DTSS_BUMPENVMAT10, 0);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(1, D3DTSS_BUMPENVMAT11, 0x3F800000);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(1, D3DTSS_BUMPENVLSCALE, 0x3F800000);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(1, D3DTSS_BUMPENVLOFFSET, 0);
+
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(2, D3DTSS_COLORARG1, 2);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(2, D3DTSS_COLORARG2, 1);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(2, D3DTSS_COLOROP, 7);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(2, D3DTSS_ALPHAOP, 1);
+            texStage = 3;
+        }
+        if ((v5_flags & 0x10000) != 0) {
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(0, D3DTSS_COLORARG1, 2);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(0, D3DTSS_COLORARG2, 0);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(0, D3DTSS_COLOROP, 4);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, 2);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, 0);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, 4);
+
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(1, D3DTSS_COLOROP, 23);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(1, D3DTSS_COLORARG1, 2);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(1, D3DTSS_COLORARG2, 1);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(1, D3DTSS_ALPHAOP, 1);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(1, D3DTSS_BUMPENVMAT00, 0x3F800000);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(1, D3DTSS_BUMPENVMAT01, 0);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(1, D3DTSS_BUMPENVMAT10, 0);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(1, D3DTSS_BUMPENVMAT11, 0x3F800000);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(1, D3DTSS_BUMPENVLSCALE, 0x3F800000);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(1, D3DTSS_BUMPENVLOFFSET, 0);
+
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(2, D3DTSS_COLORARG1, 2);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(2, D3DTSS_COLORARG2, 1);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(2, D3DTSS_COLOROP, 7);
+            MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(2, D3DTSS_ALPHAOP, 1);
+            texStage = 3;
+        }
+    }
+    for (int i = texStage; i < g_texStage; ++i) {
+        MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(i, D3DTSS_COLOROP, 1);
+        MyDirectDraw_instance_triangles.d3d3_halDevice->SetTextureStageState(i, D3DTSS_ALPHAOP, 1);
+    }
+    g_texStage = texStage;
+    g_mgsr_currentDrawFlags = flags;
+}
+
+void __cdecl dk2::MyDirectDraw_DrawTriangleList(uint32_t bufIdx, uint32_t surfCount, uint32_t verticesCount) {
+    DWORD vertexCount_ = verticesCount;
+    DWORD triangleCount = 3 * surfCount;
+    MyDirectDraw_instance_triangles.d3d3_halDevice->DrawIndexedPrimitive(
+            D3DPT_TRIANGLELIST, DrawTriangleList_dwVertexTypeDesc,
+            g_vertices[bufIdx].verticies1C, verticesCount,
+            (LPWORD) DrawTriangleList_lpwIndices, triangleCount,
+            D3DDP_DONOTCLIP | D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTLIGHT
+    );
+    static_assert((D3DDP_DONOTCLIP | D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTLIGHT) == 0x1C);
+
+    if (!g_dword_76D2FC || (MyDirectDraw_instance_triangles.flags & 1) != 0) return;
+
+    MyDirectDraw_instance_triangles.d3d3_halDevice->GetRenderState(D3DRENDERSTATE_TEXTUREHANDLE, (LPDWORD) &bufIdx);
+    MyDirectDraw_instance_triangles.d3d3_halDevice->GetRenderState(D3DRENDERSTATE_FILLMODE, (LPDWORD) &verticesCount);
+    MyDirectDraw_instance_triangles.d3d3_halDevice->GetRenderState(D3DRENDERSTATE_ZFUNC, (LPDWORD) &surfCount);
+
+    MyDirectDraw_instance_triangles.d3d3_halDevice->SetRenderState(D3DRENDERSTATE_FILLMODE, 2);
+    MyDirectDraw_instance_triangles.d3d3_halDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE, 0);
+    MyDirectDraw_instance_triangles.d3d3_halDevice->SetRenderState(D3DRENDERSTATE_ZFUNC, 8);
+
+    for (int i = 0; i < DrawTriangleList_verticesCount; i++) {
+        auto *ver = (Vertex1C *) ((char *) g_vertices[0].verticies1C + g_flexibleVertex_size * i);
+        ver->diffuse = -1;
+    }
+    MyDirectDraw_instance_triangles.d3d3_halDevice->DrawIndexedPrimitive(
+            D3DPT_TRIANGLELIST, DrawTriangleList_dwVertexTypeDesc,
+            g_vertices[0].verticies1C, vertexCount_,
+            (LPWORD) DrawTriangleList_lpwIndices, triangleCount,
+            0
+    );
+    MyDirectDraw_instance_triangles.d3d3_halDevice->SetRenderState(D3DRENDERSTATE_ZFUNC, surfCount);
+    MyDirectDraw_instance_triangles.d3d3_halDevice->SetRenderState(D3DRENDERSTATE_FILLMODE, verticesCount);
+    MyDirectDraw_instance_triangles.d3d3_halDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE, bufIdx);
 }
 

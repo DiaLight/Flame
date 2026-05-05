@@ -78,10 +78,9 @@ int dk2::CPCEngineInterface::init3d() {
 }
 
 int dk2::CPCEngineInterface::drawScene() {
-    bool v2; // al
     if ( this->smthEnabled || !this->ddSceneInitialized )
         return 0;
-    v2 = this->sub_59AE10();
+    bool v2 = this->sub_59AE10();
     if ( !engine_drawScene(v2) )
         this->doCallInit3d_2 = 1;
     if ( g_dbgDrawCircleAroundSceneObjects ) {

@@ -357,7 +357,7 @@ char dk2::CFrontEndComponent::renderButtonsText_5329A0(
         }
 
         MySurface v94_localSurf;
-        MySurface *v44_surf = v94_localSurf.constructor(&v78_totalSize, &g_confSurfDesc, NULL, 0);
+        MySurface *v44_surf = v94_localSurf.constructor(&v78_totalSize, &g_confSurfDesc_bgra32, NULL, 0);
         MySurface *surf66_x16 = &this->surf66_x16[a3_x16Idx];
         this->surf66_x16[a3_x16Idx] = *v44_surf;
         this->surf66_x16[a3_x16Idx].allocSurfaceIfNot(&status);
@@ -589,7 +589,7 @@ char dk2::CFrontEndComponent::bakeButton(int a2_wndId, unsigned __int8 x16Idx, i
 
     Size2i surfSize {surfWidth, surfHeight};
     MySurface localSurf;
-    MySurface *templateSurf = localSurf.constructor(&surfSize, &g_confSurfDesc, NULL, 0);
+    MySurface *templateSurf = localSurf.constructor(&surfSize, &g_confSurfDesc_bgra32, NULL, 0);
     MySurface *curSurf1 = &this->surf66_x16[x16Idx];
     MySurface *curSurf2 = &this->surf66_x16[x16Idx];
     memcpy(&this->surf66_x16[x16Idx], templateSurf, sizeof(MySurface));

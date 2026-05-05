@@ -74,7 +74,7 @@ int dk2::CFrontEndComponent::load() {
     };
     for (auto &i : v34_frontend_arr28) {
         readSurfFromFile(
-            &status, i.surf, &g_confSurfDesc,
+            &status, i.surf, &g_confSurfDesc_bgra32,
             &MyResources_instance.frontEndFileMan, i.name, getResourceExtensionFlags());
         if (status < 0) {
             sprintf(Buffer, "Unable to load FrontEnd '%s'", i.name);
@@ -167,11 +167,11 @@ int dk2::CFrontEndComponent::load() {
 
     if (MyResources_instance.playerCfg.kbLayoutId == 17) {
         readSurfFromFile(
-            &status, &this->Logo_surf, &g_confSurfDesc,
+            &status, &this->Logo_surf, &g_confSurfDesc_bgra32,
             &MyResources_instance.frontEndFileMan, "Logo-Japanese", getResourceExtensionFlags());
     } else {
         readSurfFromFile(
-            &status, &this->Logo_surf, &g_confSurfDesc,
+            &status, &this->Logo_surf, &g_confSurfDesc_bgra32,
             &MyResources_instance.frontEndFileMan, "Logo", getResourceExtensionFlags());
     }
 
@@ -183,7 +183,7 @@ int dk2::CFrontEndComponent::load() {
         MyBgTile *bgTile_name_pos = &g_bgTiles[i];
         if (g_bgTiles_loaded[i]) continue;
         sprintf(Buffer, "%s%s", "BG_Tiles\\BG-", bgTile_name_pos->name);
-        readSurfFromFile(&status, bgTiles_surf_pos, &g_confSurfDesc,
+        readSurfFromFile(&status, bgTiles_surf_pos, &g_confSurfDesc_bgra32,
                          &MyResources_instance.frontEndFileMan, Buffer, getResourceExtensionFlags());
         if (status < 0) {
             continue;

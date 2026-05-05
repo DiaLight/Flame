@@ -437,12 +437,12 @@ int dk2::MyWindow::selectSurfToRender() {
 
     MySurface_copyFromSurf(&this->surf_desc, CurOffScreenSurf);
     setDrawSurface(&this->surf_desc);
-    this->f48 = 1;
+    this->surfSelected = 1;
     return 1;
 }
 
 int dk2::MyWindow::getSurf_unlock() {
-    int result = this->f48;
+    int result = this->surfSelected;
     if (!result) return 0;
 
     if (this->isWindowed) {
@@ -450,7 +450,7 @@ int dk2::MyWindow::getSurf_unlock() {
     } else {
         result = MyDdSurfaceEx_unlock(g_pCurOffScreen);
     }
-    this->f48 = 0;
+    this->surfSelected = 0;
     return result;
 }
 
@@ -566,7 +566,7 @@ int dk2::MyWindow::handleError(char *a2_file, int a3_line, const char *a4_text, 
         return 0;
     } else {
         if (this->isTurnErrors) {
-            status = this->f48;
+            status = this->surfSelected;
             if (status) {
                 MyDdSurfaceEx* CurOffScreenSurf;
                 if (this->isWindowed)
@@ -574,7 +574,7 @@ int dk2::MyWindow::handleError(char *a2_file, int a3_line, const char *a4_text, 
                 else
                     CurOffScreenSurf = g_pCurOffScreen;
                 MyDdSurfaceEx_unlock(CurOffScreenSurf);
-                this->f48 = 0;
+                this->surfSelected = 0;
             }
             this->static_listeners.onKeyboardAction = NULL;
             this->static_listeners.onMouseAction = NULL;
@@ -601,7 +601,7 @@ int dk2::MyWindow::handleError(char *a2_file, int a3_line, const char *a4_text, 
                         offscreen = g_pCurOffScreen;
                     MySurface_copyFromSurf(&this->surf_desc, offscreen);
                     setDrawSurface(&this->surf_desc);
-                    this->f48 = 1;
+                    this->surfSelected = 1;
                 }
             }
         }
@@ -626,7 +626,7 @@ void dk2::MyWindow::displayError(char *a2_file, int a3_line, const char *a4_text
             v7_offscreen = g_pCurOffScreen;
         MySurface_copyFromSurf(&this->surf_desc, v7_offscreen);
         setDrawSurface(&this->surf_desc);
-        this->f48 = 1;
+        this->surfSelected = 1;
         char Buffer[256];
         sprintf(Buffer, "%s(%d)[GT %d]: %s at line %d", a4_text, this->f505, g_gameTick_758044, path_getBasename(a2_file), a3_line);
         static_MyNBitTexture_f30(0, 0, Buffer, this->colors.colorWhite);
@@ -636,14 +636,14 @@ void dk2::MyWindow::displayError(char *a2_file, int a3_line, const char *a4_text
             v9_turnErrors = "ON";
         sprintf(Buffer, "[F10] Continue  [ESC] Quit  [SPACE] Debug  [E] Turn Errors %s", v9_turnErrors);
         static_MyNBitTexture_f30(0, 24, Buffer, this->colors.colorWhite);
-        if (this->f48) {
+        if (this->surfSelected) {
             MyDdSurfaceEx* offscreen;
             if (this->isWindowed)
                 offscreen = this->c_window_test.getCurOffScreenSurf();
             else
                 offscreen = g_pCurOffScreen;
             MyDdSurfaceEx_unlock(offscreen);
-            this->f48 = 0;
+            this->surfSelected = 0;
         }
     }
     this->prepareScreen();

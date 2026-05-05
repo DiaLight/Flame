@@ -289,19 +289,19 @@ int dk2::CWorld::loadFromFile(const char *a2_savePath) {
     static_MyInputManagerCb_setCursorIconAndDraw(&status, 0, 0, &v9);
 
     this->showLoadingScreen();
-    if (this->is_surface_filled) {
-        MyDdSurface_release(&status, &this->surface.dd_surf);
-        this->is_surface_filled = 0;
+    if (this->loadingScreen_present) {
+        MyDdSurface_release(&status, &this->loadingScreen_surf.dd_surf);
+        this->loadingScreen_present = 0;
     }
     if ( MyResources_instance.gameCfg.useFe_playMode == 3 ) {
         if ( this->fun_510BE0() == 1 ) {
-            this->v_fun_510730((int)sub_510950, (int)this);
+            this->v_CWorld_setUpdateProgressFun((int)updateLoadingProgress, (int)this);
             this->fA3AF = 1;
             CWorld_5113C0(this);
         }
         CNetworkCommunication_instance.fun_523FD0(1, 800, 0);
     } else {
-        this->v_fun_510730((int)sub_510790, (int)this);
+        this->v_CWorld_setUpdateProgressFun((int)updateLoadingScreenProgress, (int)this);
     }
     bool v3_failedToload = this->v_fun_50E920_loadsaveFile((int)a2_savePath) == 0;
     int buf_field_A3A3 = this->buf_field_A3A3;
@@ -341,19 +341,19 @@ int dk2::CWorld::loadFromFile(const char *a2_savePath) {
     CCommunicationInterface* f18_communication_interface = this->pGameSession->pCommunication;
     int v7_save2else1 = (this->flags < 0) + 1; // isSaveFile + 1
     this->showLoadingScreen();
-    if (this->is_surface_filled) {
-        MyDdSurface_release(&status, &this->surface.dd_surf);
-        this->is_surface_filled = 0;
+    if (this->loadingScreen_present) {
+        MyDdSurface_release(&status, &this->loadingScreen_surf.dd_surf);
+        this->loadingScreen_present = 0;
     }
     if (MyResources_instance.gameCfg.useFe_playMode == 3) {
         if (this->fun_510BE0() == 1) {
-            this->v_fun_510730((int) sub_510950, (int) this);
+            this->v_CWorld_setUpdateProgressFun((int) updateLoadingProgress, (int) this);
             this->fA3AF = 1;
             CWorld_5113C0(this);
         }
         CNetworkCommunication_instance.fun_523FD0(1, 800, 0);
     } else {
-        this->v_fun_510730((int) sub_510790, (int) this);
+        this->v_CWorld_setUpdateProgressFun((int) updateLoadingScreenProgress, (int) this);
     }
     f18_communication_interface->v_f40((int) CWorld_5113C0, (int) this);
     f18_communication_interface->v_fun_521B40(v7_save2else1);
@@ -373,27 +373,26 @@ namespace dk2 {
         unsigned __int16 ResourceExtensionFlags = getResourceExtensionFlags();
         loadArtToSurfaceEx(
             &a1_pstatus,
-            &self->surface,
+            &self->loadingScreen_surf,
             &MyResources_instance.frontEndFileMan,
             path,
             ResourceExtensionFlags);
-        if (a1_pstatus >= 0) {
-            self->is_surface_filled = 1;
-            MyDdSurfaceEx *CurOffScreenSurf = MyWindow_instance.getCurOffScreenSurf();
-            static_MyDdSurfaceEx_BltWait(&a1_pstatus, CurOffScreenSurf, 0, 0, &self->surface, NULL, 0);
-            MyDdSurfaceEx *PrimarySurf = &g_primarySurf;  // MyInputManagerCb_instance.inputSurf.v_getPrimarySurf(),  // 0079D200 &g_primarySurf
-            static_MyDdSurfaceEx_BltWait(&a1_pstatus, PrimarySurf, 0, 0, &self->surface, NULL, 0);
-        }
+        if (a1_pstatus < 0) return;
+        self->loadingScreen_present = 1;
+        MyDdSurfaceEx *CurOffScreenSurf = MyWindow_instance.getCurOffScreenSurf();
+        static_MyDdSurfaceEx_BltWait(&a1_pstatus, CurOffScreenSurf, 0, 0, &self->loadingScreen_surf, NULL, 0);
+        MyDdSurfaceEx *PrimarySurf = &g_primarySurf;  // MyInputManagerCb_instance.inputSurf.v_getPrimarySurf(),  // 0079D200 &g_primarySurf
+        static_MyDdSurfaceEx_BltWait(&a1_pstatus, PrimarySurf, 0, 0, &self->loadingScreen_surf, NULL, 0);
     }
 
 }
 
 void dk2::CWorld::showLoadingScreen() {
-    if (this->is_surface_filled) {
+    if (this->loadingScreen_present) {
         int status;
-        MyDdSurface_release(&status, &this->surface.dd_surf);
-        this->is_surface_filled = 0;
-        if (this->is_surface_filled) return;
+        MyDdSurface_release(&status, &this->loadingScreen_surf.dd_surf);
+        this->loadingScreen_present = 0;
+        if (this->loadingScreen_present) return;
     }
     char Buffer[260];
     if (MyResources_instance.playerCfg.kbLayoutId == 17) {

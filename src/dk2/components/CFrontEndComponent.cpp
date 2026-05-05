@@ -557,7 +557,7 @@ int dk2::CFrontEndComponent::launchGame() {
         is_welcome_shown = 1;
     }
     CWorld_instance.showLoadingScreen();
-    CWorld_instance.releaseSurface();
+    CWorld_instance.releaseLoadingScreenSurface();
     RECT v16_rect{12, 435, 201, 473};
     MyDdSurfaceEx_fillWithColor(
         &status, MyWindow_instance.getCurOffScreenSurf(), &v16_rect,
@@ -797,8 +797,8 @@ void dk2::CFrontEndComponent::showMovie(LPSTR pszFileName) {
     );
     Sleep(50u);
     memset(&MovieRenderer_instance, 0, sizeof(MovieRenderer_instance));
-    MovieRenderer_instance.flags = 0xB05064C;
-    MovieRenderer_instance.f8 = 7;
+    MovieRenderer_instance.flags4 = 0xB05064C;
+    MovieRenderer_instance.flags8 = 7;
 
     {
         char sysCmdBuf[sizeof(TbSysCommand_StopAll)];
@@ -818,14 +818,14 @@ void dk2::CFrontEndComponent::showMovie(LPSTR pszFileName) {
 
     if (v13_pDirectSound) {
         MovieRenderer_instance.directSound = v13_pDirectSound;
-        MovieRenderer_instance.flags |= 0xA00000u;
+        MovieRenderer_instance.flags4 |= 0xA00000u;
     } else {
         MovieRenderer_instance.directSound = NULL;
-        MovieRenderer_instance.flags |= 0x800000u;
+        MovieRenderer_instance.flags4 |= 0x800000u;
     }
     MovieRenderer_instance.pFun = (int) sub_53C2C0;
     MovieRenderer_instance.lpdd = ge_dk2dd_get(1);
-    MovieRenderer_instance.dd2 = NULL;
+    MovieRenderer_instance.lpdd2 = NULL;
     MovieRenderer_instance.obj_58 = 0;
     MovieRenderer_instance.soundBuffer = NULL;
     int v14 = MyWindow_instance.f18;
@@ -962,8 +962,8 @@ dk2::NameCfg *dk2::CFrontEndComponent::sub_535A30() {
     this->f5ABD = g_MySound_ptr->v_fun_567790("GLOBAL\\", "OBJECT_FE_WINDOW");
     this->f5ACD = g_MySound_ptr->v_fun_567790("GLOBAL\\", "OBJECT_FE_PENDULUM");
     this->f5AC1 = g_MySound_ptr->v_fun_567790("GLOBAL\\", "OBJECT_FE_PARCHMENT");
-    NameCfg *result = nameList;
-    if (nameList[0].idx != -1) {
+    NameCfg *result = g_soundNameList;
+    if (g_soundNameList[0].idx != -1) {
         int next_idx;
         do {
             int idx = result->idx;

@@ -7,6 +7,7 @@
 
 #include <ddraw.h>
 #include <dk2/MyDdSurfaceEx.h>
+#include "dk2/Obj79D1C0.h"
 
 namespace dk2 {
 
@@ -46,6 +47,8 @@ namespace dk2 {
     extern MyDdSurfaceEx g_primarySurf;
     extern LPDIRECTDRAWPALETTE g_lpDDPalette;
     extern LPDIRECTDRAWCLIPPER g_lpDDClipper;
+
+    extern Obj79D1C0 Obj79D1C0_instance;
 
 }
 

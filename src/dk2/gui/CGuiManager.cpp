@@ -12,7 +12,7 @@
 
 namespace dk2 {
 
-    dk2::NameCfg nameList[] {
+    dk2::NameCfg g_soundNameList[] {
         {0, "", 1, 0, 0},
         {1, "GUI_BUTTON_TAB_ROOMS", 0, 0x104, 0x136},
         {2, "GUI_BUTTON_TAB_SPELLS", 0, 0x104, 0x136},
@@ -126,10 +126,10 @@ int dk2::CGuiManager::createElements(WindowCfg **ppCurWinCfg, CDefaultPlayerInte
     this->fC0 = 0;
     this->fC4 = 0;
     this->fC8 = 0;
-    NameCfg *entry = nameList;
-    if (nameList[0].f24 != 1)
+    NameCfg *entry = g_soundNameList;
+    if (g_soundNameList[0].f24 != 1)
         return 1;
-    if (nameList[0].idx != -1) {
+    if (g_soundNameList[0].idx != -1) {
         int idx;
         do {
             if (entry->idx < 27)
@@ -138,6 +138,6 @@ int dk2::CGuiManager::createElements(WindowCfg **ppCurWinCfg, CDefaultPlayerInte
             ++entry;
         } while (idx != -1);
     }
-    nameList[0].f24 = 0;
+    g_soundNameList[0].f24 = 0;
     return 1;
 }

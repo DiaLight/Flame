@@ -76,6 +76,7 @@ add_library(${TARGET} SHARED
         dk2/engine/CWindowTest.cpp
         dk2/engine/WinEventHandlers.cpp
         dk2/engine/DdModeList.cpp
+        dk2/engine/MyBmpSaver.cpp
 
         dk2/engine/scene/scene.cpp
         dk2/engine/scene/surface.cpp
@@ -89,8 +90,10 @@ add_library(${TARGET} SHARED
 
         dk2/engine/primitives/CEngine2DSprite.cpp
         dk2/engine/primitives/CEngine2DRotatableSprite.cpp
+        dk2/engine/primitives/CEngine2DMeshSurface.cpp
 
         dk2/surface/surface_functions.cpp
+        dk2/surface/MyDblNamedSurface.cpp
 
         dk2/network/protocol.cpp
 

@@ -141,6 +141,25 @@ bool __cdecl dk2::engine_drawScene(char a1) {
     return g_sc_isCurDdSurfLost == 0;
 }
 
+void __cdecl dk2::engine_setViewport(uint32_t a1_x, uint32_t a2_y, uint32_t a3_width, uint32_t a4_height) {
+    if ( (MyDirectDraw_instance_triangles.flags & 1) != 0 ) {
+        grpoly_dword_frX = a1_x;
+        grpoly_dword_toX = a1_x + a3_width;
+        grpoly_dword_frY = a2_y;
+        grpoly_dword_toY = a2_y + a4_height;
+    } else {
+        D3DVIEWPORT2 viewport;
+        viewport.dwSize = sizeof(D3DVIEWPORT2);
+        static_assert(sizeof(D3DVIEWPORT2) == 44);
+        viewport.dwX = a1_x; viewport.dwY = a2_y;
+        viewport.dwWidth = a3_width; viewport.dwHeight = a4_height;
+        viewport.dvClipX = (float) a1_x; viewport.dvClipY = (float) a2_y;
+        viewport.dvClipWidth = (float) a3_width; viewport.dvClipHeight = (float) a4_height;
+        viewport.dvMinZ = 0.0; viewport.dvMaxZ = 1.0;
+        MyDirectDraw_instance_triangles.d3d3_viewport->SetViewport2(&viewport);
+    }
+}
+
 void __cdecl dk2::engine_setRenderArea(int posX, int posY, int width, int height) {
     g_sc_renderLeft = posX;
     g_sc_renderTop = posY;

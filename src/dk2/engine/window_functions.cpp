@@ -107,6 +107,13 @@ namespace dk2 {
     LPDIRECTDRAWPALETTE g_lpDDPalette = NULL;
     LPDIRECTDRAWCLIPPER g_lpDDClipper = NULL;
 
+    Obj79D1C0 Obj79D1C0_instance {
+            .f0=0, .f1=0, .f2=0, .f3=0, .f4=0, .f10=0, .pPrimaryAttachedSurf=NULL, .mySurf_unused = {
+                    {0, 0, 0, 0, 0, 0},
+                    NULL, {0, 0}, 0
+            }
+    };
+
 }
 
 dk2::MyDdSurfaceEx *dk2::InputSurf::getPrimarySurf() {

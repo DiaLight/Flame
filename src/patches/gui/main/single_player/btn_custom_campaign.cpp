@@ -61,7 +61,7 @@ namespace patch {
 
 
             dk2::MySurface localSurf;
-            localSurf.constructor(&btnSize, &dk2::g_confSurfDesc, NULL, 0);
+            localSurf.constructor(&btnSize, &dk2::g_confSurfDesc_bgra32, NULL, 0);
             localSurf.allocSurfaceIfNot(&status);
             memset(
                 localSurf.lpSurface,

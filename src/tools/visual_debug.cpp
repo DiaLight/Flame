@@ -215,9 +215,8 @@ void draw_alpha(CImg<unsigned char> &dst, int scale, int offs) {
     }
 }
 
-void show(CImg<unsigned char> &img, int timeout) {
+void show(CImg<unsigned char> &img, const char *title, int scale, int timeout) {
     DWORD startMs = GetTickCount();
-    int scale = 4;
     const CImg<> scaled = img.get_resize(img.width() * scale, img.height() * scale, img.depth(), img.spectrum());
     // CImg<> scaled = img;
     // scaled.resize(img.width() * 4, img.height() * 4, img.depth(), img.spectrum());
@@ -225,7 +224,7 @@ void show(CImg<unsigned char> &img, int timeout) {
     const CImg<> fg_a = scaled.get_shared_channel(3);  // Only Alpha part of the foreground.
 
     CImg<unsigned char> draw = fg_rgb;
-    CImgDisplay disp(draw,"Img",0);
+    CImgDisplay disp(draw,title,0);
     int x = (CImgDisplay::screen_width() - disp.width()) / 2;
     int y = (CImgDisplay::screen_height() - disp.height()) / 2;
     disp.move(x, y);
@@ -249,7 +248,7 @@ void show(CImg<unsigned char> &img, int timeout) {
     cimg::wait(40);
 }
 
-void show(CImgList<unsigned char> &imgs, int timeout) {
+void show(CImgList<unsigned char> &imgs, const char *title, int timeout) {
     DWORD startMs = GetTickCount();
     int scale = 4;
     CImgList<unsigned char> scaleds(imgs.size());
@@ -272,7 +271,7 @@ void show(CImgList<unsigned char> &imgs, int timeout) {
     for (int i = 0; i < imgs.size(); ++i) {
         draws[i] = fgs_rgb[i];
     }
-    CImgDisplay disp(draws, "Imgs", 0);
+    CImgDisplay disp(draws, title, 0);
     disp.move(50, 50);
 //    int x = 50;
 //    for (int i = 0; i < imgs.size(); ++i) {
@@ -304,21 +303,25 @@ void show(CImgList<unsigned char> &imgs, int timeout) {
     cimg::wait(40);
 }
 
-void dump(dk2::MySurface &surf, int timeout) {
+void dump(int width, int height, int pitch, void *data, const char *title, int timeout) {
+    CImg<unsigned char> img = from_argb(width, height, pitch, data);
+    show(img, title, 4, timeout);
+}
+void dump(dk2::MySurface &surf, const char *title, int timeout) {
     println(surf);
     CImg<unsigned char> img = toimg(surf);
-    show(img, timeout);
+    show(img, title, 4, timeout);
 }
-void dump(dk2::MySurface &surf1, dk2::MySurface &surf2, int timeout) {
+void dump(dk2::MySurface &surf1, dk2::MySurface &surf2, const char *title, int timeout) {
     println(surf1);
     println(surf2);
     CImgList<unsigned char> imgs = {
         toimg(surf1),
         toimg(surf2),
     };
-    show(imgs, timeout);
+    show(imgs, title, timeout);
 }
-void dump(dk2::MySurface &surf1, dk2::MySurface &surf2, dk2::MySurface &surf3, int timeout) {
+void dump(dk2::MySurface &surf1, dk2::MySurface &surf2, dk2::MySurface &surf3, const char *title, int timeout) {
     println(surf1);
     println(surf2);
     println(surf3);
@@ -327,9 +330,9 @@ void dump(dk2::MySurface &surf1, dk2::MySurface &surf2, dk2::MySurface &surf3, i
         toimg(surf2),
         toimg(surf3),
     };
-    show(imgs, timeout);
+    show(imgs, title, timeout);
 }
-void dump(std::vector<dk2::MySurface *> surfaces, int timeout) {
+void dump(std::vector<dk2::MySurface *> surfaces, const char *title, int timeout) {
     for (auto *surf : surfaces) {
         println(*surf);
     }
@@ -337,22 +340,34 @@ void dump(std::vector<dk2::MySurface *> surfaces, int timeout) {
     for (int i = 0; i < surfaces.size(); ++i) {
         imgs[i] = toimg(*surfaces[i]);
     }
-    show(imgs, timeout);
+    show(imgs, title, timeout);
 }
 
-void dump(dk2::CEngineSurface &surf, int timeout) {
+void dump(dk2::MyDdSurface &surf, const char *title, int timeout) {
     println(surf);
     CImg<unsigned char> img = toimg(surf);
-    show(img, timeout);
+    show(img, title, 4, timeout);
 }
-void dump(std::vector<dk2::CEngineSurface *> &surfs, int timeout) {
+
+void dump(dk2::MyDdSurfaceEx &surf, const char *title, int timeout) {
+    println(surf);
+    CImg<unsigned char> img = toimg(surf);
+    show(img, title, 4, timeout);
+}
+
+void dump(dk2::CEngineSurface &surf, const char *title, int timeout) {
+    println(surf);
+    CImg<unsigned char> img = toimg(surf);
+    show(img, title, 4, timeout);
+}
+void dump(std::vector<dk2::CEngineSurface *> &surfs, const char *title, int timeout) {
     CImgList<unsigned char> imgs;
     for (const auto& surf : surfs) {
         imgs.push_back(toimg(*surf));
     }
-    show(imgs, timeout);
+    show(imgs, title, timeout);
 }
-void dump(int timeout) {
+void dump(const char *title, int timeout) {
     CImg<unsigned char> img = toimg_error(32, 32);
-    show(img, timeout);
+    show(img, title, 4, timeout);
 }

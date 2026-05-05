@@ -131,8 +131,8 @@ void dk2::drawTexToSurfTriangles() {
             }
             _m_empty();
         } else {
-            DirectDraw_prepareTexture(toDraw->drawFlags_x2[texStageIdx]);
-            DrawTriangleList(texStageIdx, dk2::DrawTriangleList_trianglesCount, dk2::DrawTriangleList_verticesCount);
+            MyDirectDraw_prepareTexture(toDraw->drawFlags_x2[texStageIdx]);
+            MyDirectDraw_DrawTriangleList(texStageIdx, dk2::DrawTriangleList_trianglesCount, dk2::DrawTriangleList_verticesCount);
         }
         toDraw = g_toDraw;
         ++p_fC_vertices18x2;

@@ -47,7 +47,7 @@ dk2::CComponent *dk2::CGameComponent::mainGuiLoop() {
     int status;
     static_MyInputManagerCb_setCursorIconAndDraw(&status, NULL, NULL, &v29);
     CWorld_instance.showLoadingScreen();
-    CWorld_instance.releaseSurface();
+    CWorld_instance.releaseLoadingScreenSurface();
     CWorld_instance.fun_511250();
     if (!MyResources_instance.gameCfg.useFe2d_unk1)
         this->gameSession.init();
@@ -96,8 +96,8 @@ dk2::CComponent *dk2::CGameComponent::mainGuiLoop() {
             char v41[MAX_PATH];
             _sprintf(v41, "%s%s", MyResources_instance.savesDir, MultiByteStr);
             CWorld_instance.showLoadingScreen();
-            CWorld_instance.releaseSurface();
-            CWorld_instance.fun_511180();
+            CWorld_instance.releaseLoadingScreenSurface();
+            CWorld_instance.initUpdateProgressFun();
             int v4 = CWorld_instance._loadSaveFile((int) v41);
             CWorld_instance.fun_5111E0();
             if (!v4)
@@ -111,8 +111,8 @@ dk2::CComponent *dk2::CGameComponent::mainGuiLoop() {
             char v41[64];
             _sprintf(v41, "%s%s", MyResources_instance.savesDir, MultiByteStr);
             CWorld_instance.showLoadingScreen();
-            CWorld_instance.releaseSurface();
-            CWorld_instance.fun_511180();
+            CWorld_instance.releaseLoadingScreenSurface();
+            CWorld_instance.initUpdateProgressFun();
             int v4 = CWorld_instance._loadSaveFile((int) v41);
             CWorld_instance.fun_5111E0();
             if (!v4)
@@ -123,11 +123,11 @@ dk2::CComponent *dk2::CGameComponent::mainGuiLoop() {
         if (!unicodeToUtf8(MyResources_instance.gameCfg.levelName, MultiByteStr, 64))
             return NULL;
         CWorld_instance.showLoadingScreen();
-        CWorld_instance.releaseSurface();
-        CWorld_instance.fun_511180();
+        CWorld_instance.releaseLoadingScreenSurface();
+        CWorld_instance.initUpdateProgressFun();
         if (!CWorld_instance.loadLevel(MultiByteStr)) {
             CWorld_instance.fun_5111E0();
-            CWorld_instance.releaseSurface();
+            CWorld_instance.releaseLoadingScreenSurface();
             sprintf(g_temp_string, "Unable to load level, %s", MultiByteStr);
             return NULL;
         }
@@ -148,7 +148,7 @@ dk2::CComponent *dk2::CGameComponent::mainGuiLoop() {
             cBridge->v_fC8_setNeutralPlayerId(g_neutralPlayerId);
         }
         CWorld_instance.showLoadingScreen();
-        CWorld_instance.releaseSurface();
+        CWorld_instance.releaseLoadingScreenSurface();
         CBridgeCmd a2;
         a2.a1 = 1;
         a2.a2 = 0;
@@ -162,7 +162,7 @@ dk2::CComponent *dk2::CGameComponent::mainGuiLoop() {
 //        v43 = -1;  // seh try level
     }
     CWorld_instance.showLoadingScreen();
-    CWorld_instance.releaseSurface();
+    CWorld_instance.releaseLoadingScreenSurface();
     if (!CWorld_instance.sub_511280())
         this->exit_flag = 1;
     v2_comm_i->sub_521B80();

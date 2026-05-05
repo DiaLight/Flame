@@ -42,7 +42,7 @@ int dk2::CDefaultPlayerInterface::fun_402D00(uint16_t a2_playerSceneId) {
     CBridge *f10_c_bridge = this->pGameSession->pBridge;
     g_isSomthingReady_006CE008 = 1;
     int v11_status[3];
-    if (*MyDdSurface_createOffScreenSurface(v11_status, 0x100u, 0x100u, 0x800u, &my_surf.dd_surf) >= 0) {
+    if (*MyDdSurface_createOffScreenSurface(v11_status, 0x100u, 0x100u, 0x800u, &g_GameMapForeground_surf.dd_surf) >= 0) {
         MyDblNamedSurface surfdn;
         surfdn.constructor("MapOverlay", "MapOver", 2, 0, 1);
         g_idx = MyEntryBuf_MyScaledSurface_create(&surfdn, 1);

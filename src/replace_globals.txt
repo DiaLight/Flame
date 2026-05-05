@@ -136,6 +136,7 @@
 0057CEB0 void *__cdecl MyHeap_alloc(int)
 0057D0B0 void __cdecl MyHeap_free(void *)
 005899F0 void __cdecl static_MyDirectDraw_triangles_init(MyDirectDraw *)
+00589C90 void __cdecl engine_setViewport(uint32_t, uint32_t, uint32_t, uint32_t)
 00589D90 void __cdecl addObjectToDraw(ToDraw *)
 0058A150 void drawTexToSurfTriangles()
 0058A520 void __cdecl static_MyDirectDraw_uvs_init(MyDirectDraw *)
@@ -325,6 +326,9 @@
 # MyDirectDraw
 00573C20 void MyDirectDraw_destroy()
 00573ED0 int __cdecl MyDirectDraw_init(IDirectDraw *, IDirectDrawSurface *, IDirectDrawSurface *, _GUID *, int16_t, int)
+00589250 void __cdecl MyDirectDraw_prepareTexture(int)
+00589910 void MyDirectDraw_triangles_destroy()
+0058A000 void __cdecl MyDirectDraw_DrawTriangleList(uint32_t, uint32_t, uint32_t)
 00592950 void MyDirectDraw_devTexture_destroy()
 
 # CEngine2DSprite
@@ -335,8 +339,14 @@
 005776C0 int *CEngine2DRotatableSprite::_addRenderObj(int, SceneObject2E *)
 00578EC0 void __cdecl CEngine2DRotatableSprite_create(int16_t, int16_t, int, int, float, float, int, Vec3f, float, float, int)
 
+# CEngine2DMeshSurface
+005794B0 int __cdecl CEngine2DMeshSurface_create(int, int, Vec2f *, Vec3s *, float, int, Vec3f *, float, int)
+
 # MyScaledSurface
 0057C420 MyScaledSurface *MyScaledSurface::constructor(MyDblNamedSurface *, int)
+
+# MyDblNamedSurface
+0057C970 MyScaledSurface *__cdecl MyDblNamedSurface_createPrescaled(int, int, int)
 
 # CEngineDDSurface
 00590880 CEngineDDSurface *CEngineDDSurface::constructor(uint32_t, uint32_t, MyCEngineSurfDesc *, int)
@@ -385,6 +395,13 @@
 # MyLogger
 005BA0F0 int *__cdecl MyLogger_init(int *, MyLogger *, const char *, int)
 
+# MyBmpSaver
+005BA590 int MyBmpSaver::isCompatibleDesc(MySurfDesc *)
+005BA610 MySurfDesc *MyBmpSaver::selectDesc(MySurface *)
+005BA650 int *MyBmpSaver::save(int *, char *, MySurface *, uint8_t *)
+005BA710 int *MyBmpSaver::trySave(int *, MyFile *, MySurface *, uint8_t *)
+005BA8A0 MyBmpSaver *MyBmpSaver::constructor()
+
 # MyInputManagerCb
 #005BB1C0 int *MyInputManagerCb::initMouse(int *)
 
@@ -426,5 +443,6 @@
 0061C090 int MyUnk67457C::sub_61C090()
 
 # globals
-006AC8A0 NameCfg nameList[38]
+006AC8A0 NameCfg g_soundNameList[38]
+006C3D30 MySurfDesc *g_confSurfDescArr[20]
 

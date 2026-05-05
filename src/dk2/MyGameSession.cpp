@@ -316,7 +316,7 @@ int dk2::MyGameSession::tick(int a2_isNeedBlt) {
             this->pBridge->v_f2C_maybe_cameraFun(&this->gameTick278_last);
             if (this->pPlayer) {
                 if (this->pBridge->v_f40_enableSmth()) {
-                    this->pPlayer->v_fun_403FB0();
+                    this->pPlayer->v_f14_renderGameMap();
                     int result = this->pBridge->v_f44_disableSmth();
                     if (!result)
                         return result;
