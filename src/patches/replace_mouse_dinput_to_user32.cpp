@@ -188,10 +188,29 @@ void patch::replace_mouse_dinput_to_user32::emulate_dinput_from_user32(HWND hWnd
         case WM_ACTIVATEAPP:
             if (wParam) {  // activated
                 appIsActive = true;
+                RECT clientRect;
+                GetClientRect(hWnd, &clientRect);
+                clientSize = {clientRect.right - clientRect.left, clientRect.bottom - clientRect.top};
+                // Post so ClipCursor(NULL) runs after DK2's own activation callbacks re-clip the cursor
+                PostMessage(hWnd, WM_USER + 0x100, 0, 0);
             } else {  // deactivated
                 appIsActive = false;
             }
             break;
+        case WM_USER + 0x100: {
+            // On Wine/Proton, after alt-tab at non-native menu resolution (e.g. 640x480),
+            // the X11 cursor grab is restored to the raw render resolution instead of the
+            // scaled physical display. Detect Wine and force the window back to physical
+            // screen size so the cursor grab covers the full display.
+            HMODULE ntdll = GetModuleHandleA("ntdll.dll");
+            if (ntdll && GetProcAddress(ntdll, "wine_get_version")) {
+                int screenW = GetSystemMetrics(SM_CXSCREEN);
+                int screenH = GetSystemMetrics(SM_CYSCREEN);
+                SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, screenW, screenH, SWP_NOACTIVATE | SWP_SHOWWINDOW);
+            }
+            ClipCursor(NULL);
+            break;
+        }
         case WM_LBUTTONDOWN:
             click_mouse(DIK_DK2_LEFTMOUSE, DK2_IsPressed | controlFlags);
             break;
