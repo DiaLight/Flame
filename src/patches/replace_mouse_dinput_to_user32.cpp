@@ -188,6 +188,10 @@ void patch::replace_mouse_dinput_to_user32::emulate_dinput_from_user32(HWND hWnd
         case WM_ACTIVATEAPP:
             if (wParam) {  // activated
                 appIsActive = true;
+                RECT clientRect;
+                GetClientRect(hWnd, &clientRect);
+                clientSize = {clientRect.right - clientRect.left, clientRect.bottom - clientRect.top};
+                ClipCursor(NULL);
             } else {  // deactivated
                 appIsActive = false;
             }
