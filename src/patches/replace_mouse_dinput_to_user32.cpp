@@ -191,10 +191,14 @@ void patch::replace_mouse_dinput_to_user32::emulate_dinput_from_user32(HWND hWnd
                 RECT clientRect;
                 GetClientRect(hWnd, &clientRect);
                 clientSize = {clientRect.right - clientRect.left, clientRect.bottom - clientRect.top};
-                ClipCursor(NULL);
+                // Post so ClipCursor(NULL) runs after DK2's own activation callbacks re-clip the cursor
+                PostMessage(hWnd, WM_USER + 0x100, 0, 0);
             } else {  // deactivated
                 appIsActive = false;
             }
+            break;
+        case WM_USER + 0x100:
+            ClipCursor(NULL);
             break;
         case WM_LBUTTONDOWN:
             click_mouse(DIK_DK2_LEFTMOUSE, DK2_IsPressed | controlFlags);
