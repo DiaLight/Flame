@@ -6,11 +6,34 @@
 #include "dk2_functions.h"
 #include "dk2_globals.h"
 #include "patches/big_resolution_fix/big_resolution_fix.h"
+#include "tools/last_error.h"
+#include "patches/replace_heap.h"
+#include "tools/memory_debug.h"
+
+namespace patch {
+
+    bool useDdebugMemory = false;
+    bool useHeapAlloc = false;
+
+    bool dirtyOverrunFix = true;
+
+}
 
 
 void *__cdecl dk2::MyHeap_alloc(int a1_size) {
     if(patch::big_resolution_fix::enabled) {
-        //  return HeapAlloc(hHeap, HEAP_ZERO_MEMORY, a1_size);
+        if(patch::dirtyOverrunFix && a1_size > 300) a1_size += std::min(a1_size / 2, 0x1000);
+        if(patch::useDdebugMemory && a1_size > 300) {
+            return memory_debug::dbg_malloc(a1_size);
+        }
+        if(patch::useHeapAlloc) {
+            void *ptr = HeapAlloc(g_hHeap, HEAP_ZERO_MEMORY, a1_size);
+            if(ptr == NULL) {
+                std::string lastError = GetLastErrorAsString();
+                printf("HeapAlloc failed: %s\n", lastError.c_str());
+            }
+            return ptr;
+        }
         void *ptr = _aligned_malloc(a1_size, 0x100);
         ZeroMemory(ptr, a1_size);
         return ptr;
@@ -67,7 +90,11 @@ void *__cdecl dk2::MyHeap_alloc(int a1_size) {
 
 void __cdecl dk2::MyHeap_free(void *a1_ptr) {
     if(patch::big_resolution_fix::enabled) {
-        //  HeapFree(hHeap, 0, a1_ptr);
+        if(patch::useDdebugMemory && memory_debug::is_dbg(a1_ptr)) return memory_debug::dbg_free(a1_ptr);
+        if(patch::useHeapAlloc) {
+            HeapFree(g_hHeap, 0, a1_ptr);
+            return;
+        }
         _aligned_free(a1_ptr);
         return;
     }

@@ -86310,7 +86310,7 @@ global: va=007A5C8C,name=g_charBuffer,size=4
     type: kind=void
 global: va=007A5DA0,name=uNumber,size=4
   type: kind=int,size=4,fname=UINT
-global: va=007A5DA8,name=hHeap,size=4
+global: va=007A5DA8,name=g_hHeap,size=4
   type: kind=ptr
     type: kind=void
 global: va=007A5DB0,name=Addend,size=4

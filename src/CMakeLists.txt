@@ -118,6 +118,7 @@ add_library(${TARGET} SHARED
         tools/last_error.cpp
         tools/flame_config.cpp
         tools/visual_debug.cpp
+        tools/memory_debug.cpp
 
         tools/bug_hunter.cpp
         tools/bug_hunter/StackWalker.cpp

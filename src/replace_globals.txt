@@ -189,10 +189,12 @@
 00637A00 void *__cdecl _realloc(void *, size_t)
 00637BB0 void *__cdecl _malloc_1(size_t)
 00637BD0 void *__cdecl __nh_malloc(size_t, int)
+00637C20 uint32_t *__cdecl __heap_alloc(int)
 00638350 void __cdecl _free(void *)
 00638440 int dk2_start()
 00638650 void *__cdecl _calloc(size_t, size_t)
 006393F0 size_t __cdecl __msize(void *)
+0063E470 int __heap_init()
 006477F0 int WinMain(HINSTANCE, HINSTANCE, CHAR *, int)
 
 # CClickButton

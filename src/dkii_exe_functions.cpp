@@ -142,6 +142,23 @@ void *__cdecl dk2::__nh_malloc(size_t Size, int a2) {
             return NULL;
     }
 }
+uint32_t *__cdecl dk2::__heap_alloc(int a1) {
+    unsigned int v1 = (a1 + 15) & ~0xFu;
+    uint32_t *v2;
+    if (v1 <= g_sbh_size && (__lock(9), v2 = ___sbh_alloc_block(v1 >> 4), __unlock(9), v2))
+        return v2;
+    else
+        return (uint32_t *) HeapAlloc(g_hHeap, 0, v1);
+}
+
+int dk2::__heap_init() {
+    g_hHeap = HeapCreate(0, 0x1000u, 0);
+//    g_hHeap = GetProcessHeap();
+    if (!g_hHeap) return 0;
+    if (___sbh_new_region()) return 1;
+    HeapDestroy(g_hHeap);
+    return 0;
+}
 
 void *__cdecl dk2::_malloc_1(size_t Size) {
     if(patch::replace_heap::enabled) {
@@ -164,7 +181,7 @@ void __cdecl dk2::_free(void *ptr) {
             __unlock(9);
         } else {
             __unlock(9);
-            HeapFree(hHeap, 0, v1_ptr);
+            HeapFree(g_hHeap, 0, v1_ptr);
         }
     }
 }
@@ -201,7 +218,7 @@ void *__cdecl dk2::_realloc(void *ptr, size_t Size) {
             void* v6_sbhPtr = (void*) ___sbh_find_block(ptr, &v10, (unsigned int*) &v9);
             if (!v6_sbhPtr) {
                 __unlock(9);
-                v5_newPtr = HeapReAlloc(hHeap, 0, ptr, Size);
+                v5_newPtr = HeapReAlloc(g_hHeap, 0, ptr, Size);
             } else {
                 if (Size < g_sbh_size) {
                     if (___sbh_resize_block(v10, v9, v6_sbhPtr, Size >> 4)) {
@@ -214,7 +231,7 @@ void *__cdecl dk2::_realloc(void *ptr, size_t Size) {
                     }
                 }
                 if (!v5_newPtr) {
-                    v5_newPtr = HeapAlloc(hHeap, 0, Size);
+                    v5_newPtr = HeapAlloc(g_hHeap, 0, Size);
                     if (v5_newPtr) {
                         sbhMemcpy(v5_newPtr, ptr, v6_sbhPtr, Size, v10, v9);
                     }
@@ -253,7 +270,7 @@ void *__cdecl dk2::_calloc(size_t Count, size_t Size) {
                     return v3_ptr;
                 }
             }
-            v3_ptr = HeapAlloc(hHeap, 8u, v2_totalSize);
+            v3_ptr = HeapAlloc(g_hHeap, 8u, v2_totalSize);
         }
         if (v3_ptr || !g_nhUnk_7A57BC) return v3_ptr;
         void* result = (void*) __callnewh_(v2_totalSize);
@@ -275,7 +292,7 @@ size_t __cdecl dk2::__msize(void *ptr) {
         return v2;
     } else {
         __unlock(9);
-        return HeapSize(hHeap, 0, ptr);
+        return HeapSize(g_hHeap, 0, ptr);
     }
 }
 
