@@ -23,7 +23,8 @@
 #include "patches/logging.h"
 #include "patches/micro_patches.h"
 #include "weanetr_dll/globals.h"
-
+#include "patches/preselected_map.h"
+#include <bit>
 
 void dk2::CFrontEndComponent::showTitleScreen() {
     char Buffer[260];
@@ -980,3 +981,109 @@ dk2::NameCfg *dk2::CFrontEndComponent::sub_535A30() {
     return result;
 }
 
+int dk2::CFrontEndComponent::fun_53EF60(unsigned __int8 a2_min, unsigned __int8 a3_max) {
+    if (!this->mapsCount) return 0;
+
+    if(patch::default_map::enabled) {
+        this->lobbySelectedMapIdx = patch::default_map::getPreselectedMapIdx(this);
+        if(this->lobbySelectedMapIdx != -1) {
+            this->lobbyMapWasChanged(this->lobbySelectedMapIdx);
+            return 1;
+        }
+    }
+
+    {
+        // select random map
+        DWORD TimeMs = getTimeMs();
+        this->lobbySelectedMapIdx = -1;
+        for(unsigned int v5 = 0; v5 < 2 * this->mapsCount; ++v5) {
+            TimeMs = 1664525 * TimeMs + 0x3C6EF35F;
+            unsigned int a2_mina = std::rotr(TimeMs, 13);
+            MyMapInfo *f657C_mapInfoArr = this->mapInfoArr;
+            this->lobbySelectedMapIdx = a2_mina % this->mapsCount;
+            MyMapInfo *pMapInfo = &f657C_mapInfoArr[a2_mina % this->mapsCount];
+            if (pMapInfo->playerCount >= a2_min && pMapInfo->playerCount <= a3_max && (pMapInfo->eos & 1) != 0) break;
+        }
+        if (this->lobbySelectedMapIdx != -1) {
+            this->lobbyMapWasChanged(this->lobbySelectedMapIdx);
+            return 1;
+        }
+    }
+
+    // select first compatible map
+    this->lobbySelectedMapIdx = -1;
+    for (unsigned int v11_idx = 0; v11_idx < this->mapsCount; ++v11_idx) {
+        MyMapInfo *v12_inf = &this->mapInfoArr[v11_idx];
+        if (v12_inf->playerCount < a2_min) continue;
+        if (v12_inf->playerCount > (unsigned int) a3_max) continue;
+        if ((v12_inf->eos & 1) == 0) continue;
+        this->lobbySelectedMapIdx = v11_idx;
+        break;
+    }
+    this->lobbyMapWasChanged(this->lobbySelectedMapIdx);
+    return 1;
+}
+
+int __cdecl dk2::CButton_handleLeftClick_5463B0(int a1, int a2, CFrontEndComponent *a3) {
+    unsigned __int8 v5 = 2;
+    if (g__humanPlayersCount + g__aiPlayersCount > 2)
+        v5 = g__humanPlayersCount + g__aiPlayersCount;
+    int result = a3->fun_53EF60(v5, a3->playersCount);
+    if (result != 1)
+        return result;
+    wchar_t *MapName = a3->getMapName();
+    return a3->loadMapThumbnail(MapName);
+}
+
+int dk2::CFrontEndComponent::randomizeMap(unsigned __int8 a2_minPlayersCount, unsigned __int8 a3_maxPlayersCount) {
+    if (!this->mapsCount) return 0;
+
+    if(patch::default_map::enabled) {
+        this->lobbySelectedMapIdx = patch::default_map::getPreselectedMapIdx(this);
+        if(this->lobbySelectedMapIdx != -1) {
+            this->lobbyMapWasChanged(this->lobbySelectedMapIdx);
+            return 1;
+        }
+    }
+
+    {
+        // select random map
+        DWORD TimeMs = getTimeMs();
+        this->lobbySelectedMapIdx = -1;
+        for (unsigned int v5_tryIdx = 0; v5_tryIdx < 2 * this->mapsCount; ++v5_tryIdx) {
+            TimeMs = 0x19660D * TimeMs + 0x3C6EF35F;
+            unsigned int v16_randomInt = std::rotr(TimeMs, 13);
+            this->lobbySelectedMapIdx = v16_randomInt % this->mapsCount;
+            MyMapInfo *pMapInfo = &this->mapInfoArr[v16_randomInt % this->mapsCount];
+            if (pMapInfo->playerCount >= a2_minPlayersCount && pMapInfo->playerCount <= a3_maxPlayersCount && (pMapInfo->eos & 2) != 0) break;
+        }
+        if (this->lobbySelectedMapIdx != -1) {
+            this->lobbyMapWasChanged(this->lobbySelectedMapIdx);
+            return 1;
+        }
+    }
+
+    // select first compatible map
+    this->lobbySelectedMapIdx = -1;
+    for(unsigned int v11_mapIdx = 0; v11_mapIdx < this->mapsCount; ++v11_mapIdx) {
+        MyMapInfo *mapInfo = &this->mapInfoArr[v11_mapIdx];
+        if (mapInfo->playerCount < a2_minPlayersCount) continue;
+        if (mapInfo->playerCount > (unsigned int) a3_maxPlayersCount) continue;
+        if ((mapInfo->eos & 2) == 0) continue;
+        this->lobbySelectedMapIdx = v11_mapIdx;
+        break;
+    }
+    this->lobbyMapWasChanged(this->lobbySelectedMapIdx);
+    return 1;
+}
+
+int __cdecl dk2::CButton_handleLeftClick_randomMap(int a1, int a2, CFrontEndComponent *a3_front) {
+    unsigned __int8 v5 = 2;
+    if ( g__humanPlayersCount + g__aiPlayersCount > 2 )
+        v5 = g__humanPlayersCount + g__aiPlayersCount;
+    int result = a3_front->randomizeMap(v5, a3_front->playersCount);
+    if ( result != 1 )
+        return result;
+    wchar_t *MapName = a3_front->getMapName();
+    return a3_front->loadMapThumbnail(MapName);
+}

@@ -448,3 +448,8 @@
 006AC8A0 NameCfg g_soundNameList[38]
 006C3D30 MySurfDesc *g_confSurfDescArr[20]
 
+0053EF60 int fun_53EF60(uint8_t, uint8_t);  // -------  /* auto */
+005463B0 int __cdecl CButton_handleLeftClick_5463B0(int, int, CFrontEndComponent *);  /* auto */
+0053EE40 int randomizeMap(uint8_t, uint8_t);  // -----  /* auto */
+00546360 int __cdecl CButton_handleLeftClick_randomMap(int, int, CFrontEndComponent *);  /* auto */
+

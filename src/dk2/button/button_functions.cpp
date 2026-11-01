@@ -248,7 +248,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
             if (v15_button)
                 v15_button->f5D_isVisible = static_DirFileList_instance2_saves_sav_getCount() > 0;
         } break;
-        case 21:
+        case 21:  // skirmish
             comp->_tableTy = 7;
             comp->clear_MyPlayerConfig_instance_arr__setupMpGui();
             comp->buildLevelConfig();
@@ -1046,7 +1046,7 @@ uint8_t __cdecl dk2::Button_addAiPlayer(int a1, int a2, CFrontEndComponent *a3_f
     if ( v4 == 16 )
         f311F2_mp_isHost = a3_frontend->mp_isHost;
     if ( f311F2_mp_isHost != 1 && v4 != 7 )
-    return (uint8_t) f311F2_mp_isHost;
+        return (uint8_t) f311F2_mp_isHost;
 
     uint8_t mapPlayersCount = (a3_frontend->b4_mapPlayersCount_goldDencity_loseHeartType >> 4);
     if (g__aiPlayersCount + g__humanPlayersCount >= (unsigned int) mapPlayersCount) return (uint8_t) mapPlayersCount;

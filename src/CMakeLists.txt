@@ -146,6 +146,7 @@ add_library(${TARGET} SHARED
         patches/wine_support.cpp
         patches/show_wireframe.cpp
         patches/alternative_resources.cpp
+        patches/preselected_map.cpp
 
         patches/big_resolution_fix/expand_surf_idx_array.cpp
         patches/big_resolution_fix/big_resolution_fix.cpp
