@@ -12,6 +12,8 @@
 #include <span>
 #include <string>
 #include <vector>
+#include "VaReloc.h"
+#include "Symbol.h"
 
 #include "Lzma2.h"
 #include "Fpo.h"
@@ -123,6 +125,28 @@ std::vector<std::byte> buildBinFpo(std::vector<FpoFun> &fpomap) {
     return f;
 }
 
+template<typename T>
+bool parseResource(const std::vector<std::byte> &res, const std::string &key,
+                   const std::function<void(std::istream &is, std::vector<T> &vec)> &parse, std::vector<T> &vec) {
+    std::string s;
+    s.assign((char *) res.data(), res.size());  // copy
+    if(s.empty()) {
+        fprintf(stderr, "[-] Failed to read %s\n", key.c_str());
+        return false;
+    }
+    std::istringstream is(s);
+    parse(is, vec);
+    if(!is.eof() || is.fail()) {
+        fprintf(stderr, "[-] Failed to parse %s. eof=%d, fail=%d\n", key.c_str(), is.eof(), is.fail());
+        return false;
+    }
+    if(vec.empty()) {
+        fprintf(stderr, "[-] Parsed empty vec %s. eof=%d, fail=%d\n", key.c_str(), is.eof(), is.fail());
+        return false;
+    }
+    return true;
+}
+
 void show_help() {
     printf("resource_compressor\n");
     printf("  -symmap_file <path>\n");
@@ -184,9 +208,24 @@ int main(int argc, char** argv) {
     std::vector<std::byte> flameFpoBin = get_contents(flame_fpobin_file);
     if(flameFpoBin.empty()) return EXIT_FAILURE;
 
+//    std::vector<Symbol> dkiiSyms;
+//    {
+//        if(!parseResource<Symbol>(symmap, "symmap", [](std::istream &is, std::vector<Symbol> &vec) {
+//            parseSymbols(is, vec, [](int cur, int max) {});
+//        }, dkiiSyms)) return false;
+//    }
+    std::vector<VaReloc> dkiiRelocs;
+    {
+        if(!parseResource<VaReloc>(refmap, "refmap", [](std::istream &is, std::vector<VaReloc> &vec) {
+            parseRelocs(is, vec, [](int cur, int max) {});
+        }, dkiiRelocs)) return false;
+    }
+
     InputResource resources[] {
         {"symmap", {(std::byte *) symmap.data(), symmap.size()}},
-        {"refmap", {(std::byte *) refmap.data(), refmap.size()}},
+//        {"symmap_bin", {(std::byte *) dkiiSyms.data(), dkiiSyms.size() * sizeof(Symbol)}},
+//        {"refmap", {(std::byte *) refmap.data(), refmap.size()}},
+        {"refmap_bin", {(std::byte *) dkiiRelocs.data(), dkiiRelocs.size() * sizeof(VaReloc)}},
         {"dkii_fpo", {(std::byte *) dkiiFpoBin.data(), dkiiFpoBin.size()}},
         {"flame_fpo", {(std::byte *) flameFpoBin.data(), flameFpoBin.size()}},
         {"version", {(std::byte *) version, strlen(version)}},

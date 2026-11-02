@@ -203,14 +203,16 @@ def parse_map_file(msvcmap_file: pathlib.Path):
 
 
 def main(pdb_file: pathlib.Path, symmap_file: pathlib.Path, fpo_file: pathlib.Path):
-    symmap = {}
+    symmap: typing.Dict[str, typing.Tuple[int, typing.Optional[str]]] = {}
     with open(symmap_file, 'r') as f:
         for line in f.readlines():
             line = line.rstrip()
             if not line:
                 continue
             parts = line.split(' ')
-            symmap[parts[1]] = (int(parts[0], 16), parts[2] if len(parts) > 2 else None)
+            start_va, end_va, kind, name = parts[0], parts[1], parts[2], parts[3]
+            replaced = parts[4] if len(parts) > 4 else None
+            symmap[name] = (int(start_va, 16), replaced)
     with open(pdb_file, 'rb') as f:
         _data = f.read()
     pdb = my_pdb.MyPdb(_data)
@@ -233,12 +235,12 @@ def main(pdb_file: pathlib.Path, symmap_file: pathlib.Path, fpo_file: pathlib.Pa
                 continue
             if cs.size == 6:
                 continue
-            dk2_va = sm[0]
-            rep = sm[1]
-            if rep is not None:
-                # print(f'{dk2_va:08X} -> {va:08X} {rep} {pub.name}')
+            dk2_va, replaced = sm[0], sm[1]
+            if replaced is not None:
+                # print(f'{dk2_va:08X} -> {va:08X} {replaced} {pub.name}')
                 pass
             else:
+                # check for 005B5C90 dk2::MyDdSurfaceEx_unlock
                 print(f'[WARNING] implemented but not replaced {dk2_va:08X} -> {va:08X} {pub.name}')
 
     fpos: list[MyFpoFun] = pdb_extract_espmap(pdb)

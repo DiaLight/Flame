@@ -56,7 +56,6 @@ configure_file(
 add_library(${TARGET} SHARED
         main.cpp
         dependency_injection.cpp
-        Symbol.cpp
         logging.cpp
         ${RESOURCES_FILE}
 )

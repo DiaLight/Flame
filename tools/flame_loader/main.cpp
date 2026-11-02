@@ -25,6 +25,8 @@
 
 #define IDR_RCDATA1 101
 
+bool g_enableProgressWindow = false;
+
 class ProgressWindow {
     HWND hWnd = NULL;
     HWND hwndST = NULL;
@@ -40,6 +42,7 @@ public:
     }
 
     bool create(const std::string &title) {
+        if (!g_enableProgressWindow) return true;
         if(hWnd) return false;
         WNDCLASSEX wcex;
         wcex.cbSize = sizeof(WNDCLASSEX);
@@ -104,6 +107,7 @@ public:
     }
 
     int close() {
+        if (!g_enableProgressWindow) return 0;
         SendMessage(hwndPB, PBM_SETPOS, Progress_MAX_VALUE, 0);
         peekAll();
         SleepEx(10, FALSE);
@@ -122,6 +126,7 @@ public:
         return (int) msg.wParam;
     }
     void peekAll() {
+        if (!g_enableProgressWindow) return;
         MSG msg = {};
         while (PeekMessage(&msg, hWnd, 0, 0, PM_REMOVE)) {
             TranslateMessage(&msg);
@@ -130,10 +135,12 @@ public:
     }
 
     void updateText(const char *text) {
+        if (!g_enableProgressWindow) return;
         SetWindowTextA(hwndST, text);
         peekAll();
     }
     void update(float prog) {
+        if (!g_enableProgressWindow) return;
         DWORD now = GetTickCount();
         if(now - lastUpdate > 30) {
             lastUpdate = now;
@@ -142,6 +149,7 @@ public:
         }
     }
 
+private:
     LRESULT wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
         switch (message) {
         case WM_DESTROY:
@@ -237,6 +245,18 @@ bool parseResource(std::map<std::string, std::vector<std::byte>> &resources, con
     return true;
 }
 
+template<typename T>
+bool parseBinResource(std::map<std::string, std::vector<std::byte>> &resources, const std::string &key, std::vector<T> &vec) {
+    std::vector<std::byte> map = pop(resources, key);
+    if(map.empty()) {
+        log_err("[-] Failed to read bin %s", key.c_str());
+        return false;
+    };
+    vec.resize(map.size() / sizeof(VaReloc));
+    memcpy(vec.data(), map.data(), map.size());
+    return true;
+}
+
 struct Resources {
 
     std::vector<Symbol> dkiiSyms;
@@ -268,12 +288,16 @@ struct Resources {
                     progress.update(((float) cur / max) * (2.f/parts) + (2.f/parts));
                 });
         }, dkiiSyms)) return false;
+//        if(!parseBinResource(resources, "symmap_bin", dkiiSyms)) return false;
+
         progress.updateText("parse references map");
-        if(!parseResource<VaReloc>(resources, "refmap", [&progress](std::istream &is, std::vector<VaReloc> &vec) {
-                parseRelocs(is, vec, [&progress](int cur, int max) {
-                    progress.update(((float) cur / max) * (14.f/parts) + (4.f/parts));
-                });
-        }, dkiiRelocs)) return false;
+//        if(!parseResource<VaReloc>(resources, "refmap", [&progress](std::istream &is, std::vector<VaReloc> &vec) {
+//                parseRelocs(is, vec, [&progress](int cur, int max) {
+//                    progress.update(((float) cur / max) * (14.f/parts) + (4.f/parts));
+//                });
+//        }, dkiiRelocs)) return false;
+        if(!parseBinResource(resources, "refmap_bin", dkiiRelocs)) return false;
+
         progress.updateText("extract DK2 FPO buf");
         dkiiFpo = pop(resources, "dkii_fpo");
         if(dkiiFpo.empty()) {
@@ -666,6 +690,23 @@ bool flameLoaderMain(HMODULE loader) {
     return true;
 }
 
+static bool isProgressDisabled(LPSTR lpCmdLine) {
+    if (!lpCmdLine || !*lpCmdLine) return false;
+
+    size_t len = strlen(lpCmdLine);
+    std::vector<char> buf(len + 1);
+    memcpy(buf.data(), lpCmdLine, len + 1);
+    char* cmd = buf.data();
+
+    char* token = strtok(cmd, " \t");
+    while (token) {
+        if (strcmp(token, "--no-progress") == 0 || strcmp(token, "/no-progress") == 0) {
+            return true;
+        }
+        token = strtok(nullptr, " \t");
+    }
+    return false;
+}
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     switch(fdwReason) {
@@ -674,6 +715,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
             MessageBoxA(NULL, "Failed to create flame directory", "Flame loader error", MB_OK);
             return FALSE;
         }
+        g_enableProgressWindow = !isProgressDisabled(GetCommandLineA());
         loader::log::init();
         initDependency();
         if(!flameLoaderMain(hinstDLL)) {
