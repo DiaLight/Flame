@@ -6,11 +6,15 @@
 
 # CDefaultPlayerInterface
 00402D00 int CDefaultPlayerInterface::fun_402D00(uint16_t)
+004039A0 int CDefaultPlayerInterface::fun_4039A0(int)
 00406530 BOOL __cdecl CDefaultPlayerInterface_onMouseAction(int, uint32_t, Pos2i, CDefaultPlayerInterface *)
 00406DF0 int CDefaultPlayerInterface::tickKeyboard2()
 00408EE0 void CDefaultPlayerInterface::handleRightClick(uint32_t, ObjUnderHand *)
 004098D0 int CDefaultPlayerInterface::fun_4098D0()
+00409B10 void __cdecl CDefaultPlayerInterface_WM_ACTIVATE_cb(int, int, int, int)
 00409E30 void __cdecl CDefaultPlayerInterface_chatCallback(void *, MessageData *, CDefaultPlayerInterface *)
+0040ACD0 void CDefaultPlayerInterface::sub_40ACD0()
+0040C710 int CDefaultPlayerInterface::sub_40C710()
 0040D8F0 BOOL CDefaultPlayerInterface::checkAllowToDrop(CThing *, int, int)
 0040DAB0 void CDefaultPlayerInterface::pushDropThingFromHandAction(CThing *, ObjUnderHand *)
 0040E0D0 void CDefaultPlayerInterface::tickThingsInHand()
@@ -20,17 +24,21 @@
 
 # CButton
 0042A160 int __cdecl CButton_render_42A160(CButton *, CDefaultPlayerInterface *)
+00528570 AABB *CButton::getScreenAABB(AABB *)
 005306F0 int __cdecl CButton_handleLeftClick_changeMenu(uint32_t, int, CFrontEndComponent *)
 00538000 void __cdecl CButton_handleLeftClick_538000(int, int, CFrontEndComponent *)
 00541F50 char __cdecl CButton_render_541F50(CButton *, CFrontEndComponent *)
+00546360 int __cdecl CButton_handleLeftClick_randomMap(int, int, CFrontEndComponent *)
+005463B0 int __cdecl CButton_handleLeftClick_5463B0(int, int, CFrontEndComponent *)
 
 # CBridge
+0043B220 int CBridge::updateCameraState(UpdateCameraStateArgs *)
 0043E0F0 MySurface *CBridge::loadPng(const char *)
 0043E320 void CBridge::sub_43E320(uint32_t, uint32_t, MyTerrainDataObj *, CEngineStaticMeshDataArrays *)
 00443610 void CBridge::sub_443610(int, uint32_t, MyMapElement *, MyTerrainDataObj *, CEngineStaticMeshDataArrays *)
 
 # CCamera
-00449CA0 void CCamera::zoomRel_449CA0(int)
+00449CA0 void CCamera::zoomRel_449CA0(Q12)
 
 # CMap
 00450770 uint32_t CMap::attachToRoom(int, int, uint16_t, int16_t, int, int)
@@ -64,6 +72,7 @@
 004ED1A0 int MyRooms::eventAttachAndReset(int, int, int, uint16_t, uint8_t, int8_t *, int)
 
 # MyComputerPlayer
+004F93B0 int MyComputerPlayer::fun_4F93B0()
 004FE0B0 char MyComputerPlayer::tickRespondToAttack(char)
 00500C20 int MyComputerPlayer::tick()
 
@@ -77,6 +86,121 @@
 0050FD70 int CWorld::loadFromFile(const char *)
 00511020 void CWorld::showLoadingScreen()
 00519F90 int CWorld::WorldTrigger_cpp_519F90(int16_t, int, int)
+
+# functions
+00510790 void __cdecl updateLoadingScreenProgress(int, int)
+005278C0 int cmd_Game()
+00528080 int __cdecl cmd_dumpPlayer(int, int)
+0052BB30 void createPanelButtons(CWindow *, CButton *, ButtonCfg *, CDefaultPlayerInterface *)
+0052DCE0 int *probably_copySurface_32bpp(int *, MySurface *, int, int, MySurface *, AABB *, int)
+005391F0 void __cdecl changeGui(int, int, CFrontEndComponent *)
+00543840 int __cdecl __onMapSelected(CButton *, int, CFrontEndComponent *)
+00545FC0 uint8_t __cdecl Button_addAiPlayer(int, int, CFrontEndComponent *)
+005540B0 int *__cdecl loadArtToSurfaceEx(int *, MyDdSurfaceEx *, MyDir_CFileManager *, const char *, uint16_t)
+#00556650 LRESULT d_CWindowTest_proc(HWND, uint32_t, WPARAM, LPARAM)
+00557820 BOOL __cdecl ge_isDeviceSuitableForGame(int)
+005578E0 int ge_getDeviceIdxSuitableForGame()
+00558C70 LRESULT myCustomDefWindowProcA(HWND, uint32_t, WPARAM, LPARAM)
+00571910 void __cdecl engine_setRenderArea(int, int, int, int)
+00572CF0 void appendAllToSceneObject2EList()
+00573CF0 int configureFlagsAndTexturesCount()
+005741D0 void updateGammaRamp()
+00574200 void __cdecl setGammaRamp(const void *)
+00574310 void __cdecl textureCache_init(float, float, const char *, int)
+00574820 MyDLVec2i *computeFrustumContour2D()
+00575780 bool __cdecl engine_drawScene(char)
+00578E80 void Meshes2D_byConstructor_clear()
+0057CEB0 void *__cdecl MyHeap_alloc(int)
+0057D0B0 void __cdecl MyHeap_free(void *)
+0057F090 void transformFlags(int16_t, uint32_t *, uint32_t *)
+00588D00 void drawHardware3D()
+005898F0 void draw3d_second()
+005899F0 void __cdecl static_MyDirectDraw_triangles_init(MyDirectDraw *)
+00589C90 void __cdecl engine_setViewport(uint32_t, uint32_t, uint32_t, uint32_t)
+00589D90 void __cdecl selectAtlasMeshGroup(AtlasMeshGroup *)
+0058A520 void __cdecl static_MyDirectDraw_uvs_init(MyDirectDraw *)
+0058A570 void __cdecl setupDepthCoefficients(int, float, float, float, float, int)
+0058A970 void __cdecl __renderFun_setSceneObject2E(SceneObject2E *, int, Mat3x3f *, Vec3f *, float, int)
+0058AC20 void applyIndxs_sub_58AC20()
+0058B2A0 void __cdecl Vertex_setColorUv_Hardware_m0(uint32_t, Color3f *, Uv2f *)
+0058B440 void __cdecl Vertex_setColorUv_Hardware_m1(uint32_t, Color3f *, Uv2f *)
+0058F640 void group_SceneObject2E_by_AtlasMeshGroup_andDraw()
+00592B80 void __cdecl renderer_bindStageTexture(RenderStageTex *, uint32_t)
+00592EA0 int __cdecl static_MyDirectDraw_devTexture_init(MyDirectDraw *)
+00593F20 void __probablySortSurfListX3_593F20()
+0059A4B0 MySurface *__cdecl static_CBridge_loadPng(const char *)
+005A5DA0 int __cdecl dk2_main(int, LPCSTR *)
+005A63B0 int __cdecl parse_command_line(int, const char **)
+005B2BD0 int *__cdecl static_MyInputManagerCb_setCursorIconAndDraw(int *, MyDdSurfaceEx *, AABB *, Pos2i *)
+005B2DB0 HWND getHWindow()
+005B2DD0 BOOL process_win_inputs()
+#005B2E70 int __cdecl d_getCustomDefWindowProcA()
+#005B2E80 int *__cdecl d_setLibIconName(int *, int16_t)
+005B30C0 char __cdecl static_MyNBitTexture_f0(int, int, Bgraf)
+005B30F0 int __cdecl static_MyNBitTexture_f4(AABB *, Bgraf)
+005B3130 int __cdecl static_MyNBitTexture_f8(AABB *, Bgraf)
+005B3170 int __cdecl static_MyNBitTexture_f1C(int, int, int, int, Bgraf)
+005B31E0 int16_t __cdecl static_MyNBitTexture_f20(int, int, int, Bgraf)
+005B3250 int __cdecl static_MyNBitTexture_f24(int, int, int, Bgraf)
+005B32C0 int __cdecl static_MyNBitTexture_f10(int, int, int, Bgraf)
+005B33C0 char __cdecl static_MyNBitTexture_f18(int, int, int, Bgraf)
+005B34D0 char __cdecl static_MyNBitTexture_f30(int, int, const char *, Bgraf)
+005B3900 int *__cdecl fs_createDirectory(int *, const char *)
+005B3940 int *__cdecl fs_removeDirectory(int *, const char *)
+005B3AB0 int *__cdecl fs_getFileAttributes(int *, const char *, uint32_t *)
+005B3B20 int *__cdecl fs_setFileAttributes(int *, const char *, uint32_t)
+005B3B90 int __cdecl fs_getFileSize(const char *)
+005B3BF0 BOOL __cdecl fs_fileExists(const char *)
+005B3C30 bool __cdecl fs_isDirectory(const char *)
+005B3C80 int *__cdecl fs_deleteFile(int *, const char *)
+005B3CE0 int *__cdecl fs_DirIter_init(int *, LPCSTR, DirIter *, int)
+005B3DD0 int *__cdecl fs_DirIter_next(int *, DirIter *)
+005B3E60 int *__cdecl fs_DirIter_destroy(int *, DirIter *)
+005B3E80 int *__cdecl fs_moveFile(int *, LPCSTR, LPCSTR)
+005B4050 IDirectDraw *__cdecl ge_dk2dd_get(bool)
+005B4070 void __cdecl ge_showMessageBox(HWND, const CHAR *, const CHAR *, uint32_t)
+005B40E0 void BullfrogWindow_destroy()
+#005B4160 void d_ge_ddReleaseSurfaces()
+005B4260 int *__cdecl BullfrogWindow_create(int *, _GUID *, int, HWND, HWND)
+005B4330 int static_isNeedBlt()
+#005B4390 int *__cdecl d_ge_dk2dd_init(int *, uint32_t, uint32_t, uint32_t, int, tagPALETTEENTRY *)
+005B4AE0 void __cdecl dk2wnd_cleanup(int *)
+005B4B00 int *__cdecl copyToFullscreenSurf(int *, int)
+005B4D00 void __cdecl CurOffScreen_clearWithPalette0(Bgraf)
+005B4D40 void __cdecl updatePalette(tagPALETTEENTRY *, uint32_t, uint32_t)
+005B4D80 void *__cdecl readPaletteEntry(void *, int, int)
+#005B4DE0 int *__cdecl d_ge_createDirectDrawObject(int *, _GUID *, IDirectDraw **)
+#005B4E20 int *__cdecl d_DdModeList_collect(int *, int, HWND, _GUID *)
+#005B5070 LRESULT d_BullfrogWindow_proc(HWND, uint32_t, WPARAM, LPARAM)
+005B57F0 int *__cdecl static_MyDdSurfaceEx_BltWait(int *, MyDdSurfaceEx *, uint32_t, uint32_t, MyDdSurfaceEx *, AABB *, int)
+005B5970 int *__cdecl static_MyDdSurfaceEx_Blt(int *, MyDdSurfaceEx *, tagRECT *, MyDdSurfaceEx *, tagRECT *, int)
+005B7140 void __cdecl fs_setExeDirPath(const char *)
+005B71A0 char *fs_getExeDir()
+005B71C0 int *__cdecl fs_buildExeBasedPath(int *, char *, int, const char *)
+005B72E0 int *__cdecl fs_readFile(int *, const char *, void *, int, int *)
+005B7400 int *__cdecl fs_writeFile(int *, const char *, void *, int)
+005B74A0 void fs_resolveDk2HomeDir()
+005BC3F0 int *DxDevice_updateCoopLevelAndSignal_ev5(int *, MyDxDevice *)
+005D7300 void __cdecl static_MyNBitTexture_f38(int, int, int)
+005D7320 void __cdecl static_MyNBitTexture_f3C(int, int, int, int, char)
+0062EC30 int charsOneType_doCalcAabbAndDraw(AABB *, MyCRCtx *, AABB *, AABBc *)
+0062EC90 int charsOneType_doDrawOrCalcAabb(int, AABB *, MyCRCtx *, AABB *, AABBc *)
+0062EF30 int chars_doDrawOrCalcAabb(int, AABB *, MyMultilineRenderCtx *, AABB *, AABBc *)
+006305E0 int charsOneTypeEx_doCalcAabbAndDraw(AABB *, MyTRCtx *, AABB *, AABBc *)
+00630640 int charsOneTypeEx_doDrawOrCalcAabb(int, AABB *, MyTRCtx *, AABB *, AABBc *)
+00634860 void *___onexitinit()
+00636500 _iobuf *__cdecl __fopen(const char *, const char *)
+006372C0 void __cdecl _doexit(uint32_t, int, int)
+00637A00 void *__cdecl _realloc(void *, size_t)
+00637BB0 void *__cdecl _malloc_1(size_t)
+00637BD0 void *__cdecl __nh_malloc(size_t, int)
+00637C20 uint32_t *__cdecl __heap_alloc(int)
+00638350 void __cdecl _free(void *)
+00638440 int dk2_start()
+00638650 void *__cdecl _calloc(size_t, size_t)
+006393F0 size_t __cdecl __msize(void *)
+0063E470 int __heap_init()
+006477F0 int WinMain(HINSTANCE, HINSTANCE, CHAR *, int)
 
 # GameActionCtxArr
 00521F70 int GameActionCtxArr::tryPopCtx(GameActionCtx *)
@@ -99,15 +223,19 @@
 00557FB0 int MyWindow::isOsCompatible()
 005580E0 void MyWindow::release()
 005581B0 int MyWindow::prepareScreenEx(uint32_t, uint32_t, uint32_t, int, int, int)
-005586E0 int MyWindow::selectSurfToRender()
+005585C0 int MyWindow::createWindow(int)
+005586E0 int MyWindow::getSurf_lock()
 00558770 int MyWindow::getSurf_unlock()
 005587C0 MyDdSurfaceEx *MyWindow::getCurOffScreenSurf()
+005587F0 void MyWindow::prepareScreen()
+005588A0 int *MyWindow::surf_Blt()
 00558A40 int MyWindow::takeScreenshot()
 00558BD0 int MyWindow::prepareScreen2()
 00558E40 int MyWindow::collect3dDevices()
 00558F70 int MyWindow::createZBufferSurf(uint32_t)
 00559140 int MyWindow::handleError(char *, int, const char *, char *)
 00559350 void MyWindow::displayError(char *, int, const char *, char *)
+00559670 int MyWindow::isNeedBlt()
 005596D0 void MyWindow::removeWmActivateCallback(void *)
 
 # MyGameSession
@@ -116,110 +244,43 @@
 # CNetworkComponent
 00527790 CComponent *CNetworkComponent::runUntilDestroy()
 
-# functions
-005278C0 int cmd_Game()
-00528080 int __cdecl cmd_dumpPlayer(int, int)
-0052BB30 void createPanelButtons(CWindow *, CButton *, ButtonCfg *, CDefaultPlayerInterface *)
-005391F0 void __cdecl changeGui(int, int, CFrontEndComponent *)
-00543840 int __cdecl __onMapSelected(CButton *, int, CFrontEndComponent *)
-00545FC0 uint8_t __cdecl Button_addAiPlayer(int, int, CFrontEndComponent *)
-#00556650 LRESULT d_CWindowTest_proc(HWND, uint32_t, WPARAM, LPARAM)
-00557820 BOOL __cdecl ge_isDeviceSuitableForGame(int)
-005578E0 int ge_getDeviceIdxSuitableForGame()
-00558C70 LRESULT myCustomDefWindowProcA(HWND, uint32_t, WPARAM, LPARAM)
-00571910 void __cdecl engine_setRenderArea(int, int, int, int)
-00573CF0 int configureFlagsAndTexturesCount()
-005741D0 void updateGammaRamp()
-00574200 void __cdecl setGammaRamp(const void *)
-00574310 void __cdecl textureCache_init(float, float, const char *, int)
-00575780 bool __cdecl engine_drawScene(char)
-0057CEB0 void *__cdecl MyHeap_alloc(int)
-0057D0B0 void __cdecl MyHeap_free(void *)
-005899F0 void __cdecl static_MyDirectDraw_triangles_init(MyDirectDraw *)
-00589C90 void __cdecl engine_setViewport(uint32_t, uint32_t, uint32_t, uint32_t)
-00589D90 void __cdecl addObjectToDraw(ToDraw *)
-0058A150 void drawTexToSurfTriangles()
-0058A520 void __cdecl static_MyDirectDraw_uvs_init(MyDirectDraw *)
-0058F640 void draw3dScene()
-00592B80 void __cdecl renderer_setSurfaceHolder(SurfaceHolder *, uint32_t)
-00592EA0 int __cdecl static_MyDirectDraw_devTexture_init(MyDirectDraw *)
-0059A4B0 MySurface *__cdecl static_CBridge_loadPng(const char *)
-005A5DA0 int __cdecl dk2_main(int, LPCSTR *)
-005A63B0 int __cdecl parse_command_line(int, const char **)
-005B2DB0 HWND getHWindow()
-005B2DD0 BOOL process_win_inputs()
-#005B2E70 int __cdecl d_getCustomDefWindowProcA()
-#005B2E80 int *__cdecl d_setLibIconName(int *, int16_t)
-005B3900 int *__cdecl fs_createDirectory(int *, const char *)
-005B3940 int *__cdecl fs_removeDirectory(int *, const char *)
-005B3AB0 int *__cdecl fs_getFileAttributes(int *, const char *, uint32_t *)
-005B3B20 int *__cdecl fs_setFileAttributes(int *, const char *, uint32_t)
-005B3B90 int __cdecl fs_getFileSize(const char *)
-005B3BF0 BOOL __cdecl fs_fileExists(const char *)
-005B3C30 bool __cdecl fs_isDirectory(const char *)
-005B3C80 int *__cdecl fs_deleteFile(int *, const char *)
-005B3CE0 int *__cdecl fs_DirIter_init(int *, LPCSTR, DirIter *, int)
-005B3DD0 int *__cdecl fs_DirIter_next(int *, DirIter *)
-005B3E60 int *__cdecl fs_DirIter_destroy(int *, DirIter *)
-005B3E80 int *__cdecl fs_moveFile(int *, LPCSTR, LPCSTR)
-005B4050 IDirectDraw *__cdecl ge_dk2dd_get(bool)
-005B4070 void __cdecl ge_showMessageBox(HWND, const CHAR *, const CHAR *, uint32_t)
-005B40E0 void BullfrogWindow_destroy()
-#005B4160 void d_ge_ddReleaseSurfaces()
-005B4260 int *__cdecl BullfrogWindow_create(int *, _GUID *, int, HWND, HWND)
-#005B4390 int *__cdecl d_ge_dk2dd_init(int *, uint32_t, uint32_t, uint32_t, int, tagPALETTEENTRY *)
-005B4AE0 void __cdecl dk2wnd_cleanup(int *)
-005B4B00 int *__cdecl copyToFullscreenSurf(int *, int)
-005B4D00 void __cdecl CurOffScreen_clearWithPalette0(Bgraf)
-005B4D40 void __cdecl updatePalette(tagPALETTEENTRY *, uint32_t, uint32_t)
-005B4D80 void *__cdecl readPaletteEntry(void *, int, int)
-#005B4DE0 int *__cdecl d_ge_createDirectDrawObject(int *, _GUID *, IDirectDraw **)
-#005B4E20 int *__cdecl d_DdModeList_collect(int *, int, HWND, _GUID *)
-#005B5070 LRESULT d_BullfrogWindow_proc(HWND, uint32_t, WPARAM, LPARAM)
-005B7140 void __cdecl fs_setExeDirPath(const char *)
-005B71A0 char *fs_getExeDir()
-005B71C0 int *__cdecl fs_buildExeBasedPath(int *, char *, int, const char *)
-005B72E0 int *__cdecl fs_readFile(int *, const char *, void *, int, int *)
-005B7400 int *__cdecl fs_writeFile(int *, const char *, void *, int)
-005B74A0 void fs_resolveDk2HomeDir()
-005BC3F0 int *DxDevice_updateCoopLevelAndSignal_ev5(int *, MyDxDevice *)
-00634860 void *___onexitinit()
-00636500 _iobuf *__cdecl __fopen(const char *, const char *)
-006372C0 void __cdecl _doexit(uint32_t, int, int)
-00637A00 void *__cdecl _realloc(void *, size_t)
-00637BB0 void *__cdecl _malloc_1(size_t)
-00637BD0 void *__cdecl __nh_malloc(size_t, int)
-00637C20 uint32_t *__cdecl __heap_alloc(int)
-00638350 void __cdecl _free(void *)
-00638440 int dk2_start()
-00638650 void *__cdecl _calloc(size_t, size_t)
-006393F0 size_t __cdecl __msize(void *)
-0063E470 int __heap_init()
-006477F0 int WinMain(HINSTANCE, HINSTANCE, CHAR *, int)
-
 # CClickButton
 00528610 CClickButton *CClickButton::handleClick(CDefaultPlayerInterface *)
 00532670 char __cdecl CClickButton_render_532670(CButton *, CFrontEndComponent *)
+00536070 void __cdecl CClickButton_renderExitBtn(CClickButton *, CFrontEndComponent *)
 
 # CTextInput
 0052AA10 int CTextInput::fun_52AA10_configure(ButtonCfg *)
 
 # CGuiManager
 0052B8F0 int CGuiManager::createElements(WindowCfg **, CDefaultPlayerInterface *)
+0052BBD0 int CGuiManager::doDraw2dGui(CFrontEndComponent *)
+
+# CWindow
+0052CE50 AABB *CWindow::getScreenPos(AABB *)
+
+# MySurface
+0052CF90 int *MySurface_static_copy(int *, MySurface *, int, int, MySurface *, AABB *, int)
+005B81A0 MySurface *__cdecl MySurface_copyFromSurf(MySurface *, MyDdSurfaceEx *)
 
 # CFrontEndComponent
 0052F140 int CFrontEndComponent::launchGame()
 0052F9E0 CComponent *CFrontEndComponent::mainGuiLoop()
 0052FAF0 int __cdecl CFrontEndComponent_onKeyboardActionWithCtrl(int, int, uint32_t, CFrontEndComponent *)
+0052FF00 int CFrontEndComponent::draw2dGui()
 005329A0 char CFrontEndComponent::renderButtonsText_5329A0(int, uint8_t, RenderButtonTextInfo *, int)
+005334C0 int CFrontEndComponent::draw2dGui_0()
 00533570 char CFrontEndComponent::bakeButton(int, uint8_t, int)
 005340F0 void CFrontEndComponent::showTitleScreen()
 00534210 int CFrontEndComponent::load()
 00535A30 NameCfg *CFrontEndComponent::sub_535A30()
+00536370 char CFrontEndComponent::drawText(MyStringTexture *)
 00537AE0 void CFrontEndComponent::TcpIpInternet_updateStatusLine(uint32_t)
 005384F0 void __cdecl CFrontEndComponent_subTickMainGui(CFrontEndComponent *)
 0053BCD0 void CFrontEndComponent::showMovie(CHAR *)
 0053ED60 void CFrontEndComponent::isMapPresent(SessionMapInfo *, wchar_t *)
+0053EE40 int CFrontEndComponent::randomizeMap(uint8_t, uint8_t)
+0053EF60 int CFrontEndComponent::fun_53EF60(uint8_t, uint8_t)
 0053FC40 char CFrontEndComponent::lobbyMapWasChanged(int)
 00542980 void CFrontEndComponent::sub_542980(FoundPlayService *)
 005435E0 char CFrontEndComponent::sub_5435E0(int, CFrontEndComponent *)
@@ -333,16 +394,40 @@
 0058A000 void __cdecl MyDirectDraw_DrawTriangleList(uint32_t, uint32_t, uint32_t)
 00592950 void MyDirectDraw_devTexture_destroy()
 
+# MyCameraState
+00575A00 void __cdecl MyCameraState_applyToGlobalState(MyCameraState *, float)
+0058A6F0 void __cdecl MyCameraState_computeProjectionMat(MyCameraState *)
+
+# SceneObject2E
+005767E0 void SceneObject2E_add2dSpriteRenderObj(SceneObject2E *, Vec3f *, Vec3f *, Vec3f *, Vec3f *, float, float, float, float, float, float, float, float, Color3f *, float, int)
+
 # CEngine2DSprite
+00576A10 void CEngine2DSprite::addMyD3D3VertexTriangle(int, SceneObject2E *)
+00577400 Triangle34 *CEngine2DSprite::createTriangle34(int, SceneObject2E *)
 00577640 void CEngine2DSprite::_addRenderObj(int, SceneObject2E *)
 00579180 void __cdecl CEngine2DSprite_create(int, int, int, int, float, int, Vec3f, float, float, uint32_t)
 
 # CEngine2DRotatableSprite
-005776C0 int *CEngine2DRotatableSprite::_addRenderObj(int, SceneObject2E *)
-00578EC0 void __cdecl CEngine2DRotatableSprite_create(int16_t, int16_t, int, int, float, float, int, Vec3f, float, float, int)
+005776C0 void CEngine2DRotatableSprite::_addRenderObj(int, SceneObject2E *)
+00578EC0 void __cdecl CEngine2DRotatableSprite_create(int16_t, int16_t, int, int, float, float, int, Color3f, float, float, int)
+
+# CEngine2DStaticMesh
+00577A00 void CEngine2DStaticMesh::_addRenderObj(int, SceneObject2E *)
+
+# CEngine2DAnimMesh
+00577F10 void CEngine2DAnimMesh::_addRenderObj(int, SceneObject2E *)
+
+# CEngineVirtualPerspective2DAnimMesh
+00578600 void CEngineVirtualPerspective2DAnimMesh::_addRenderObj(int, SceneObject2E *)
 
 # CEngine2DMeshSurface
-005794B0 int __cdecl CEngine2DMeshSurface_create(int, int, Vec2f *, Vec3s *, float, int, Vec3f *, float, int)
+00578C00 void CEngine2DMeshSurface::_addRenderObj(int, SceneObject2E *)
+005794B0 int __cdecl CEngine2DMeshSurface_create(int, int, Vec2f *, Vec3us *, float, int, Vec3f *, float, int)
+
+# Obj57AD20
+0057A9A0 void Obj57AD20::_addRenderObj(int, SceneObject2E *, Obj571B47 *, int, Obj58EF80 **, int, int, float)
+0057B0E0 void Obj57AD20::_addRenderObj_sub1(int, SceneObject2E *, int, Obj571B47 *, Obj58EF80 **, int, int, float)
+0057B6D0 void Obj57AD20::_addRenderObj_sub2(int, SceneObject2E *, int, Obj571B47 *, int, int, float)
 
 # MyScaledSurface
 0057C420 MyScaledSurface *MyScaledSurface::constructor(MyDblNamedSurface *, int)
@@ -350,19 +435,85 @@
 # MyDblNamedSurface
 0057C970 MyScaledSurface *__cdecl MyDblNamedSurface_createPrescaled(int, int, int)
 
+# CEngineSprite
+0057F3D0 void CEngineSprite::_addRenderObj(int, SceneObject2E *)
+
+# CEngineQuadPlane
+0057FB80 void CEngineQuadPlane::_addRenderObj(int, SceneObject2E *)
+
+# CEngineDynamicMesh
+00581BE0 void CEngineDynamicMesh::_addRenderObj_lt1000(int, SceneObject2E *)
+00582180 void CEngineDynamicMesh::_addRenderObj_ge2000(int, SceneObject2E *)
+00582290 void CEngineDynamicMesh::_addRenderObj_lt2000(int, SceneObject2E *)
+00582CE0 void CEngineDynamicMesh::_addRenderObj(int, SceneObject2E *)
+
+# CEngineAnimMesh
+005836A0 void CEngineAnimMesh::addRenderObj_lt1000(int, SceneObject2E *)
+00583CA0 void CEngineAnimMesh::addRenderObj_ge2000(int, SceneObject2E *)
+00583DC0 void CEngineAnimMesh::addRenderObj_lt2000(int, SceneObject2E *)
+005848B0 void CEngineAnimMesh::_addRenderObj(int, SceneObject2E *)
+
+# CEngineStaticMesh
+00586150 void CEngineStaticMesh::_addRenderObj(int, SceneObject2E *)
+
+# CEngineDynamicHeightField
+005873A0 CEngineDynamicHeightField *CEngineDynamicHeightField::constructor(Vec3f *, int, float *, const void *, int, int, int, int, float, Color3f *, float)
+005875D0 void CEngineDynamicHeightField::_addRenderObj(int, SceneObject2E *)
+00587DA0 void CEngineDynamicHeightField::appendToSceneObject2EList(AppendObject2EArgs *)
+
+# CEngineUnlitProceduralMesh
+005884F0 void CEngineUnlitProceduralMesh::_addRenderObj(int, SceneObject2E *)
+
+# Triangle34
+00588B60 Triangle34 *__cdecl Triangle34_add(uint32_t)
+
+# MyEntryBuf_Triangle24
+00588C40 void __cdecl MyEntryBuf_Triangle24_add(int, int, int, int)
+
+# AtlasMeshGroup
+0058A150 void AtlasMeshGroup_performDrawCall()
+
+# RenderData
+0058ACB0 void __cdecl RenderData_addViewProj_m0(uint32_t, Vec3f *)
+0058AD10 void __cdecl RenderData_addViewProj_m1(uint32_t, Vec3f *)
+0058AD70 void __cdecl RenderData_addXyScaled(uint32_t, Vec3f *)
+0058ADC0 void __cdecl RenderData_addToArr_m1(uint32_t, Vec3f *)
+0058AF70 void __cdecl RenderData_addToArr_m0(uint32_t, Vec3f *)
+0058B190 void __cdecl RenderData_addZCapped(uint32_t, Vec3f *)
+0058B940 void __cdecl RenderData_apply_m0(uint32_t, uint32_t, uint32_t)
+0058B9D0 void __cdecl RenderData_apply_m1(uint32_t, uint32_t, uint32_t)
+
+# MyGridMeshObject
+0058F030 Vec3f *MyGridMeshObject::sampleGridPosition(float, float, float, Vec3f *)
+
+# MyCEngineSurfDesc
+00590260 void MyCEngineSurfDesc::initFromPixelFormat(_DDPIXELFORMAT *)
+
+# CEngineSurfaceBase
+00590450 int CEngineSurfaceBase::paintSurf(CEngineSurface *, int, int)
+00590520 int CEngineSurfaceBase::fill(int16_t)
+
+# CEngineCompressedSurface
+00590740 int CEngineCompressedSurface::copySurf(CEngineSurfaceBase *, int, int)
+005907D0 int CEngineCompressedSurface::paintSurf(CEngineSurface *, int, int)
+
 # CEngineDDSurface
 00590880 CEngineDDSurface *CEngineDDSurface::constructor(uint32_t, uint32_t, MyCEngineSurfDesc *, int)
 005909E0 void CEngineDDSurface::destructor()
+00590A40 int CEngineDDSurface::paintSurf(CEngineDDSurface *, int, int)
+00590A40 int CEngineDDSurface::paintSurf(CEngineDDSurface *, int, int)
+00590AC0 void *CEngineDDSurface::lockBuf()
+00590B20 HRESULT CEngineDDSurface::unlockBuf(int)
 
 # MyCESurfHandle
 00590EC0 void MyCESurfHandle::resolveSurface()
 005911E0 void MyCESurfHandle::loadPrescaled()
 
-# SurfaceHolder
-00591DA0 SurfaceHolder *__cdecl SurfaceHolder_create(uint32_t, MyCEngineSurfDesc *, int)
-00591ED0 int SurfaceHolder::calcWeight()
-00591FF0 void SurfaceHolder::drawSpecial_128x128(float, float)
-00592380 int SurfaceHolder::drawSpecial_128x128_mgsr(float, float)
+# RenderStageTex
+00591DA0 RenderStageTex *__cdecl RenderStageTex_create(uint32_t, MyCEngineSurfDesc *, int)
+00591ED0 int RenderStageTex::calcWeight()
+00591FF0 void RenderStageTex::drawSpecial_128x128(float, float)
+00592380 int RenderStageTex::drawSpecial_128x128_mgsr(float, float)
 
 # SurfHashList
 #00592890 SurfHashList *SurfHashList::clear()
@@ -371,22 +522,46 @@
 00594170 void SurfHashList::putNode(SurfHashListItem *)
 005941B0 void SurfHashList::expandPut(MyCESurfHandle *, SurfHashListItem *)
 00594790 void SurfHashList::deleteItem(SurfHashListItem *)
-005948D0 int SurfHashList::_probablySort()
+005948D0 void SurfHashList::_probablySort()
 
 # SurfHashList2
-00593F50 int SurfHashList2::_probablySort()
+00592BD0 char SurfHashList2::constructor(MyCEngineSurfDesc *, int, int)
+00593E10 int SurfHashList2::calcHandleCountToFitHolder()
+00593E90 void SurfHashList2::assignStageTex(RenderStageTex *)
+00593F50 void SurfHashList2::_probablySort()
+
+# Mat3x3f
+00594CB0 Mat3x3f *Mat3x3f::multiplyMat(Mat3x3f *, Mat3x3f *)
+00594DB0 Vec3f *Mat3x3f::multiplyVec(Vec3f *, Vec3f *)
+00594E10 Vec3f *Mat3x3f::multiplyVec_0(Vec3f *, Vec3f *)
 
 # CPCEngineInterface
+00598880 int CPCEngineInterface::updateCameraState(UpdateCameraStateArgs *)
 0059D7F0 int CPCEngineInterface::drawScene()
 0059D900 int CPCEngineInterface::init3d()
+005A2570 int CPCEngineInterface::createDynamicHeightField_water(uint32_t, uint32_t, CWorldEntry *, Obj448C20 *, int, int, Color3ub *, int)
+
+# MyNBitTexture
+005B3340 uint8_t *__cdecl MyNBitTexture_f14_renderIfInScreen(int, int, int, Bgraf)
+005B3490 int __cdecl MyNBitTexture_fC(AABB *, Bgraf)
+005B3710 void __cdecl MyNBitTexture_initWithSurf(MySurface *)
+005B37F0 void __cdecl MyNBitTexture_initWithSurfEx(MyDdSurfaceEx *)
+005C08E0 int MyNBitTexture::f8_5C08E0(AABB *, Bgraf)
+005C1400 uint8_t MyNBitTexture::f10_5C1400(int, int, int, Bgraf)
+005C4D40 char MyNBitTexture::f4_5C4D40(AABB *, Bgraf)
 
 # MyDdSurfaceEx
 005B5460 BOOL __cdecl MyDdSurfaceEx::restoreSurf_if_unk(MyDdSurfaceEx *)
+005B5490 int *__cdecl MyDdSurfaceEx_fillWithColor(int *, MyDdSurfaceEx *, tagRECT *, Bgraf, int)
+005B5BE0 int *__cdecl MyDdSurfaceEx_lock(int *, MyDdSurfaceEx *, void **)
+005B5C90 HRESULT __cdecl MyDdSurfaceEx_unlock(MyDdSurfaceEx *)
 005B80F0 void MyDdSurfaceEx::fillDesc(_DDSURFACEDESC *)
 005B8150 MySurface *MyDdSurfaceEx::updateDesc()
 
 # MyDdSurface
 005B5700 int *__cdecl MyDdSurface_createOffScreenSurface(int *, uint32_t, uint32_t, uint32_t, MyDdSurface *)
+005B57C0 int *__cdecl MyDdSurface_release(int *, MyDdSurface *)
+005B5CB0 IDirectDrawSurface *__cdecl MyDdSurface_addRef(MyDdSurface *, int)
 
 # WinEventHandlers
 005B9930 void WinEventHandlers::callList(int, void *)
@@ -406,6 +581,7 @@
 
 # MyInputManagerCb
 #005BB1C0 int *MyInputManagerCb::initMouse(int *)
+005BB2A0 int *MyInputManagerCb::setCursorIconAndDraw(int *, MyDdSurfaceEx *, AABB *, Pos2i *)
 
 # MyDxInputManagerCb
 005BC060 int *MyDxInputManagerCb::initMouse(int *)
@@ -416,8 +592,25 @@
 005BC760 int *__cdecl MyDxMouse_create(int *, MyDxMouse **)
 005DDA90 void MyDxMouse::handleData(int)
 
+# My32BitTexture
+005C4B50 void My32BitTexture::fun_5C4B50(int, int, Bgraf)
+005C4D90 void My32BitTexture::f1C_5C4D90(int, int, int, int, Bgraf)
+005C8810 void My32BitTexture::fun_5C8810(AABB *, Bgraf)
+
+# MyBitMask
+005D1090 uint32_t MyBitMask::constructor(int, uint32_t)
+
+# InputSurfBase
+005D9920 AABB *InputSurfBase::getOffScreenAabb(AABB *)
+
 # MyDxInputStateCb
 005DB630 void MyDxInputStateCb::call(int, void *)
+
+# InputCursor
+005DB8E0 void InputCursor::drawCursor(int)
+005DBA40 int *InputCursor::initAndUpdateAabb(int *, Pos2i *)
+005DBAC0 int *InputCursor::setIconAndDraw(int *, MyDdSurfaceEx *, AABB *, Pos2i *)
+005DBB10 void InputCursor::Event1_2Handler_updateCursor()
 
 # MyCb6723D0
 005DBCD0 void MyCb6723D0::call(int, void *)
@@ -425,6 +618,16 @@
 # MyCbHandle
 005DBD70 void MyCbHandle::add_MyCallback(uint32_t *, MyCallback *)
 005DBDC0 void MyCbHandle::release_MyCallback()
+
+# CursorDrawer
+005DBF80 void CursorDrawer::updateCursorAndDraw(Pos2i *, MyDdSurfaceEx *)
+005DC0B0 void CursorDrawer::nextFrame()
+005DC120 int *CursorDrawer::setCursorImage(int *, MyDdSurfaceEx *, AABB *, Pos2i *)
+005DC470 bool CursorDrawer::drawCursor()
+005DC530 bool CursorDrawer::drawCursorToScreenSurf()
+005DC580 void CursorDrawer::calcCursorAabbFromMouse(Pos2i *)
+005DC7D0 int *CursorDrawer::resetCursorSize(int *)
+005DC830 void CursorDrawer::updateCursorAndForceDraw(Pos2i *, MyDdSurface *, MyDdSurfaceEx *, char, char)
 
 # MyDxDevice
 005DCCB0 HINSTANCE MyDxDevice::getHInstance()
@@ -438,18 +641,63 @@
 # MyDxKeyboard
 005DE260 int MyDxKeyboard::processKeyboardData(int)
 
+# CursorSurf
+005F8100 int *CursorSurf::create(int *, Pos2i *, uint32_t)
+
+# MySurfDesc
+00600D40 BOOL MySurfDesc::eq(MySurfDesc *)
+
 # MySnd_ListThread
 0060D630 void MySnd_ListThread::destructor()
 
 # MyUnk67457C
 0061C090 int MyUnk67457C::sub_61C090()
 
+# CEngineSurface
+00628BB0 void *CEngineSurface::getBuf()
+
+# MyTextRenderer
+0062CAE0 int *MyTextRenderer::renderText(int *, AABB *, uint8_t *, FontObj *, AABB *)
+
+# MyDR0
+0062E5F0 int MyDR0::doRender(Pos2i *, MyCharRenderCtx *, AABB *, AABBc *)
+0062E610 int MyDR0::doCalcAabbOrRender(int, Pos2i *, MyCharRenderCtx *, AABB *, AABBc *)
+
+# MyCR0
+0062F230 int MyCR0::chars_doCalcAabbAndRenderInMiddle(AABB *, MyMultilineRenderCtx *, AABB *, AABBc *)
+
+# MyCR1
+0062F310 int MyCR1::chars_doCalcAabbAndRenderInMiddle(AABB *, MyMultilineRenderCtx *, AABB *, AABBc *)
+
+# MyCR2
+0062F430 int MyCR2::chars_doCalcAabbAndRenderInMiddle(AABB *, MyMultilineRenderCtx *, AABB *, AABBc *)
+
+# MyTRBase
+0062F510 int MyTRBase::linesOneTypeEx_doDrawOrCalcAabb(int, AABB *, MyTRArgs *, AABB *, AABBc *)
+
+# MyTR4
+0062F6C0 int MyTR4::linesOneTypeEx_doCalcAabbAndDraw_verticalMiddle(AABB *, MyTRArgs *, AABB *, AABBc *)
+
+# MyTR5
+0062F790 int MyTR5::linesOneTypeEx_doCalcAabbAndDraw_verticalMiddle(AABB *, MyTRArgs *, AABB *, AABBc *)
+
+# MyTR2
+0062F8A0 int MyTR2::linesOneTypeEx_doCalcAabbAndDraw_verticalMiddle(AABB *, MyTRArgs *, AABB *, AABBc *)
+
+# MyTR6
+0062F940 int MyTR6::linesOneTypeEx_doCalcAabbAndDraw_verticalMiddle(AABB *, MyTRArgs *, AABB *, AABBc *)
+
+# FontObjWr
+0062FBB0 int *FontObjWr::renderChar(int *, Pos2i *, int, AABB *)
+
+# MyFontRenderer4
+006311E0 int *MyFontRenderer4::render_r8g8b8a8(int *, MySurface *, CharRenderCtx *)
+
+# MyFontRendererBase
+006337A0 int *MyFontRendererBase::renderChar(int *, Pos2i *, int, AABB *, FontObj *)
+
 # globals
+0068F638 StubStruc68F650 g_interfaceCursorArr[16]
 006AC8A0 NameCfg g_soundNameList[38]
 006C3D30 MySurfDesc *g_confSurfDescArr[20]
-
-0053EF60 int fun_53EF60(uint8_t, uint8_t);  // -------  /* auto */
-005463B0 int __cdecl CButton_handleLeftClick_5463B0(int, int, CFrontEndComponent *);  /* auto */
-0053EE40 int randomizeMap(uint8_t, uint8_t);  // -----  /* auto */
-00546360 int __cdecl CButton_handleLeftClick_randomMap(int, int, CFrontEndComponent *);  /* auto */
 

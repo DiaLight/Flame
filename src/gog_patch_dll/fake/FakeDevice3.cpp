@@ -7,8 +7,13 @@
 #include <fake/FakeSurface.h>
 #include <fake/FakeTexture.h>
 #include <gog_debug.h>
-#include <dk2/TexCoord.h>
-#include <dk2/Vertex1C.h>
+#include <dk2/utils/TexCoord.h>
+#include <dk2/MyD3D3Vertex.h>
+//#include <d3d9helper.h>
+
+#define _FACD3D  0x876
+#define MAKE_D3DHRESULT( code )  MAKE_HRESULT( 1, _FACD3D, code )
+#define D3DERR_INVALIDCALL                      MAKE_D3DHRESULT(2156)
 
 using namespace gog;
 
@@ -227,7 +232,9 @@ HRESULT FakeDevice3::BeginScene(void) {
             rect.y2 = gog::g_dwHeight * cfg::iAntialias;
         }
         hr = orig::pIDirect3DViewport3->Clear2(1, &rect, 2, 0xFF00FF00, 1.0, 0);
-        if (FAILED(hr)) gog_assert_failed("FakeDevice3::BeginScene:837");
+        if(hr != D3DERR_INVALIDCALL) {  // wine throws this error on alt+tab. ignore
+            if (FAILED(hr)) gog_assert_failed_hr("FakeDevice3::BeginScene:837", hr);
+        }
         g_isFlip = false;
     }
     if (orig::pIDirectDrawSurface4_zbuf) {
@@ -401,10 +408,10 @@ FakeDevice3::DrawIndexedPrimitive(D3DPRIMITIVETYPE primitive_type, DWORD fvf, LP
 
     if (fvf == Vertex1C_TypeDesc) {
         if (vertex_count) {
-            dk2::Vertex1C *pos = (dk2::Vertex1C *) vertices;
+            dk2::MyD3D3Vertex *pos = (dk2::MyD3D3Vertex *) vertices;
             int vertex_left = vertex_count;
             do {
-                if (pos->z < 0.0 || pos->z > 1.0) gog_assert_failed("FakeDevice3::DrawIndexedPrimitive:929");
+                if (pos->vec.z < 0.0 || pos->vec.z > 1.0) gog_assert_failed("FakeDevice3::DrawIndexedPrimitive:929");
                 ++pos;
                 --vertex_left;
             } while (vertex_left);
@@ -413,29 +420,29 @@ FakeDevice3::DrawIndexedPrimitive(D3DPRIMITIVETYPE primitive_type, DWORD fvf, LP
             unsigned int lastVertesIdx = 0;
             if (vertex_count >= 4) {
                 unsigned int quadsLeft = ((unsigned int) (vertex_count - 4) >> 2) + 1;
-                dk2::Vertex1C *quad = (dk2::Vertex1C *) vertices;
+                dk2::MyD3D3Vertex *quad = (dk2::MyD3D3Vertex *) vertices;
                 double dAntialias = (float) cfg::iAntialias;
                 lastVertesIdx = 4 * quadsLeft;
                 do {
-                    quad[0].x = dAntialias * quad[0].x;
-                    quad[0].y = dAntialias * quad[0].y;
-                    quad[1].x = dAntialias * quad[1].x;
-                    quad[1].y = dAntialias * quad[1].y;
-                    quad[2].x = dAntialias * quad[2].x;
-                    quad[2].y = dAntialias * quad[2].y;
-                    quad[3].x = dAntialias * quad[3].x;
-                    quad[3].y = dAntialias * quad[3].y;
+                    quad[0].vec.x = dAntialias * quad[0].vec.x;
+                    quad[0].vec.y = dAntialias * quad[0].vec.y;
+                    quad[1].vec.x = dAntialias * quad[1].vec.x;
+                    quad[1].vec.y = dAntialias * quad[1].vec.y;
+                    quad[2].vec.x = dAntialias * quad[2].vec.x;
+                    quad[2].vec.y = dAntialias * quad[2].vec.y;
+                    quad[3].vec.x = dAntialias * quad[3].vec.x;
+                    quad[3].vec.y = dAntialias * quad[3].vec.y;
                     quad += 4;
                     --quadsLeft;
                 } while (quadsLeft);
             }
             if (lastVertesIdx < vertex_count) {
-                dk2::Vertex1C *vertex = ((dk2::Vertex1C *) vertices) + lastVertesIdx;
+                dk2::MyD3D3Vertex *vertex = ((dk2::MyD3D3Vertex *) vertices) + lastVertesIdx;
                 double dAntialias = (float) cfg::iAntialias;
                 unsigned int vertexLeft = vertex_count - lastVertesIdx;
                 do {
-                    vertex->x = dAntialias * vertex->x;
-                    vertex->y = dAntialias * vertex->y;
+                    vertex->vec.x = dAntialias * vertex->vec.x;
+                    vertex->vec.y = dAntialias * vertex->vec.y;
                     ++vertex;
                     --vertexLeft;
                 } while (vertexLeft);

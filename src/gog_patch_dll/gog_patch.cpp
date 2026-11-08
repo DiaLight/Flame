@@ -15,7 +15,7 @@ flame_config::define_flame_option<bool> o_gog_enabled(
 );
 
 bool gog::RtGuiView_fix::isEnabled() { return true; }
-bool gog::SurfaceHolder_setTexture_patch::isEnabled() { return true; }
+bool gog::RenderStageTex_setTexture_patch::isEnabled() { return true; }
 
 bool gog::RegistryConfig_patch::isEnabled() { return *o_gog_enabled; }
 bool gog::parseCommandLine_patch::isEnabled() { return *o_gog_enabled; }

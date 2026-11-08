@@ -10,6 +10,8 @@
 #include "game_engine.h"
 #include "gog_exports.h"
 #include "gog_patch.h"
+#include "patches/opengl/opengl_patch.h"
+#include "patches/logging.h"
 
 
 dk2::MyDdSurfaceEx zeroSurf() {
@@ -129,6 +131,10 @@ unsigned int dk2::InputSurf::isSurfaceFlag() {
 }
 
 int *__cdecl dk2::ge_createDirectDrawObject(int *pstatus, GUID *lpGUID, LPDIRECTDRAW *lplpDD) {
+    if(patch::opengl_patch::enabled) {
+       patch::log::dbg("should not happen");
+       throw std::exception("should not happen");
+    }
     HRESULT hresult;
     if(*o_gog_enabled) {
         hresult = fake_DirectDrawCreate(lpGUID, lplpDD, NULL);

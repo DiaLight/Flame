@@ -57,11 +57,11 @@ namespace dk2 {
                     NULL, NULL, getHInstance(), NULL);
                 if (!hWindow) return *pstatus = -1, pstatus;
             }
-            if (lpDD->SetCooperativeLevel(hWindow, 0x55)) {
+            if (lpDD->SetCooperativeLevel(hWindow, DDSCL_ALLOWMODEX | DDSCL_EXCLUSIVE | DDSCL_NOWINDOWCHANGES | DDSCL_FULLSCREEN)) {
                 return *pstatus = -1, pstatus;
             }
             lpDD->EnumDisplayModes(0, NULL, this, lpCallback);
-            lpDD->SetCooperativeLevel(hWindow, 8);
+            lpDD->SetCooperativeLevel(hWindow, DDSCL_NORMAL);
             if (!hWnd) DestroyWindow(hWindow);
         } else {
             lpDD->EnumDisplayModes(0, NULL, this, lpCallback);

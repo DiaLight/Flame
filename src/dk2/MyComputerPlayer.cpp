@@ -20,6 +20,7 @@
 #include "dk2_functions.h"
 #include "dk2_globals.h"
 #include "patches/micro_patches.h"
+#include "room_type.h"
 
 int abs32(int v) {
     return v < 0 ? -v : v;
@@ -440,3 +441,55 @@ int dk2::MyComputerPlayer::tick() {
     return 1;
 }
 
+
+namespace dk2 {
+    bool RoomType_unkFilter(CRoom_typeId roomTy) {
+        return roomTy != CRoom_typeId_WoodenBridge
+               && roomTy != CRoom_typeId__StoneBridge
+               && roomTy != CRoom_typeId_unk_22
+               && roomTy != CRoom_typeId_DungeonHeart
+               && roomTy != CRoom_typeId_GuardPost
+               && roomTy != CRoom_typeId_Entrance;
+    }
+}
+
+int __thiscall dk2::MyComputerPlayer::fun_4F93B0() {
+    if ((this->flags & 0x10) != 0) return 0;
+
+    for (uint8_t v3_i = 1; v3_i <= 26u; ++v3_i) {
+        uint8_t roomTy = v3_i <= 15u ? this->roomList[v3_i - 1] : v3_i;
+        if (roomTy == 0) continue;
+        if (this->cplayer->fun_4BAB20(roomTy) != 3) continue;
+        CRoom *v12PCRoom;
+        if (this->cplayer->findRoomOfType(roomTy, &v12PCRoom)) continue;
+        if (!RoomType_unkFilter((CRoom_typeId) roomTy)) continue;
+        if (roomTy == (this->currentRoomToBuild & 0x7F)) continue;
+        this->flags |= 0x10;
+        this->nextRoomToBuild = roomTy;
+        break;
+    }
+
+    // if room not found
+    if ((this->flags & 0x10) == 0) {
+        for(uint8_t v6_j = 1; v6_j <= 26u; ++v6_j) {
+            uint8_t roomTy = v6_j <= 15u ? this->roomList[v6_j] : v6_j;
+            if (!roomTy) continue;
+            if (this->cplayer->fun_4BAB20(roomTy) != 2) continue;
+            CRoom *v12_pCRoom;
+            if (this->cplayer->findRoomOfType(roomTy, &v12_pCRoom) != 0) continue;
+            if (!RoomType_unkFilter((CRoom_typeId) roomTy)) continue;
+            if (roomTy == (this->currentRoomToBuild & 0x7F)) continue;
+            this->flags |= 0x10;
+            this->nextRoomToBuild = 229;
+            break;
+        }
+    }
+
+    // still not found
+    if ((this->flags & 0x10) == 0) {
+        this->flags |= 0x30;
+        this->nextRoomToBuild = CRoom_typeId_Entrance;
+        return 0;
+    }
+    return 1;
+}

@@ -7,61 +7,60 @@
 #include "dk2/MySurfaceWrapper.h"
 #include "dk2/MyStringHashMap_MyCESurfHandle_entry.h"
 #include "dk2/MyCESurfScale.h"
+#include "dk2/math/color.h"
 #include "dk2_functions.h"
 #include "dk2_globals.h"
+#include "RenderState_flags.h"
 
 
 dk2::MyScaledSurface *dk2::MyScaledSurface::constructor(MyDblNamedSurface *surfdn_, int idx) {
     MySurfaceWrapper surfw;
     this->idx = idx;
-    this->vec = *(Vec3f*) &surfdn_->initx;
-    this->vec.x = this->vec.x * 255.0;
-    this->vec.y = this->vec.y * 255.0;
-    this->vec.z = this->vec.z * 255.0;
+    this->color21 = surfdn_->color50 * 255.0;
     this->surfh = NULL;
-    this->f1D = surfdn_->init0;
+    this->colorMult = surfdn_->colorMult;
     this->nextPrescaledItem = NULL;
-    this->drawFlags = 0x1C0;
+    this->renderFlags = RenderState_zEnable | RenderState_zWriteEnable | RenderState_useLightSplat;
     this->flags = surfdn_->flags;
     if ((this->flags & 0x100) == 0) {
-        this->drawFlags = 0x5C0;
+        this->renderFlags |= RenderState_linearFiltering;
     }
     if ((this->flags & 0x10) != 0) {
-        this->drawFlags &= ~0xC0;
-        this->drawFlags |= 0x201;
-        this->vec.x = 255.0;
-        this->vec.y = 255.0;
-        this->vec.z = 255.0;
+        this->renderFlags &= ~(RenderState_useLightSplat | RenderState_zWriteEnable);
+        this->renderFlags |= RenderState_use3DPipeline | RenderState_alphaBlendOne;
+        this->color21.r = 255.0;
+        this->color21.g = 255.0;
+        this->color21.b = 255.0;
     }
     if ((this->flags & 1) != 0) {
-        this->drawFlags &= ~0x80;
-        this->drawFlags |= 0x222;
+        this->renderFlags &= ~RenderState_zWriteEnable;
+        this->renderFlags |= RenderState_use3DPipeline | RenderState_alphaBlendSrc | RenderState_fl2;
     }
     if ((this->flags & 0x400) != 0) {
-        this->drawFlags &= ~0x80;
-        this->drawFlags |= 0x1200u;
+        this->renderFlags &= ~RenderState_zWriteEnable;
+        this->renderFlags |= RenderState_use3DPipeline | RenderState_alphaBlendInvSrc;
     }
     if ((this->flags & 0xE) != 0) {
-        this->drawFlags &= ~0x80;
-        this->drawFlags |= 0x220;
+        this->renderFlags &= ~RenderState_zWriteEnable;
+        this->renderFlags |= RenderState_use3DPipeline | RenderState_alphaBlendSrc;
     }
     if ((this->flags & 0x40) != 0) {
-        this->drawFlags &= ~0x40u;
+        this->renderFlags &= ~RenderState_useLightSplat;
     }
     if ((this->flags & 0x200) != 0) {
-        this->drawFlags |= 0x800u;
+        this->renderFlags |= RenderState_fl800;
         surfw.constructor(1, surfdn_->name, 0);
         int i = MySurfaceWrapper_createPrescaled(&surfw, 0);
         this->surfh = MyStringHashMap_MyCESurfHandle_instance.entries.buf[i].value;
     }
     this->prob_height = surfdn_->init1__height;
     this->prob_width = surfdn_->init1__width;
-    this->scaledSurfArr = (MyCESurfScale*) MyHeap_alloc(16 * this->prob_height * surfdn_->init1__width);
+    this->scaledSurfArr = (MyCESurfScale*) MyHeap_alloc(sizeof(MyCESurfScale) * this->prob_height * this->prob_width);
     if ((this->flags & 0x800) != 0) {
-        this->drawFlags |= 0x2000u;
+        this->renderFlags |= RenderState_fl2000;
         surfw.withData(5, *surfdn_->pNames, surfdn_->blWidth, surfdn_->blHeight);
         int i = MySurfaceWrapper_createPrescaled(&surfw, 1);
-        this->scaledSurfArr->surfScaledArr[0] = MyStringHashMap_MyCESurfHandle_instance.entries.buf[i].value;
+        this->scaledSurfArr[0].surfScaledArr[0] = MyStringHashMap_MyCESurfHandle_instance.entries.buf[i].value;
         return this;
     }
     if ((this->flags & 0x4000) != 0) {
@@ -89,12 +88,12 @@ dk2::MyScaledSurface *dk2::MyScaledSurface::constructor(MyDblNamedSurface *surfd
     if ((this->flags & 0x8000) != 0) {
         surfw.sub_590B70(0x10, *surfdn_->pNames, &surfdn_->surf);
         int i = MySurfaceWrapper_createPrescaled(&surfw, 1);
-        this->scaledSurfArr->surfScaledArr[0] = MyStringHashMap_MyCESurfHandle_instance.entries.buf[i].value;
+        this->scaledSurfArr[0].surfScaledArr[0] = MyStringHashMap_MyCESurfHandle_instance.entries.buf[i].value;
         return this;
     }
     surfw.withData(0, *surfdn_->pNames, surfdn_->blWidth, surfdn_->blHeight);
     int i = MySurfaceWrapper_createPrescaled(&surfw, 1);
-    this->scaledSurfArr->surfScaledArr[0] = MyStringHashMap_MyCESurfHandle_instance.entries.buf[i].value;
+    this->scaledSurfArr[0].surfScaledArr[0] = MyStringHashMap_MyCESurfHandle_instance.entries.buf[i].value;
     return this;
 }
 

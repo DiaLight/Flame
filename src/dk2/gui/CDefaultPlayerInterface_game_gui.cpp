@@ -9,6 +9,7 @@
 #include "dk2/entities/CObject.h"
 #include "dk2/entities/data/MyObjectDataObj.h"
 #include "dk2/gui/game/game_layout.h"
+#include "patches/opengl/opengl_patch.h"
 
 
 int dk2::CDefaultPlayerInterface::fun_402D00(uint16_t a2_playerSceneId) {
@@ -42,11 +43,16 @@ int dk2::CDefaultPlayerInterface::fun_402D00(uint16_t a2_playerSceneId) {
     CBridge *f10_c_bridge = this->pGameSession->pBridge;
     g_isSomthingReady_006CE008 = 1;
     int v11_status[3];
-    if (*MyDdSurface_createOffScreenSurface(v11_status, 0x100u, 0x100u, 0x800u, &g_GameMapForeground_surf.dd_surf) >= 0) {
-        MyDblNamedSurface surfdn;
-        surfdn.constructor("MapOverlay", "MapOver", 2, 0, 1);
-        g_idx = MyEntryBuf_MyScaledSurface_create(&surfdn, 1);
-        FSMAP_load_403060();
+
+    if (patch::opengl_patch::enabled) {
+        patch::opengl_patch::createOglTexture(g_GameMapForeground_surf, 256, 256, false);
+    } else {
+        if (*MyDdSurface_createOffScreenSurface(v11_status, 256, 256, DDSCAPS_SYSTEMMEMORY, &g_GameMapForeground_surf.dd_surf) >= 0) {
+            MyDblNamedSurface surfdn;
+            surfdn.constructor("MapOverlay", "MapOver", 2, 0, 1);
+            g_idx = MyEntryBuf_MyScaledSurface_create(&surfdn, 1);
+            FSMAP_load_403060();
+        }
     }
 
     MyRenderInit_Sprite v12_init;
@@ -127,7 +133,7 @@ int dk2::CDefaultPlayerInterface::fun_4098D0() {
         this->f12DA.nextIdx = v4_idx;
         this->f12DA.currentCursorIdx = v4_idx;
         this->f12DA.timeMs = getTimeMs();
-        this->f12DA.dword_10 = 0;
+        this->f12DA.cursorFrameIdx = 0;
     }
     this->_someTy = 0;
     return 1;

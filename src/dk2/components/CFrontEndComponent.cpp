@@ -25,6 +25,8 @@
 #include "weanetr_dll/globals.h"
 #include "patches/preselected_map.h"
 #include <bit>
+#include "patches/opengl/opengl_patch.h"
+
 
 void dk2::CFrontEndComponent::showTitleScreen() {
     char Buffer[260];
@@ -88,8 +90,9 @@ dk2::CComponent *dk2::CFrontEndComponent::mainGuiLoop() {
             *(void **) &sysCmd = TbSysCommand_Process::vftable;
             int status;
             g_MySound_ptr->v_fun_567A40(&status, &sysCmd);
-            if (this->draw2dGui_0())
+            if (this->draw2dGui_0()) {
                 MyWindow_instance.prepareScreen();
+            }
             g_lastRedawTime = nowMs + 16;
         }
         if (isAppExitStatusSet())
@@ -527,18 +530,25 @@ int dk2::CFrontEndComponent::launchGame() {
                this->isUseFe3d == 1
                )) return 0;
     this->pMyDdSurfaceEx = MyWindow_instance.getCurOffScreenSurf();
+
     int status;
-    MyDdSurfaceEx_fillWithColor(
-        &status, MyWindow_instance.getCurOffScreenSurf(), NULL,
-        Bgraf {0, 0, 0, 0xFF, 0}, 0
-    );
-    MyDdSurfaceEx_fillWithColor(
-        &status,
-        &g_primarySurf,  // MyInputManagerCb_instance.inputSurf.v_getPrimarySurf(),  // 0079D200 &g_primarySurf
-        NULL,
-        Bgraf {0, 0, 0, 0xFF, 0}, 0
-    );
-    Sleep(50u);
+    if(patch::opengl_patch::enabled) {
+        // fill with black
+        patch::opengl_patch::fillWithColor(*MyWindow_instance.getCurOffScreenSurf(), NULL, Bgraf {0, 0, 0, 0, 0});
+        patch::opengl_patch::fillWithColor(g_primarySurf, NULL, Bgraf {0, 0, 0, 0, 0});
+    } else {
+        MyDdSurfaceEx_fillWithColor(
+                &status, MyWindow_instance.getCurOffScreenSurf(), NULL,
+                Bgraf {0, 0, 0, 0xFF, 0}, 0
+        );
+        MyDdSurfaceEx_fillWithColor(
+                &status,
+                &g_primarySurf,  // MyInputManagerCb_instance.inputSurf.v_getPrimarySurf(),  // 0079D200 &g_primarySurf
+                NULL,
+                Bgraf {0, 0, 0, 0xFF, 0}, 0
+        );
+        Sleep(50u);
+    }
     if (!is_welcome_shown) {
         this->showTitleScreen();
         MCI_OPEN_PARMS openParams;
@@ -560,16 +570,22 @@ int dk2::CFrontEndComponent::launchGame() {
     CWorld_instance.showLoadingScreen();
     CWorld_instance.releaseLoadingScreenSurface();
     RECT v16_rect{12, 435, 201, 473};
-    MyDdSurfaceEx_fillWithColor(
-        &status, MyWindow_instance.getCurOffScreenSurf(), &v16_rect,
-        Bgraf {0, 0, 0, 0xFF, 0}, 0
-    );
-    MyDdSurfaceEx_fillWithColor(
-        &status,
-        &g_primarySurf,  // MyInputManagerCb_instance.inputSurf.v_getPrimarySurf(),  // 0079D200 &g_primarySurf
-        &v16_rect,
-        Bgraf {0, 0, 0, 0xFF, 0}, 0
-    );
+
+    if(patch::opengl_patch::enabled) {
+        patch::opengl_patch::fillWithColor(*MyWindow_instance.getCurOffScreenSurf(), &v16_rect, Bgraf {0, 0, 0, 0, 0});
+        patch::opengl_patch::fillWithColor(g_primarySurf, &v16_rect, Bgraf {0, 0, 0, 0, 0});
+    } else {
+        MyDdSurfaceEx_fillWithColor(
+                &status, MyWindow_instance.getCurOffScreenSurf(), &v16_rect,
+                Bgraf {0, 0, 0, 0xFF, 0}, 0
+        );
+        MyDdSurfaceEx_fillWithColor(
+                &status,
+                &g_primarySurf,  // MyInputManagerCb_instance.inputSurf.v_getPrimarySurf(),  // 0079D200 &g_primarySurf
+                &v16_rect,
+                Bgraf {0, 0, 0, 0xFF, 0}, 0
+        );
+    }
     g_flags_74034C = g_flags_74034C & ~0x80;
     this->sub_533E90();
     *(DWORD *)&this->f6701 = 0;
@@ -879,32 +895,33 @@ void dk2::CFrontEndComponent::TcpIpInternet_updateStatusLine(unsigned int a1) {
     if (MyWindow_instance.isWindowed != 0) return;
     MyDdSurfaceEx *PrimarySurf = &g_primarySurf; // MyInputManagerCb_instance.inputSurf.v_getPrimarySurf(),  // 0079D200 &g_primarySurf
     int status;
-    if ( *MyDdSurfaceEx_resolveDesc(&status, PrimarySurf, 0) < 0 ) return;
-    unsigned __int8 *MbString = MyMbStringList_idx1091_getMbString(a1);
-    strcpy((char *) this->mbStr, (const char *)MbString);
-    CButton *foundButton = NULL;
-    for (
-        CButton *f66_buttons = this->cgui_manager.findGameWindowById(11)->f66_buttons;
-        f66_buttons; f66_buttons = f66_buttons->f78_next) { // tcpip internet / status line
-        if (f66_buttons->f70_id != 532) continue;
-        foundButton = f66_buttons;
-        break;
+    if (*MyDdSurfaceEx_lock(&status, PrimarySurf, 0) >= 0) {
+        unsigned __int8 *MbString = MyMbStringList_idx1091_getMbString(a1);
+        strcpy((char *) this->mbStr, (const char *) MbString);
+        CButton *foundButton = NULL;
+        for (
+                CButton *f66_buttons = this->cgui_manager.findGameWindowById(11)->f66_buttons;
+                f66_buttons; f66_buttons = f66_buttons->f78_next) { // tcpip internet / status line
+            if (f66_buttons->f70_id != 532) continue;
+            foundButton = f66_buttons;
+            break;
+        }
+        MySurface a1_surf;
+        a1_surf.constructor_empty();
+        MySurface *v7_surf = g_MyNBitTexture_myRenderSurface;
+        MyDdSurfaceEx *v8_primSurf = &g_primarySurf;  // MyInputManagerCb_instance.inputSurf.v_getPrimarySurf(),  // 0079D200 &g_primarySurf
+        MySurface_copyFromSurf(&a1_surf, v8_primSurf);
+        MyNBitTexture_initWithSurf(&a1_surf);
+        AABB v11_aabb;
+        foundButton->getScreenAABB(&v11_aabb);
+        AABB v12_aabb;
+        v11_aabb = *this->cgui_manager.scaleAabb_2560_1920(&v12_aabb, &v11_aabb);
+        MyNBitTexture_fC(&v11_aabb, this->color30319);
+        CButton_render_546150(foundButton, this);
+        MyNBitTexture_initWithSurf(v7_surf);
+        MyDdSurfaceEx *v9 = &g_primarySurf;  // MyInputManagerCb_instance.inputSurf.v_getPrimarySurf(),  // 0079D200 &g_primarySurf
+        MyDdSurfaceEx_unlock(v9);
     }
-    MySurface a1_surf;
-    a1_surf.constructor_empty();
-    MySurface *v7_surf = g_myRenderSurface;
-    MyDdSurfaceEx *v8_primSurf = &g_primarySurf;  // MyInputManagerCb_instance.inputSurf.v_getPrimarySurf(),  // 0079D200 &g_primarySurf
-    MySurface_copyFromSurf(&a1_surf, v8_primSurf);
-    setDrawSurface(&a1_surf);
-    AABB v11_aabb;
-    foundButton->getScreenAABB(&v11_aabb);
-    AABB v12_aabb;
-    v11_aabb = *this->cgui_manager.scaleAabb_2560_1920(&v12_aabb, &v11_aabb);
-    MyNBitTexture_fC(&v11_aabb, this->color30319);
-    CButton_render_546150(foundButton, this);
-    setDrawSurface(v7_surf);
-    MyDdSurfaceEx *v9 = &g_primarySurf;  // MyInputManagerCb_instance.inputSurf.v_getPrimarySurf(),  // 0079D200 &g_primarySurf
-    MyDdSurfaceEx_unlock(v9);
 }
 
 int __cdecl dk2::CFrontEndComponent_onKeyboardActionWithCtrl(
@@ -1087,3 +1104,24 @@ int __cdecl dk2::CButton_handleLeftClick_randomMap(int a1, int a2, CFrontEndComp
     wchar_t *MapName = a3_front->getMapName();
     return a3_front->loadMapThumbnail(MapName);
 }
+
+
+int dk2::CFrontEndComponent::draw2dGui_0() {
+    this->pMyDdSurfaceEx = MyWindow_instance.getCurOffScreenSurf();
+    MyWindow_instance.getMousePos();
+    if (MyWindow_instance.getSurf_lock() != 0) {
+        MySurface surf;
+        this->surf65_btnRenderOut = *surf.copySurfFrom(this->pMyDdSurfaceEx);
+        this->cgui_manager.doDraw2dGui(this);
+        CWindow *GameWindowById = this->cgui_manager.findGameWindowById(47);
+        if (this->usingIme == 1 && GameWindowById->f44_isCurrent == 1)
+            CButton_sub_547C20(GameWindowById->f66_buttons, this);
+        MyWindow_instance.getSurf_unlock();
+    }
+    return 1;
+}
+
+int dk2::CFrontEndComponent::draw2dGui() {
+    return this->draw2dGui_0();
+}
+

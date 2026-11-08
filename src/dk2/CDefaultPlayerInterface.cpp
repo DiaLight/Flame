@@ -2,6 +2,7 @@
 // Created by DiaLight on 10.09.2024.
 //
 #include "dk2/CDefaultPlayerInterface.h"
+#include "dk2/MyDblNamedSurface.h"
 #include "dk2/entities/CCreature.h"
 #include "dk2/entities/CDeadBody.h"
 #include "dk2/entities/CObject.h"
@@ -12,6 +13,7 @@
 #include "dk2/entities/data/MyTrapDataObj.h"
 #include "dk2/network/MessageData.h"
 #include "dk2/world/map/MyMapElement.h"
+#include "dk2/sound/TbSysCommand_SetHandPosition.h"
 #include "dk2_functions.h"
 #include "dk2_globals.h"
 #include "dk2_memory.h"
@@ -19,6 +21,10 @@
 #include "patches/big_resolution_fix/expand_surf_idx_array.h"
 #include "patches/micro_patches.h"
 #include "tools/bug_hunter.h"
+#include "patches/opengl/opengl_patch.h"
+#include "tools/visual_debug.h"
+#include "dk2/math/q12_utils.h"
+
 #if __has_include(<dk2_research.h>)
    #include <dk2_research.h>
 #endif
@@ -224,9 +230,9 @@ namespace dk2 {
         }
         if (thingInHand == nullptr) return false;
         if(patch::drop_thing_from_hand_fix::enabled) {
-            if (!self->pCWorld->v_isCoordReachable_510000(a3_underHand->x, a3_underHand->y)) return true;
+            if (!self->pCWorld->v_isCoordReachable_510000(a3_underHand->x8, a3_underHand->yC)) return true;
         }
-        if (self->checkAllowToDrop((CThing *) sceneObjects[thingInHand->tagId], a3_underHand->x, a3_underHand->y)) {
+        if (self->checkAllowToDrop((CThing *) sceneObjects[thingInHand->tagId], a3_underHand->x8, a3_underHand->yC)) {
             thingInHand->hasUnderHand = 1;
             static_assert(sizeof(ObjUnderHand) == 0x22);
             memcpy(&thingInHand->underHand, a3_underHand, sizeof(ObjUnderHand));
@@ -380,9 +386,9 @@ void dk2::CDefaultPlayerInterface::handleRightClick(unsigned int a2_isPressed, O
     int thingInHandIdx = this->pCWorld->v_getNumThingsInPlayerHand_5094D0(this->playerTagId) - 1;
     uint16_t v36_thingInHandTagId;
     if (!this->pCWorld->v_getThingInPlayerHand_5094F0(this->playerTagId, thingInHandIdx, &v36_thingInHandTagId)) return;
-    if (!this->pCWorld->v_isCoordReachable_510000(a3_underHand->x, a3_underHand->y)) return;
+    if (!this->pCWorld->v_isCoordReachable_510000(a3_underHand->x8, a3_underHand->yC)) return;
     CThing *thingInHand = (CThing *) sceneObjects[v36_thingInHandTagId];
-    if (!this->checkAllowToDrop(thingInHand, a3_underHand->x, a3_underHand->y)) return;
+    if (!this->checkAllowToDrop(thingInHand, a3_underHand->x8, a3_underHand->yC)) return;
     this->pushDropThingFromHandAction(thingInHand, a3_underHand);
 }
 
@@ -559,10 +565,10 @@ void dk2::CDefaultPlayerInterface::tickThingsInHand() {
 
 namespace dk2 {
 
-    GameAction buildDropItemAction(CDefaultPlayerInterface *self, int x_if12, int y_if12, uint16_t tagId) {
+    GameAction buildDropItemAction(CDefaultPlayerInterface *self, Q12 x_if12, Q12 y_if12, uint16_t tagId) {
         GameAction act;
-        act.data1 = x_if12;  // x
-        act.data2 = y_if12;  // y
+        act.data1 = x_if12.value;  // x
+        act.data2 = y_if12.value;  // y
         uint16_t v19_direction = self->pGameSession->pBridge->v_fD0_getCamera()->direction;
         act.data3 = tagId | (v19_direction << 16);
         act.actionKind = 61;  // DropItemFromHand
@@ -594,15 +600,15 @@ namespace dk2 {
  *     00525370 CGameComponent_mainGuiLoop
  */
 void dk2::CDefaultPlayerInterface::pushDropThingFromHandAction(CThing *a2_thing, ObjUnderHand *a3_underHand) {
-    int v21_try;
+    int try_level;
     if (a2_thing->fE_type == 0) {  // CCreature
         GameAction act = buildDropItemAction(
                 this, a3_underHand->x_if12, a3_underHand->y_if12, 0
         );
         // will go to 00513650 and then 004C0EE0
-        v21_try = 0;
+        try_level = 0;
         this->pushAction(&act);
-        v21_try = -1;
+        try_level = -1;
         this->f12DA.sub_40ABC0(8, 0);
         return;
     }
@@ -613,9 +619,9 @@ void dk2::CDefaultPlayerInterface::pushDropThingFromHandAction(CThing *a2_thing,
                 GameAction act = buildDropItemAction(
                         this, a3_underHand->x_if12, a3_underHand->y_if12, a3_underHand->tagId
                 );
-                v21_try = 1;
+                try_level = 1;
                 this->pushAction(&act);
-                v21_try = -1;
+                try_level = -1;
                 this->f12DA.sub_40ABC0(8, 0);
             }
                 return;
@@ -623,9 +629,9 @@ void dk2::CDefaultPlayerInterface::pushDropThingFromHandAction(CThing *a2_thing,
                 GameAction act = buildDropItemAction(
                         this, a3_underHand->x_if12, a3_underHand->y_if12, a3_underHand->tagId
                 );
-                v21_try = 2;
+                try_level = 2;
                 this->pushAction(&act);
-                v21_try = -1;
+                try_level = -1;
                 this->f12DA.sub_40ABC0(8, 0);
             }
                 return;
@@ -633,9 +639,9 @@ void dk2::CDefaultPlayerInterface::pushDropThingFromHandAction(CThing *a2_thing,
                 GameAction act = buildDropItemAction(
                         this, a3_underHand->x_if12, a3_underHand->y_if12, a3_underHand->tagId
                 );
-                v21_try = 3;
+                try_level = 3;
                 this->pushAction(&act);
-                v21_try = -1;
+                try_level = -1;
                 this->f12DA.sub_40ABC0(8, 0);
             }
                 return;
@@ -643,9 +649,9 @@ void dk2::CDefaultPlayerInterface::pushDropThingFromHandAction(CThing *a2_thing,
                 GameAction act = buildDropItemAction(
                         this, a3_underHand->x_if12, a3_underHand->y_if12, 0
                 );
-                v21_try = 4;
+                try_level = 4;
                 this->pushAction(&act);
-                v21_try = -1;
+                try_level = -1;
                 this->f12DA.sub_40ABC0(8, 0);
             }
                 return;
@@ -655,9 +661,9 @@ void dk2::CDefaultPlayerInterface::pushDropThingFromHandAction(CThing *a2_thing,
         GameAction act = buildDropItemAction(
                 this, a3_underHand->x_if12, a3_underHand->y_if12, 0
         );
-        v21_try = 5;
+        try_level = 5;
         this->pushAction(&act);
-        v21_try = -1;
+        try_level = -1;
         this->f12DA.sub_40ABC0(8, 0);
         return;
     }
@@ -665,9 +671,9 @@ void dk2::CDefaultPlayerInterface::pushDropThingFromHandAction(CThing *a2_thing,
     GameAction act = buildDropItemAction(
             this, a3_underHand->x_if12, a3_underHand->y_if12, 0
     );
-    v21_try = 6;
+    try_level = 6;
     this->pushAction(&act);
-    v21_try = -1;
+    try_level = -1;
     this->f12DA.sub_40ABC0(8, 0);
 }
 
@@ -675,7 +681,7 @@ int dk2::CDefaultPlayerInterface::sub_42C7D0(int a2_width, int a3_height, int a4
     if(patch::expand_surf_idx_array::enabled) {
         patch::expand_surf_idx_array::allocate(rtGuiView);
     }
-    MySurfDesc v21_desc = MyCEngineSurfDesc_argb32_instance.desc;
+    MySurfDesc v21_desc = MyCEngineSurfDesc_bgra32_instance.desc;
 
     rtGuiView->height = a3_height;
     unsigned int v8_height_32blocks = (unsigned int)(a3_height + 31) >> 5;
@@ -707,7 +713,7 @@ int dk2::CDefaultPlayerInterface::sub_42C7D0(int a2_width, int a3_height, int a4
                 pInt = &rtGuiView->Arrp31x400_ids[_x + rtGuiView->width_128blocks * _y];
             }
             if (!pBridge->v_createMyScaledSurface(g_temp_string, 128, 32, 257, pInt)) {
-                operator delete(rtGuiView->blocksBuf);
+                dk2::operator_delete(rtGuiView->blocksBuf);
                 rtGuiView->blocksBuf = NULL;
                 return FALSE;
             }
@@ -764,14 +770,422 @@ void dk2::CDefaultPlayerInterface::sub_42CEE0(RtGuiView *view, int a3_x, int a4_
             v21_renderInfo._heightScale = 32;
             v21_renderInfo.f14 = 0;
             v21_renderInfo.f18 = 0;
-            v21_renderInfo.x48 = -1;
-            v21_renderInfo.y49 = -1;
-            v21_renderInfo.z4A = -1;
+            v21_renderInfo.r48 = -1;
+            v21_renderInfo.g49 = -1;
+            v21_renderInfo.b4A = -1;
             v21_renderInfo.f4B = -1;
-            pBridge->v_f5C_createMeshAt(_x, _y, a5, &v21_renderInfo);
+            pBridge->v_f5C_create2DMeshAt(_x, _y, a5, &v21_renderInfo);
         }
     }
     v22_tryLevel = -1;
     v21_renderInfo.destructor();
+}
+
+void __cdecl dk2::CDefaultPlayerInterface_WM_ACTIVATE_cb(int activated, int a2, int a3, int a4_ctx) {
+    int status;
+    auto *plif = (CDefaultPlayerInterface *) a4_ctx;
+    if (activated == 2) {
+        plif->sub_40CA70();
+        for (int i = 21; i >= 0; --i) {
+            MyDdSurfaceEx *v4 = &g_roomIcons_surfs[i];
+            if (MyDdSurface_addRef(&v4->dd_surf, 0))
+                MyDdSurface_release(&status, &v4->dd_surf);
+        }
+        for (int i = 20; i >= 0; --i) {
+            MyDdSurfaceEx *v6 = &g_creatureIcons_surfs[i];
+            if (MyDdSurface_addRef(&v6->dd_surf, 0))
+                MyDdSurface_release(&status, &v6->dd_surf);
+        }
+        for (int i = 12; i >= 0; --i) {
+            MyDdSurfaceEx *v8 = &g_trapIcons_surfs[i];
+            if (MyDdSurface_addRef(&v8->dd_surf, 0))
+                MyDdSurface_release(&status, &v8->dd_surf);
+        }
+        for (int i = 6; i >= 0; --i) {
+            MyDdSurfaceEx *v10 = &g_doorIcons_surfs[i];
+            if (MyDdSurface_addRef(&v10->dd_surf, 0))
+                MyDdSurface_release(&status, &v10->dd_surf);
+        }
+        if (MyDdSurface_addRef(&g_GameMapBackground_surf.dd_surf, 0))
+            MyDdSurface_release(&status, &g_GameMapBackground_surf.dd_surf);
+        if (MyDdSurface_addRef(&g_GameMapBackgroundRock_surf.dd_surf, 0))
+            MyDdSurface_release(&status, &g_GameMapBackgroundRock_surf.dd_surf);
+        if (MyDdSurface_addRef(&g_GameMapForeground_surf.dd_surf, 0))
+            MyDdSurface_release(&status, &g_GameMapForeground_surf.dd_surf);
+    } else if (activated == 3) {
+        plif->sub_40AC40();
+        g_isSomthingReady_006CE008 = 1;
+        
+        if (patch::opengl_patch::enabled) {
+            patch::opengl_patch::createOglTexture(g_GameMapForeground_surf, 256, 256, false);
+        } else {
+            if (*MyDdSurface_createOffScreenSurface(
+                    &status, 256u, 256u, DDSCAPS_SYSTEMMEMORY, &g_GameMapForeground_surf.dd_surf) < 0) return;
+        }
+        
+        char dbns_buf[sizeof(MyDblNamedSurface)];
+        MyDblNamedSurface &dbns = *(MyDblNamedSurface *) dbns_buf;
+        dbns.constructor("MapOverlay", "MapOver", 2, 0, 1);
+        g_idx = MyEntryBuf_MyScaledSurface_create(&dbns, 1);
+        FSMAP_load_403060();
+    }
+}
+
+namespace dk2 {
+
+    void my_png_destroy(void **self) {
+        if (*self)
+            libpng_png_destroy_info_struct(0, self);
+    }
+
+}
+
+int dk2::CDefaultPlayerInterface::sub_40C710() {
+    int status;
+    CBridge *f10_pBridge = this->pGameSession->pBridge;
+
+    char pngLoader_buf[sizeof(TbPNGLoader)];
+    TbPNGLoader &pngLoader = *(TbPNGLoader *) pngLoader_buf;
+    pngLoader.surf.constructor_empty();
+    *(void **) &pngLoader = TbPNGLoader::vftable;
+    pngLoader.s_png_infopp = 0;
+    pngLoader.s_png_structpp = 0;
+    int try_level = 0;
+    for (int i = 0; i < 16; ++i) {
+        StubStruc68F650 *pCursor = &g_interfaceCursorArr[i];
+        if (!pCursor->name) {
+            pCursor->cursorSurf = NULL;
+            continue;
+        }
+        MyDdSurfaceEx a2_cursors;
+        a2_cursors.dd_surf.fld10_00 = 0;
+        a2_cursors.dd_surf.fld11_ff = 0;
+        a2_cursors.dd_surf.fld12_00 = 0;
+        a2_cursors.dd_surf.fld13_ff = 0;
+        a2_cursors.dd_surf.dwColorSpaceValue_00 = 0;
+        a2_cursors.dd_surf.f20 = 0;
+        a2_cursors.dd_surf.dd_surface = 0;
+        a2_cursors.surf.constructor_empty();
+        unsigned __int16 v2 = MyResources_instance.gameCfg.fun_55D540();
+        if (*loadArtToSurfaceEx(&status, &a2_cursors, &MyResources_instance.spriteFileMan, pCursor->name, v2) < 0) {
+            try_level = 1;
+            my_png_destroy(&pngLoader.s_png_infopp);
+            return -1;
+        }
+        {
+            MyDdSurfaceEx *pSurf = (MyDdSurfaceEx *) dk2::operator_new(sizeof(MyDdSurfaceEx));
+            try_level = 2;
+            if (pSurf) {
+                pSurf->dd_surf.fld10_00 = 0;
+                pSurf->dd_surf.fld11_ff = 0;
+                pSurf->dd_surf.fld12_00 = 0;
+                pSurf->dd_surf.fld13_ff = 0;
+                pSurf->dd_surf.dwColorSpaceValue_00 = 0;
+                pSurf->dd_surf.f20 = 0;
+                pSurf->dd_surf.dd_surface = 0;
+                pSurf->surf.constructor_empty();
+            } else {
+                pSurf = 0;
+            }
+            pCursor->cursorSurf = pSurf;
+        }
+
+        if (patch::opengl_patch::noSoftwareScale) {
+            pCursor->size = pCursor->imgSize;
+            pCursor->pointerOffs = pCursor->imgPointerOffs;
+        } else {
+            unsigned int dwWidth = MyWindow_instance.dwWidth;
+            unsigned int dwHeight = MyWindow_instance.dwHeight;
+            pCursor->size.w = dwWidth * pCursor->imgSize.w / 640;
+            pCursor->size.h = dwHeight * pCursor->imgSize.h / 480;
+
+            pCursor->pointerOffs.x = dwWidth * pCursor->imgPointerOffs.x / 640;
+            pCursor->pointerOffs.y = dwHeight * pCursor->imgPointerOffs.y / 480;
+        }
+
+        bool surfCreated;
+
+        try_level = 0;
+        if (patch::opengl_patch::enabled) {
+            patch::opengl_patch::createOglTexture(*pCursor->cursorSurf, pCursor->size.w, pCursor->size.h * pCursor->f4, false);
+            surfCreated = true;
+        } else {
+            MyDdSurface_createOffScreenSurface(&status, pCursor->size.w, pCursor->size.h * pCursor->f4, DDSCAPS_SYSTEMMEMORY, &pCursor->cursorSurf->dd_surf);
+            surfCreated = status >= 0;
+        }
+        if (surfCreated) {
+            static_MyDdSurfaceEx_Blt(&status, pCursor->cursorSurf, NULL, &a2_cursors, NULL, 0);
+            {  // probably set alpha color
+                int p_f10_fld10_00 = (int) &pCursor->cursorSurf->dd_surf.fld10_00;
+                *(DWORD *) p_f10_fld10_00 = 0xFF00FF00;
+                *(BYTE *) (p_f10_fld10_00 + 4) = 0;
+            }
+            MyDdSurface_release(&status, &a2_cursors.dd_surf);
+        } else {
+            dk2::operator_delete(pCursor->cursorSurf);
+            pCursor->cursorSurf = NULL;
+        }
+    }
+    CWorldEntry *v9 = (CWorldEntry *) dk2::operator_new(13 * sizeof(CWorldEntry));
+    static_assert(13 * sizeof(CWorldEntry) == 0x15F);
+    CWorldEntry *v10 = v9;
+    CWorldEntry *v18 = v9;
+    try_level = 3;
+    if (v9) {
+        CWorldEntry *v11 = v9;
+        int v12 = 13;
+        do {
+            v11->constructor();
+            v11++;
+            --v12;
+        } while (v12);
+    } else {
+        v10 = 0;
+    }
+    try_level = 0;
+    g_pCWorldEntry = v10;
+    if (!v10) {
+        try_level = 5;
+        my_png_destroy(&pngLoader.s_png_infopp);
+        return 0;
+    }
+    for (int i = 0; i < 13; ++i) {
+        char **v14 = &g_cursorNames[i];
+        int v19;
+        if (!f10_pBridge->v_f54_allocateRenderObj(*v14, 2, 0, &v19, 1, 0)) {
+            try_level = 4;
+            my_png_destroy(&pngLoader.s_png_infopp);
+            return 0;
+        }
+        CWorldEntry *v15 = g_pCWorldEntry;
+        g_pCWorldEntry[i].idx = v19;
+        CWorldEntry *v16 = &v15[i];
+        v16->_width.value = 4096;
+        v16->_height.value = 4096;
+        *(DWORD *) &v16->u.randRange = 0x10000;
+        *(WORD *) ((char *) &v16->u.weB_flags + 1) = 0;
+        ((uint8_t *) &v16->u.weB_flags)[3] = 0; // HIBYTE(v16->u.weB_flags) = 0;
+        v16->u.weB_flags |= v16->u.typeA != 0;
+    }
+    try_level = 6;
+    my_png_destroy(&pngLoader.s_png_infopp);
+    return 1;
+}
+
+
+void dk2::CDefaultPlayerInterface::sub_40ACD0() {
+    int status;
+    CEngineInterface *f10_pBridge = this->pGameSession->pBridge;
+    CPlayer *pPlayer = (CPlayer *) this->pCWorld->v_getCTag_508C40(this->playerTagId);
+    if (pPlayer->status
+        && MyResources_instance.gameCfg.useFe_playMode != 4
+        && (MyResources_instance.gameCfg.useFe_playMode != 3 || (pPlayer->playerFlags & 0x80000) != 0)) {
+        Pos2i v15 {0, 0};
+        static_MyInputManagerCb_setCursorIconAndDraw(&status, 0, 0, &v15);
+        return;
+    }
+    this->f12DA.fun_40AAE0();
+    this->f12F6.fun_40AAE0();
+    this->ingameCursor.fun_40AAE0();
+    f10_pBridge->sub_44E130(&this->aabb132F, this->tagId10BC);
+    f10_pBridge->sub_44E1C0(&this->aabb132F, this->tagId10BC);
+    f10_pBridge->f32__allowToDrop = (this->cursorFlags >> 4) & 1;
+    int f0_currentCursorIdx;
+    int cursorFrameIdx;
+    if (this->ingameCursor.currentCursorIdx) {
+        cursorFrameIdx = this->ingameCursor.cursorFrameIdx;
+        f0_currentCursorIdx = this->ingameCursor.currentCursorIdx;
+    } else {
+        f0_currentCursorIdx = this->f12F6.currentCursorIdx;
+        if (f0_currentCursorIdx) {
+            cursorFrameIdx = this->f12F6.cursorFrameIdx;
+        } else {
+            f0_currentCursorIdx = this->f12DA.currentCursorIdx;
+            cursorFrameIdx = this->f12DA.cursorFrameIdx;
+        }
+    }
+    Size2i &cursorSize = g_interfaceCursorArr[f0_currentCursorIdx].size;
+    AABB surfAabb {
+            0, cursorSize.h * cursorFrameIdx,
+            cursorSize.w, cursorSize.h + cursorSize.h * cursorFrameIdx
+    };
+    if (!this->f3B94) return;
+    CCamera *pCamera = f10_pBridge->v_fD0_getCamera();
+    if ((this->cursorFlags & 1) == 0 && pCamera->fun_44D620()) {
+        Pos2i pointerOffs = g_interfaceCursorArr[f0_currentCursorIdx].pointerOffs;
+        static_MyInputManagerCb_setCursorIconAndDraw(&status, g_interfaceCursorArr[f0_currentCursorIdx].cursorSurf, &surfAabb, &pointerOffs);
+        return;
+    }
+    Pos2i v15 {0, 0};
+    static_MyInputManagerCb_setCursorIconAndDraw(&status, 0, 0, &v15);
+}
+
+int dk2::CDefaultPlayerInterface::fun_4039A0(int a4) {
+    int try_level;
+    if (!a4) return 1;
+    MyGameSession *f4_pGameSession = this->pGameSession;
+    this->pCWorld = f4_pGameSession->pWorld;
+    CBridge *pBridge = f4_pGameSession->pBridge;
+    CPlayer *pPlayer = (CPlayer *) f4_pGameSession->pWorld->v_getCTag_508C40(this->playerTagId);
+    CCamera *v8_camera = pBridge->v_fD0_getCamera();
+    int cameraMode = pBridge->v_fCC_getCameraMode();
+    if (cameraMode == 18) {
+        this->f105 = 0;
+    } else {
+        this->fFD = 0;
+        this->f101 = 0;
+        this->f105 = 1;
+    }
+    if (pPlayer->status) {
+        if ((pPlayer->playerFlags & 0x400000) == 0) {
+            this->f101 = 1;
+            this->fFD = 1;
+            this->is3dEngineNe1 = 0;
+            this->f105 = 0;
+            this->cursorFlags = this->cursorFlags | 1;
+            if (pPlayer->status != 2) {
+                if (MyResources_instance.gameCfg.useFe_playMode != 3 && v8_camera->_mode != 18) {
+                    GameAction action;
+                    memset(&action, 0, 12);
+                    action.actionKind = 1;
+                    action.playerTagId = this->playerTagId;
+                    try_level = 0;
+                    this->pushAction(&action);
+                    try_level = -1;
+                }
+            }
+        }
+    }
+    if (this->flags13DA && (pPlayer->playerFlags & 0x400000) != 0) {
+        this->cursorFlags &= ~1u;
+        this->fFD = 0;
+        this->f101 = 0;
+        this->f105 = 1;
+        this->is3dEngineNe1 = 1;
+        this->flags13DA = 0;
+    }
+    if (pPlayer->status == 2 && MyResources_instance.gameCfg.useFe_playMode == 4) {
+        this->f101 = 0;
+        this->fFD = 0;
+        this->cursorFlags = this->cursorFlags & 0xFE;
+        this->is3dEngineNe1 = 1;
+        this->f105 = 1;
+        GameAction action;
+        action.data1 = 2;
+        action.data2 = 0;
+        action.data3 = 0;
+        action.actionKind = 116;
+        action.playerTagId = this->playerTagId;
+        try_level = 1;
+        this->pushAction(&action);
+        try_level = -1;
+        this->cgui_manager.findGameWindowById(51)->f44_isCurrent = 1;
+    }
+    if (cameraMode == 2) {
+        if (sceneObjectsPresent[pPlayer->creaturePossessed]) {
+            CCreature *pCreature = (CCreature *) sceneObjects[pPlayer->creaturePossessed];
+            if (!pCreature->fE_type) {
+                int f4_gameTick = this->pGameSession->gameTick;
+                if (this->f10B4 != f4_gameTick) {
+                    this->f10B4 = f4_gameTick;
+                    GameAction action;
+                    action.data1 = (v8_camera->location.x + v8_camera->locationOffset.x).value;
+                    action.data2 = (v8_camera->location.y + v8_camera->locationOffset.y).value;
+                    action.data3 = (pCreature->creatureData->f65C & 0xFFFF) | ((v8_camera->direction & 0xFFFF) << 16);
+                    action.actionKind = 25;
+                    action.playerTagId = this->playerTagId;
+                    try_level = 2;
+                    this->pushAction(&action);
+                    try_level = -1;
+                }
+            }
+        }
+    }
+    if (v8_camera->sub_44D5E0()) {
+        switch (this->_someTy) {
+            case 1:
+                this->_someTy = 0;
+                this->f12F6.sub_40ABC0(0, 0);
+                this->f10C = 0;
+                this->f13E4 = 0;
+                break;
+            case 3:
+                this->f13F0 = 0;
+                break;
+            case 4:
+                this->f13F0 = 0;
+                break;
+        }
+    }
+    if (this->f4F25 <= getTimeMs()) {
+        if (this->f4F2D == 1) {
+            this->sub_40FA90();
+        } else if (this->f4F2D == 2) {
+            this->sub_40FDA0();
+        }
+        this->f4F25 = 0;
+        this->f4F2D = 0;
+    }
+    this->updateGameCounters();
+    this->tickedCount_4039A0 = 0;
+    do {
+        Pos2i pos2i = *MyWindow_instance.getMousePos();
+        if (cameraMode == 7) {
+            this->f12B2 = 1;
+        } else if (this->is3dEngineNe1) {
+            this->f12B2 = this->cgui_manager.probably_isCursorAtButton() || this->sub_41FDF0(pos2i.x, pos2i.y);
+        } else {
+            this->f12B2 = 0;
+        }
+        this->sub_40BFF0(&pos2i, 1);
+        if (!this->tickedCount_4039A0 || (unknown_libname_42() && this->tickedCount_4039A0 < 3u)) {
+            if (this->cgui_manager.sub_52C520()) {
+                MyInputManagerCb_static_processInputs_setStaticListenersAndHandleDxActions(&this->field_133F_static_listeners, 0, (CComponent *) this, 0);
+            } else {
+                MyInputManagerCb_static_processInputs_setStaticListenersAndHandleDxActions(&this->field_133F_static_listeners, 1, (CComponent *) this, 0);
+            }
+        }
+        CCamera *v24 = v8_camera;
+        if ((CCamera_mode_sub_44D870(cameraMode) == 2 ||
+             this->pGameSession->inMenu && CCamera_mode_sub_44D870(cameraMode) == 1)
+            && (this->is3dEngineNe1 && v24->fun_44D620() || (pPlayer->playerFlags & 0x80000) != 0)) {
+            this->sub_407260();
+        }
+        if (!this->cgui_manager.sub_52C520())
+            this->tickKeyboard(&this->_underHand);
+        this->tickThingsInHand();
+        this->sub_40ACD0();
+        this->sub_407380();
+        this->timeMs = getTimeMs();
+        this->tickedCount_4039A0 += 1;
+    } while (this->tickedCount_4039A0 < 3u);
+    if (this->doLoadSave) {
+        this->pCWorld->v_f2C_loadFromFile(this->saveFilePath);
+        g_MySound_ptr->v_fun_567810(0, g_soundNameList[25].f24, 833);
+    }
+    CWindow *pCWindow = this->cgui_manager.findGameWindowById(52);
+    int status;
+    if (this->cgui_manager.sub_52C520()) {
+        if (!this->usingIme) {
+            MyInputMethodEditor_instance1.replaceWndProc(&status, getHWindow());
+            this->usingIme = status == 0;
+        }
+        CWindow_sub_428360_Unk52(pCWindow, this);
+    } else {
+        if (this->usingIme == 1)
+            MyInputMethodEditor_instance1.restoreWndProc();
+        this->usingIme = 0;
+    }
+    CWindow_sub_428360_Unk52(pCWindow, this);
+    CCamera *pCamera = pBridge->v_fD0_getCamera();
+    {
+        GameAction soundCmd;
+        *(void **) &soundCmd.data1 = TbSysCommand_SetHandPosition::vftable;
+        *(uint32_t *) &soundCmd.data2 = (pCamera->location.x + pCamera->locationOffset.x - this->_underHand.x_if12).value;
+        *(uint32_t *) &soundCmd.data3 = (pCamera->location.y + pCamera->locationOffset.y - this->_underHand.y_if12).value;
+        soundCmd.actionKind = 0;
+        g_MySound_ptr->v_fun_567A40(&status, &soundCmd);
+    }
+    return 1;
 }
 

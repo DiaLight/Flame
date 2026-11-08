@@ -9,6 +9,8 @@
 #include <dk2_functions.h>
 #include <dk2_globals.h>
 #include <patches/micro_patches.h>
+#include "patches/opengl/opengl_patch.h"
+#include "tools/visual_debug.h"
 
 
 namespace dk2 {
@@ -106,35 +108,26 @@ char __cdecl dk2::CClickButton_render_532670(CButton *btn, CFrontEndComponent *f
     char highlightLevel = g_buttonHighlight_x30[btnIdx] - 1;
     g_buttonHighlight_x30[btnIdx] = highlightLevel;
     if (highlightLevel > 0) {
-        int layer;
-        if (highlightLevel <= 4)
-            layer = highlightLevel - 1;
-        else
-            layer = 3;
+        int layer = highlightLevel <= 4 ? highlightLevel - 1 : 3;
         // Render glowing
         int status;
         MySurface_static_copy(
-            &status,
-            &frontend->surf65_btnRenderOut,
-            btnPos.minX,
-            btnPos.minY,
+            &status, &frontend->surf65_btnRenderOut,
+            btnPos.minX, btnPos.minY,
             &frontend->surf64_x16x30x6[x16Idx][btnIdx][layer],
-            NULL,
-            0);
+            NULL, 0);
     }
     int layer2 = 4;
     if (frontend->arr_x16x30_hovered[x16Idx][btnIdx] == 1)
         layer2 = 5;
+
     // Render text
     int status;
     MySurface_static_copy(
-        &status,
-        &frontend->surf65_btnRenderOut,
-        btnPos.minX,
-        btnPos.minY,
+        &status, &frontend->surf65_btnRenderOut,
+        btnPos.minX, btnPos.minY,
         &frontend->surf64_x16x30x6[x16Idx][btnIdx][layer2],
-        NULL,
-        0);
+        NULL, 0);
 
     highlightLevel = g_buttonHighlight_x30[btnIdx];
     if (highlightLevel < 0) {
@@ -382,7 +375,7 @@ char dk2::CFrontEndComponent::renderButtonsText_5329A0(
                 area->maxY = v70_endY;
 
                 MySurface *surf = &this->surf64_x16x30x6[a3_x16Idx][btnIdx][j];
-                surf66_x16->copyAreaTo(&status, surf, area);
+                surf66_x16->subSurface(&status, surf, area);
                 v48_posX = endX;
             }
             v68_posY = v70_endY;
@@ -391,7 +384,7 @@ char dk2::CFrontEndComponent::renderButtonsText_5329A0(
             g_FontObj1_instance.setColor(&status, &color);
 
             MySurface *v46_textSurf = &this->surf64_x16x30x6[a3_x16Idx][btnIdx][4];
-            setDrawSurface(v46_textSurf);
+            MyNBitTexture_initWithSurf(v46_textSurf);
             switch (v96_rendererTyArr[btnIdx]) {
             case 0: {
                 v91_localTextRenderer.selectMyCR(&status, 0);
@@ -422,10 +415,18 @@ char dk2::CFrontEndComponent::renderButtonsText_5329A0(
             v77_aabb.maxY = v51_sz.h - 8;
             v91_localTextRenderer.renderText(&status, &v77_aabb, v94_mbStringArr[btnIdx], &g_FontObj1_instance, NULL);
 
+            if(patch::opengl_patch::enabled) {
+//                dump(*v46_textSurf, "textSurf");
+            }
+
             MySurface *hoverSurf = v46_textSurf + 1;
-            setDrawSurface(hoverSurf);
+            MyNBitTexture_initWithSurf(hoverSurf);
             g_FontObj1_instance.setColor(&status, &this->color3031E);
             v91_localTextRenderer.renderText(&status, &v77_aabb, v94_mbStringArr[btnIdx], &g_FontObj1_instance, NULL);
+
+            if(patch::opengl_patch::enabled) {
+//                dump(*hoverSurf, "hoverSurf");
+            }
 
             MySurface *maxGlowSurf = v46_textSurf - 1;
             this->cglow.sub_5524F0(&status, maxGlowSurf, v46_textSurf, 3, &this->color30323);
@@ -433,6 +434,10 @@ char dk2::CFrontEndComponent::renderButtonsText_5329A0(
                 MySurface *glowSurf_ = &this->surf64_x16x30x6[a3_x16Idx][btnIdx][j];
                 float a5a = (double) (j + 1) * 0.25;
                 this->cglow.sub_552620(&status, glowSurf_, maxGlowSurf, a5a);
+
+                if(patch::opengl_patch::enabled) {
+//                    dump(*glowSurf_, "glowSurf");
+                }
             }
         }
         g_FontObj1_instance.checkFlag8(&status);
@@ -604,7 +609,7 @@ char dk2::CFrontEndComponent::bakeButton(int a2_wndId, unsigned __int8 x16Idx, i
         Size2i *v56_size = &btnSizes[0];
         int idx = btnsCount;
         while (1) {
-            setDrawSurface(curSurf1);
+            MyNBitTexture_initWithSurf(curSurf1);
             Size2i _sz {(v56_size->w - 16*6) / 6 + 16, v56_size->h};
 
             int endY_ = posY_ + _sz.h;
@@ -619,7 +624,7 @@ char dk2::CFrontEndComponent::bakeButton(int a2_wndId, unsigned __int8 x16Idx, i
                 area->maxY = endY_;
 
                 MySurface *surf = &this->surf64_x16x30x6[x16Idx][btnIdx][j];
-                curSurf2->copyAreaTo(&status, surf, area);
+                curSurf2->subSurface(&status, surf, area);
                 posX = endX;
             }
 
@@ -627,7 +632,7 @@ char dk2::CFrontEndComponent::bakeButton(int a2_wndId, unsigned __int8 x16Idx, i
             g_FontObj1_instance.setColor(&status, &color);
 
             MySurface *textSurf = &this->surf64_x16x30x6[x16Idx][btnIdx][4];
-            setDrawSurface(textSurf);
+            MyNBitTexture_initWithSurf(textSurf);
             switch (f34_idxHigh0Arr[btnIdx]) {
             case 0: {
                 textRenderer.selectMyCR(&status, 0);
@@ -655,7 +660,7 @@ char dk2::CFrontEndComponent::bakeButton(int a2_wndId, unsigned __int8 x16Idx, i
             textRenderer.renderText(&status, &textAabb, mbStringArr[btnIdx], &g_FontObj1_instance, NULL);
 
             MySurface *hoverSurf = textSurf + 1;
-            setDrawSurface(hoverSurf);
+            MyNBitTexture_initWithSurf(hoverSurf);
             g_FontObj1_instance.setColor(&status, &this->color3031E);
             textRenderer.renderText(&status, &textAabb, mbStringArr[btnIdx], &g_FontObj1_instance, NULL);
 

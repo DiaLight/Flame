@@ -57,12 +57,11 @@ add_library(${TARGET} SHARED
         dk2/components/CNetworkComponent.cpp
         dk2/components/CComponent.cpp
 
-        dk2/math/int_float.cpp
-
         dk2/button/button_types.cpp
         dk2/button/CTextInput.cpp
         dk2/button/button_functions.cpp
         dk2/button/CClickButton.cpp
+        dk2/button/CButton.cpp
 
         dk2/entities/entities_type.cpp
         dk2/entities/CCreature.cpp
@@ -71,6 +70,7 @@ add_library(${TARGET} SHARED
 
         dk2/engine/draw_functions.cpp
         dk2/engine/ddraw_functions.cpp
+        dk2/engine/draw_cursor.cpp
         dk2/engine/window_functions.cpp
         dk2/engine/WinCls_BullfrogLibScreen.cpp
         dk2/engine/CWindowTest.cpp
@@ -78,6 +78,8 @@ add_library(${TARGET} SHARED
         dk2/engine/DdModeList.cpp
         dk2/engine/MyBmpSaver.cpp
 
+        dk2/engine/scene/build_triangles.cpp
+        dk2/engine/scene/MyLLVec.cpp
         dk2/engine/scene/scene.cpp
         dk2/engine/scene/surface.cpp
         dk2/engine/scene/MyCESurfHandle.cpp
@@ -87,13 +89,28 @@ add_library(${TARGET} SHARED
         dk2/engine/scene/SurfHashList2.cpp
         dk2/engine/scene/CEngineDDSurface.cpp
         dk2/engine/scene/MyDirectDraw.cpp
+        dk2/engine/scene/MyDdSurface.cpp
 
         dk2/engine/primitives/CEngine2DSprite.cpp
         dk2/engine/primitives/CEngine2DRotatableSprite.cpp
         dk2/engine/primitives/CEngine2DMeshSurface.cpp
+        dk2/engine/primitives/CEnginePrimitiveBase_dump.cpp
+        dk2/engine/primitives/CEngineStaticMesh.cpp
+        dk2/engine/primitives/CEngine2DStaticMesh.cpp
+        dk2/engine/primitives/CEngine2DAnimMesh.cpp
+        dk2/engine/primitives/CEngineVirtualPerspective2DAnimMesh.cpp
+        dk2/engine/primitives/CEngineSprite.cpp
+        dk2/engine/primitives/CEngineQuadPlane.cpp
+        dk2/engine/primitives/CEngineDynamicMesh.cpp
+        dk2/engine/primitives/CEngineAnimMesh.cpp
+        dk2/engine/primitives/CEngineDynamicHeightField.cpp
+        dk2/engine/primitives/CEngineUnlitProceduralMesh.cpp
 
         dk2/surface/surface_functions.cpp
         dk2/surface/MyDblNamedSurface.cpp
+        dk2/surface/CEngineCompressedSurface.cpp
+        dk2/surface/CEngineSurfaceBase.cpp
+        dk2/surface/CEngineSurface.cpp
 
         dk2/network/protocol.cpp
 
@@ -108,6 +125,11 @@ add_library(${TARGET} SHARED
         dk2/gui/CDefaultPlayerInterface_game_gui.cpp
         dk2/gui/CGuiManager.cpp
         dk2/gui/button_render.cpp
+        dk2/gui/CWindow.cpp
+
+        dk2/gui/render/MyNBitTexture.cpp
+        dk2/gui/render/My32BitTexture.cpp
+        dk2/gui/render/MyTextRenderer.cpp
 
         tools/StackLimits.cpp
         tools/LoadedModules.cpp
@@ -118,6 +140,7 @@ add_library(${TARGET} SHARED
         tools/last_error.cpp
         tools/flame_config.cpp
         tools/visual_debug.cpp
+        tools/png_support.cpp
         tools/memory_debug.cpp
 
         tools/bug_hunter.cpp
@@ -148,6 +171,8 @@ add_library(${TARGET} SHARED
         patches/alternative_resources.cpp
         patches/preselected_map.cpp
 
+        patches/opengl/visual_value.cpp
+
         patches/big_resolution_fix/expand_surf_idx_array.cpp
         patches/big_resolution_fix/big_resolution_fix.cpp
         patches/big_resolution_fix/screen_resolution.cpp
@@ -161,9 +186,6 @@ add_library(${TARGET} SHARED
 
         patches/welcome_window/main/imgui_main_dx9.cpp
         patches/welcome_window/main/imgui_texture_dx9.cpp
-
-#        patches/welcome_window/main/imgui_main_opengl3.cpp
-#        patches/welcome_window/main/imgui_texture_opengl3.cpp
 
         patches/welcome_window/welcome_window.cpp
         patches/welcome_window/options_section.cpp
@@ -181,6 +203,44 @@ target_compile_definitions(${TARGET} PRIVATE
         DIRECT3D_VERSION=0x0600
         NOMINMAX=1
         )
+
+if(DK2_OPENGL)
+    target_link_libraries(${TARGET} PRIVATE imgui opengl32 glu32 stb glm glext)
+    target_compile_definitions(${TARGET} PRIVATE PATCH_OPENGL=1)
+    target_sources(${TARGET} PRIVATE
+            patches/welcome_window/main/imgui_main_opengl3.cpp
+#            patches/welcome_window/main/imgui_texture_opengl3.cpp
+
+            patches/opengl/opengl_patch.cpp
+            patches/opengl/opengl_internal.cpp
+            patches/opengl/opengl_texture.cpp
+            patches/opengl/opengl_render.cpp
+            patches/opengl/render_text_example.cpp
+            patches/opengl/imgui_visual_debug.cpp
+            patches/opengl/ogl_debug_camera.cpp
+            patches/opengl/ogl_render_utils.cpp
+            patches/opengl/ShaderProgram.cpp
+    )
+
+    set(_SHADER_SRC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/patches/opengl/gen_shader_sources.py")
+    set(_SHADER_SRC_FILE "${CMAKE_CURRENT_BINARY_DIR}/shader_sources.cpp")
+    file(GLOB SHADER_FILES "${CMAKE_CURRENT_SOURCE_DIR}/patches/opengl/shaders/*.glsl")
+    add_custom_command(
+            OUTPUT "${_SHADER_SRC_FILE}"
+            COMMAND "${Python3_EXECUTABLE}" "${_SHADER_SRC_SCRIPT}" "${CMAKE_CURRENT_SOURCE_DIR}/patches/opengl/shaders" "${_SHADER_SRC_FILE}"
+            DEPENDS ${SHADER_FILES}
+            "${_SHADER_SRC_SCRIPT}"
+            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+            COMMENT "[Python] Generating embedded shader sources"
+            VERBATIM
+    )
+    target_sources(${TARGET} PRIVATE ${_SHADER_SRC_FILE})
+    target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+else ()
+    target_sources(${TARGET} PRIVATE patches/opengl/opengl_patch_stub.cpp)
+endif ()
+
+
 set_source_files_properties(
         patches/welcome_window/main/imgui_main_dx9.cpp
         patches/welcome_window/main/imgui_texture_dx9.cpp

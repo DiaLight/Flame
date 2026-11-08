@@ -426,8 +426,17 @@ namespace patch::replace_parse_command_line {
         if (*o_dk2_cheapLightning) {
             dk2::MyResources_instance.video_settings.setCheapLightningEnabled(1);
         }
-        if (*o_dk2_enableBumpMapping || *o_dk2_enableBumpLuminance) {
-            dk2::MyResources_instance.video_settings.setBumpMappingEnabled(1u);
+        if(patch::bumpmapping_luminance_fix::enabled) {
+            if (*o_dk2_enableBumpMapping) {
+                dk2::MyResources_instance.video_settings.setBumpMappingEnabled(1);
+            }
+            if (*o_dk2_enableBumpLuminance) {
+                dk2::MyResources_instance.video_settings.setBumpMappingEnabled(2);
+            }
+        } else {
+            if (*o_dk2_enableBumpMapping || *o_dk2_enableBumpLuminance) {
+                dk2::MyResources_instance.video_settings.setBumpMappingEnabled(1u);
+            }
         }
         if (*o_dk2_textureReductionLevel >= 0) {
             int arg = *o_dk2_textureReductionLevel;

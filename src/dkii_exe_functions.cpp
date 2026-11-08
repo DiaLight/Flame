@@ -296,3 +296,11 @@ size_t __cdecl dk2::__msize(void *ptr) {
     }
 }
 
+BOOL dk2::MySurfDesc::eq(MySurfDesc *a2) {
+  return this->dwRBitMask == a2->dwRBitMask
+      && this->dwGBitMask == a2->dwGBitMask
+      && this->dwBBitMask == a2->dwBBitMask
+      && this->dwRGBAlphaBitMask == a2->dwRGBAlphaBitMask
+      && this->dwRGBBitCount == a2->dwRGBBitCount
+      && (this->isBytePerPixel == 0) == (a2->isBytePerPixel == 0);
+}

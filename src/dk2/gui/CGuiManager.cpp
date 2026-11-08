@@ -8,6 +8,8 @@
 #include <dk2/NameCfg.h>
 #include <dk2/gui/ButtonCfg.h>
 #include <dk2/gui/CGuiManager.h>
+#include <dk2/button/CButton.h>
+#include "patches/opengl/opengl_patch.h"
 
 
 namespace dk2 {
@@ -90,6 +92,8 @@ int dk2::CGuiManager::createElements(WindowCfg **ppCurWinCfg, CDefaultPlayerInte
     this->aabb.minY = 0;
     this->aabb.maxX = 640;
     this->aabb.maxY = 480;
+    if(patch::opengl_patch::overrideGuiSize) {
+    }
     for (; (*ppCurWinCfg)->idx != -1; ++ppCurWinCfg) {
         WindowCfg &curWinCfg = **ppCurWinCfg;
 
@@ -141,3 +145,25 @@ int dk2::CGuiManager::createElements(WindowCfg **ppCurWinCfg, CDefaultPlayerInte
     g_soundNameList[0].f24 = 0;
     return 1;
 }
+
+int dk2::CGuiManager::doDraw2dGui(CFrontEndComponent *a2) {
+    if (!this->pWindow_first) return 1;
+    for(CWindow *win = this->pWindow_first; win != &this->windowListEnd; win = win->f5A_prev) {
+        this->currentWin = win;
+        if (!win->f44_isCurrent) continue;
+        if (auto *f20_updateFun = win->f20_updateFun) {
+            f20_updateFun(win, a2);
+        } else {
+            win->v_update();
+        }
+        for (CButton *btn = win->f66_buttons; btn; btn = btn->f78_next) {
+            if (auto *f24_renderFun = btn->f24_renderFun) {
+                f24_renderFun(btn, a2);
+            } else {
+                btn->v_f4_render((int) btn, a2);
+            }
+        }
+    }
+    return 1;
+}
+

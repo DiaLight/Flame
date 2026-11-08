@@ -10,6 +10,7 @@ endif()
 
 option(USE_CONFIGURE_DATE "Add configure date marker in output build")
 option(DK2_DIR "Dungeon Keeper 2 directory (for comfortable development)")
+option(DK2_OPENGL "Experimental try to replace render engine from directx6 to opengl" OFF)
 
 message(STATUS "CMAKE_SYSTEM_VERSION: ${CMAKE_SYSTEM_VERSION}")
 message(STATUS "CMAKE_RC_COMPILER: ${CMAKE_RC_COMPILER}")

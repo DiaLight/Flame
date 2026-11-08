@@ -8,12 +8,14 @@
 #include "dk2/MyStringHashMap_MyScaledSurface_entry.h"
 #include "dk2_functions.h"
 #include "dk2_globals.h"
+#include "dk2/engine/scene/MyDirectDraw_flags.h"
 
 
 dk2::MyScaledSurface *__cdecl dk2::MyDblNamedSurface_createPrescaled(int idx, int width8, int height8) {
     if (idx < 0 || idx >= MyEntryBuf_MyScaledSurface_instance.count)
         MyWindow_log_printf(&MyWindow_instance, "Invalid Material\n");
-    if ((MyDirectDraw_instance.flags & 1) == 0) return MyEntryBuf_MyScaledSurface_instance.buf[idx];
+    if ((MyDirectDraw_instance.flags & MyDirectDraw_isSoftware3D_MMX) == 0)
+        return MyEntryBuf_MyScaledSurface_instance.buf[idx];
     if (width8 > 128 || height8 > 128) return MyEntryBuf_MyScaledSurface_instance.buf[idx];
 
     MyScaledSurface *surfItem = MyEntryBuf_MyScaledSurface_instance.buf[idx];
@@ -37,7 +39,8 @@ dk2::MyScaledSurface *__cdecl dk2::MyDblNamedSurface_createPrescaled(int idx, in
     newSurf.flags = flags;
     newSurf.blWidth = width8;
     newSurf.blHeight = height8;
-    memset(&newSurf.init0, 0, 16);
+    newSurf.colorMult = 0;
+    newSurf.color50 = {0, 0, 0};
     newSurf.init1__width = 1;
     int newIdx = MyEntryBuf_MyScaledSurface_create(&newSurf, 0);
     if (newIdx < 0 || newIdx >= MyEntryBuf_MyScaledSurface_instance.count)

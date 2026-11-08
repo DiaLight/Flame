@@ -12,11 +12,15 @@
 #include "patches/replace_mouse_dinput_to_user32.h"
 #include "patches/show_wireframe.h"
 #include "patches/use_wheel_to_zoom.h"
+#include "patches/opengl/opengl_patch.h"
+#include "patches/logging.h"
+#include "dk2/engine/scene/MyDdSurface_flags.h"
 
 
 namespace dk2 {
 
     LRESULT CALLBACK BullfrogWindow_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {  // fullscreen proc
+        if(patch::opengl_patch::handleInput(hWnd, Msg, wParam, lParam)) return 1;
         patch::replace_mouse_dinput_to_user32::emulate_dinput_from_user32(hWnd, Msg, wParam, lParam);
         patch::use_wheel_to_zoom::window_proc(hWnd, Msg, wParam, lParam);
         patch::fix_keyboard_state_on_alt_tab::window_proc(hWnd, Msg, wParam, lParam);
@@ -98,20 +102,26 @@ namespace dk2 {
         setHWindow(hWndParent);
         if (!hWndParent) {
             BullfrogWindow_registerClass();
+            int width = GetSystemMetrics(SM_CXSCREEN);
+            int height = GetSystemMetrics(SM_CYSCREEN);
+            patch::log::dbg("BullfrogWindow_create: CreateWindow(cls=\"%s\", name=\"%s\", sz=%dx%d)",
+                            g_bullfrogClassName, getWindowName(), width, height);
             HWND hWindow = CreateWindowExA(
-                8u,
-                g_bullfrogClassName,
-                getWindowName(),
-                0x80080000, 0, 0,
-                GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN),
-                NULL, NULL, getHInstance(), NULL);
+                    8u,
+                    g_bullfrogClassName,
+                    getWindowName(),
+                    0x80080000, 0, 0,
+                    width, height,
+                    NULL, NULL, getHInstance(), NULL);
             g_hBullfrogWindow = hWindow;
             if (!hWindow) return *pstatus = -1, pstatus;
             setHWindow(hWindow);
         }
-        int status;
-        if (*DdModeList_collect(&status, aBool, hWnd, lpGUID) < 0) {
-            return *pstatus = -1, pstatus;
+        if(!patch::opengl_patch::enabled) {
+            int status;
+            if (*DdModeList_collect(&status, aBool, hWnd, lpGUID) < 0) {
+                return *pstatus = -1, pstatus;
+            }
         }
         setSelectedDDGuid(lpGUID);
         g_isBullfrogWindowCreated = true;
@@ -133,7 +143,7 @@ namespace dk2 {
     int *__cdecl copyToFullscreenSurf(int *pstatus, int a2_flags) {
         int hresult;
         int v2_flags = a2_flags ^ 1;
-        if ((g_primarySurf.dd_surf.flags & 2) != 0) {
+        if ((g_primarySurf.dd_surf.flags & MyDdSurface_unk02) != 0) {
             callWinEvent_ev1_ty2(g_pCurOffScreen);
             static_assert(DDERR_SURFACEBUSY == 0x887601AE);
             static_assert(DDERR_WASSTILLDRAWING == 0x8876021C);
@@ -146,28 +156,48 @@ namespace dk2 {
             callWinEvent_ev1_ty3(g_pCurOffScreen);
         } else {
             callWinEvent_ev1_ty0(g_pCurOffScreen);
-            if ((g_primarySurf.dd_surf.flags & 0x10) != 0) {
-                DDBLTFX DDBltFx;
-                memset(&DDBltFx, 0, sizeof(DDBltFx));
-                static_assert(sizeof(DDBLTFX) == 100);
-                DDBltFx.dwSize = sizeof(DDBLTFX);
-                HWND HWindow = getHWindow();
-                RECT Rect;
-                GetClientRect(HWindow, &Rect);
-                POINT Point {0, 0};
-                ClientToScreen(HWindow, &Point);
-                Rect.top += Point.y;
-                Rect.left += Point.x;
-                Rect.right += Point.x;
-                Rect.bottom += Point.y;
-                hresult = g_primarySurf.dd_surf.dd_surface->Blt(
-                    &Rect, g_pCurOffScreen->dd_surf.dd_surface,
-                    NULL, 0x1000000, &DDBltFx);
-            } else if (g_isSurfModeX) {
-                Obj79D1C0_instance.pPrimaryAttachedSurf->BltFast(0, 0, g_pCurOffScreen->dd_surf.dd_surface, NULL, 16 * v2_flags);
-                hresult = g_primarySurf.dd_surf.dd_surface->Flip(Obj79D1C0_instance.pPrimaryAttachedSurf, v2_flags);
+            if(patch::opengl_patch::enabled) {
+                patch::opengl_patch::flip();
+                if ((g_primarySurf.dd_surf.flags & MyDdSurface_isWindowed) != 0) {
+                    HWND HWindow = getHWindow();
+                    RECT Rect;
+                    GetClientRect(HWindow, &Rect);
+                    POINT Point {0, 0};
+                    ClientToScreen(HWindow, &Point);
+                    Rect.top += Point.y;
+                    Rect.left += Point.x;
+                    Rect.right += Point.x;
+                    Rect.bottom += Point.y;
+                    patch::opengl_patch::bltTexture(g_primarySurf, &Rect, *g_pCurOffScreen, NULL);
+                } else {
+                    RECT Rect {0, 0, g_primarySurf.surf.size.w, g_primarySurf.surf.size.h};
+                    patch::opengl_patch::bltTexture(g_primarySurf, NULL, *g_pCurOffScreen, &Rect);
+                }
+                hresult = 0;
             } else {
-                hresult = g_primarySurf.dd_surf.dd_surface->BltFast(0, 0, g_pCurOffScreen->dd_surf.dd_surface, NULL, 16 * v2_flags);
+                if ((g_primarySurf.dd_surf.flags & MyDdSurface_isWindowed) != 0) {
+                    DDBLTFX DDBltFx;
+                    memset(&DDBltFx, 0, sizeof(DDBltFx));
+                    static_assert(sizeof(DDBLTFX) == 100);
+                    DDBltFx.dwSize = sizeof(DDBLTFX);
+                    HWND HWindow = getHWindow();
+                    RECT Rect;
+                    GetClientRect(HWindow, &Rect);
+                    POINT Point {0, 0};
+                    ClientToScreen(HWindow, &Point);
+                    Rect.top += Point.y;
+                    Rect.left += Point.x;
+                    Rect.right += Point.x;
+                    Rect.bottom += Point.y;
+                    hresult = g_primarySurf.dd_surf.dd_surface->Blt(
+                            &Rect, g_pCurOffScreen->dd_surf.dd_surface,
+                            NULL, 0x1000000, &DDBltFx);
+                } else if (g_isSurfModeX) {
+                    Obj79D1C0_instance.pPrimaryAttachedSurf->BltFast(0, 0, g_pCurOffScreen->dd_surf.dd_surface, NULL, 16 * v2_flags);
+                    hresult = g_primarySurf.dd_surf.dd_surface->Flip(Obj79D1C0_instance.pPrimaryAttachedSurf, v2_flags);
+                } else {
+                    hresult = g_primarySurf.dd_surf.dd_surface->BltFast(0, 0, g_pCurOffScreen->dd_surf.dd_surface, NULL, 16 * v2_flags);
+                }
             }
             callWinEvent_ev1_ty1(g_pCurOffScreen);
         }

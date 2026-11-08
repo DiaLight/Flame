@@ -310,7 +310,10 @@ void dk2::WinEventHandlers::addHandler(
 
 void dk2::WinEventHandlers::callList(int arrNum, void *arg) {
     CRITICAL_SECTION* f60_crit_section = this->crit_section;
-    EnterCriticalSection(f60_crit_section);
+//    EnterCriticalSection(f60_crit_section);
+    {  // patch
+        if(f60_crit_section) EnterCriticalSection(f60_crit_section);
+    }
     if (arrNum != 6) {
         for(auto* cur = this->arr[arrNum].first; cur; cur = cur->next) {
             WinEventCb* cb = cur->value;

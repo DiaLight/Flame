@@ -530,7 +530,7 @@ int __cdecl dk2::CButton_handleLeftClick_changeMenu(uint32_t idx, int command, C
                 int f6033_mapIdx = comp->mapIdx_6033;
                 comp->lobbySelectedMapIdx = f6033_mapIdx;
                 comp->lobbyMapWasChanged(f6033_mapIdx);
-                loadThumbnail(comp->mapName, (MyDdSurfaceEx *) comp);
+                loadThumbnail(comp->mapName, comp);
                 int v26_wndId = comp->wndId_6016;
                 if (v26_wndId == 9) {
                     comp->f30C1E = 1;

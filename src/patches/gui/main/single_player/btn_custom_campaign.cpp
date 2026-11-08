@@ -67,7 +67,7 @@ namespace patch {
                 localSurf.lpSurface,
                 0,
                 localSurf.size.h * localSurf.lPitch);
-            dk2::setDrawSurface(&localSurf);
+            dk2::MyNBitTexture_initWithSurf(&localSurf);
             dk2::Size2i _sz {(btnSize.w - 16*6) / 6 + 16, btnSize.h};
 
             int posY_ = 0;
@@ -83,7 +83,7 @@ namespace patch {
                 area->maxY = endY_;
 
                 dk2::MySurface *surf = &_surf64_x16x30x6[j];
-                localSurf.copyAreaTo(&status, surf, area);
+                localSurf.subSurface(&status, surf, area);
                 posX = endX;
             }
 
@@ -91,7 +91,7 @@ namespace patch {
             dk2::g_FontObj1_instance.setColor(&status, &color);
 
             dk2::MySurface *textSurf = &_surf64_x16x30x6[4];
-            dk2::setDrawSurface(textSurf);
+            dk2::MyNBitTexture_initWithSurf(textSurf);
 
             textRenderer.selectMyCR(&status, 2);
             textRenderer.selectMyTR(&status, 2);
@@ -104,7 +104,7 @@ namespace patch {
             textRenderer.renderText(&status, &textAabb2, btnText_1, &dk2::g_FontObj1_instance, NULL);
 
             dk2::MySurface *hoverSurf = textSurf + 1;
-            dk2::setDrawSurface(hoverSurf);
+            dk2::MyNBitTexture_initWithSurf(hoverSurf);
             dk2::g_FontObj1_instance.setColor(&status, &front->color3031E);
             textRenderer.renderText(&status, &textAabb2, btnText_1, &dk2::g_FontObj1_instance, NULL);
 

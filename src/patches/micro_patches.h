@@ -102,6 +102,10 @@ namespace buffer_overrun_fix {
     extern bool enabled;
 }
 
+namespace bumpmapping_luminance_fix {
+    extern bool enabled;
+}
+
 namespace null_surf_fix {
     extern bool enabled;
     extern dk2::MySurface emptySurf;

@@ -17,6 +17,9 @@
 #include "patches/replace_mouse_dinput_to_user32.h"
 #include "patches/show_wireframe.h"
 #include "patches/use_wheel_to_zoom.h"
+#include "patches/opengl/opengl_patch.h"
+#include "dk2/engine/scene/MyDdSurface_flags.h"
+
 #if __has_include(<dk2_research.h>)
 #include <dk2_research.h>
 #endif
@@ -48,7 +51,9 @@ namespace dk2 {
         self->created = 0;
         BullfrogWindow_destroy();
         DestroyWindow(self->hWnd);
-        BullfrogWindow_create(&status, MyWindow_instance.getSelectedGuid(), 1, NULL, NULL);
+        if(!patch::opengl_patch::oneWindowOnly) {
+            BullfrogWindow_create(&status, MyWindow_instance.getSelectedGuid(), 1, NULL, NULL);
+        }
     }
 
     dk2::CWindowTest *dk2::CWindowTest::scalar_destructor(char a2) {
@@ -73,6 +78,7 @@ namespace dk2 {
 #endif
 
         // patch::BEFORE_WINDOW_PROC
+        if(patch::opengl_patch::handleInput(hWnd, Msg, wParam, lParam)) return 1;
         patch::remember_window_location_and_size::window_proc(hWnd, Msg, wParam, lParam);
         patch::replace_mouse_dinput_to_user32::emulate_dinput_from_user32(hWnd, Msg, wParam, lParam);
         patch::use_wheel_to_zoom::window_proc(hWnd, Msg, wParam, lParam);
@@ -116,11 +122,13 @@ namespace dk2 {
 
 }
 
+#define CWindowTest_class "LibWindow"
+
 int *dk2::CWindowTest::create(int *pstatus, AABB *rect) {
     WNDCLASSEXA wndClass;
     memset(&wndClass, 0, sizeof(wndClass));
     wndClass.cbSize = sizeof(wndClass);
-    if (!GetClassInfoExA(getHInstance(), "LibWindow", &wndClass)) {
+    if (!GetClassInfoExA(getHInstance(), CWindowTest_class, &wndClass)) {
         memset(&wndClass, 0, sizeof(wndClass));
         wndClass.cbSize = sizeof(wndClass);
 
@@ -133,7 +141,7 @@ int *dk2::CWindowTest::create(int *pstatus, AABB *rect) {
         wndClass.hCursor = LoadCursorA(NULL, (LPCSTR) 0x7F00);
         wndClass.hbrBackground = NULL;
         wndClass.lpszMenuName = NULL;
-        wndClass.lpszClassName = "LibWindow";
+        wndClass.lpszClassName = CWindowTest_class;
         wndClass.hIconSm = LoadIconA(getHInstance(), getLibIconName());
         RegisterClassExA(&wndClass);
     }
@@ -160,11 +168,14 @@ int *dk2::CWindowTest::create(int *pstatus, AABB *rect) {
     int try_level = 0;
     windowName.v_append(" - LibraryWindow ");
     windowName.v_append(buf);
+    LONG nWidth = windowRect.right - windowRect.left;
+    LONG nHeight = windowRect.bottom - windowRect.top;
+    patch::log::dbg("CWindowTest::create: CreateWindow(cls=\"%s\", name=\"%s\", sz=%dx%d)",
+                    CWindowTest_class, windowName.buf, nWidth, nHeight);
     HWND hWnd = CreateWindowExA(
-        0, "LibWindow", windowName.buf,
+        0, CWindowTest_class, windowName.buf,
         0xCF0000u, minX, minY,
-        windowRect.right - windowRect.left,
-        windowRect.bottom - windowRect.top,
+        nWidth, nHeight,
         NULL, NULL, getHInstance(), NULL
     );
     if (!hWnd) {
@@ -197,9 +208,17 @@ int *dk2::CWindowTest::recreateBullfrog(int *pstatus) {
     }
     HWND prevHWnd = getHWindow();
     setHWindow(this->hWnd);
-    if (*ge_dk2dd_init(&status, 640u, 480u, MyResources_instance.video_settings.display_bitnes, 0x58, NULL) < 0) {
-        patch::log::err("dd init failed");
-        return *pstatus = -1, pstatus;
+    if(patch::opengl_patch::enabled) {
+        int status;
+        if (*patch::opengl_patch::init(&status, 640u, 480u, MyResources_instance.video_settings.display_bitnes, MyDdSurface_FPUControlWord | MyDdSurface_isWindowed | MyDdSurface_3DDEVICE, NULL) < 0) {
+            patch::log::err("dd init failed");
+            return *pstatus = -1, pstatus;
+        }
+    } else {
+        if (*ge_dk2dd_init(&status, 640u, 480u, MyResources_instance.video_settings.display_bitnes, MyDdSurface_FPUControlWord | MyDdSurface_isWindowed | MyDdSurface_3DDEVICE, NULL) < 0) {
+            patch::log::err("dd init failed");
+            return *pstatus = -1, pstatus;
+        }
     }
     setHWindow(prevHWnd);
 
@@ -219,12 +238,12 @@ dk2::AABB *dk2::CWindowTest::getClientRect(AABB *a2) {
 
 
 void dk2::CWindowTest::reallocBackSurfaceToWindowSize() {
-    if ( (client_rect_initialized & 1) == 0 ) {
-        client_rect.left = 0;
-        client_rect_initialized |= 1u;
-        client_rect.top = 0;
-        client_rect.right = 0;
-        client_rect.bottom = 0;
+    if ( (g_clientRect_initialized & 1) == 0 ) {
+        g_clientRect.left = 0;
+        g_clientRect_initialized |= 1u;
+        g_clientRect.top = 0;
+        g_clientRect.right = 0;
+        g_clientRect.bottom = 0;
 //        atexit(nullsub_9);
     }
     RECT Rect;
@@ -242,29 +261,42 @@ void dk2::CWindowTest::reallocBackSurfaceToWindowSize() {
 //            Rect.bottom = Rect.top + api::g_height;
 //        }
     }
-    if (client_rect.left != Rect.left
-        || client_rect.right != Rect.right
-        || client_rect.top != Rect.top
-        || client_rect.bottom != Rect.bottom) {
+    if (g_clientRect.left != Rect.left
+        || g_clientRect.right != Rect.right
+        || g_clientRect.top != Rect.top
+        || g_clientRect.bottom != Rect.bottom) {
         GetClientRect(this->hWnd, &Rect);
-        client_rect = Rect;
+        g_clientRect = Rect;
+//        if (!patch::opengl_patch::enabled) {  // don't recreate gui surface on windows resize as in opengl mode this surf always same
+//        }
         if (this->pCurOffScreenSurf) {
             int status;
             MyDdSurface_release(&status, &this->pCurOffScreenSurf->dd_surf);
             this->pCurOffScreenSurf = NULL;
         }
     }
+
     if (!this->pCurOffScreenSurf) {
         GetClientRect(this->hWnd, &Rect);
-        int status;
-        static_assert((DDSCAPS_VIDEOMEMORY | DDSCAPS_3DDEVICE) == 0x6000u);
-        if (*MyDdSurface_createOffScreenSurface(
-                &status,
-                Rect.right - Rect.left,
-                Rect.bottom - Rect.top,
-                DDSCAPS_VIDEOMEMORY | DDSCAPS_3DDEVICE,
-                &this->offScreenSurf.dd_surf) < 0)
-            return;
+
+        if (patch::opengl_patch::enabled) {
+            Size2i size {Rect.right - Rect.left, Rect.bottom - Rect.top};
+            if(patch::opengl_patch::overrideGuiSize) {
+                size = patch::opengl_patch::calcGuiSize(size.w, size.h);
+//                size = Size2i {640, 480};
+            }
+            patch::opengl_patch::createOglTexture(this->offScreenSurf, size.w, size.h, true);
+        } else {
+            int status;
+            static_assert((DDSCAPS_VIDEOMEMORY | DDSCAPS_3DDEVICE) == 0x6000u);
+            if (*MyDdSurface_createOffScreenSurface(
+                    &status,
+                    Rect.right - Rect.left,
+                    Rect.bottom - Rect.top,
+                    DDSCAPS_VIDEOMEMORY | DDSCAPS_3DDEVICE,
+                    &this->offScreenSurf.dd_surf) < 0)
+                return;
+        }
         this->pCurOffScreenSurf = &this->offScreenSurf;
         setCurOffScreen(&this->offScreenSurf);
     }
@@ -274,27 +306,77 @@ void dk2::CWindowTest::reallocBackSurfaceToWindowSize() {
 int dk2::CWindowTest::isNeedBlt() {
     return g_isNeedBlt_fullscr;
 }
+int dk2::static_isNeedBlt() {
+    return g_isNeedBlt;
+}
+
+void dk2::MyWindow::prepareScreen() {
+    int status;
+
+    if (this->doCallInit3d)
+        this->doCallInit3d = 0;
+    if (this->recreateRequest && (!this->recreateOnPrepare || this->prepareScreenEx(
+            this->dwWidth,
+            this->dwHeight,
+            this->dwRGBBitCount,
+            this->isWindowed,
+            this->screenSwap,
+            this->screenHardware3D
+    ))) {
+        this->recreateRequest = 0;
+        this->doCallInit3d = 1;
+    }
+
+    int needBlt = MyWindow_instance.isNeedBlt();
+
+    if (this->isWindowed) {
+        this->c_window_test.copyToWindowSurf();
+    } else {
+        copyToFullscreenSurf(&status, 1);
+    }
+}
 
 void dk2::CWindowTest::copyToWindowSurf() {
     if ( g_isWinSurfCopying )
         __debugbreak();
     g_isWinSurfCopying = 1;
     callWinEvent_ev1_ty0(this->pCurOffScreenSurf);
-    POINT pt{0, 0};
-    ClientToScreen(this->hWnd, &pt);
-    RECT Rect;
-    GetClientRect(this->hWnd, &Rect);
-    RECT v6_rect {
-        pt.x + Rect.left,
-        pt.y + Rect.top,
-        pt.x + Rect.right,
-        pt.y + Rect.bottom
-    };
-    int status;
-    static_MyDdSurfaceEx_Blt(
-        &status, &g_primarySurf, &v6_rect,
-        this->pCurOffScreenSurf, NULL, 0
-    );
+    if(patch::opengl_patch::enabled) {
+        patch::opengl_patch::flip();
+        if ((g_primarySurf.dd_surf.flags & MyDdSurface_isWindowed) != 0) {
+            RECT Rect;
+            GetClientRect(getHWindow(), &Rect);
+            POINT Point {0, 0};
+            ClientToScreen(getHWindow(), &Point);
+            Rect.top += Point.y;
+            Rect.left += Point.x;
+            Rect.right += Point.x;
+            Rect.bottom += Point.y;
+            patch::opengl_patch::bltTexture(g_primarySurf, &Rect, *g_pCurOffScreen, NULL);
+        } else {
+            RECT Rect {0, 0, g_primarySurf.surf.size.w, g_primarySurf.surf.size.h};
+            patch::opengl_patch::bltTexture(g_primarySurf, NULL, *g_pCurOffScreen, &Rect);
+        }
+    } else {
+        POINT pt{0, 0};
+        ClientToScreen(this->hWnd, &pt);
+        RECT Rect;
+        {  // patch
+            Rect = {0,0,0,0};  // fix: initialize in case of GetClientRect failure
+        }
+        GetClientRect(this->hWnd, &Rect);
+        RECT v6_rect {
+                pt.x + Rect.left,
+                pt.y + Rect.top,
+                pt.x + Rect.right,
+                pt.y + Rect.bottom
+        };
+        int status;
+        static_MyDdSurfaceEx_Blt(
+                &status, &g_primarySurf, &v6_rect,
+                this->pCurOffScreenSurf, NULL, 0
+        );
+    }
     callWinEvent_ev1_ty1(this->pCurOffScreenSurf);
     g_isWinSurfCopying = 0;
 }
@@ -320,27 +402,48 @@ int *dk2::CWindowTest::fillWithColor(int *pstatus, RECT *a3_rect, Bgraf *a4_bgra
 int *dk2::CWindowTest::probably_do_show_window_ev0_7(int *pstatus, AABB *rect) {
     int status;
 
-    if (this->created) {
-        if (this->pCurOffScreenSurf) {
-            MyDdSurface_release(&status, &this->pCurOffScreenSurf->dd_surf);
-            this->pCurOffScreenSurf = NULL;
-        }
-        this->created = 0;
-        BullfrogWindow_destroy();
-        DestroyWindow(this->hWnd);
-
-        GUID* guid = MyWindow_instance.getSelectedGuid();
-        BullfrogWindow_create(&status, guid, 1, NULL, NULL);
-    }
-
     AABB* v5_rect = rect;
-    if (*this->create(&status, rect) < 0) {
-        patch::log::err("create window failed");
-        return *pstatus = -1, pstatus;
-    }
+    if(patch::opengl_patch::oneWindowOnly) {
+        // do not recreate window
+        if(!this->created) {
+            if (*this->create(&status, rect) < 0) {
+                patch::log::err("create window failed");
+                return *pstatus = -1, pstatus;
+            }
+            if (*this->recreateBullfrog(&status) < 0) {
+                return *pstatus = -1, pstatus;
+            }
+        }
 
-    if (*this->recreateBullfrog(&status) < 0) {
-        return *pstatus = -1, pstatus;
+        if(patch::opengl_patch::clearSurf) {
+            // clear surfaces instead of recreate
+            if(this->pCurOffScreenSurf)
+                patch::opengl_patch::fillWithColor(*this->pCurOffScreenSurf, NULL, Bgraf {0, 0, 0, 0, 0});
+            patch::opengl_patch::fillWithColor(dk2::g_primarySurf, NULL, Bgraf {0, 0, 0, 0, 0});
+            patch::opengl_patch::fillWithColor(dk2::g_offScreen, NULL, Bgraf {0, 0, 0, 0, 0});
+        }
+    } else {
+        if (this->created) {
+            if (this->pCurOffScreenSurf) {
+                MyDdSurface_release(&status, &this->pCurOffScreenSurf->dd_surf);
+                this->pCurOffScreenSurf = NULL;
+            }
+            this->created = 0;
+            BullfrogWindow_destroy();
+            DestroyWindow(this->hWnd);
+
+            GUID* guid = MyWindow_instance.getSelectedGuid();
+            BullfrogWindow_create(&status, guid, 1, NULL, NULL);
+        }
+
+        if (*this->create(&status, rect) < 0) {
+            patch::log::err("create window failed");
+            return *pstatus = -1, pstatus;
+        }
+
+        if (*this->recreateBullfrog(&status) < 0) {
+            return *pstatus = -1, pstatus;
+        }
     }
 
     POINT screenPoint = {0, 0};
@@ -353,13 +456,19 @@ int *dk2::CWindowTest::probably_do_show_window_ev0_7(int *pstatus, AABB *rect) {
     AABB res;
     clientRect.appendPoint(&res, &screenPoint);
 
-    Bgraf color;
-    MyDdSurfaceEx_fillWithColor(
-        &status, &g_primarySurf, (RECT*) &clientRect,
-        *color.constructor(200, 200, 200, 0), 0);
-    if (status < 0) {
-        patch::log::err("MyDdSurfaceEx_fillWithColor failed");
-        return *pstatus = -1, pstatus;
+    if(patch::opengl_patch::enabled) {
+        Bgraf color;
+        patch::opengl_patch::fillWithColor(g_primarySurf, (RECT*) &clientRect, *color.constructor(200, 200, 200, 0));
+        patch::opengl_patch::setFillColor(200, 200, 200);
+    } else {
+        Bgraf color;
+        MyDdSurfaceEx_fillWithColor(
+                &status, &g_primarySurf, (RECT*) &clientRect,
+                *color.constructor(200, 200, 200, 0), 0);
+        if (status < 0) {
+            patch::log::err("MyDdSurfaceEx_fillWithColor failed");
+            return *pstatus = -1, pstatus;
+        }
     }
 
     this->reallocBackSurfaceToWindowSize();
@@ -373,9 +482,13 @@ int *dk2::CWindowTest::probably_do_show_window_ev0_7(int *pstatus, AABB *rect) {
         clientRect.maxX = desc->size.w;
         clientRect.minX = screenPoint.x;
         clientRect.maxY = desc->size.h;
-        MyDdSurfaceEx_fillWithColor(
-            &status, this->pCurOffScreenSurf, (RECT*) &clientRect,
-            Bgraf{200, 200, 200, 0xFF, 0}, 0);
+        if(patch::opengl_patch::enabled) {
+            patch::opengl_patch::fillWithColor(*this->pCurOffScreenSurf, (RECT*) &clientRect, Bgraf{200, 200, 200, 0xFF, 0});
+        } else {
+            MyDdSurfaceEx_fillWithColor(
+                &status, this->pCurOffScreenSurf, (RECT*) &clientRect,
+                Bgraf{200, 200, 200, 0xFF, 0}, 0);
+        }
     }
     callWinEvent_ev0_ty7_aq1(
         v5_rect->maxX - v5_rect->minX,

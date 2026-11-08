@@ -4,28 +4,29 @@
 
 #include "dk2_functions.h"
 #include "dk2_globals.h"
-#include "dk2/SurfaceHolder.h"
+#include "dk2/RenderStageTex.h"
 #include "dk2/MyCESurfHandle.h"
 #include "dk2/CEngineSurfaceBase.h"
 #include "dk2/CEngineDDSurface.h"
 #include "dk2/CEngineSurface.h"
 #include "dk2/Vertex18.h"
+#include "MyDirectDraw_flags.h"
 
-dk2::SurfaceHolder *__cdecl dk2::SurfaceHolder_create(uint32_t size, MyCEngineSurfDesc *desc, int a3) {
+dk2::RenderStageTex *__cdecl dk2::RenderStageTex_create(uint32_t size, MyCEngineSurfDesc *desc, int useVideoMMemory) {
     CEngineSurfaceBase *surfb;
-    if (a3) {
-        CEngineDDSurface *v3 = (CEngineDDSurface *) MyHeap_alloc(36);
-        CEngineDDSurface *v4;
-        if (v3)
-            v4 = v3->constructor(size, size, desc, 1);
-        else
-            v4 = NULL;
-        if (v4->surfCreated) {
-            if (v4)
-                v4->v_scalar_destructor(1u);
-            return NULL;
+    if (useVideoMMemory) {
+        CEngineDDSurface *surf = (CEngineDDSurface *) MyHeap_alloc(sizeof(CEngineDDSurface));
+        if (surf) {
+            surf->constructor(size, size, desc, 1);
+            if (surf->createError) {
+                if (surf)
+                    surf->v_scalar_destructor(1u);
+                return NULL;
+            }
+        } else {
+            surf = NULL;
         }
-        surfb = v4;
+        surfb = surf;
     } else {
         static_assert(sizeof(CEngineSurface) == 24);
         CEngineSurface *surf = (CEngineSurface *) MyHeap_alloc(sizeof(CEngineSurface));
@@ -34,30 +35,30 @@ dk2::SurfaceHolder *__cdecl dk2::SurfaceHolder_create(uint32_t size, MyCEngineSu
             *(void **) surf = CEngineSurfaceBase::vftable;
             surf->width = size;
             surf->height = size;
-            surf->lineWidth = desc->bytesize * size;
+            surf->pitch = desc->bytesPerPixel * size;
             *(void **) surf = CEngineSurface::vftable;
-            surf->pixels = MyHeap_alloc(desc->bytesize * size * size);
+            surf->pixels = MyHeap_alloc(desc->bytesPerPixel * size * size);
         } else {
             surf = NULL;
         }
         surfb = surf;
     }
-    SurfaceHolder *result = (SurfaceHolder *) MyHeap_alloc(0x20);
+    RenderStageTex *result = (RenderStageTex *) MyHeap_alloc(sizeof(RenderStageTex));
     if (result) {
-        result->a3 = a3;
+        result->useVideoMemory = useVideoMMemory;
         result->surf = surfb;
         result->prev_ = NULL;
         result->surfh_first = NULL;
-        result->ToDraw = NULL;
+        result->meshGroup_first = NULL;
         result->hashItem_link = 0;
     } else {
-        result = 0;
+        result = NULL;
     }
     result->_1divSize = 1.0 / (double) (int) size;
     return result;
 }
 
-int dk2::SurfaceHolder::calcWeight() {
+int dk2::RenderStageTex::calcWeight() {
     int weight = 0;
     for (MyCESurfHandle *cur = this->surfh_first; cur; cur = cur->nextByHolder) {
         int bufSize = cur->surfWidth8 * cur->surfHeight8;
@@ -75,8 +76,8 @@ int dk2::SurfaceHolder::calcWeight() {
     return weight;
 }
 
-void dk2::SurfaceHolder::drawSpecial_128x128(float x, float y) {
-    if ((MyDirectDraw_instance.flags & 1) != 0) {
+void dk2::RenderStageTex::drawSpecial_128x128(float x, float y) {
+    if ((MyDirectDraw_instance.flags & MyDirectDraw_isSoftware3D_MMX) != 0) {
         this->drawSpecial_128x128_mgsr(x, y);
     } else {
         DWORD alphablendEnable;
@@ -88,7 +89,7 @@ void dk2::SurfaceHolder::drawSpecial_128x128(float x, float y) {
 
         MyDirectDraw_instance_devTexture.d3d3_halDevice->SetRenderState(D3DRENDERSTATE_ZFUNC, 8);
         MyDirectDraw_instance_devTexture.d3d3_halDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, 0);
-        if ((MyDirectDraw_instance.flags & 1) != 0) {
+        if ((MyDirectDraw_instance.flags & MyDirectDraw_isSoftware3D_MMX) != 0) {
             mgsr_lockedBuf_dw256x256 = (uint32_t *) this->surf->v_lockBuf();
         } else {
             CEngineDDSurface *fC_ddsurf = (CEngineDDSurface *) this->surf;
@@ -170,8 +171,8 @@ void dk2::SurfaceHolder::drawSpecial_128x128(float x, float y) {
     }
 }
 
-int dk2::SurfaceHolder::drawSpecial_128x128_mgsr(float x, float y) {
-    if ((MyDirectDraw_instance.flags & 1) != 0) {
+int dk2::RenderStageTex::drawSpecial_128x128_mgsr(float x, float y) {
+    if ((MyDirectDraw_instance.flags & MyDirectDraw_isSoftware3D_MMX) != 0) {
         mgsr_lockedBuf_dw256x256 = (uint32_t *) this->surf->v_lockBuf();
     } else {
         CEngineDDSurface *fC_surf = (CEngineDDSurface *) this->surf;
@@ -186,23 +187,23 @@ int dk2::SurfaceHolder::drawSpecial_128x128_mgsr(float x, float y) {
 
     h[0].x = (__int64) f16_x;
     h[0].y = (__int64) f16_y;
-    h[0].texX = 0;
-    h[0].texY = 0;
+    h[0].texU = 0;
+    h[0].texV = 0;
 
     h[1].x = (__int64) (f16_x - -2048.0);
     h[1].y = h[0].y;
-    h[1].texX = 0x7FFF;
-    h[1].texY = 0;
+    h[1].texU = 0x7FFF;
+    h[1].texV = 0;
 
     h[2].x = h[1].x;
     h[2].y = (__int64) (f16_y - -2048.0);
-    h[2].texX = 0x7FFF;
-    h[2].texY = 0x7FFF;
+    h[2].texU = 0x7FFF;
+    h[2].texV = 0x7FFF;
 
     h[3].x = h[0].x;
     h[3].y = h[2].y;
-    h[3].texX = 0;
-    h[3].texY = 0x7FFF;
+    h[3].texU = 0;
+    h[3].texV = 0x7FFF;
 
     for (int i = 0; i < 4; ++i) {
         h[i].multi = -1;

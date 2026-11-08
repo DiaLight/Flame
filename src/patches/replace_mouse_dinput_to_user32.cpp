@@ -170,24 +170,35 @@ void patch::replace_mouse_dinput_to_user32::emulate_dinput_from_user32(HWND hWnd
     switch (Msg) {
         case WM_SIZE: {
             RECT clientRect;
-            GetClientRect(hWnd, &clientRect);
-            clientSize = {clientRect.right - clientRect.left, clientRect.bottom - clientRect.top};
+            if(GetClientRect(hWnd, &clientRect)) {
+                clientSize = {clientRect.right - clientRect.left, clientRect.bottom - clientRect.top};
+            }
 //            clientSize = {LOWORD(lParam), HIWORD(lParam)};
             break;
         }
         case WM_MOUSEMOVE: {
             if(appIsActive) {
                 POINT mousePos;
-                GetCursorPos(&mousePos);
-                ScreenToClient(hWnd, &mousePos);
-//                POINT mousePos = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
-                handle_mouse_move(hWnd, mousePos);
+                if(GetCursorPos(&mousePos) && ScreenToClient(hWnd, &mousePos)) {
+//                    POINT mousePos = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+                    handle_mouse_move(hWnd, mousePos);
+                }
             }
             break;
         }
         case WM_ACTIVATEAPP:
             if (wParam) {  // activated
                 appIsActive = true;
+                {  // HyPpAa fix
+                    if(!dk2::MyWindow_instance.isWindowed) {
+                        HMODULE ntdll = GetModuleHandleA("ntdll.dll");
+                        if (ntdll && GetProcAddress(ntdll, "wine_get_version")) {
+                            int screenW = GetSystemMetrics(SM_CXSCREEN);
+                            int screenH = GetSystemMetrics(SM_CYSCREEN);
+                            SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, screenW, screenH, SWP_NOACTIVATE | SWP_SHOWWINDOW);
+                        }
+                    }
+                }
             } else {  // deactivated
                 appIsActive = false;
             }

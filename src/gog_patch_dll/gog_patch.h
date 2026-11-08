@@ -14,7 +14,7 @@ namespace gog {
     namespace RtGuiView_fix {
         bool isEnabled();
     }
-    namespace SurfaceHolder_setTexture_patch {
+    namespace RenderStageTex_setTexture_patch {
         bool isEnabled();
     }
 

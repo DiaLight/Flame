@@ -6,6 +6,7 @@
 #include <dk2_functions.h>
 #include <dk2/button/CClickButton.h>
 #include <dk2/gui/CGuiManager.h>
+#include <dk2/components/CFrontEndComponent.h>
 
 dk2::CClickButton *dk2::CClickButton::handleClick(CDefaultPlayerInterface *a2) {
     CWindow *f51_pWindow; // eax
@@ -45,5 +46,34 @@ dk2::CClickButton *dk2::CClickButton::handleClick(CDefaultPlayerInterface *a2) {
                 this->field_41 = 0;
             return 0;
         }
+    }
+}
+
+void __cdecl dk2::CClickButton_renderExitBtn(CClickButton *a1, CFrontEndComponent *front) {
+    int status;
+    if (!front->isUseFe3d) return;
+    AABB aabb;
+    memset(&aabb, 0, sizeof(aabb));
+    AABB tmp;
+    aabb = *((CButton *) a1)->getScreenAABB(&tmp);
+    AABB *pAabb = front->cgui_manager.scaleAabb_2560_1920(&tmp, &aabb);
+    aabb = *pAabb;
+    if (a1->f5D_isVisible != 1) return;
+    if (a1->f3D__isPressed) {
+        MySurface_static_copy(
+                &status,
+                &front->surf65_btnRenderOut,
+                pAabb->minX, pAabb->minY,
+                &front->CancelClick_surf,
+                0, 0);
+    } else if (a1->f45_containsCursor) {
+        MySurface_static_copy(
+                &status,
+                &front->surf65_btnRenderOut,
+                pAabb->minX, pAabb->minY,
+                &front->CancelOver_surf,
+                0, 0);
+    } else {
+        MySurface_static_copy(&status, &front->surf65_btnRenderOut, pAabb->minX, pAabb->minY, &front->Cancel_surf, 0, 0);
     }
 }

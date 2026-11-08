@@ -7,24 +7,17 @@
 #include "dk2_memory.h"
 #include "dk2/sound/TbSysCommand_Process.h"
 #include "dk2/entities/CPlayer.h"
-#include "math/int_float.h"
+#include "dk2/MyFoundThingResult.h"
+#include "math/q12_utils.h"
+
 
 int dk2::MyGameSession::tick(int a2_isNeedBlt) {
     int try_level;
 
-    dk2ex::Vec3if actionLoc {0, 0, 0};
+    Vec3q12 actionLoc = Q12_encode(0, 0, 0);
     if (this->pBridge) {
         CCamera *cam = this->pBridge->v_fD0_getCamera();
-        Vec3i pos {
-                cam->arrx3__worldCameraPos.x + cam->arrx3_D74.x,
-                cam->arrx3__worldCameraPos.y + cam->arrx3_D74.y,
-                cam->arrx3__worldCameraPos.z + cam->arrx3_D74.z,
-        };
-        actionLoc = {
-                (uint32_t) pos.x,
-                (uint32_t) pos.y,
-                (uint32_t) pos.z,
-        };
+        actionLoc = cam->location + cam->locationOffset;
     }
     g_MySound_ptr->v_sub_567290((uint32_t *) &actionLoc);
     if (MyResources_instance.gameCfg.useFe2d_unk1)
@@ -46,23 +39,15 @@ int dk2::MyGameSession::tick(int a2_isNeedBlt) {
         GameActionCtx actions;
         memset(&actions, 0, sizeof(GameActionCtx));
         for_each_construct<GameAction, true>(actions.actionArr, 16);
-        dk2ex::Vec3if v70 {0, 0, 0};
+        Vec3q12 v70 = Q12_encode(0, 0, 0);
         try_level = 0;
         int v71 = 0;
         while (this->pCommunication->v_collectActions(&actions)) {
             DWORD f284_inMenu = this->inMenu;
             if (this->pBridge) {
                 CCamera *cam = this->pBridge->v_fD0_getCamera();
-                Vec3i pos {
-                        cam->arrx3__worldCameraPos.x + cam->arrx3_D74.x,
-                        cam->arrx3__worldCameraPos.y + cam->arrx3_D74.y,
-                        cam->arrx3__worldCameraPos.z + cam->arrx3_D74.z,
-                };
-                v70 = {
-                        (uint32_t) pos.x,
-                        (uint32_t) pos.y,
-                        (uint32_t) pos.z,
-                };
+                Vec3q12 pos = cam->location + cam->locationOffset;
+                v70 = pos;
             }
             MyResources_instance.packetRecord.write(&actions, (uint32_t *) &v70);
             if (MyResources_instance.gameCfg.useFe_playMode == 1
@@ -303,17 +288,17 @@ int dk2::MyGameSession::tick(int a2_isNeedBlt) {
         CBridge *v39 = this->pBridge;
         DWORD f284_inMenu_ = TimeMs;
         if (v39->v_f38_tryReinit3d()) {
-            this->gameTick278_last = this->gameTick;
+            this->camArgs.gameTick278_last = this->gameTick;
             CCommunicationInterface *v40 = this->pCommunication;
             if (v40) {
                 if (!this->inMenu) {
                     unsigned int mspt = 1000u / this->gameTicksPerSecond;
-                    this->tickPercent256 = (v40->sub_521C80() << 8) / mspt;
+                    this->camArgs.tickPercent256 = (v40->sub_521C80() << 8) / mspt;
                 }
             } else {
-                this->tickPercent256 = 0;
+                this->camArgs.tickPercent256 = 0;
             }
-            this->pBridge->v_f2C_maybe_cameraFun(&this->gameTick278_last);
+            this->pBridge->v_f2C_updateCameraState(&this->camArgs);
             if (this->pPlayer) {
                 if (this->pBridge->v_f40_enableSmth()) {
                     this->pPlayer->v_f14_renderGameMap();

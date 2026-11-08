@@ -9,6 +9,8 @@
 #include <dk2/utils/AABB.h>
 #include "dk2_functions.h"
 #include "dk2_globals.h"
+#include "dk2/CEngineDDSurface.h"
+#include "patches/opengl/opengl_patch.h"
 
 #include <CImg.h>
 #include <string>
@@ -19,7 +21,7 @@ using namespace cimg_library;
 void println(dk2::CEngineSurface &surf) {
     printf("cengsurf: %dx%d pitch:%d bpp:%d bitmask:{%08X %08X %08X %08X} isbpp:%d surf:%p\n",
            surf.width, surf.height,
-           surf.lineWidth,
+           surf.pitch,
            surf.fC_desc->desc.dwRGBBitCount,
            surf.fC_desc->desc.dwRBitMask,
            surf.fC_desc->desc.dwGBitMask,
@@ -27,6 +29,18 @@ void println(dk2::CEngineSurface &surf) {
            surf.fC_desc->desc.dwRGBAlphaBitMask,
            surf.fC_desc->desc.isBytePerPixel,
            surf.pixels
+    );
+}
+void println(dk2::CEngineSurfaceBase &surf) {
+    printf("cengsurf: %dx%d pitch:%d bpp:%d bitmask:{%08X %08X %08X %08X} isbpp:%d\n",
+           surf.width, surf.height,
+           surf.pitch,
+           surf.fC_desc->desc.dwRGBBitCount,
+           surf.fC_desc->desc.dwRBitMask,
+           surf.fC_desc->desc.dwGBitMask,
+           surf.fC_desc->desc.dwBBitMask,
+           surf.fC_desc->desc.dwRGBAlphaBitMask,
+           surf.fC_desc->desc.isBytePerPixel
     );
 }
 void println(dk2::MySurface &surf) {
@@ -57,8 +71,9 @@ void println(DDSURFACEDESC &desc) {
 void println(CImg<unsigned char> &img) {
     int w = img.width();
     int h = img.height();
+    int z = img.depth();
     int c = img.spectrum();
-    printf("cimg: %dx%d channels:%d\n", w, h, c);
+    printf("cimg: %dx%dx%d channels:%d\n", w, h, z, c);
 }
 void println(dk2::AABB aabb) {
     printf("aabb: %dx%d,%dx%d\n", aabb.minX, aabb.minY, aabb.maxX, aabb.maxY);
@@ -86,25 +101,52 @@ void println(dk2::MyDdSurfaceEx &ddSurface) {
 
 
 
-CImg<unsigned char> from_argb(int width, int height, int pitch, void *data) {
+CImg<unsigned char> from_bgra32(int width, int height, int pitch, void *data) {
     CImg<unsigned char> img(
         width, height,
         1,4,
         0
     );
 
-    auto *line = (uint8_t *) data;
+    auto *lineSrc = (uint8_t *) data;
     for (int y = 0; y < height; ++y) {
-      auto *pos = (uint32_t *) line;
-      for (int x = 0; x < width; ++x) {
-        uint32_t px = *pos;
-        img(x, y, 0, 0) = (px >> 16) & 0xFF;
-        img(x, y, 0, 1) = (px >> 8) & 0xFF;
-        img(x, y, 0, 2) = (px >> 0) & 0xFF;
-        img(x, y, 0, 3) = (px >> 24) & 0xFF;
-        pos++;
-      }
-      line += pitch;
+        for (int x = 0; x < width; ++x) {
+            auto *src = (uint8_t *) &lineSrc[x * 4];
+            uint8_t b = src[0];
+            uint8_t g = src[1];
+            uint8_t r = src[2];
+            uint8_t a = src[3];
+            img(x, y, 0, 0) = r;
+            img(x, y, 0, 1) = g;
+            img(x, y, 0, 2) = b;
+            img(x, y, 0, 3) = a;
+        }
+        lineSrc += pitch;
+    }
+    return img;
+}
+
+CImg<unsigned char> from_rgba32(int width, int height, int pitch, void *data) {
+    CImg<unsigned char> img(
+        width, height,
+        1,4,
+        0
+    );
+
+    auto *lineSrc = (uint8_t *) data;
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            auto *src = (uint8_t *) &lineSrc[x * 4];
+            uint8_t r = src[0];
+            uint8_t g = src[1];
+            uint8_t b = src[2];
+            uint8_t a = src[3];
+            img(x, y, 0, 0) = r;
+            img(x, y, 0, 1) = g;
+            img(x, y, 0, 2) = b;
+            img(x, y, 0, 3) = a;
+        }
+        lineSrc += pitch;
     }
     return img;
 }
@@ -128,7 +170,7 @@ CImg<unsigned char> toimg_error(int width, int height) {
     return img;
 }
 CImg<unsigned char> toimg(dk2::MySurface &surf) {
-    if (surf.desc.dwRGBBitCount == 32) return from_argb(surf.size.w, surf.size.h, surf.lPitch, surf.lpSurface);
+    if (surf.desc.dwRGBBitCount == 32) return from_bgra32(surf.size.w, surf.size.h, surf.lPitch, surf.lpSurface);
     printf("[toimg error] ");
     println(surf);
     return toimg_error(surf.size.w, surf.size.h);
@@ -141,7 +183,7 @@ CImg<unsigned char> toimg(dk2::MyDdSurface &surf) {
     HRESULT result;
     result = surf.dd_surface->Lock(NULL, &desc, DDLOCK_WAIT | DDLOCK_SURFACEMEMORYPTR, NULL);
     if(desc.ddpfPixelFormat.dwRGBBitCount == 32) {
-        img = from_argb(desc.dwWidth, desc.dwHeight, desc.lPitch, desc.lpSurface);
+        img = from_bgra32(desc.dwWidth, desc.dwHeight, desc.lPitch, desc.lpSurface);
     } else {
         printf("[toimg error] ");
         println(desc);
@@ -158,12 +200,12 @@ CImg<unsigned char> toimg(dk2::MyDdSurfaceEx &ddSurface) {
     return toimg(ddSurface.dd_surf);
 }
 
-CImg<unsigned char> toimg_raw(dk2::CEngineSurface &esurf) {
+CImg<unsigned char> toimg_raw(dk2::CEngineSurfaceBase &esurf) {
     uint32_t sz;
     if(void *buf = esurf.v_lockBuf()) {
         CImg<unsigned char> img;
         if(esurf.fC_desc->desc.dwRGBBitCount == 32) {
-            img = from_argb(esurf.width, esurf.height, esurf.lineWidth, buf);
+            img = from_bgra32(esurf.width, esurf.height, esurf.pitch, buf);
         } else {
             printf("[toimg error] ");
             println(esurf);
@@ -173,23 +215,26 @@ CImg<unsigned char> toimg_raw(dk2::CEngineSurface &esurf) {
         return img;
     }
     if(void *buf = esurf.v_getBufWithSize(&sz)) {
-        if (esurf.fC_desc->desc.dwRGBBitCount == 32) return from_argb(esurf.width, esurf.height, esurf.lineWidth, buf);
+        if (esurf.fC_desc->desc.dwRGBBitCount == 32) return from_bgra32(esurf.width, esurf.height, esurf.pitch, buf);
     }
-    if (esurf.fC_desc->desc.dwRGBBitCount == 32) return from_argb(esurf.width, esurf.height, esurf.lineWidth, esurf.pixels);
+    if(esurf.getVtbl() == dk2::CEngineSurface::vftable) {
+        auto *esurf1 = (dk2::CEngineSurface *) &esurf;
+        if (esurf.fC_desc->desc.dwRGBBitCount == 32) return from_bgra32(esurf.width, esurf.height, esurf.pitch, esurf1->pixels);
+    }
     printf("[toimg error] ");
     println(esurf);
     return toimg_error(esurf.width, esurf.height);
 }
-CImg<unsigned char> toimg(dk2::CEngineSurface &esurf) {
+CImg<unsigned char> toimg(dk2::CEngineSurfaceBase &esurf) {
     CImg<unsigned char> img;
     char buf[sizeof(dk2::CEngineSurface)];
     dk2::CEngineSurface &surf = *(dk2::CEngineSurface *) buf;
-    surf.fC_desc = &dk2::MyCEngineSurfDesc_argb32_instance;
+    surf.fC_desc = &dk2::MyCEngineSurfDesc_bgra32_instance;
     *(void **) &surf = dk2::CEngineSurface::vftable;
     surf.width = esurf.width;
     surf.height = esurf.height;
-    surf.lineWidth = esurf.width * dk2::MyCEngineSurfDesc_argb32_instance.bytesize;
-    surf.pixels = dk2::MyHeap_alloc(surf.height * surf.lineWidth);
+    surf.pitch = esurf.width * dk2::MyCEngineSurfDesc_bgra32_instance.bytesPerPixel;
+    surf.pixels = dk2::MyHeap_alloc(surf.height * surf.pitch);
     if(esurf.v_copySurf(&surf, 0, 0)) {
         img = toimg_raw(surf);
     } else {
@@ -224,33 +269,39 @@ void show(CImg<unsigned char> &img, const char *title, int scale, int timeout) {
     const CImg<> fg_a = scaled.get_shared_channel(3);  // Only Alpha part of the foreground.
 
     CImg<unsigned char> draw = fg_rgb;
-    CImgDisplay disp(draw,title,0);
+    std::string stitle = title;
+    {
+        stitle.push_back(' ');
+        stitle += std::to_string(img.width());
+        stitle.push_back('x');
+        stitle += std::to_string(img.height());
+    }
+    CImgDisplay disp(draw,stitle.c_str(),0);
     int x = (CImgDisplay::screen_width() - disp.width()) / 2;
     int y = (CImgDisplay::screen_height() - disp.height()) / 2;
     disp.move(x, y);
 //    disp.move(50, 50);
-    int i = 0;
+    int tick = 0;
     while (!disp.is_closed() && !disp.is_keyESC() && !disp.is_keyQ()) {
         // Handle display window resizing (if any)
         if (disp.is_resized()) {
             disp.resize().display(scaled);
         }
-        draw_alpha(draw, 8 * scale, i * scale / 10);
+        draw_alpha(draw, 8 * scale, tick * scale / 10);
         draw.draw_image(0, 0, fg_rgb, fg_a, 1, 255);
         disp.display(draw);
 
         // Temporize event loop
         cimg::wait(20);
-        i++;
+        tick++;
         if(timeout != -1 && (GetTickCount() - startMs) > timeout) break;
     }
     if(!disp.is_closed()) disp.close();
     cimg::wait(40);
 }
 
-void show(CImgList<unsigned char> &imgs, const char *title, int timeout) {
+void show(CImgList<unsigned char> &imgs, const char *title, int scale, int timeout) {
     DWORD startMs = GetTickCount();
-    int scale = 4;
     CImgList<unsigned char> scaleds(imgs.size());
     for (int i = 0; i < imgs.size(); ++i) {
         CImg<unsigned char> &img = imgs[i];
@@ -302,26 +353,93 @@ void show(CImgList<unsigned char> &imgs, const char *title, int timeout) {
     if(!disp.is_closed()) disp.close();
     cimg::wait(40);
 }
+struct ImgWithTitle {
+    CImg<unsigned char> img;
+    std::string title;
+};
+void show_sep(std::vector<ImgWithTitle> &iwts, int scale, int timeout) {
+    DWORD startMs = GetTickCount();
+    CImgList<unsigned char> scaleds(iwts.size());
+    for (int i = 0; i < iwts.size(); ++i) {
+        CImg<unsigned char> &img = iwts[i].img;
+        scaleds[i] = img.get_resize(img.width() * scale, img.height() * scale, img.depth(), img.spectrum());
+    }
+    CImgList<unsigned char> fgs_rgb(iwts.size());
+    for (int i = 0; i < iwts.size(); ++i) {
+        CImg<unsigned char> &scaled = scaleds[i];
+        fgs_rgb[i] = scaled.get_shared_channels(0, 2);  // Only RGB part of the foreground.
+    }
+    CImgList<unsigned char> fgs_a(iwts.size());
+    for (int i = 0; i < iwts.size(); ++i) {
+        CImg<unsigned char> &scaled = scaleds[i];
+        fgs_a[i] = scaled.get_shared_channel(3);  // Only Alpha part of the foreground.
+    }
 
-void dump(int width, int height, int pitch, void *data, const char *title, int timeout) {
-    CImg<unsigned char> img = from_argb(width, height, pitch, data);
-    show(img, title, 4, timeout);
+    CImgList<unsigned char> draws(iwts.size());
+    for (int i = 0; i < iwts.size(); ++i) {
+        draws[i] = fgs_rgb[i];
+    }
+    std::vector<CImgDisplay> displays;
+    int x = 50;
+    for (int i = 0; i < iwts.size(); ++i) {
+        auto &disp = displays.emplace_back(draws[i], iwts[i].title.c_str(), 0);
+        // disp.move(50, 50);
+        // disp.move(x, 50);
+        // x += draws[i].width() + 12;
+    }
+    int tick = 0;
+    while (true) {
+        bool hasDisplay = false;
+        for (int i = 0; i < iwts.size(); ++i) {
+            auto &disp = displays[i];
+            if(disp.is_closed()) continue;
+            if(disp.is_keyESC() || disp.is_keyQ()) {
+                disp.close();
+                continue;
+            }
+            hasDisplay = true;
+            if (disp.is_resized()) {
+                disp.resize().display(scaleds[i]);
+            }
+
+            auto &draw = draws[i];
+            draw_alpha(draw, 8 * scale, tick * scale / 10);
+            draw.draw_image(0, 0, fgs_rgb[i], fgs_a[i], 1, 255);
+            disp.display(draws[i]);
+        }
+        if(!hasDisplay) break;
+
+        // Temporize event loop
+        cimg::wait(20);
+        tick++;
+        if(timeout != -1 && (GetTickCount() - startMs) > timeout) break;
+    }
+    cimg::wait(40);
 }
-void dump(dk2::MySurface &surf, const char *title, int timeout) {
+
+void dump(int width, int height, int pitch, void *data, const char *title, int scale, int timeout) {
+    CImg<unsigned char> img = from_bgra32(width, height, pitch, data);
+    char buf[256];
+    snprintf(buf, 256, "%s %p", title, data);
+    show(img, buf, 4, timeout);
+}
+void dump(dk2::MySurface &surf, const char *title, int scale, int timeout) {
     println(surf);
     CImg<unsigned char> img = toimg(surf);
-    show(img, title, 4, timeout);
+    char buf[256];
+    snprintf(buf, 256, "%s %p", title, surf.lpSurface);
+    show(img, buf, 4, timeout);
 }
-void dump(dk2::MySurface &surf1, dk2::MySurface &surf2, const char *title, int timeout) {
+void dump(dk2::MySurface &surf1, dk2::MySurface &surf2, const char *title, int scale, int timeout) {
     println(surf1);
     println(surf2);
     CImgList<unsigned char> imgs = {
         toimg(surf1),
         toimg(surf2),
     };
-    show(imgs, title, timeout);
+    show(imgs, title, 4, timeout);
 }
-void dump(dk2::MySurface &surf1, dk2::MySurface &surf2, dk2::MySurface &surf3, const char *title, int timeout) {
+void dump(dk2::MySurface &surf1, dk2::MySurface &surf2, dk2::MySurface &surf3, const char *title, int scale, int timeout) {
     println(surf1);
     println(surf2);
     println(surf3);
@@ -330,9 +448,9 @@ void dump(dk2::MySurface &surf1, dk2::MySurface &surf2, dk2::MySurface &surf3, c
         toimg(surf2),
         toimg(surf3),
     };
-    show(imgs, title, timeout);
+    show(imgs, title, 4, timeout);
 }
-void dump(std::vector<dk2::MySurface *> surfaces, const char *title, int timeout) {
+void dump(std::vector<dk2::MySurface *> surfaces, const char *title, int scale, int timeout) {
     for (auto *surf : surfaces) {
         println(*surf);
     }
@@ -340,34 +458,70 @@ void dump(std::vector<dk2::MySurface *> surfaces, const char *title, int timeout
     for (int i = 0; i < surfaces.size(); ++i) {
         imgs[i] = toimg(*surfaces[i]);
     }
-    show(imgs, title, timeout);
+    show(imgs, title, 4, timeout);
 }
 
-void dump(dk2::MyDdSurface &surf, const char *title, int timeout) {
+void dump(dk2::MyDdSurface &surf, const char *title, int scale, int timeout) {
+    if(patch::opengl_patch::enabled) return patch::opengl_patch::dumpTex(surf.dd_surface, title, scale, timeout);
     println(surf);
     CImg<unsigned char> img = toimg(surf);
-    show(img, title, 4, timeout);
+    char buf[256];
+    snprintf(buf, 256, "%s %p", title, surf.dd_surface);
+    show(img, buf, scale, timeout);
 }
 
-void dump(dk2::MyDdSurfaceEx &surf, const char *title, int timeout) {
+void dump(dk2::MyDdSurfaceEx &surf, const char *title, int scale, int timeout) {
+    if(patch::opengl_patch::enabled) return patch::opengl_patch::dumpTex(surf, title, scale, timeout);
     println(surf);
     CImg<unsigned char> img = toimg(surf);
-    show(img, title, 4, timeout);
+    char buf[256];
+    snprintf(buf, 256, "%s %p", title, surf.dd_surf.dd_surface);
+    show(img, buf, scale, timeout);
 }
 
-void dump(dk2::CEngineSurface &surf, const char *title, int timeout) {
+void dump(dk2::CEngineSurfaceBase &surf, const char *title, int scale, int timeout) {
     println(surf);
     CImg<unsigned char> img = toimg(surf);
-    show(img, title, 4, timeout);
+    show(img, title, scale, timeout);
 }
-void dump(std::vector<dk2::CEngineSurface *> &surfs, const char *title, int timeout) {
+void dump(std::vector<dk2::CEngineSurfaceBase *> &surfs, const char *title, int scale, int timeout) {
     CImgList<unsigned char> imgs;
     for (const auto& surf : surfs) {
         imgs.push_back(toimg(*surf));
     }
-    show(imgs, title, timeout);
+    show(imgs, title, 4, timeout);
 }
-void dump(const char *title, int timeout) {
+void dump_sep(std::vector<SurfWithTitle> &surfs, int scale, int timeout) {
+    std::vector<ImgWithTitle> iwts;
+    for (const auto& swt : surfs) {
+        iwts.push_back({toimg(*swt.surf), swt.title});
+    }
+    show_sep(iwts, 4, timeout);
+}
+void dump_sep(std::vector<dk2::CEngineSurfaceBase *> &surfs, const char *title, int scale, int timeout) {
+    std::vector<ImgWithTitle> iwts;
+    size_t i = 0;
+    for (const auto& surf : surfs) {
+        std::string title_s = title;
+        title_s.push_back(' ');
+        title_s += std::to_string(i++);
+        iwts.push_back({toimg(*surf), title_s});
+    }
+    show_sep(iwts, 4, timeout);
+}
+void dump(const char *title, int scale, int timeout) {
     CImg<unsigned char> img = toimg_error(32, 32);
     show(img, title, 4, timeout);
+}
+void dump_bgra32(void *data, size_t width, size_t height, size_t pitch, const char *title, int scale, int timeout) {
+    CImg<unsigned char> img = from_bgra32(width, height, pitch, data);
+    char buf[256];
+    snprintf(buf, 256, "%s %p", title, data);
+    show(img, buf, 1, timeout);
+}
+void dump_rgba32(void *data, size_t width, size_t height, size_t pitch, const char *title, int scale, int timeout) {
+    CImg<unsigned char> img = from_rgba32(width, height, pitch, data);
+    char buf[256];
+    snprintf(buf, 256, "%s %p", title, data);
+    show(img, buf, 1, timeout);
 }

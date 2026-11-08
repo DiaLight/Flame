@@ -18,6 +18,9 @@
 #include "dk2_globals.h"
 #include "patches/micro_patches.h"
 #include "patches/remember_window_location_and_size.h"
+#include "patches/opengl/opengl_patch.h"
+#include "dk2/engine/scene/MyDdSurface_flags.h"
+#include "tools/visual_debug.h"
 
 void __cdecl dk2::MyWindow_static_destroy() {
     CWindowTest_destroy(&MyWindow_instance.c_window_test);
@@ -92,52 +95,59 @@ int dk2::MyWindow::prepareScreenEx(
     if (patch::control_windowed_mode::enabled) {
         isWindowed = true;  // todo: control
     }
-    patch::log::dbg("start prepareScreen %dx%d bpp=%d w=%d ssw=%d hw=%d",
-           dwWidth, dwHeight, dwRGBBitCount, isWindowed,
-           screenSwap, screenHardware3D);
-    int sel_dd_idx = this->selected_dd_idx;
-    if (sel_dd_idx != this->last_selected_dd_idx) {
-        MyResources_instance.video_settings.writeGuidIndex(sel_dd_idx);
-        MyResources_instance.video_settings.writeGuidIndexIsDefault(0);
-        MyResources_instance.video_settings.writeGuidIndexVerifiedWorking(0);
-        if (g_isGameWindowCreated == 1) {
-            setDebugStringFun(debugMsgBox);
-            this->zbufferSurf = NULL;
-            this->c_window_test.recreate();
-            IDirect3D2 *f6D_pIDirect3D2 = this->pIDirect3D2;
-            if (f6D_pIDirect3D2) {
-                f6D_pIDirect3D2->Release();
-                this->pIDirect3D2 = NULL;
+    if(!patch::opengl_patch::oneWindowOnly) {
+        patch::log::dbg("start prepareScreen %dx%d bpp=%d w=%d ssw=%d hw=%d",
+                        dwWidth, dwHeight, dwRGBBitCount, isWindowed,
+                        screenSwap, screenHardware3D);
+        int sel_dd_idx = this->selected_dd_idx;
+        if (sel_dd_idx != this->last_selected_dd_idx) {
+            MyResources_instance.video_settings.writeGuidIndex(sel_dd_idx);
+            MyResources_instance.video_settings.writeGuidIndexIsDefault(0);
+            MyResources_instance.video_settings.writeGuidIndexVerifiedWorking(0);
+            if (g_isGameWindowCreated == 1) {
+                setDebugStringFun(debugMsgBox);
+                this->zbufferSurf = NULL;
+                this->c_window_test.recreate();
+                IDirect3D2 *f6D_pIDirect3D2 = this->pIDirect3D2;
+                if (f6D_pIDirect3D2) {
+                    f6D_pIDirect3D2->Release();
+                    this->pIDirect3D2 = NULL;
+                }
+                int status;
+                dk2wnd_cleanup(&status);
+                BullfrogWindow_destroy();
+                g_isGameWindowCreated = 0;
             }
-            int status;
-            dk2wnd_cleanup(&status);
-            BullfrogWindow_destroy();
-            g_isGameWindowCreated = 0;
-        }
-        int result = this->createWindow(0);
-        if (!result) {
-            patch::log::err("Screen Mode %d*%d (%d bpp) create window failed", dwWidth, dwHeight, dwRGBBitCount);
-            return 0;
-        }
-    }
-    if(this->last_selected_dd_idx < g_ge_ddraw_device_count) {
-        DxDeviceInfo * dev = &g_ge_ddraw_devices[this->last_selected_dd_idx];
-        bool found = false;
-        for (int ddraw_idx = 0; ddraw_idx < dev->modeListCount; ++ddraw_idx) {
-            DxModeInfo *cur = &dev->modeList[ddraw_idx];
-            if(cur->dwWidth == dwWidth && cur->dwHeight == dwHeight && cur->dwRGBBitCount == dwRGBBitCount) {
-                found = true;
-                break;
+            int result = this->createWindow(0);
+            if (!result) {
+                patch::log::err("Screen Mode %d*%d (%d bpp) create window failed", dwWidth, dwHeight, dwRGBBitCount);
+                return 0;
             }
         }
-        if(!found) {
-            patch::log::err("Screen Mode %d*%d (%d bpp) is not available", dwWidth, dwHeight, dwRGBBitCount);
-            MyWindow_log_printf(this, "Screen Mode %d*%d (%d bpp) is not available\n", dwWidth, dwHeight, dwRGBBitCount);
+        if(this->last_selected_dd_idx < g_ge_ddraw_device_count) {
+            DxDeviceInfo * dev = &g_ge_ddraw_devices[this->last_selected_dd_idx];
+            bool found = false;
             for (int ddraw_idx = 0; ddraw_idx < dev->modeListCount; ++ddraw_idx) {
-                DxModeInfo* cur = &dev->modeList[ddraw_idx];
-                patch::log::dbg("- %dx%d (%d bpp)", cur->dwWidth, cur->dwHeight, cur->dwRGBBitCount);
+                DxModeInfo *cur = &dev->modeList[ddraw_idx];
+                if(cur->dwWidth == dwWidth && cur->dwHeight == dwHeight && cur->dwRGBBitCount == dwRGBBitCount) {
+                    found = true;
+                    break;
+                }
             }
-            return 0;
+            if(!found) {
+                patch::log::err("Screen Mode %d*%d (%d bpp) is not available", dwWidth, dwHeight, dwRGBBitCount);
+                MyWindow_log_printf(this, "Screen Mode %d*%d (%d bpp) is not available\n", dwWidth, dwHeight, dwRGBBitCount);
+                for (int ddraw_idx = 0; ddraw_idx < dev->modeListCount; ++ddraw_idx) {
+                    DxModeInfo* cur = &dev->modeList[ddraw_idx];
+                    patch::log::dbg("- %dx%d (%d bpp)", cur->dwWidth, cur->dwHeight, cur->dwRGBBitCount);
+                }
+                return 0;
+            }
+        }
+    } else {
+        if(patch::opengl_patch::clearSurf) {
+            if(this->c_window_test.pCurOffScreenSurf)
+                patch::opengl_patch::fillWithColor(*this->c_window_test.pCurOffScreenSurf, NULL, Bgraf {0, 0, 0, 0, 0});
         }
     }
     for (int i = 0; i < 8; ++i) {
@@ -152,24 +162,40 @@ int dk2::MyWindow::prepareScreenEx(
     int initFlags;
     if (isFullscreen) {
         if (screenSwap_) {
-            initFlags = 1;
-            if (screenHardware3D_)
-                initFlags = 0x49;
+            if (screenHardware3D_) {
+                initFlags = 0x49;  // 0100 1001
+            } else {
+                initFlags = MyDdSurface_screenSwap;  // 0000 0001
+            }
         } else {
-            initFlags = 2;
-            if (screenHardware3D_)
-                initFlags = 0x4A;
+            if (screenHardware3D_) {
+                initFlags = 0x4A;  // 0100 1010
+            } else {
+                initFlags = 2;  // 0000 0010
+            }
         }
-    } else if (screenSwap_) {
-        initFlags = 0x11;
     } else {
-        initFlags = 0x10;
-        if (screenHardware3D_)
-            initFlags = 0x58;
+        if (screenSwap_) {
+            initFlags = MyDdSurface_isWindowed | MyDdSurface_screenSwap;  // 0001 0001
+        } else {
+            if (screenHardware3D_) {
+                initFlags = MyDdSurface_FPUControlWord | MyDdSurface_isWindowed | MyDdSurface_3DDEVICE;  // 0101 1000
+                static_assert((MyDdSurface_FPUControlWord | MyDdSurface_isWindowed | MyDdSurface_3DDEVICE) == 0x58);
+            } else {
+                initFlags = MyDdSurface_isWindowed;  // 0001 0000
+            }
+        }
     }
     if (!cmd_flag_NOSOUND && g_MySound_ptr->v_sub_567210())
         g_MySound_ptr->v_fun_5677D0();
-    this->c_window_test.recreate();
+    if(!patch::opengl_patch::oneWindowOnly) {
+        this->c_window_test.recreate();
+    } else {
+        if(patch::opengl_patch::clearSurf) {
+            if(this->c_window_test.pCurOffScreenSurf)
+                patch::opengl_patch::fillWithColor(*this->c_window_test.pCurOffScreenSurf, NULL, Bgraf {0, 0, 0, 0, 0});
+        }
+    }
     if (isWindowed) {
         int x = 50;
         int y = 50;
@@ -185,13 +211,21 @@ int dk2::MyWindow::prepareScreenEx(
         }
         patch::remember_window_location_and_size::resizeWindow(this->c_window_test.hWnd, dwWidth, dwHeight);
     } else {
-        int status;
-        if (*ge_dk2dd_init(&status, dwWidth, dwHeight, dwRGBBitCount, initFlags, 0) < 0) {
-            patch::log::err("Screen Mode %d*%d (%d bpp) dk2dd_init 1 failed", dwWidth, dwHeight, dwRGBBitCount);
-            process_win_inputs();
-            if (*ge_dk2dd_init(&status, dwWidth, dwHeight, dwRGBBitCount, initFlags, 0) < 0) {
+        if(patch::opengl_patch::enabled) {
+            int status;
+            if (*patch::opengl_patch::init(&status, dwWidth, dwHeight, dwRGBBitCount, initFlags, 0) < 0) {
                 patch::log::err("Screen Mode %d*%d (%d bpp) dk2dd_init 2 failed", dwWidth, dwHeight, dwRGBBitCount);
                 return 0;
+            }
+        } else {
+            int status;
+            if (*ge_dk2dd_init(&status, dwWidth, dwHeight, dwRGBBitCount, initFlags, 0) < 0) {
+                patch::log::err("Screen Mode %d*%d (%d bpp) dk2dd_init 1 failed", dwWidth, dwHeight, dwRGBBitCount);
+                process_win_inputs();
+                if (*ge_dk2dd_init(&status, dwWidth, dwHeight, dwRGBBitCount, initFlags, 0) < 0) {
+                    patch::log::err("Screen Mode %d*%d (%d bpp) dk2dd_init 2 failed", dwWidth, dwHeight, dwRGBBitCount);
+                    return 0;
+                }
             }
         }
     }
@@ -207,24 +241,31 @@ int dk2::MyWindow::prepareScreenEx(
     this->dwWidth = dwWidth;
     this->dwHeight = dwHeight;
     this->dwRGBBitCount = dwRGBBitCount;
-    this->_prepareScreen_a6 = screenSwap;
-    this->_prepareScreen_a7 = screenHardware3D_;
+    this->screenSwap = screenSwap;
+    this->screenHardware3D = screenHardware3D_;
     this->f18 = 0;
-    this->collect3dDevices();
+
+    if (patch::opengl_patch::enabled) {
+        this->totalDisplayMemory = 1 * 1024 * 1024 * 1024;
+    } else {
+        this->collect3dDevices();
+    }
     this->colors.init(NULL);
     setDebugStringFun(MyWindow_static_559050_parse);
-    if (MyResources_instance.video_settings.zbuffer_bitnes == 16) {
-        if (!this->createZBufferSurf(0x10u) && !this->createZBufferSurf(0x20u))
-            this->createZBufferSurf(0x18u);
-    } else if (MyResources_instance.video_settings.zbuffer_bitnes == 32
-               && !this->createZBufferSurf(0x20u)
-               && !this->createZBufferSurf(0x18u)) {
-        this->createZBufferSurf(0x10u);
+    if(!patch::opengl_patch::enabled) {
+        if (MyResources_instance.video_settings.zbuffer_bitnes == 16) {
+            if (!this->createZBufferSurf(0x10u) && !this->createZBufferSurf(0x20u))
+                this->createZBufferSurf(0x18u);
+        } else if (MyResources_instance.video_settings.zbuffer_bitnes == 32
+                   && !this->createZBufferSurf(0x20u)
+                   && !this->createZBufferSurf(0x18u)) {
+            this->createZBufferSurf(0x10u);
+        }
     }
     // move mouse to center
     Pos2i mousePos {
-        (int) this->dwWidth / 2,
-        (int) this->dwHeight / 2
+            (int) this->dwWidth / 2,
+            (int) this->dwHeight / 2
     };
     MyInputManagerCb_static_setMousePos(&mousePos);
     // direct invoke mouse updater
@@ -239,9 +280,11 @@ int dk2::MyWindow::prepareScreenEx(
     MyResources_instance.video_settings.writeGuidIndexVerifiedWorking(1);
     HWND HWindow = getHWindow();
     ij_ImmAssociateContext(HWindow, NULL);
-    patch::log::dbg("prepareScreen %dx%d bpp=%d w=%d ssw=%d hw=%d success",
-           dwWidth, dwHeight, dwRGBBitCount, isWindowed,
-           screenSwap, screenHardware3D);
+    if(!patch::opengl_patch::oneWindowOnly) {
+        patch::log::dbg("prepareScreen %dx%d bpp=%d w=%d ssw=%d hw=%d success",
+                        dwWidth, dwHeight, dwRGBBitCount, isWindowed,
+                        screenSwap, screenHardware3D);
+    }
     return 1;
 }
 
@@ -252,7 +295,7 @@ int dk2::MyWindow::prepareScreen2() {
         this->prepareScreenEx(
                 this->dwWidth, this->dwHeight,
                 this->dwRGBBitCount, this->isWindowed,
-                this->_prepareScreen_a6,
+                this->screenSwap,
                 1);
         updatePalette(dst, 0, 256);
         this->colors.init(dst);
@@ -261,7 +304,7 @@ int dk2::MyWindow::prepareScreen2() {
         this->prepareScreenEx(
                 this->dwWidth, this->dwHeight,
                 this->dwRGBBitCount, this->isWindowed,
-                this->_prepareScreen_a6,
+                this->screenSwap,
                 1);
         return this->collect3dDevices();
     }
@@ -325,7 +368,11 @@ namespace dk2 {
 }
 
 int dk2::MyWindow::init() {
-    inline_selectDrawEngine(this);
+    if(patch::opengl_patch::enabled) {
+        patch::opengl_patch::selectEngine(this);
+    } else {
+        inline_selectDrawEngine(this);
+    }
     int status;
     if (*MyInputManagerCb_static_initKeyInputs(&status) < 0) {
         patch::log::err("failed to call MyInputManagerCb_static_initKeyInputs()");
@@ -335,9 +382,11 @@ int dk2::MyWindow::init() {
         patch::log::err("failed to call MyInputManagerCb_static_initCursorInputs()");
         return 0;
     }
-    if (!this->createWindow(1)) {
-        patch::log::err("failed to call this->createWindow()");
-        return 0;
+    if(!patch::opengl_patch::oneWindowOnly) {
+        if (!this->createWindow(1)) {
+            patch::log::err("failed to call this->createWindow()");
+            return 0;
+        }
     }
     bool winCreated = this->prepareScreenEx(
         MyResources_instance.video_settings.display_width,
@@ -372,12 +421,54 @@ int dk2::MyWindow::init() {
     return 1;
 }
 
+int dk2::MyWindow::createWindow(int a2) {
+    int status;
+
+    if (g_isGameWindowCreated == 1) {
+        setDebugStringFun(debugMsgBox);
+        this->zbufferSurf = NULL;
+        this->c_window_test.recreate();
+        if (this->pIDirect3D2) {
+            this->pIDirect3D2->Release();
+            this->pIDirect3D2 = NULL;
+        }
+        dk2wnd_cleanup(&status);
+        BullfrogWindow_destroy();
+        g_isGameWindowCreated = 0;
+    }
+
+    int dd_idx = this->selected_dd_idx;
+    if (dd_idx >= this->dds_count) dd_idx = 0;
+    GUID *guid = NULL;
+    if (!this->is_empty_dd[dd_idx])
+        guid = &this->guid_arr16[dd_idx];
+    if (*BullfrogWindow_create(&status, guid, 0, 0, 0) < 0) return 0;
+
+    int _dd_idx = this->selected_dd_idx;
+    this->last_selected_dd_idx = _dd_idx;
+    int f140_useIntMouse = 0;
+    if (_dd_idx <= 0 || g_ge_ddraw_devices[_dd_idx].isVendor121A != 1)
+        f140_useIntMouse = MyResources_instance.gameCfg.useIntMouse;
+    MyResources_instance.gameCfg.f13C = f140_useIntMouse;
+    int v9 = this->isWindowed || !f140_useIntMouse;
+    MyInputManagerCb_static__cursorSetBool(v9);
+    g_isGameWindowCreated = 1;
+    return 1;
+}
+
 void dk2::MyWindow::release() {
     int status;
     if (g_isGameWindowCreated == 1) {
         setDebugStringFun(debugMsgBox);
         this->zbufferSurf = NULL;
-        this->c_window_test.recreate();
+        if(!patch::opengl_patch::oneWindowOnly) {
+            this->c_window_test.recreate();
+        } else {
+            if(patch::opengl_patch::clearSurf) {
+                if(this->c_window_test.pCurOffScreenSurf)
+                    patch::opengl_patch::fillWithColor(*this->c_window_test.pCurOffScreenSurf, NULL, Bgraf {0, 0, 0, 0, 0});
+            }
+        }
         if (IDirect3D2* d3d = this->pIDirect3D2) {
             d3d->Release();
             this->pIDirect3D2 = NULL;
@@ -418,39 +509,31 @@ void dk2::MyWindow::removeWmActivateCallback(void *ptr) {;
     }
 }
 
-int dk2::MyWindow::selectSurfToRender() {
-    MyDdSurfaceEx *pSurf;
-    if ( this->isWindowed )
-        pSurf = this->c_window_test.getCurOffScreenSurf();
-    else
-        pSurf = g_pCurOffScreen;
+dk2::MySurface *__cdecl dk2::MySurface_copyFromSurf(MySurface *a1, MyDdSurfaceEx *a2){
+    *a1 = *a2->updateDesc();
+    return a1;
+}
 
+int dk2::MyWindow::getSurf_lock() {
     int status;
-    if ( *MyDdSurfaceEx_resolveDesc(&status, pSurf, NULL) < 0 )
-        return 0;
+    MyDdSurfaceEx *surf = this->isWindowed ? this->c_window_test.getCurOffScreenSurf() : g_pCurOffScreen;
+    if (*MyDdSurfaceEx_lock(&status, surf, NULL) < 0) return 0;
 
-    MyDdSurfaceEx *CurOffScreenSurf;
-    if ( this->isWindowed )
-        CurOffScreenSurf = this->c_window_test.getCurOffScreenSurf();
-    else
-        CurOffScreenSurf = g_pCurOffScreen;
+    MyDdSurfaceEx *surf2 = this->isWindowed ? this->c_window_test.getCurOffScreenSurf() : g_pCurOffScreen;
+    MySurface_copyFromSurf(&this->surf_desc, surf2);
 
-    MySurface_copyFromSurf(&this->surf_desc, CurOffScreenSurf);
-    setDrawSurface(&this->surf_desc);
-    this->surfSelected = 1;
+    MyNBitTexture_initWithSurf(&this->surf_desc);
+    this->surfLocked = 1;
     return 1;
 }
 
 int dk2::MyWindow::getSurf_unlock() {
-    int result = this->surfSelected;
-    if (!result) return 0;
+    if (!this->surfLocked) return 0;
 
-    if (this->isWindowed) {
-        result = MyDdSurfaceEx_unlock(this->c_window_test.getCurOffScreenSurf());
-    } else {
-        result = MyDdSurfaceEx_unlock(g_pCurOffScreen);
-    }
-    this->surfSelected = 0;
+    MyDdSurfaceEx *surf = this->isWindowed ? this->c_window_test.getCurOffScreenSurf() : g_pCurOffScreen;
+    int result = MyDdSurfaceEx_unlock(surf);
+
+    this->surfLocked = 0;
     return result;
 }
 
@@ -503,13 +586,12 @@ int dk2::MyWindow::takeScreenshot() {
     }
 
     LPVOID lpSurface;
-    if (*MyDdSurfaceEx_resolveDesc(&status, CurOffScreenSurf, &lpSurface) < 0)
-        return 1;
-
-    MySurface surf;
-    surf.copySurfFrom(CurOffScreenSurf);
-    bmpSaver.save(&status, Buffer, &surf, PalleteEntry);
-    MyDdSurfaceEx_unlock(CurOffScreenSurf);
+    if (*MyDdSurfaceEx_lock(&status, CurOffScreenSurf, &lpSurface) >= 0) {
+        MySurface surf;
+        surf.copySurfFrom(CurOffScreenSurf);
+        bmpSaver.save(&status, Buffer, &surf, PalleteEntry);
+        MyDdSurfaceEx_unlock(CurOffScreenSurf);
+    }
     return 1;
 }
 
@@ -527,24 +609,25 @@ int dk2::MyWindow::createZBufferSurf(uint32_t dwMipMapCount) {
     desc.dwHeight = dwHeight;
     desc.dwMipMapCount = dwMipMapCount;
     LPDIRECTDRAW lpdd = ge_dk2dd_get(NULL);
-    LPDIRECTDRAWSURFACE *p_f275_zbufferSurf = &this->zbufferSurf;
-    if ( lpdd->CreateSurface(&desc, &this->zbufferSurf, NULL) >= 0 ) {
-        MyDdSurfaceEx *CurOffScreenSurf;
-        if ( this->isWindowed )
-            CurOffScreenSurf = this->c_window_test.getCurOffScreenSurf();
-        else
-            CurOffScreenSurf = g_pCurOffScreen;
-        if ( CurOffScreenSurf ) {
-            MyDdSurfaceEx *offscreen = this->isWindowed ? this->c_window_test.getCurOffScreenSurf() : g_pCurOffScreen;
-            LPDIRECTDRAWSURFACE lpddsurf = MyDdSurface_addRef(&offscreen->dd_surf, 0);
-            if ( lpddsurf ) {
-                if ( lpddsurf->AddAttachedSurface(*p_f275_zbufferSurf) >= 0 )
-                    return 1;
-            }
-        }
-        (*p_f275_zbufferSurf)->Release();
+    if (lpdd->CreateSurface(&desc, &this->zbufferSurf, NULL) < 0) {
+        this->zbufferSurf = NULL;
+        return 0;
     }
-    *p_f275_zbufferSurf = NULL;
+    MyDdSurfaceEx *CurOffScreenSurf;
+    if (this->isWindowed)
+        CurOffScreenSurf = this->c_window_test.getCurOffScreenSurf();
+    else
+        CurOffScreenSurf = g_pCurOffScreen;
+    if (CurOffScreenSurf) {
+        MyDdSurfaceEx *offscreen = this->isWindowed ? this->c_window_test.getCurOffScreenSurf() : g_pCurOffScreen;
+        LPDIRECTDRAWSURFACE lpddsurf = MyDdSurface_addRef(&offscreen->dd_surf, 0);
+        if (lpddsurf) {
+            if (lpddsurf->AddAttachedSurface(this->zbufferSurf) >= 0)
+                return 1;
+        }
+    }
+    this->zbufferSurf->Release();
+    this->zbufferSurf = NULL;
     return 0;
 }
 
@@ -566,15 +649,11 @@ int dk2::MyWindow::handleError(char *a2_file, int a3_line, const char *a4_text, 
         return 0;
     } else {
         if (this->isTurnErrors) {
-            status = this->surfSelected;
-            if (status) {
-                MyDdSurfaceEx* CurOffScreenSurf;
-                if (this->isWindowed)
-                    CurOffScreenSurf = this->c_window_test.getCurOffScreenSurf();
-                else
-                    CurOffScreenSurf = g_pCurOffScreen;
+            bool isLocked = this->surfLocked;
+            if (isLocked) {
+                MyDdSurfaceEx* CurOffScreenSurf = this->isWindowed ? this->c_window_test.getCurOffScreenSurf() : g_pCurOffScreen;
                 MyDdSurfaceEx_unlock(CurOffScreenSurf);
-                this->surfSelected = 0;
+                this->surfLocked = 0;
             }
             this->static_listeners.onKeyboardAction = NULL;
             this->static_listeners.onMouseAction = NULL;
@@ -586,22 +665,15 @@ int dk2::MyWindow::handleError(char *a2_file, int a3_line, const char *a4_text, 
             do {
                 this->displayError(a2_file, a3_line, a4_text, a5_text);
                 MyInputManagerCb_static_processInputs_setStaticListenersAndHandleDxActions(
-                    &this->static_listeners,
-                    0,
-                    (CComponent*) this,
-                    0);
+                    &this->static_listeners, 0, (CComponent*) this, 0);
             } while (!this->f291);
-            if (status) {
+            if (isLocked) {
                 MyDdSurfaceEx* v9_surf = this->isWindowed ? this->c_window_test.getCurOffScreenSurf() : g_pCurOffScreen;
-                if (*MyDdSurfaceEx_resolveDesc(&status, v9_surf, NULL) >= 0) {
-                    MyDdSurfaceEx* offscreen;
-                    if (this->isWindowed)
-                        offscreen = this->c_window_test.getCurOffScreenSurf();
-                    else
-                        offscreen = g_pCurOffScreen;
+                if (*MyDdSurfaceEx_lock(&status, v9_surf, NULL) >= 0) {
+                    MyDdSurfaceEx* offscreen = this->isWindowed ? this->c_window_test.getCurOffScreenSurf() : g_pCurOffScreen;
                     MySurface_copyFromSurf(&this->surf_desc, offscreen);
-                    setDrawSurface(&this->surf_desc);
-                    this->surfSelected = 1;
+                    MyNBitTexture_initWithSurf(&this->surf_desc);
+                    this->surfLocked = 1;
                 }
             }
         }
@@ -618,15 +690,11 @@ void dk2::MyWindow::displayError(char *a2_file, int a3_line, const char *a4_text
     else
         CurOffScreenSurf = g_pCurOffScreen;
     int status;
-    if (*MyDdSurfaceEx_resolveDesc(&status, CurOffScreenSurf, NULL) >= 0) {
-        MyDdSurfaceEx* v7_offscreen;
-        if (this->isWindowed)
-            v7_offscreen = this->c_window_test.getCurOffScreenSurf();
-        else
-            v7_offscreen = g_pCurOffScreen;
+    if (*MyDdSurfaceEx_lock(&status, CurOffScreenSurf, NULL) >= 0) {
+        MyDdSurfaceEx* v7_offscreen = this->isWindowed ? this->c_window_test.getCurOffScreenSurf() : g_pCurOffScreen;
         MySurface_copyFromSurf(&this->surf_desc, v7_offscreen);
-        setDrawSurface(&this->surf_desc);
-        this->surfSelected = 1;
+        MyNBitTexture_initWithSurf(&this->surf_desc);
+        this->surfLocked = 1;
         char Buffer[256];
         sprintf(Buffer, "%s(%d)[GT %d]: %s at line %d", a4_text, this->f505, g_gameTick_758044, path_getBasename(a2_file), a3_line);
         static_MyNBitTexture_f30(0, 0, Buffer, this->colors.colorWhite);
@@ -636,16 +704,61 @@ void dk2::MyWindow::displayError(char *a2_file, int a3_line, const char *a4_text
             v9_turnErrors = "ON";
         sprintf(Buffer, "[F10] Continue  [ESC] Quit  [SPACE] Debug  [E] Turn Errors %s", v9_turnErrors);
         static_MyNBitTexture_f30(0, 24, Buffer, this->colors.colorWhite);
-        if (this->surfSelected) {
+        if (this->surfLocked) {
             MyDdSurfaceEx* offscreen;
             if (this->isWindowed)
                 offscreen = this->c_window_test.getCurOffScreenSurf();
             else
                 offscreen = g_pCurOffScreen;
             MyDdSurfaceEx_unlock(offscreen);
-            this->surfSelected = 0;
+            this->surfLocked = 0;
         }
     }
     this->prepareScreen();
+}
+
+int *dk2::MyWindow::surf_Blt() {
+    int status;
+
+    int *result;
+    if (this->isWindowed) {
+        Bgraf v9_color;
+        v9_color.red = g_paletteEntries[0].peRed;
+        v9_color.green = g_paletteEntries[0].peGreen;
+        v9_color.fill = 0;
+        v9_color.blue = g_paletteEntries[0].peBlue;
+        v9_color.alpha = -1;
+        result = this->c_window_test.fillWithColor(&status, 0, &v9_color);
+    } else {
+        int v7_flags = 0;
+        Bgraf v6_color;
+        v6_color.getPalleteEntry(0);
+        MyDdSurfaceEx *CurOffScreenSurf = this->getCurOffScreenSurf();
+        result = MyDdSurfaceEx_fillWithColor(&status, CurOffScreenSurf, 0, v6_color, v7_flags);
+    }
+    LPDIRECTDRAWSURFACE f275_zbufferSurf = this->zbufferSurf;
+    if (!f275_zbufferSurf || MyResources_instance.video_settings.selected_3D_engine != 2)
+        return result;
+    unsigned int dwHeight = this->dwHeight;
+    RECT rect;
+    rect.right = this->dwWidth;
+    rect.bottom = dwHeight;
+    rect.left = 0;
+    DDBLTFX v11;
+    memset(&v11, 0, sizeof(v11));
+    rect.top = 0;
+    v11.dwSize = 100;
+    v11.dwFillColor = -1;
+    result = (int *) f275_zbufferSurf->Blt(&rect, 0, 0, 0x3000000, &v11);
+    if (result == (int *) 0x887601C2)
+        return (int *) this->zbufferSurf->Restore();
+    return result;
+}
+
+int dk2::MyWindow::isNeedBlt() {
+    if (this->isWindowed)
+        return this->c_window_test.isNeedBlt();
+    else
+        return static_isNeedBlt();
 }
 

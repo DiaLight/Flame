@@ -243,10 +243,11 @@ HRESULT FakeDirectDraw1::SetCooperativeLevel(HWND hwnd, DWORD a3) {
     }
     gog::g_hWnd = hwnd;
     HRESULT hr;
-    if (cfg::iRealFullscreen)
-        hr = orig::pIDirectDraw4->SetCooperativeLevel(hwnd, 0x11);
-    else
-        hr = orig::pIDirectDraw4->SetCooperativeLevel(hwnd, 0x8);
+    if (cfg::iRealFullscreen) {
+        hr = orig::pIDirectDraw4->SetCooperativeLevel(hwnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN);
+    } else {
+        hr = orig::pIDirectDraw4->SetCooperativeLevel(hwnd, DDSCL_NORMAL);
+    }
     if (FAILED(hr)) {
         gog_assert_failed_hr("FakeDirectDraw1::SetCooperativeLevel:1445", hr);
         return hr;

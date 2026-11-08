@@ -3,23 +3,24 @@
 //
 #include "dk2/CCamera.h"
 #include "patches/micro_patches.h"
+#include "dk2/math/q12_utils.h"
 
 
-void dk2::CCamera::zoomRel_449CA0(int delta) {
+void dk2::CCamera::zoomRel_449CA0(Q12 delta) {
     if ((this->fD92 & 8) != 0 || this->endTime) return;
-    int min = this->minZoomLevel;
-    int max = this->maxZoomLevel - 1;
+    Q12 min {.value = this->minZoomLevel };
+    Q12 max {.value = this->maxZoomLevel - 1 };
     if(patch::increase_zoom_level::enabled) {
-        max += 50000;
-        if(min > 2000) min -= 2000;
+        max.value += 50000;
+        if(min.value > 2000) min.value -= 2000;
     }
-    int newCur = delta + this->curZoomLevel;
+    Q12 newCur = delta + this->curZoomLevel;
     this->curZoomLevel = newCur;
-    if (newCur <= min)
+    if (newCur.value <= min.value)
         newCur = min;
-    if (newCur >= max) {
+    if (newCur.value >= max.value) {
         newCur = max;
-    } else if (newCur <= min) {
+    } else if (newCur.value <= min.value) {
         newCur = min;
     }
     this->curZoomLevel = newCur;

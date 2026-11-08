@@ -15,6 +15,7 @@
 #include "dk2_globals.h"
 #include "dk2_memory.h"
 #include "patches/micro_patches.h"
+#include "patches/opengl/opengl_patch.h"
 
 
 namespace dk2 {

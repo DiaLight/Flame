@@ -5,7 +5,7 @@
 #include "dk2_functions.h"
 #include "dk2_globals.h"
 #include "dk2/SurfHashList.h"
-#include "dk2/SurfaceHolder.h"
+#include "dk2/RenderStageTex.h"
 #include "dk2/MyCESurfHandle.h"
 #include "dk2/SurfHashListItem.h"
 #include "dk2/CEngineSurfaceBase.h"
@@ -16,7 +16,7 @@
 
 namespace dk2 {
 
-    int _calcWeight(SurfaceHolder *self) {
+    int _calcWeight(RenderStageTex *self) {
         // reductionLevel_andFlags
         // 0x07: reduction level
         // 0x10: added to SurfHashList
@@ -101,14 +101,14 @@ namespace dk2 {
         }
         return false;
     }
-    SurfaceHolder * SurfQuadTree_findMinValueHolder(dk2::SurfHashList* self) {
-        if(!self->holder_first) return NULL;
-        SurfaceHolder* minValueItem = self->holder_first;
+    RenderStageTex * SurfQuadTree_findMinValueHolder(dk2::SurfHashList* self) {
+        if(!self->stageTexs_first) return NULL;
+        RenderStageTex* minValueItem = self->stageTexs_first;
         int minValue = 0x10000;
         if(patch::big_resolution_fix::enabled) {
             minValue = 0x1000000;
         }
-        for (SurfaceHolder* cur = self->holder_first; cur; cur = cur->prev_) {
+        for (RenderStageTex* cur = self->stageTexs_first; cur; cur = cur->prev_) {
             int value = _calcWeight(cur);
             if (value == 0) return cur;
             if (value < minValue) {
@@ -118,7 +118,7 @@ namespace dk2 {
         }
         return minValueItem;
     }
-    void SurfQuadTree_detachHolder(dk2::SurfHashList* self, SurfaceHolder* cur) {
+    void SurfQuadTree_detachHolder(dk2::SurfHashList* self, RenderStageTex* cur) {
         // detach all surf from holder
         for (MyCESurfHandle * surf = cur->surfh_first; surf; surf = cur->surfh_first) {
             cur->surfh_first = surf->nextByHolder;
@@ -130,14 +130,14 @@ namespace dk2 {
         self->deleteItem(cur->hashItem_link);
 
         // detach from linked list
-        if (SurfaceHolder * next = cur->next_) next->prev_ = cur->prev_;
-        if (SurfaceHolder * prev = cur->prev_) prev->next_ = cur->next_;
-        if(!cur->next_) self->holder_first = cur->prev_;  // tail detach condition
+        if (RenderStageTex * next = cur->next_) next->prev_ = cur->prev_;
+        if (RenderStageTex * prev = cur->prev_) prev->next_ = cur->next_;
+        if(!cur->next_) self->stageTexs_first = cur->prev_;  // tail detach condition
         cur->next_ = NULL;
         cur->prev_ = NULL;
         // end
-        if(self->holder_first == NULL) {
-            patch::log::err("last holder was detached. looks like %d holders is not enough", self->holders_count);
+        if(self->stageTexs_first == NULL) {
+            patch::log::err("last holder was detached. looks like %d holders is not enough", self->stageTexs_count);
         }
     }
     MyCESurfHandle *_probablySort_selectReduction(MyCESurfHandle *curSurfh) {
@@ -188,8 +188,8 @@ void dk2::SurfHashList::deleteItem(SurfHashListItem *item) {
     }
 }
 
-int dk2::SurfHashList::_probablySort() {
-    SurfaceHolder* removedList = NULL;
+void dk2::SurfHashList::_probablySort() {
+    RenderStageTex* removedList = NULL;
     int isRemoveActed;
     do {
         isRemoveActed = 0;
@@ -205,7 +205,7 @@ int dk2::SurfHashList::_probablySort() {
                 continue;
             }
 
-            SurfaceHolder *found = SurfQuadTree_findMinValueHolder(this);
+            RenderStageTex *found = SurfQuadTree_findMinValueHolder(this);
             SurfQuadTree_detachHolder(this, found);
 
             // add to removed list
@@ -217,11 +217,11 @@ int dk2::SurfHashList::_probablySort() {
         }
     } while (isRemoveActed);
     while(removedList) {
-        SurfaceHolder *remNext = removedList->prev_;
-        if (this->holder_first) this->holder_first->next_ = removedList;
+        RenderStageTex *remNext = removedList->prev_;
+        if (this->stageTexs_first) this->stageTexs_first->next_ = removedList;
         removedList->next_ = NULL;
-        removedList->prev_ = this->holder_first;
-        this->holder_first = removedList;
+        removedList->prev_ = this->stageTexs_first;
+        this->stageTexs_first = removedList;
         removedList = remNext;
     }
     // update flags
@@ -231,14 +231,14 @@ int dk2::SurfHashList::_probablySort() {
         cur->curReduction->reductionLevel_andFlags &= ~8u;
         this->surfh_first = cur->nextByHashList;
     }
-    return ++SurfHashList_sortTick;
+    ++SurfHashList_sortTick;
 }
 
 
 namespace dk2 {
 
     SurfHashListItem *_SurfHashListItem_constructor(
-            SurfaceHolder *holder,
+            RenderStageTex *stageTex,
             uint8_t x, uint8_t y, uint16_t width, uint16_t height
     ) {
         SurfHashListItem *newItem = (SurfHashListItem *) MyHeap_alloc(sizeof(SurfHashListItem));
@@ -247,7 +247,7 @@ namespace dk2 {
         newItem->height_257 = height;
         newItem->x = x;
         newItem->y = y;
-        newItem->holder_link = holder;
+        newItem->holder_link = stageTex;
         newItem->next = NULL;
         newItem->prev = NULL;
         newItem->quadtree2x2[0][0] = NULL;
@@ -263,21 +263,21 @@ namespace dk2 {
 void dk2::SurfHashList::constructor(MyCEngineSurfDesc *desc, int count) {
     this->pSurfDesc = desc;
     this->squareSide_size = 256;
-    this->holders_count = 0;
+    this->stageTexs_count = 0;
     for (int idx = 0; idx < count; ++idx) {
-        SurfaceHolder *holder = SurfaceHolder_create(this->squareSide_size, this->pSurfDesc, 0);
-        if (!holder) break;
-        ++this->holders_count;
+        RenderStageTex *stageTex = RenderStageTex_create(this->squareSide_size, this->pSurfDesc, 0);
+        if (!stageTex) break;
+        ++this->stageTexs_count;
 
-        holder->next_ = NULL;
-        holder->prev_ = this->holder_first;
+        stageTex->next_ = NULL;
+        stageTex->prev_ = this->stageTexs_first;
 
-        if (SurfaceHolder * oldHolder = this->holder_first)
-            oldHolder->next_ = holder;
-        this->holder_first = holder;
+        if (RenderStageTex *oldStageTex = this->stageTexs_first)
+            oldStageTex->next_ = stageTex;
+        this->stageTexs_first = stageTex;
 
-        SurfHashListItem * item = _SurfHashListItem_constructor(holder, 0, 0, this->squareSide_size, this->squareSide_size);
-        holder->hashItem_link = item;
+        SurfHashListItem *item = _SurfHashListItem_constructor(stageTex, 0, 0, this->squareSide_size, this->squareSide_size);
+        stageTex->hashItem_link = item;
         this->putNode(item);
     }
 }
@@ -393,15 +393,15 @@ void dk2::SurfHashList::expandPut(MyCESurfHandle *surfh, SurfHashListItem *item)
             item = SurfQuadTree_expandVertical(this, item);
             continue;
         }
-        surfh->setSurfaceHolder(item->holder_link, (uint8_t) item->x, (uint8_t) item->y);
+        surfh->setRenderStageTex(item->holder_link, (uint8_t) item->x, (uint8_t) item->y);
 
-        SurfaceHolder* holder = item->holder_link;
-        surfh->nextByHolder = holder->surfh_first;
-        holder->surfh_first = surfh;
+        RenderStageTex* pStageTex = item->holder_link;
+        surfh->nextByHolder = pStageTex->surfh_first;
+        pStageTex->surfh_first = surfh;
 
         surfh->reductionLevel_andFlags |= 0x200u;
         if (surfh->cesurf == NULL) surfh->resolveSurface();
-        holder->surf->paintSurf(surfh->cesurf, (uint8_t) item->x, (uint8_t) item->y);
+        pStageTex->surf->paintSurf(surfh->cesurf, (uint8_t) item->x, (uint8_t) item->y);
         surfh->reductionLevel_andFlags &= ~0x200u;
         return;
     }

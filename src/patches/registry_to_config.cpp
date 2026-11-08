@@ -477,11 +477,11 @@ namespace registry::dk2::configuration::video {
         true
     );
 
-    define_reg_bool_option o_bumpMappingConfig(
+    define_reg_int_option o_bumpMappingConfig(
         "BumpMappingConfig",
         "registry:configuration:video:BumpMappingConfig", flame_config::OG_Config,
-        "write only. Registry value is ignored. Use command line flag -EnableBumpMapping",
-        false
+        "write only. Registry value is ignored. Use command line flag -EnableBumpMapping or -EnableBumpLuminance",
+        0
     );
 
     define_reg_guid_option o_guidDeviceGuid(

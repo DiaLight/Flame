@@ -47,10 +47,12 @@ target_compile_options(imgui PRIVATE /Gz)  # use __stdcall by default
 target_link_directories(imgui PUBLIC microsoft.dxsdk.d3dx.9.29.952.8.nupkg/build/native/release/lib/x86)
 target_include_directories(imgui PUBLIC microsoft.dxsdk.d3dx.9.29.952.8.nupkg/build/native/include)
 
-# https://github.com/nothings/stb
-add_library(stb INTERFACE stb-f1c79c0/stb_image.h)
-target_include_directories(stb INTERFACE stb-f1c79c0)
+if(DK2_OPENGL)
+    # https://github.com/nothings/stb
+    add_library(stb INTERFACE stb-f1c79c0/stb_image.h)
+    target_include_directories(stb INTERFACE stb-f1c79c0)
 
-add_subdirectory(glm-1.0.3)
+    add_subdirectory(glm-1.0.3)
 
-add_subdirectory(opengl_ext)
+    add_subdirectory(opengl_ext)
+endif ()

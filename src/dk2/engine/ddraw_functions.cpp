@@ -11,6 +11,10 @@
 #include "game_engine.h"
 #include "gog_exports.h"
 #include "gog_patch.h"
+#include "patches/logging.h"
+#include "patches/opengl/opengl_patch.h"
+#include "dk2/resources/file/MyFile.h"
+#include "dk2/engine/scene/MyDdSurface_flags.h"
 
 
 namespace dk2 {
@@ -185,7 +189,7 @@ namespace dk2 {
             } else {
                 DirectDrawCreate(lpGuid, &lpDD, NULL);
             }
-            lpDD->SetCooperativeLevel(hWindow, 21);
+            lpDD->SetCooperativeLevel(hWindow, DDSCL_EXCLUSIVE | DDSCL_NOWINDOWCHANGES | DDSCL_FULLSCREEN);
             DxDeviceInfo& dev = g_ge_ddraw_devices[g_ge_dd_index];
             dev.modeListCount = 0;
             lpDD->EnumDisplayModes(0, NULL, (LPVOID) g_ge_dd_index, [](LPDDSURFACEDESC lpDesc, LPVOID lpContext) -> HRESULT {
@@ -211,7 +215,7 @@ namespace dk2 {
                 ++dev.modeListCount;
                 return DDENUMRET_OK;
             });
-            lpDD->SetCooperativeLevel(hWindow, 8);
+            lpDD->SetCooperativeLevel(hWindow, DDSCL_NORMAL);
             lpDD->Release();
             ++g_ge_dd_index;
             return TRUE;
@@ -255,7 +259,7 @@ namespace dk2 {
     HRESULT initDisplayMode(int initFlags, DWORD coopLvl, DWORD width, DWORD height, DWORD displayBitness) {
         int hres_2 = g_dk2dd->SetCooperativeLevel(g_hWnd, coopLvl);
         if (hres_2 < 0) return hres_2;
-        if ((initFlags & 0x10) != 0) {
+        if ((initFlags & MyDdSurface_isWindowed) != 0) {
             hres_2 = g_dk2dd->CreateClipper(0, &g_lpDDClipper, NULL);
             if (hres_2 < 0) return hres_2;
             hres_2 = g_lpDDClipper->SetHWnd(0, g_hWnd);
@@ -281,17 +285,14 @@ namespace dk2 {
     ) {
         if (FPUControlWordWithState_instance.initialized)
             FPUControlWordWithState_instance.ctl.apply();
-        int flags = initFlags;
         if ((initFlags & 4) != 0) {
-            flags = initFlags | 2;
-            initFlags = flags;
+            initFlags = initFlags | 2;
         }
-        if ((flags & 0x10) != 0) {
-            if ((flags & 2) != 0) {
+        if ((initFlags & MyDdSurface_isWindowed) != 0) {
+            if ((initFlags & 2) != 0) {
                 return *pstatus = -1, pstatus;
             }
-            flags |= 1;
-            initFlags = flags;
+            initFlags |= MyDdSurface_screenSwap;
         }
         callWinEvent_ev0_ty6(0);
         ge_ddReleaseSurfaces();
@@ -306,8 +307,8 @@ namespace dk2 {
             }
             pdd = g_dk2dd;
         }
-        int status1 = initFlags & 0x10;
-        if ((initFlags & 0x10) != 0) {
+        int isWindowed = initFlags & MyDdSurface_isWindowed;
+        if ((initFlags & MyDdSurface_isWindowed) != 0) {
             DDSURFACEDESC dispMode;
             memset(&dispMode, 0, sizeof(dispMode));
             dispMode.dwSize = 0x6C;
@@ -335,11 +336,14 @@ namespace dk2 {
         Sleep(0);
         g_isNeedBlt = 1;
         g_ignore_79D3E0 = 1;
-        DWORD coopLvl = 0x51;
-        if ((initFlags & 0x10) != 0)
-            coopLvl = 8;
-        if ((initFlags & 0x40) != 0) {
-            coopLvl |= 0x800u;
+        DWORD coopLvl;
+        if ((initFlags & MyDdSurface_isWindowed) != 0) {
+            coopLvl = DDSCL_NORMAL;
+        } else {
+            coopLvl = DDSCL_ALLOWMODEX | DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN;
+        }
+        if ((initFlags & MyDdSurface_FPUControlWord) != 0) {
+            coopLvl |= DDSCL_FPUSETUP;
             FPUControlWordWithState_instance.initialized = 1;
             FPUControlWordWithState_instance.ctl.change(0x3F, 1); // extended precision and all mask
         }
@@ -376,13 +380,16 @@ namespace dk2 {
         memset(&surfaceDesc, 0, sizeof(surfaceDesc));
         surfaceDesc.dwSize = 0x6C;
         surfaceDesc.dwFlags = 1;
-        surfaceDesc.ddsCaps.dwCaps = 0x200; // DDSCAPS_PRIMARYSURFACE
+        surfaceDesc.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
+        static_assert(DDSCAPS_PRIMARYSURFACE == 0x200);
         if ((initFlags & 2) != 0) {
-            surfaceDesc.dwFlags = 0x21;
-            surfaceDesc.ddsCaps.dwCaps = 0x218; // DDSCAPS_PRIMARYSURFACE | DDSCAPS_FLIP | DDSCAPS_COMPLEX
-            surfaceDesc.dwBackBufferCount = ((initFlags & 0x80u) != 0) + 1;
+            surfaceDesc.dwFlags = DDSD_BACKBUFFERCOUNT | DDSD_CAPS;
+            static_assert((DDSD_BACKBUFFERCOUNT | DDSD_CAPS) == 0x21);
+            surfaceDesc.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_FLIP | DDSCAPS_COMPLEX;
+            static_assert((DDSCAPS_PRIMARYSURFACE | DDSCAPS_FLIP | DDSCAPS_COMPLEX) == 0x218);
+            surfaceDesc.dwBackBufferCount = ((initFlags & MyDdSurface_extraBackBuffer) != 0) + 1;
         }
-        if ((initFlags & 8) != 0) {  // can query d3device from surface
+        if ((initFlags & MyDdSurface_3DDEVICE) != 0) {  // can query d3device from surface
             surfaceDesc.ddsCaps.dwCaps |= DDSCAPS_3DDEVICE;
         }
         int hres = g_dk2dd->CreateSurface(&surfaceDesc, &g_primarySurf.dd_surf.dd_surface, 0);
@@ -390,11 +397,11 @@ namespace dk2 {
             g_primarySurf.dd_surf.dd_surface = NULL;
             if (hres == 0x88760234) {
                 g_primarySurf.dd_surf.dd_surface = NULL;
-                g_dk2dd->SetCooperativeLevel(g_hWnd, 8);
+                g_dk2dd->SetCooperativeLevel(g_hWnd, DDSCL_NORMAL);
                 ge_dk2dd_destroy();
                 return *pstatus = hres, pstatus;
             }
-            g_dk2dd->SetCooperativeLevel(g_hWnd, 8);
+            g_dk2dd->SetCooperativeLevel(g_hWnd, DDSCL_NORMAL);
 
             g_primarySurf.dd_surf.dd_surface = NULL;
             ge_dk2dd_destroy();
@@ -407,8 +414,9 @@ namespace dk2 {
             ge_dk2dd_destroy();
             return *pstatus = hres, pstatus;
         }
-        g_isSurfModeX = surfaceDesc.ddsCaps.dwCaps & 0x200000; // DDSCAPS_MODEX
-        if ((surfaceDesc.ddsCaps.dwCaps & 0x200000) != 0 && (initFlags & 1) != 0) {
+        g_isSurfModeX = surfaceDesc.ddsCaps.dwCaps & DDSCAPS_MODEX;
+        static_assert(DDSCAPS_MODEX == 0x200000);
+        if ((surfaceDesc.ddsCaps.dwCaps & DDSCAPS_MODEX) != 0 && (initFlags & MyDdSurface_screenSwap) != 0) {
             g_primarySurf.dd_surf.dd_surface->Release();
             g_primarySurf.dd_surf.dd_surface = NULL;
             surfaceDesc.dwFlags = 0x21;
@@ -438,17 +446,22 @@ namespace dk2 {
         } else {
             surfaceDesc.dwFlags = 7;
             surfaceDesc.dwHeight = height;
-            DWORD v22 = (initFlags & 0x20) != 0 ? 0x4040 : 0x840;
+            DWORD v22 = (initFlags & MyDdSurface_videoMemory) != 0
+                    ? (DDSCAPS_VIDEOMEMORY | DDSCAPS_OFFSCREENPLAIN)
+                    : (DDSCAPS_SYSTEMMEMORY | DDSCAPS_OFFSCREENPLAIN);
+            static_assert((DDSCAPS_VIDEOMEMORY | DDSCAPS_OFFSCREENPLAIN) == 0x4040);
+            static_assert((DDSCAPS_SYSTEMMEMORY | DDSCAPS_OFFSCREENPLAIN) == 0x840);
             surfaceDesc.dwWidth = width;
             surfaceDesc.ddsCaps.dwCaps = v22;
-            if ((initFlags & 8) != 0) {
-                v22 |= 0x2000u;
+            if ((initFlags & MyDdSurface_3DDEVICE) != 0) {
+                v22 |= DDSCAPS_3DDEVICE;
+                static_assert(DDSCAPS_3DDEVICE == 0x2000u);
                 surfaceDesc.ddsCaps.dwCaps = v22;
             }
             hres_3 = g_dk2dd->CreateSurface(&surfaceDesc, &g_offScreen.dd_surf.dd_surface, NULL);
         }
         if (g_offScreen.dd_surf.dd_surface) {
-            if (status1) {
+            if (isWindowed) {
                 g_primarySurf.dd_surf.dd_surface->SetClipper(g_lpDDClipper);
                 if (displayBitness != 8) {
                     MyDdSurface_constructor(&g_primarySurf.dd_surf, width, height, displayBitness, initFlags);
@@ -490,18 +503,26 @@ namespace dk2 {
         if (!g_primarySurf.dd_surf.dd_surface) return;
         callWinEvent_ev0_ty5(0);
         if (g_dk2dd)
-            g_dk2dd->SetCooperativeLevel(g_hWnd, 8);
+            g_dk2dd->SetCooperativeLevel(g_hWnd, DDSCL_NORMAL);
         if (g_offScreen.dd_surf.dd_surface) {
-            g_offScreen.dd_surf.dd_surface->Release();
-            g_offScreen.dd_surf.dd_surface = NULL;
+            if (!patch::opengl_patch::enabled) {
+                g_offScreen.dd_surf.dd_surface->Release();
+                g_offScreen.dd_surf.dd_surface = NULL;
+            } else {
+                patch::opengl_patch::releaseOglTexture(g_offScreen.dd_surf.dd_surface);
+            }
         }
         if (Obj79D1C0_instance.pPrimaryAttachedSurf) {
             Obj79D1C0_instance.pPrimaryAttachedSurf->Release();
             Obj79D1C0_instance.pPrimaryAttachedSurf = NULL;
         }
         if (g_primarySurf.dd_surf.dd_surface) {
-            g_primarySurf.dd_surf.dd_surface->Release();
-            g_primarySurf.dd_surf.dd_surface = NULL;
+            if (!patch::opengl_patch::enabled) {
+                g_primarySurf.dd_surf.dd_surface->Release();
+                g_primarySurf.dd_surf.dd_surface = NULL;
+            } else {
+                patch::opengl_patch::releaseOglTexture(g_primarySurf.dd_surf.dd_surface);
+            }
         }
         g_lpDDPalette = NULL;
         if (g_lpDDClipper) {
@@ -534,8 +555,13 @@ namespace dk2 {
 }
 
 
-//int *__cdecl dk2::MyDdSurface_createOffScreenSurface(int *pstatus, DWORD dwWidth, DWORD dwHeight, DWORD dxCaps, MyDdSurface *surf) {
 int *__cdecl dk2::MyDdSurface_createOffScreenSurface(int *pstatus, uint32_t dwWidth, uint32_t dwHeight, uint32_t dxCaps, MyDdSurface *surf) {
+    if(patch::opengl_patch::enabled) {
+        patch::log::err("should not happen");
+        throw std::exception("should not happen");
+        return *pstatus = 0, pstatus;
+    }
+
     DDSURFACEDESC surface_desc;
     static_assert(sizeof(DDSURFACEDESC) == 108);
     surface_desc.dwSize = sizeof(DDSURFACEDESC);
@@ -564,21 +590,25 @@ dk2::MySurface *dk2::MyDdSurfaceEx::updateDesc() {
     DDSURFACEDESC desc;
     static_assert(sizeof(DDSURFACEDESC) == 108);
     desc.dwSize = sizeof(DDSURFACEDESC);
-    if (this->dd_surf.dd_surface->GetSurfaceDesc(&desc) < 0)
-        return &this->surf;
-    if (!desc.lpSurface)
-        desc.lpSurface = this->surf.lpSurface;
-    this->fillDesc(&desc);
+    if(patch::opengl_patch::enabled) {
+        patch::opengl_patch::getDesc(*this, desc);
+        this->fillDesc(&desc);
+    } else {
+        if (this->dd_surf.dd_surface->GetSurfaceDesc(&desc) >= 0) {
+            if (!desc.lpSurface)
+                desc.lpSurface = this->surf.lpSurface;
+            this->fillDesc(&desc);
+        }
+    }
     return &this->surf;
 }
 
 void dk2::MyDdSurfaceEx::fillDesc(LPDDSURFACEDESC desc) {
-    DWORD dwRGBBitCount;
     this->surf.lpSurface = desc->lpSurface;
     this->surf.size.w = desc->dwWidth;
     this->surf.size.h = desc->dwHeight;
     this->surf.lPitch = desc->lPitch;
-    dwRGBBitCount = desc->ddpfPixelFormat.dwRGBBitCount;
+    DWORD dwRGBBitCount = desc->ddpfPixelFormat.dwRGBBitCount;
     if ( dwRGBBitCount == 8 ) {
         this->surf.desc.dwRGBBitCount = 8;
         this->surf.desc.isBytePerPixel = 1;
@@ -592,3 +622,64 @@ void dk2::MyDdSurfaceEx::fillDesc(LPDDSURFACEDESC desc) {
     }
 }
 
+int *__cdecl dk2::loadArtToSurfaceEx(
+        int *pstatus,
+        MyDdSurfaceEx *a2_outSurf,
+        MyDir_CFileManager *fileMan,
+        const char *Str,
+        unsigned __int16 a5_extFlags) {
+    int status;
+    MySurface mySurface;
+    mySurface.constructor_empty();
+
+    char myFileBuf[sizeof(MyFile)];
+    MyFile &myFile = *(MyFile *) myFileBuf;
+    myFile.constructor_empty();
+
+    int try_level = 0;
+    TbGraphicFileLoader *imageLoader = MyFile_openImage(&myFile, fileMan, Str, a5_extFlags);
+    if (!imageLoader || *imageLoader->readHeader((int *) &a5_extFlags, &myFile, &mySurface) < 0) {
+        try_level = -1;
+        myFile.destructor();
+        return *pstatus = -1, pstatus;
+    }
+    if (patch::opengl_patch::enabled) {
+        patch::opengl_patch::createOglTexture(*a2_outSurf, mySurface, false);
+    } else {
+        if (*MyDdSurface_createOffScreenSurface(
+                &status,
+                mySurface.size.w, mySurface.size.h,
+                DDSCAPS_SYSTEMMEMORY, &a2_outSurf->dd_surf
+        ) < 0) {
+            const char *v6 = fileMan->v_getPath();
+            sprintf(g_errorBuffer, "LoadArtToSurface failed on CreateSurface!! (%s%s)", v6, Str);
+            try_level = -1;
+            myFile.destructor();
+            return *pstatus = -1, pstatus;
+        }
+    }
+    if (*MyDdSurfaceEx_lock(&status, a2_outSurf, 0) < 0) {
+        const char *v8 = fileMan->v_getPath();
+        sprintf(g_errorBuffer, "Failed to lock surface for load of '%s%s'", v8, Str);
+        MyDdSurface_release((int *) &a5_extFlags, &a2_outSurf->dd_surf);
+        try_level = -1;
+        myFile.destructor();
+        return *pstatus = -1, pstatus;
+    }
+    MySurface_copyFromSurf(&mySurface, a2_outSurf);
+    if (*imageLoader->readBody(&status, &mySurface, &myFile, 0) < 0) {
+        if(!patch::opengl_patch::enabled) {
+            MyDdSurfaceEx_unlock(a2_outSurf);
+            MyDdSurface_release(&status, &a2_outSurf->dd_surf);
+        }
+        try_level = -1;
+        myFile.destructor();
+        return *pstatus = -1, pstatus;
+    }
+    if(!patch::opengl_patch::enabled) {
+        MyDdSurfaceEx_unlock(a2_outSurf);
+    }
+    try_level = -1;
+    myFile.destructor();
+    return *pstatus = 0, pstatus;
+}

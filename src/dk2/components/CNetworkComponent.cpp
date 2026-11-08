@@ -12,7 +12,7 @@ dk2::CComponent *dk2::CNetworkComponent::runUntilDestroy() {
     patch::log::dbg("enter CNetworkComponent");
     while (!this->is_component_destroy) {
         MyInputManagerCb_static_processInputs_setStaticListenersAndHandleDxActions(&this->static_listeners, 0, this, 0);
-        if (MyWindow_instance.selectSurfToRender()) {
+        if (MyWindow_instance.getSurf_lock()) {
             static_MyNBitTexture_f30(0, 0, "Network Component", MyWindow_instance.colors.colorWhite);
             static_MyNBitTexture_f30(0, 32, "ESC.Quit", MyWindow_instance.colors.colorWhite);
             ProbablyConsole_instance.drawConsole();
